@@ -200,12 +200,14 @@ type ChoiceTable struct {
 }
 
 func BuildChoiceTable(prios [][]float32, enabled map[*sys.Call]bool) *ChoiceTable {
+	// enabled is filled prior, on syz-manager startup
 	if enabled == nil {
 		enabled = make(map[*sys.Call]bool)
 		for _, c := range sys.Calls {
 			enabled[c] = true
 		}
 	}
+
 	var enabledCalls []*sys.Call
 	for c := range enabled {
 		enabledCalls = append(enabledCalls, c)
@@ -213,12 +215,17 @@ func BuildChoiceTable(prios [][]float32, enabled map[*sys.Call]bool) *ChoiceTabl
 	run := make([][]int, len(sys.Calls))
 	for i := range run {
 		if !enabled[sys.Calls[i]] {
+			// if the syscall is NOT enabled, ct.run[i] is nil
 			continue
 		}
 		run[i] = make([]int, len(sys.Calls))
 		sum := 0
 		for j := range run[i] {
 			if enabled[sys.Calls[j]] {
+				// TODO: why do we increase priority for each j?
+				// Shouldn't it be sum = ? not sum += ? Why accumulate?
+				// accumulate so each syscall has a "width" in the array
+				// proportional to its priority.
 				sum += int(prios[i][j] * 1000)
 			}
 			run[i][j] = sum
@@ -231,14 +238,25 @@ func (ct *ChoiceTable) Choose(r *rand.Rand, call int) int {
 	if ct == nil {
 		return r.Intn(len(sys.Calls))
 	}
-	if call < 0 {
+	if call < 0 { // called on fresh corpus
 		return ct.enabledCalls[r.Intn(len(ct.enabledCalls))].ID
 	}
-	run := ct.run[call]
-	if run == nil {
+	run := ct.run[call] // get array of prios for that specific call
+	if run == nil { // return random call, no prio info to judge
 		return ct.enabledCalls[r.Intn(len(ct.enabledCalls))].ID
 	}
 	for {
+		// ct is built via accumulation, so run[1 ... n] is monotonically increasing
+		// run[i+1] = run[i] + prios[i][j] * 1000
+		// we choose x to be a random number between [0, ..., run[n]]
+		// and because run is monotonically increasing, we thus have higher chance
+		// to select a call with a larger probability slice
+		// if the width of the entire array is run[n], the width of a single syscall i
+		// is prio[i][j] * 1000. Hence it takes up said percentage of the width.
+		// Thus the probability of selecting a particular syscall is equal exactly
+		// to its normalized priority. i.e. prio[a] = 5, prio[b] = 10, prio[c] = 5
+		// then run=[aaaaa,bbbbbbbbbb,cccccc], and probability of adding each syscall
+		// is .25, .5, .25, respectively.
 		x := r.Intn(run[len(run)-1])
 		i := sort.SearchInts(run, x)
 		if !ct.enabled[sys.Calls[i]] {

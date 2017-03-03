@@ -67,7 +67,7 @@ var Shutdown = make(chan struct{})
 
 // Create creates and boots a new VM instance.
 func Create(typ string, cfg *Config) (Instance, error) {
-	ctor := ctors[typ]
+	ctor := ctors[typ] // vm startup function in vm/type/type.go
 	if ctor == nil {
 		return nil, fmt.Errorf("unknown instance type '%v'", typ)
 	}

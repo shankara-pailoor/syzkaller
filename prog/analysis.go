@@ -121,6 +121,7 @@ func foreachSubargImpl(arg *Arg, parent *[]*Arg, f func(arg, base *Arg, parent *
 			if _, ok := arg.Type.(*sys.StructType); ok {
 				parent1 = &arg.Inner
 			}
+			// recursively build out parentsMap for inner args
 			rec(arg1, base, parent1)
 		}
 		if arg.Kind == ArgPointer && arg.Res != nil {

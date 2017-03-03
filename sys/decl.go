@@ -430,6 +430,10 @@ func (t *UnionType) Align() uintptr {
 	return align
 }
 
+/* short for creators
+key: resource kind
+value: all calls that return resource of this kind
+ */
 var ctors = make(map[string][]*Call)
 
 // ResourceConstructors returns a list of calls that can create a resource of the given kind.
