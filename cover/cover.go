@@ -130,6 +130,7 @@ func Minimize(corpus []Cover) []int {
 	covered := make(map[uint32]struct{})
 	for _, inp := range inputs {
 		hit := false
+		// loop accumulates all Covers that touch at least 1 new PC
 		for _, pc := range inp.cov {
 			if !hit {
 				if _, ok := covered[pc]; !ok {
@@ -142,6 +143,7 @@ func Minimize(corpus []Cover) []int {
 			}
 		}
 	}
+	// min is the list of indices of covers that hit new PCs
 	return min
 }
 

@@ -1,6 +1,8 @@
 // Copyright 2015/2016 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
+// called by extract.sh to build sys/sys_xxx64.go files
+
 package main
 
 import (
@@ -43,6 +45,7 @@ func main() {
 			failf("failed to open input file: %v", err)
 		}
 		defer inf.Close()
+		// concatenate all sys/*.txt files together into single reader
 		r = io.MultiReader(r, bufio.NewReader(inf))
 	}
 

@@ -57,7 +57,7 @@ func Parse(in io.Reader) *Description {
 	resources := make(map[string]Resource)
 	var str *Struct
 	for p.Scan() {
-		if p.EOF() || p.Char() == '#' {
+		if p.EOF() || p.Char() == '#' { // ignore comments
 			continue
 		}
 		if str != nil {

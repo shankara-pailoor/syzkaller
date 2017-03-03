@@ -19,7 +19,7 @@ import (
 // This code is left here to convert old corpuses to the new format.
 // It needs to be delete in Mar 2017.
 func convertPersistentToDB(persistentDir, dbFilename string) error {
-	if _, err := os.Stat(persistentDir); err != nil {
+	if _, err := os.Stat(persistentDir); err != nil { // persistent not found, make corpus.db from scratch
 		return nil
 	}
 	persistentCorpus := newPersistentSet(persistentDir, func(data []byte) bool {
