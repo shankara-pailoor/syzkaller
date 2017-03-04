@@ -181,6 +181,12 @@ func Deserialize(data []byte) (prog *Prog, err error) {
 	if err := prog.validate(); err != nil {
 		return nil, err
 	}
+  for _,c := range prog.Calls {
+      for _,arg := range c.Args {
+          fmt.Printf("len(%v|%v) = %v\n%v\n", arg.Type, arg.Kind, len(arg.Uses), arg.Uses)
+      }
+  }
+
 	return
 }
 
