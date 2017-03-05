@@ -64,7 +64,7 @@ include <linux/ioprio.h>
 
 
 
-
+# write breaks on the first, and AT_FDCWD is current working directory
 resource fd[int32]: 0xffffffffffffffff, AT_FDCWD
 resource fd_dir[fd]
 
@@ -76,7 +76,7 @@ creat(file ptr[in, filename], mode flags[open_mode]) fd
 close(fd fd)
 read(fd fd, buf buffer[out], count len[buf]) len[buf]
 pread64(fd fd, buf buffer[out], count len[buf], pos fileoff)
-readv(fd fd, vec ptr[in, array[iovec_out]], vlen len[vec])
+readv(fd fd, vec ptr[in, array[iovec_out]], vlen len[vec])m
 preadv(fd fd, vec ptr[in, array[iovec_out]], vlen len[vec], off fileoff)
 write(fd fd, buf buffer[in], count len[buf]) len[buf]
 pwrite64(fd fd, buf buffer[in], count len[buf], pos fileoff)
@@ -245,6 +245,7 @@ mq_getsetattr(mqd fd_mq, attr ptr[in, mq_attr], oldattr ptr[out, mq_attr, opt])
 mq_unlink(name ptr[in, string])
 
 mknod(file ptr[in, filename], mode flags[mknod_mode], dev int32)
+mknod$loop(file ptr[in, filename], mode flags[mknod_mode], dev proc[1792, 2])
 mknodat(dirfd fd_dir, file ptr[in, filename], mode flags[mknod_mode], dev int32)
 chmod(file ptr[in, filename], mode flags[open_mode])
 fchmod(fd fd, mode flags[open_mode])
@@ -330,8 +331,7 @@ getdents64(fd fd_dir, ent buffer[out], count len[ent])
 name_to_handle_at(fd fd_dir, file ptr[in, filename], handle ptr[in, file_handle], mnt ptr[out, int32], flags flags[name_to_handle_at_flags])
 open_by_handle_at(mountdirfd fd, handle ptr[in, file_handle], flags flags[open_flags])
 
-mount(src ptr[in, filename], dst ptr[in, filename], type ptr[in, string[filesystem]], flags flags[mount_flags], data buffer[in])
-mount$fs(src ptr[in, string[filesystem]], dst ptr[in, filename], type ptr[in, string[filesystem]], flags flags[mount_flags], data buffer[in])
+mount(src ptr[in, filename], dst ptr[in, filename], type ptr[in, string[filesystem]], flags flags[mount_flags], data buffer[in, opt])
 umount2(path ptr[in, filename], flags flags[umount_flags])
 pivot_root(new_root ptr[in, filename], put_old ptr[in, filename])
 
@@ -853,7 +853,7 @@ fiemap_extent {
 
 uffdio_api {
 	api	const[UFFD_API, int64]
-	featur	const[0, int64]
+	featur	flags[uffdio_features, int64]
 	ioctls	const[0, int64]
 }
 
@@ -1003,6 +1003,7 @@ ioctl_int_out = FIOQSIZE, FIGETBSZ
 fiemap_flags = FIEMAP_FLAG_SYNC, FIEMAP_FLAG_XATTR, FIEMAP_FLAG_CACHE
 fiemap_extent_flags = FIEMAP_EXTENT_LAST, FIEMAP_EXTENT_UNKNOWN, FIEMAP_EXTENT_DELALLOC, FIEMAP_EXTENT_ENCODED, FIEMAP_EXTENT_DATA_ENCRYPTED, FIEMAP_EXTENT_NOT_ALIGNED, FIEMAP_EXTENT_DATA_INLINE, FIEMAP_EXTENT_DATA_TAIL, FIEMAP_EXTENT_UNWRITTEN, FIEMAP_EXTENT_MERGED, FIEMAP_EXTENT_SHARED
 getrandom_flags = GRND_NONBLOCK, GRND_RANDOM
+uffdio_features = UFFD_FEATURE_PAGEFAULT_FLAG_WP, UFFD_FEATURE_EVENT_FORK, UFFD_FEATURE_EVENT_REMAP, UFFD_FEATURE_EVENT_REMOVE, UFFD_FEATURE_MISSING_HUGETLBFS, UFFD_FEATURE_MISSING_SHMEM, UFFD_FEATURE_EVENT_UNMAP, UFFD_FEATURE_EVENT_EXIT
 
 
 

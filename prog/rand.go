@@ -406,9 +406,10 @@ func (r *randGen) createResource(s *state, res *sys.ResourceType) (arg *Arg, cal
 
 	kind := res.Desc.Name
 	if r.oneOf(1000) {
-		// Spoof resource subkind.
+		// Spoof resource subkind by setting kind to
+		// random resource with overlapping 'kind' param
 		var all []string
-		for kind1 := range sys.Resources {
+		for kind1 := range sys.Resources /* map[string]*prog.ResourceDesc */{
 			if sys.IsCompatibleResource(res.Desc.Kind[0], kind1) {
 				all = append(all, kind1)
 			}
@@ -416,14 +417,15 @@ func (r *randGen) createResource(s *state, res *sys.ResourceType) (arg *Arg, cal
 		kind = all[r.Intn(len(all))]
 	}
 	// Find calls that produce the necessary resources.
-	metas0 := sys.ResourceConstructors(kind)
+	metas0 := sys.ResourceConstructors(kind) // all calls that return resources of "kind"
 	// TODO: reduce priority of less specialized ctors.
 	var metas []*sys.Call
 	for _, meta := range metas0 {
+		// s.ct.run[i] is nil if i is a disabled syscall
 		if s.ct == nil || s.ct.run[meta.ID] == nil {
 			continue
 		}
-		metas = append(metas, meta)
+		metas = append(metas, meta) // append metas if ct has prio array
 	}
 	if len(metas) == 0 {
 		return constArg(res, res.Default()), nil
@@ -434,8 +436,8 @@ func (r *randGen) createResource(s *state, res *sys.ResourceType) (arg *Arg, cal
 		// Generate one of them.
 		meta := metas[r.Intn(len(metas))]
 		calls := r.generateParticularCall(s, meta)
-		s1 := newState(s.ct)
-		s1.analyze(calls[len(calls)-1])
+		s1 := newState(s.ct) // create new state object
+		s1.analyze(calls[len(calls)-1]) // check the last call generated
 		// Now see if we have what we want.
 		var allres []*Arg
 		for kind1, res1 := range s1.resources {
@@ -446,6 +448,8 @@ func (r *randGen) createResource(s *state, res *sys.ResourceType) (arg *Arg, cal
 		if len(allres) != 0 {
 			// Bingo!
 			arg := resultArg(res, allres[r.Intn(len(allres))])
+			/* &Arg{Type: t, Kind: ArgResult, Res: r} */
+			// ArgResult ==> this arg is the result of some other call(s)
 			return arg, calls
 		}
 		switch meta.Name {
@@ -537,6 +541,8 @@ func (r *randGen) nOutOf(n, outOf int) bool {
 
 func (r *randGen) generateCall(s *state, p *Prog) []*Call {
 	call := -1
+
+	/* choose a random syscall in program, loop 5 times to decrease prob of getting mmap */
 	if len(p.Calls) != 0 {
 		for i := 0; i < 5; i++ {
 			c := p.Calls[r.Intn(len(p.Calls))].Meta
@@ -547,7 +553,11 @@ func (r *randGen) generateCall(s *state, p *Prog) []*Call {
 			}
 		}
 	}
+	// if len(p.Calls) == 0, start from fresh corpus, get a completely random syscall
+	// else call = a specific call already present in program
+	// In this latter case, we choose a syscall with probability exactly proprotional to its prio[i][j]
 	meta := sys.Calls[s.ct.Choose(r.Rand, call)]
+	// now with this seed call, we generate a list of calls.
 	return r.generateParticularCall(s, meta)
 }
 
@@ -556,9 +566,11 @@ func (r *randGen) generateParticularCall(s *state, meta *sys.Call) (calls []*Cal
 		Meta: meta,
 		Ret:  returnArg(meta.Ret),
 	}
+	// recurivsely build these calls bottom up, with
+	// the seed call c being called last
 	c.Args, calls = r.generateArgs(s, meta.Args)
 	assignSizesCall(c)
-	calls = append(calls, c)
+	calls = append(calls, c) // append the seed call to the END of calls slice.
 	for _, c1 := range calls {
 		sanitizeCall(c1)
 	}
@@ -590,10 +602,11 @@ func GenerateAllSyzProg(rs rand.Source) *Prog {
 
 func (r *randGen) generateArgs(s *state, types []sys.Type) ([]*Arg, []*Call) {
 	var calls []*Call
-	args := make([]*Arg, len(types))
+	args := make([]*Arg, len(types)) // need to convert []Types into []*Args
 
 	// Generate all args. Size args have the default value 0 for now.
 	for i, typ := range types {
+		// generate args randomly, pass in the type you want the call to return
 		arg, calls1 := r.generateArg(s, typ)
 		if arg == nil {
 			panic(fmt.Sprintf("generated arg is nil for type '%v', types: %+v", typ.Name(), types))
@@ -637,9 +650,9 @@ func (r *randGen) generateArg(s *state, typ sys.Type) (arg *Arg, calls []*Call) 
 					allres = append(allres, res1...)
 				}
 			}
-			if len(allres) != 0 {
+			if len(allres) != 0 { // randomly choose an existing resource from state s
 				arg = resultArg(a, allres[r.Intn(len(allres))])
-			} else {
+			} else { // else make one from stratch
 				arg, calls = r.createResource(s, a)
 			}
 		case r.nOutOf(10, 11):

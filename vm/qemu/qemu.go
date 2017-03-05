@@ -327,14 +327,15 @@ func (inst *instance) Run(timeout time.Duration, stop <-chan bool, command strin
 	}
 	inst.merger.Add("ssh", rpipe)
 
+	// append syz-fuzzer and syz-executor commands
 	args := append(inst.sshArgs("-p"), "root@localhost", command)
 	if inst.cfg.Debug {
 		Logf(0, "running command: ssh %#v", args)
 	}
-	cmd := exec.Command("ssh", args...)
+	cmd := exec.Command("ssh", args...) // build Command struct
 	cmd.Stdout = wpipe
 	cmd.Stderr = wpipe
-	if err := cmd.Start(); err != nil {
+	if err := cmd.Start(); err != nil { // run command
 		wpipe.Close()
 		return nil, nil, err
 	}

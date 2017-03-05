@@ -1,6 +1,8 @@
 // Copyright 2015/2016 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
+// called by extract.sh to build sys/sys_xxx64.go files
+
 package main
 
 import (
@@ -43,6 +45,7 @@ func main() {
 			failf("failed to open input file: %v", err)
 		}
 		defer inf.Close()
+		// concatenate all sys/*.txt files together into single reader
 		r = io.MultiReader(r, bufio.NewReader(inf))
 	}
 
@@ -291,6 +294,9 @@ func generateStructFields(str Struct, key structKey, desc *Description, consts m
 	fmt.Fprintf(out, "func() { s := Structs[\"%v\"].(*%v)\n", key, typ)
 	for _, a := range str.Flds {
 		fmt.Fprintf(out, "s.%v = append(s.%v, ", fields, fields)
+		// a[0] = name of field
+		// a[1] = type of field
+		// a[2:] = type-options
 		generateArg(str.Name, a[0], a[1], key.dir, a[2:], desc, consts, false, true, out)
 		fmt.Fprintf(out, ")\n")
 	}
@@ -310,11 +316,14 @@ func generateStructs(desc *Description, consts map[string]uint64, out io.Writer)
 
 	structMap := make(map[structKey]Struct)
 	for _, str := range desc.Structs {
+		// each struct generate 3 struct keys [str.name, "". {in|out|inout}]
 		for _, dir := range []string{"in", "out", "inout"} {
-			structMap[structKey{str.Name, "", dir}] = str
+			structMap[structKey{str.Name, "" /*field*/, dir /*ArgDir*/}] = str
 		}
 		for _, a := range str.Flds {
+			// if there is a nested struct
 			if innerStr, ok := desc.Structs[a[1]]; ok {
+				// generate 3 struct keys [str.name, str.parent, {in|out|inout}]
 				for _, dir := range []string{"in", "out", "inout"} {
 					structMap[structKey{a[1], a[0], dir}] = innerStr
 				}

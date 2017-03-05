@@ -194,6 +194,16 @@ int main(int argc, char** argv)
 	while (waitpid(-1, &status, __WALL) != pid) {
 	}
 	status = WEXITSTATUS(status);
+	// If an external sandbox process wraps executor, the out pipe will be closed
+	// before the sandbox process exits this will make ipc package kill the sandbox.
+	// As the result sandbox process will exit with exit status 9 instead of the executor
+	// exit status (notably kRetryStatus). Consequently, ipc will treat it as hard
+	// failure rather than a temporal failure. So we duplicate the exit status on the pipe.
+	char tmp = status;
+	if (write(kOutPipeFd, &tmp, 1)) {
+		// Not much we can do, but gcc wants us to check the return value.
+	}
+	errno = 0;
 	if (status == kFailStatus)
 		fail("loop failed");
 	if (status == kErrorStatus)
@@ -616,8 +626,12 @@ void cover_enable(thread_t* th)
 	if (!flag_cover)
 		return;
 	debug("#%d: enabling /sys/kernel/debug/kcov\n", th->id);
-	if (ioctl(th->cover_fd, KCOV_ENABLE, 0))
-		fail("cover enable write failed");
+	if (ioctl(th->cover_fd, KCOV_ENABLE, 0)) {
+		// This should be fatal,
+		// but in practice ioctl fails with assorted errors (9, 14, 25),
+		// so we use exitf.
+		exitf("cover enable write failed");
+	}
 	debug("#%d: enabled /sys/kernel/debug/kcov\n", th->id);
 }
 

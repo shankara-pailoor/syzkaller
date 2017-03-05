@@ -34,7 +34,7 @@ func generateSize(arg *Arg, lenType *sys.LenType) *Arg {
 }
 
 func assignSizes(args []*Arg, parentsMap map[*Arg]*Arg) {
-	// Create a map of args and calculate size of the whole struct.
+	// Create a map of i and calculate size of the whole struct.
 	argsMap := make(map[string]*Arg)
 	for _, arg := range args {
 		if sys.IsPad(arg.Type) {
@@ -86,13 +86,17 @@ func assignSizes(args []*Arg, parentsMap map[*Arg]*Arg) {
 
 func assignSizesArray(args []*Arg) {
 	parentsMap := make(map[*Arg]*Arg)
+
 	foreachArgArray(&args, nil, func(arg, base *Arg, _ *[]*Arg) {
+		// if this argument is a struct
 		if _, ok := arg.Type.(*sys.StructType); ok {
+			// for all inner args, track parent pointer
 			for _, field := range arg.Inner {
 				parentsMap[field.InnerArg()] = arg
 			}
 		}
 	})
+	// now we have all the args and all the parents of each arg.
 	assignSizes(args, parentsMap)
 	foreachArgArray(&args, nil, func(arg, base *Arg, _ *[]*Arg) {
 		if _, ok := arg.Type.(*sys.StructType); ok {

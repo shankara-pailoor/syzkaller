@@ -126,19 +126,21 @@ func main() {
 	corpusHashes = make(map[hash.Sig]struct{})
 
 	Logf(0, "dialing manager at %v", *flagManager)
-	a := &ConnectArgs{*flagName}
-	r := &ConnectRes{}
+	a := &ConnectArgs{*flagName} // -> rpctype.ConnectArgs
+	r := &ConnectRes{}	     // -> rpctype.ConnectRes
+	// populate r, the ConnectRes struct with RpcInput, RpcCandidate, Prios
 	if err := RpcCall(*flagManager, "Manager.Connect", a, r); err != nil {
 		panic(err)
 	}
-	calls := buildCallList(r.EnabledCalls)
-	ct := prog.BuildChoiceTable(r.Prios, calls)
+	calls := buildCallList(r.EnabledCalls) // get map of enabled syscalls map[*sys.Call, bool]
+	ct := prog.BuildChoiceTable(r.Prios, calls) // get ChoiceTable which weights syscalls by priority
 	for _, inp := range r.Inputs {
-		addInput(inp)
+		addInput(inp) // deserialize RpcInputs and put programs in the syz-fuzzer corpus
 	}
 	for _, s := range r.MaxSignal {
 		maxSignal[s] = struct{}{}
 	}
+	// deserialize all RpcCandidates and put into var candidates
 	for _, candidate := range r.Candidates {
 		p, err := prog.Deserialize(candidate.Prog)
 		if err != nil {
@@ -155,13 +157,13 @@ func main() {
 		}
 	}
 
-	if r.NeedCheck {
+	if r.NeedCheck { // check if kcov exists? seems to just be basic setup checking.
 		a := &CheckArgs{Name: *flagName}
 		if fd, err := syscall.Open("/sys/kernel/debug/kcov", syscall.O_RDWR, 0); err == nil {
 			syscall.Close(fd)
 			a.Kcov = true
 		}
-		for c := range calls {
+		for c := range calls { // add all enabled syscalls to a
 			a.Calls = append(a.Calls, c.Name)
 		}
 		if err := RpcCall(*flagManager, "Manager.Check", a, nil); err != nil {
@@ -169,7 +171,7 @@ func main() {
 		}
 	}
 
-	// Manager.Connect reply can ve very large and that memory will be permanently cached in the connection.
+	// Manager.Connect reply can be very large and that memory will be permanently cached in the connection.
 	// So we do the call on a transient connection, free all memory and reconnect.
 	// The rest of rpc requests have bounded size.
 	debug.FreeOSMemory()
@@ -199,18 +201,21 @@ func main() {
 		leakCallback = nil
 	}
 	gate = ipc.NewGate(2**flagProcs, leakCallback)
+	// create needPoll channel and fill the buffer
 	needPoll := make(chan struct{}, 1)
-	needPoll <- struct{}{}
+	needPoll <- struct{}{} // this will NOT block, because needPoll has cap 1
+	// a;; subsequent sends to needPoll will block.
 	envs := make([]*ipc.Env, *flagProcs)
-	for pid := 0; pid < *flagProcs; pid++ {
-		env, err := ipc.MakeEnv(*flagExecutor, timeout, flags, pid)
+	for pid := 0; pid < *flagProcs; pid++ { // create as many syz-executor threads as specificed in cfg.procs
+		// does mmapings for inmem and outmem, symlinks syz-executor binary
+		env, err := ipc.MakeEnv(*flagExecutor /* syz-executor binary */, timeout, flags, pid)
 		if err != nil {
 			panic(err)
 		}
 		envs[pid] = env
 
 		pid := pid
-		go func() {
+		go func() { // run executor thread
 			rs := rand.NewSource(time.Now().UnixNano() + int64(pid)*1e12)
 			rnd := rand.New(rs)
 
@@ -230,17 +235,18 @@ func main() {
 					} else if len(candidates) != 0 {
 						last := len(candidates) - 1
 						candidate := candidates[last]
-						candidates = candidates[:last]
-						wakePoll := len(candidates) < *flagProcs
+						candidates = candidates[:last] // get last element from candidates global
+						// flagProcs = cfg.procs = number of parallel test processes in each VM
+						wakePoll := len(candidates) < *flagProcs // are there less candidates than we can run in parallel?
 						triageMu.Unlock()
-						if wakePoll {
+						if wakePoll { // note: default selection does not block
 							select {
 							case needPoll <- struct{}{}:
 							default:
 							}
 						}
 						Logf(1, "executing candidate: %s", candidate.p)
-						execute(pid, env, candidate.p, false, candidate.minimized, true, &statExecCandidate)
+						execute(pid, env, candidate.p /*Prog.prog*/, false, candidate.minimized, true, &statExecCandidate)
 						continue
 					} else if len(triage) != 0 {
 						last := len(triage) - 1
@@ -258,10 +264,10 @@ func main() {
 				}
 
 				corpusMu.RLock()
-				if len(corpus) == 0 || i%100 == 0 {
+				if len(corpus) == 0 || i%100 == 0 { // generates new prog every 100 executions
 					// Generate a new prog.
 					corpusMu.RUnlock()
-					p := prog.Generate(rnd, programLength, ct)
+					p := prog.Generate(rnd, programLength /* 30 */, ct)
 					Logf(1, "#%v: generated: %s", i, p)
 					execute(pid, env, p, false, false, false, &statExecGen)
 				} else {
