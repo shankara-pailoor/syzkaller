@@ -1,14 +1,14 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/google/syzkaller/prog"
-	"os"
-	"encoding/json"
-	"bufio"
 	"github.com/google/syzkaller/rpctype"
+	"os"
 
 	"sort"
 	"strconv"
@@ -16,18 +16,16 @@ import (
 
 var (
 	corpuses = flag.String("corpuses", "", "Path to file containing corpuses")
-
 )
 
-
 type ThresholdSummary struct {
-	NumHitters int
+	NumHitters           int
 	CoverageContribution int
-	AvgProgramLen float32
+	AvgProgramLen        float32
 }
 
 type CallGraph struct {
-	Name string
+	Name      string
 	Neighbors map[string]*CallGraph
 }
 
@@ -185,7 +183,7 @@ func countHeavyHitters(corpus map[string]rpctype.RpcInput, thresholds []int) {
 				if unique_pc >= t {
 					thresholdStats[i].CoverageContribution += unique_pc
 					thresholdStats[i].NumHitters += 1
-					thresholdStats[i].AvgProgramLen += (float32(len(prg.Calls))- float32(thresholdStats[i].AvgProgramLen))/float32(thresholdStats[i].NumHitters)
+					thresholdStats[i].AvgProgramLen += (float32(len(prg.Calls)) - float32(thresholdStats[i].AvgProgramLen)) / float32(thresholdStats[i].NumHitters)
 				}
 			}
 			coverageTotal += unique_pc
