@@ -1,0 +1,9018 @@
+Signal: 
+FuncName: brk
+Args: [NULL]
+
+arg 0: NULL
+Result:  0x2444000
+Signal: 
+FuncName: brk
+Args: [0x247d000]
+
+arg 0: 0x247d000
+Result:  0x247d000
+Signal: 
+FuncName: fstat
+Args: [1 {st_dev=makedev(0, 20), st_ino=3, st_mode=S_IFCHR|0600, st_nlink=1, st_uid=0, st_gid=5, st_blksize=1024, st_blocks=0, st_rdev=makedev(136, 0), st_atime=2017-03-03T00:43:36+0000.861240064, st_mtime=2017-03-03T00:43:36+0000.861240064, st_ctime=2017-03-03T00:33:01+0000.891240063}]
+
+arg 0: 1
+
+arg 1: {st_dev=makedev(0, 20), st_ino=3, st_mode=S_IFCHR|0600, st_nlink=1, st_uid=0, st_gid=5, st_blksize=1024, st_blocks=0, st_rdev=makedev(136, 0), st_atime=2017-03-03T00:43:36+0000.861240064, st_mtime=2017-03-03T00:43:36+0000.861240064, st_ctime=2017-03-03T00:33:01+0000.891240063}
+Result:  0
+Signal: 
+FuncName: write
+Args: [1 0x245c6c0:="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" 258]
+
+arg 0: 1
+
+arg 1: 0x245c6c0:="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n"
+
+arg 2: 258
+Result:  258
+Signal: 
+FuncName: write
+Args: [1 0x245c6c0:="hey there buffalo\n" 18]
+
+arg 0: 1
+
+arg 1: 0x245c6c0:="hey there buffalo\n"
+
+arg 2: 18
+Result:  18
+Signal: 
+FuncName: exit_group
+Args: [1]
+
+arg 0: 1
+Result:  ?
+--------------
+
+
+
+---------1281
+ioctl$UFFDIO_UNREGISTER: ID: 677
+NR: 16
+Name: ioctl$UFFDIO_UNREGISTER
+CallName: ioctl
+Args: [0xc420152dc0 0xc4201562a0 0xc420152e00]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_RAWMIDI_INFO: ID: 556
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_RAWMIDI_INFO
+CallName: ioctl
+Args: [0xc420147480 0xc420143c70 0xc4201474c0]
+Ret: <nil>
+
+syslog: ID: 1141
+NR: 103
+Name: syslog
+CallName: syslog
+Args: [0xc4201a42a0 0xc42019bf00 0xc4201a4310]
+Ret: <nil>
+
+syz_test$align5: ID: 1186
+NR: 1000001
+Name: syz_test$align5
+CallName: syz_test
+Args: [0xc4201a7640]
+Ret: <nil>
+
+syz_test$length13: ID: 1208
+NR: 1000001
+Name: syz_test$length13
+CallName: syz_test
+Args: [0xc4201a7b80 0xc4201a7bc0]
+Ret: <nil>
+
+syz_open_dev$admmidi: ID: 1147
+NR: 1000002
+Name: syz_open_dev$admmidi
+CallName: syz_open_dev
+Args: [0xc4201a64c0 0xc4201a49a0 0xc4201a4a10]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$SNDRV_SEQ_IOCTL_SET_CLIENT_INFO: ID: 584
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_CLIENT_INFO
+CallName: ioctl
+Args: [0xc42014c280 0xc42014aaf0 0xc42014c2c0]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_TREAD: ID: 607
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_TREAD
+CallName: ioctl
+Args: [0xc42014cd00 0xc42014b570 0xc42014cd40]
+Ret: <nil>
+
+remap_file_pages: ID: 880
+NR: 216
+Name: remap_file_pages
+CallName: remap_file_pages
+Args: [0xc42016fd40 0xc420176700 0xc420176770 0xc4201767e0 0xc420176850]
+Ret: <nil>
+
+setsockopt$SCTP_AUTH_ACTIVE_KEY: ID: 998
+NR: 54
+Name: setsockopt$SCTP_AUTH_ACTIVE_KEY
+CallName: setsockopt
+Args: [0xc42017ddc0 0xc420183490 0xc420183500 0xc42017de00 0xc420183570]
+Ret: <nil>
+
+sysfs$2: ID: 1138
+NR: 139
+Name: sysfs$2
+CallName: sysfs
+Args: [0xc4201a4150 0xc4201a41c0 0xc42019be80]
+Ret: <nil>
+
+ioctl$EVIOCREVOKE: ID: 344
+NR: 16
+Name: ioctl$EVIOCREVOKE
+CallName: ioctl
+Args: [0xc42012f200 0xc420132460 0xc42012f240]
+Ret: <nil>
+
+msgctl$MSG_INFO: ID: 773
+NR: 71
+Name: msgctl$MSG_INFO
+CallName: msgctl
+Args: [0xc420159b40 0xc4201662a0 0xc420159b80]
+Ret: <nil>
+
+semtimedop: ID: 924
+NR: 220
+Name: semtimedop
+CallName: semtimedop
+Args: [0xc420179700 0xc420179740 0xc42017a310 0xc420179780]
+Ret: <nil>
+
+syz_open_dev$random: ID: 1163
+NR: 1000002
+Name: syz_open_dev$random
+CallName: syz_open_dev
+Args: [0xc4201a6cc0 0xc4201a57a0 0xc4201a5810]
+Ret: &{{fd_random ret 1 false} 0xc420014820}
+
+setsockopt$NETLINK_NO_ENOBUFS: ID: 984
+NR: 54
+Name: setsockopt$NETLINK_NO_ENOBUFS
+CallName: setsockopt
+Args: [0xc42017d680 0xc420181d50 0xc420181dc0 0xc42017d6c0 0xc420181ea0]
+Ret: <nil>
+
+fcntl$dupfd: ID: 90
+NR: 72
+Name: fcntl$dupfd
+CallName: fcntl
+Args: [0xc4200fd9c0 0xc4201013b0 0xc4200fda00]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$HIDPGETCONNINFO: ID: 366
+NR: 16
+Name: ioctl$HIDPGETCONNINFO
+CallName: ioctl
+Args: [0xc42012fd40 0xc4201330a0 0xc42012fd80]
+Ret: <nil>
+
+ioctl$int_in: ID: 693
+NR: 16
+Name: ioctl$int_in
+CallName: ioctl
+Args: [0xc4201534c0 0xc420156a80 0xc420153500]
+Ret: <nil>
+
+keyctl$get_keyring_id: ID: 708
+NR: 250
+Name: keyctl$get_keyring_id
+CallName: keyctl
+Args: [0xc420157500 0xc420153b00 0xc420157570]
+Ret: <nil>
+
+poll: ID: 831
+NR: 7
+Name: poll
+CallName: poll
+Args: [0xc420169ec0 0xc42016dc00 0xc42016dc70]
+Ret: <nil>
+
+ftruncate: ID: 113
+NR: 77
+Name: ftruncate
+CallName: ftruncate
+Args: [0xc420102400 0xc420101ea0]
+Ret: <nil>
+
+openat$sw_sync: ID: 815
+NR: 257
+Name: openat$sw_sync
+CallName: openat
+Args: [0xc42016cf50 0xc420169680 0xc42016cfc0 0xc42016d030]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+write$fuse_ioctl: ID: 1270
+NR: 1
+Name: write$fuse_ioctl
+CallName: write
+Args: [0xc4201b13c0 0xc4201b1400 0xc4201adce0]
+Ret: <nil>
+
+accept$sctp: ID: 6
+NR: 43
+Name: accept$sctp
+CallName: accept
+Args: [0xc420012c40 0xc420012c80 0xc420012cc0]
+Ret: &{{sock_sctp ret 1 false} 0xc420015680}
+
+setsockopt$dccp6_int: ID: 1032
+NR: 54
+Name: setsockopt$dccp6_int
+CallName: setsockopt
+Args: [0xc420184f00 0xc420194620 0xc420194690 0xc420184f40 0xc420194770]
+Ret: <nil>
+
+time: ID: 1238
+NR: 201
+Name: time
+CallName: time
+Args: [0xc4201b0440]
+Ret: <nil>
+
+ioctl$KVM_GET_VCPU_EVENTS: ID: 432
+NR: 16
+Name: ioctl$KVM_GET_VCPU_EVENTS
+CallName: ioctl
+Args: [0xc420135a80 0xc420139730 0xc420135ac0]
+Ret: <nil>
+
+ioctl$NETROM_TIOCINQ: ID: 507
+NR: 16
+Name: ioctl$NETROM_TIOCINQ
+CallName: ioctl
+Args: [0xc42013bd40 0xc42013df10 0xc42013bd80]
+Ret: <nil>
+
+ioctl$TUNSETPERSIST: ID: 669
+NR: 16
+Name: ioctl$TUNSETPERSIST
+CallName: ioctl
+Args: [0xc4201529c0 0xc42014fdc0 0xc420152a00]
+Ret: <nil>
+
+keyctl$invalidate: ID: 713
+NR: 250
+Name: keyctl$invalidate
+CallName: keyctl
+Args: [0xc4201578f0 0xc420153e00]
+Ret: <nil>
+
+rt_sigaction: ID: 888
+NR: 13
+Name: rt_sigaction
+CallName: rt_sigaction
+Args: [0xc4201769a0 0xc420178280 0xc4201782c0 0xc420176a10 0xc420178300]
+Ret: <nil>
+
+setsockopt$BT_POWER: ID: 967
+NR: 54
+Name: setsockopt$BT_POWER
+CallName: setsockopt
+Args: [0xc42017cdc0 0xc420180150 0xc4201801c0 0xc42017ce00 0xc4201802a0]
+Ret: <nil>
+
+setsockopt$SCTP_MAX_BURST: ID: 1015
+NR: 54
+Name: setsockopt$SCTP_MAX_BURST
+CallName: setsockopt
+Args: [0xc420184640 0xc420186d90 0xc420186e00 0xc420184680 0xc420186e70]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MARK_BUFS: ID: 297
+NR: 16
+Name: ioctl$DRM_IOCTL_MARK_BUFS
+CallName: ioctl
+Args: [0xc420123ac0 0xc420128f50 0xc420123b00]
+Ret: <nil>
+
+ioctl$KVM_DEASSIGN_DEV_IRQ: ID: 406
+NR: 16
+Name: ioctl$KVM_DEASSIGN_DEV_IRQ
+CallName: ioctl
+Args: [0xc420134e00 0xc420138af0 0xc420134e40]
+Ret: <nil>
+
+ioctl$TCSETAF: ID: 614
+NR: 16
+Name: ioctl$TCSETAF
+CallName: ioctl
+Args: [0xc42014cfc0 0xc42014ba40 0xc42014d000]
+Ret: <nil>
+
+lstat: ID: 739
+NR: 6
+Name: lstat
+CallName: lstat
+Args: [0xc420158a80 0xc420158ac0]
+Ret: <nil>
+
+openat$mixer: ID: 805
+NR: 257
+Name: openat$mixer
+CallName: openat
+Args: [0xc42016c230 0xc420168f00 0xc42016c2a0 0xc42016c310]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+writev: ID: 1280
+NR: 20
+Name: writev
+CallName: writev
+Args: [0xc4201b18c0 0xc4201b1900 0xc4201b6150]
+Ret: <nil>
+
+getsockopt$SCTP_SOCKOPT_PEELOFF: ID: 206
+NR: 55
+Name: getsockopt$SCTP_SOCKOPT_PEELOFF
+CallName: getsockopt
+Args: [0xc4201123c0 0xc420114230 0xc4201142a0 0xc420112400 0xc420112440]
+Ret: <nil>
+
+ioctl$EVIOCGUNIQ: ID: 342
+NR: 16
+Name: ioctl$EVIOCGUNIQ
+CallName: ioctl
+Args: [0xc42012f100 0xc420132380 0xc42012f140]
+Ret: <nil>
+
+ioctl$KVM_GET_MP_STATE: ID: 420
+NR: 16
+Name: ioctl$KVM_GET_MP_STATE
+CallName: ioctl
+Args: [0xc420135500 0xc420139110 0xc420135540]
+Ret: <nil>
+
+open: ID: 785
+NR: 2
+Name: open
+CallName: open
+Args: [0xc420168080 0xc420166a10 0xc420166a80]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$SNDRV_TIMER_IOCTL_SELECT: ID: 603
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_SELECT
+CallName: ioctl
+Args: [0xc42014cb80 0xc42014b3b0 0xc42014cbc0]
+Ret: <nil>
+
+syz_open_dev$sg: ID: 1164
+NR: 1000002
+Name: syz_open_dev$sg
+CallName: syz_open_dev
+Args: [0xc4201a6d40 0xc4201a5880 0xc4201a58f0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+syz_open_dev$tun: ID: 1173
+NR: 1000002
+Name: syz_open_dev$tun
+CallName: syz_open_dev
+Args: [0xc4201a71c0 0xc4201ac070 0xc4201ac0e0]
+Ret: &{{fd_tun ret 1 false} 0xc420014aa0}
+
+getsockopt$NETROM_T4: ID: 167
+NR: 55
+Name: getsockopt$NETROM_T4
+CallName: getsockopt
+Args: [0xc42010a680 0xc42010e9a0 0xc42010ea10 0xc42010a6c0 0xc42010a700]
+Ret: <nil>
+
+ioctl$KVM_GET_CLOCK: ID: 411
+NR: 16
+Name: ioctl$KVM_GET_CLOCK
+CallName: ioctl
+Args: [0xc420135080 0xc420138d20 0xc4201350c0]
+Ret: <nil>
+
+openat$fb0: ID: 795
+NR: 257
+Name: openat$fb0
+CallName: openat
+Args: [0xc420167500 0xc420168780 0xc420167570 0xc4201675e0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+personality: ID: 824
+NR: 135
+Name: personality
+CallName: personality
+Args: [0xc42016d960]
+Ret: <nil>
+
+setsockopt$BT_FLUSHABLE: ID: 966
+NR: 54
+Name: setsockopt$BT_FLUSHABLE
+CallName: setsockopt
+Args: [0xc42017cd40 0xc42017bf80 0xc420180000 0xc42017cd80 0xc4201800e0]
+Ret: <nil>
+
+readlink: ID: 868
+NR: 89
+Name: readlink
+CallName: readlink
+Args: [0xc42016f300 0xc42016f340 0xc420171ce0]
+Ret: <nil>
+
+setns: ID: 953
+NR: 308
+Name: setns
+CallName: setns
+Args: [0xc42017c740 0xc42017b5e0]
+Ret: <nil>
+
+setsockopt$dccp6_buf: ID: 1031
+NR: 54
+Name: setsockopt$dccp6_buf
+CallName: setsockopt
+Args: [0xc420184e40 0xc4201944d0 0xc420194540 0xc420184ec0 0xc4201945b0]
+Ret: <nil>
+
+init_module: ID: 246
+NR: 175
+Name: init_module
+CallName: init_module
+Args: [0xc4201221c0 0xc42011f880 0xc420122200]
+Ret: <nil>
+
+ioctl$EVIOCSABS2F: ID: 348
+NR: 16
+Name: ioctl$EVIOCSABS2F
+CallName: ioctl
+Args: [0xc42012f400 0xc420132700 0xc42012f440]
+Ret: <nil>
+
+ioctl$TIOCMBIS: ID: 640
+NR: 16
+Name: ioctl$TIOCMBIS
+CallName: ioctl
+Args: [0xc42014dc00 0xc42014e8c0 0xc42014dc40]
+Ret: <nil>
+
+msgctl$IPC_SET: ID: 771
+NR: 71
+Name: msgctl$IPC_SET
+CallName: msgctl
+Args: [0xc420159a40 0xc4201661c0 0xc420159a80]
+Ret: <nil>
+
+ptrace$getregs: ID: 852
+NR: 101
+Name: ptrace$getregs
+CallName: ptrace
+Args: [0xc420170d90 0xc42016e880 0xc420170e00 0xc42016e8c0]
+Ret: <nil>
+
+write$evdev: ID: 1265
+NR: 1
+Name: write$evdev
+CallName: write
+Args: [0xc4201b1140 0xc4201b1180 0xc4201ada40]
+Ret: <nil>
+
+setsockopt$SCTP_AUTO_ASCONF: ID: 1003
+NR: 54
+Name: setsockopt$SCTP_AUTO_ASCONF
+CallName: setsockopt
+Args: [0xc420184040 0xc420183c00 0xc420183c70 0xc420184080 0xc420183d50]
+Ret: <nil>
+
+setsockopt$ip_buf: ID: 1039
+NR: 54
+Name: setsockopt$ip_buf
+CallName: setsockopt
+Args: [0xc4201852c0 0xc4201950a0 0xc420195110 0xc420185300 0xc420195180]
+Ret: <nil>
+
+ioctl$KVM_S390_INTERRUPT_CPU: ID: 451
+NR: 16
+Name: ioctl$KVM_S390_INTERRUPT_CPU
+CallName: ioctl
+Args: [0xc42013a300 0xc42013c070 0xc42013a340]
+Ret: <nil>
+
+ioctl$KVM_X86_SETUP_MCE: ID: 489
+NR: 16
+Name: ioctl$KVM_X86_SETUP_MCE
+CallName: ioctl
+Args: [0xc42013b500 0xc42013d570 0xc42013b540]
+Ret: <nil>
+
+ioctl$SIOCOUTQ: ID: 537
+NR: 16
+Name: ioctl$SIOCOUTQ
+CallName: ioctl
+Args: [0xc420146b00 0xc4201432d0 0xc420146b40]
+Ret: <nil>
+
+ioctl$TIOCSCTTY: ID: 648
+NR: 16
+Name: ioctl$TIOCSCTTY
+CallName: ioctl
+Args: [0xc42014df40 0xc42014ee70 0xc42014eee0]
+Ret: <nil>
+
+sendmmsg$nfc_llcp: ID: 928
+NR: 307
+Name: sendmmsg$nfc_llcp
+CallName: sendmmsg
+Args: [0xc420179a80 0xc420179ac0 0xc42017a620 0xc42017a690]
+Ret: <nil>
+
+io_getevents: ID: 253
+NR: 208
+Name: io_getevents
+CallName: io_getevents
+Args: [0xc420122500 0xc42011f9d0 0xc42011fa40 0xc420122540 0xc420122580]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_UNIQUE: ID: 292
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_UNIQUE
+CallName: ioctl
+Args: [0xc420123840 0xc420128d20 0xc420123880]
+Ret: <nil>
+
+ioctl$LOOP_CLR_FD: ID: 493
+NR: 16
+Name: ioctl$LOOP_CLR_FD
+CallName: ioctl
+Args: [0xc42013b700 0xc42013d730]
+Ret: <nil>
+
+mknod: ID: 748
+NR: 133
+Name: mknod
+CallName: mknod
+Args: [0xc420158e80 0xc42015cee0 0xc42015cfc0]
+Ret: <nil>
+
+utimensat: ID: 1259
+NR: 280
+Name: utimensat
+CallName: utimensat
+Args: [0xc4201b0cc0 0xc4201b0d00 0xc4201b0d40 0xc4201ad650]
+Ret: <nil>
+
+bpf$BPF_PROG_ATTACH: ID: 30
+NR: 321
+Name: bpf$BPF_PROG_ATTACH
+CallName: bpf
+Args: [0xc420091180 0xc420013c80 0xc4200911f0]
+Ret: <nil>
+
+ioctl$KVM_SET_IRQCHIP: ID: 465
+NR: 16
+Name: ioctl$KVM_SET_IRQCHIP
+CallName: ioctl
+Args: [0xc42013aa00 0xc42013c850 0xc42013aa40]
+Ret: <nil>
+
+keyctl$negate: ID: 716
+NR: 250
+Name: keyctl$negate
+CallName: keyctl
+Args: [0xc420157a40 0xc420153f00 0xc420157ab0 0xc420153f40]
+Ret: <nil>
+
+mq_timedsend: ID: 766
+NR: 242
+Name: mq_timedsend
+CallName: mq_timedsend
+Args: [0xc4201597c0 0xc420159800 0xc42015dea0 0xc42015df10 0xc420159840]
+Ret: <nil>
+
+readv: ID: 870
+NR: 19
+Name: readv
+CallName: readv
+Args: [0xc42016f480 0xc42016f4c0 0xc420171dc0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MODE_GETRESOURCES: ID: 301
+NR: 16
+Name: ioctl$DRM_IOCTL_MODE_GETRESOURCES
+CallName: ioctl
+Args: [0xc420123cc0 0xc420129110 0xc420123d00]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_READ: ID: 544
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_READ
+CallName: ioctl
+Args: [0xc420146e80 0xc420143650 0xc420146ec0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_TIMER: ID: 576
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_TIMER
+CallName: ioctl
+Args: [0xc420147e80 0xc42014a700 0xc420147ec0]
+Ret: <nil>
+
+bpf$OBJ_GET_PROG: ID: 38
+NR: 321
+Name: bpf$OBJ_GET_PROG
+CallName: bpf
+Args: [0xc420091880 0xc420013f40 0xc4200918f0]
+Ret: &{{fd_bpf_prog ret 1 false} 0xc4200142d0}
+
+ioctl$SNDRV_CTL_IOCTL_RAWMIDI_NEXT_DEVICE: ID: 557
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_RAWMIDI_NEXT_DEVICE
+CallName: ioctl
+Args: [0xc420147500 0xc420143ce0 0xc420147540]
+Ret: <nil>
+
+ioctl$TIOCSWINSZ: ID: 654
+NR: 16
+Name: ioctl$TIOCSWINSZ
+CallName: ioctl
+Args: [0xc420152200 0xc42014f2d0 0xc420152240]
+Ret: <nil>
+
+socketpair$unix: ID: 1128
+NR: 53
+Name: socketpair$unix
+CallName: socketpair
+Args: [0xc4201a3c70 0xc4201a3ce0 0xc4201a3d50 0xc42019ba40]
+Ret: <nil>
+
+setsockopt$L2CAP_LM: ID: 977
+NR: 54
+Name: setsockopt$L2CAP_LM
+CallName: setsockopt
+Args: [0xc42017d2c0 0xc420181180 0xc4201811f0 0xc42017d340 0xc4201812d0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_CTX: ID: 287
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_CTX
+CallName: ioctl
+Args: [0xc4201235c0 0xc420128a80 0xc420123600]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_MAP: ID: 289
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_MAP
+CallName: ioctl
+Args: [0xc4201236c0 0xc420128bd0 0xc420123700]
+Ret: <nil>
+
+ioctl$KVM_IRQ_LINE_STATUS: ID: 441
+NR: 16
+Name: ioctl$KVM_IRQ_LINE_STATUS
+CallName: ioctl
+Args: [0xc420135ec0 0xc420139b90 0xc420135f00]
+Ret: <nil>
+
+ioctl$KVM_SET_MP_STATE: ID: 467
+NR: 16
+Name: ioctl$KVM_SET_MP_STATE
+CallName: ioctl
+Args: [0xc42013ab00 0xc42013c930 0xc42013ab40]
+Ret: <nil>
+
+setsockopt$BT_RCVMTU: ID: 968
+NR: 54
+Name: setsockopt$BT_RCVMTU
+CallName: setsockopt
+Args: [0xc42017ce40 0xc420180310 0xc420180380 0xc42017ce80 0xc420180460]
+Ret: <nil>
+
+epoll_create1: ID: 70
+NR: 291
+Name: epoll_create1
+CallName: epoll_create1
+Args: [0xc420100620]
+Ret: &{{fd_epoll ret 1 false} 0xc4200143c0}
+
+inotify_init: ID: 248
+NR: 253
+Name: inotify_init
+CallName: inotify_init
+Args: []
+Ret: &{{fd_inotify ret 1 false} 0xc420014550}
+
+ptrace$getregset: ID: 853
+NR: 101
+Name: ptrace$getregset
+CallName: ptrace
+Args: [0xc420170e70 0xc42016e940 0xc420170ee0 0xc42016e9c0]
+Ret: <nil>
+
+sendto$unix: ID: 943
+NR: 44
+Name: sendto$unix
+CallName: sendto
+Args: [0xc42017c3c0 0xc42017c400 0xc42017b180 0xc42017b1f0 0xc42017c440 0xc42017b260]
+Ret: <nil>
+
+ioctl$KVM_GET_ONE_REG: ID: 424
+NR: 16
+Name: ioctl$KVM_GET_ONE_REG
+CallName: ioctl
+Args: [0xc4201356c0 0xc4201393b0 0xc420135700]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_CLIENT_ID: ID: 563
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_CLIENT_ID
+CallName: ioctl
+Args: [0xc420147800 0xc42014a0e0 0xc420147840]
+Ret: <nil>
+
+clock_settime: ID: 50
+NR: 227
+Name: clock_settime
+CallName: clock_settime
+Args: [0xc420091ea0 0xc4200fc540]
+Ret: <nil>
+
+getsockopt$BT_VOICE: ID: 158
+NR: 55
+Name: getsockopt$BT_VOICE
+CallName: getsockopt
+Args: [0xc42010a000 0xc420105ab0 0xc420105b20 0xc42010a040 0xc42010a080]
+Ret: <nil>
+
+ioctl$KVM_PPC_GET_PVINFO: ID: 445
+NR: 16
+Name: ioctl$KVM_PPC_GET_PVINFO
+CallName: ioctl
+Args: [0xc42013a040 0xc420139dc0 0xc42013a080]
+Ret: <nil>
+
+keyctl$get_persistent: ID: 709
+NR: 250
+Name: keyctl$get_persistent
+CallName: keyctl
+Args: [0xc4201575e0 0xc420153b40 0xc420153b80]
+Ret: <nil>
+
+ioctl$NETROM_SIOCADDRT: ID: 504
+NR: 16
+Name: ioctl$NETROM_SIOCADDRT
+CallName: ioctl
+Args: [0xc42013bbc0 0xc42013dc70 0xc42013bc00]
+Ret: <nil>
+
+sysfs$1: ID: 1137
+NR: 139
+Name: sysfs$1
+CallName: sysfs
+Args: [0xc4201a40e0 0xc42019be40]
+Ret: <nil>
+
+uname: ID: 1251
+NR: 63
+Name: uname
+CallName: uname
+Args: [0xc4201b0a80]
+Ret: <nil>
+
+fchmodat: ID: 86
+NR: 268
+Name: fchmodat
+CallName: fchmodat
+Args: [0xc4200fd700 0xc4200fd740 0xc4201011f0]
+Ret: <nil>
+
+ioctl$SIOCSIFHWADDR: ID: 538
+NR: 16
+Name: ioctl$SIOCSIFHWADDR
+CallName: ioctl
+Args: [0xc420146b80 0xc4201433b0 0xc420146bc0]
+Ret: <nil>
+
+keyctl$search: ID: 720
+NR: 250
+Name: keyctl$search
+CallName: keyctl
+Args: [0xc420157dc0 0xc420158140 0xc420158180 0xc4201581c0 0xc420158200]
+Ret: <nil>
+
+setsockopt$ip_ipsec: ID: 1041
+NR: 54
+Name: setsockopt$ip_ipsec
+CallName: setsockopt
+Args: [0xc4201853c0 0xc4201953b0 0xc420195420 0xc420185400 0xc420195490]
+Ret: <nil>
+
+syz_test$length20: ID: 1216
+NR: 1000001
+Name: syz_test$length20
+CallName: syz_test
+Args: [0xc4201a7dc0]
+Ret: <nil>
+
+ioctl$EVIOCSABS20: ID: 347
+NR: 16
+Name: ioctl$EVIOCSABS20
+CallName: ioctl
+Args: [0xc42012f380 0xc420132690 0xc42012f3c0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_QUERY_NEXT_PORT: ID: 580
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_QUERY_NEXT_PORT
+CallName: ioctl
+Args: [0xc42014c080 0xc42014a930 0xc42014c0c0]
+Ret: <nil>
+
+setsockopt$udp_int: ID: 1066
+NR: 54
+Name: setsockopt$udp_int
+CallName: setsockopt
+Args: [0xc42019a0c0 0xc420199880 0xc4201998f0 0xc42019a100 0xc4201999d0]
+Ret: <nil>
+
+syz_test$union2: ID: 1234
+NR: 1000001
+Name: syz_test$union2
+CallName: syz_test
+Args: [0xc4201b0200]
+Ret: <nil>
+
+getsockopt$RFCOMM_CONNINFO: ID: 168
+NR: 55
+Name: getsockopt$RFCOMM_CONNINFO
+CallName: getsockopt
+Args: [0xc42010a740 0xc42010eb60 0xc42010ebd0 0xc42010a780 0xc42010a7c0]
+Ret: <nil>
+
+ioctl$EVIOCGKEY: ID: 329
+NR: 16
+Name: ioctl$EVIOCGKEY
+CallName: ioctl
+Args: [0xc42012ea80 0xc420129d50 0xc42012eac0]
+Ret: <nil>
+
+ioctl$KVM_GET_REGS: ID: 427
+NR: 16
+Name: ioctl$KVM_GET_REGS
+CallName: ioctl
+Args: [0xc420135840 0xc420139500 0xc420135880]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_TEMPO: ID: 575
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_TEMPO
+CallName: ioctl
+Args: [0xc420147e00 0xc42014a690 0xc420147e40]
+Ret: <nil>
+
+ioctl$TUNSETVNETHDRSZ: ID: 673
+NR: 16
+Name: ioctl$TUNSETVNETHDRSZ
+CallName: ioctl
+Args: [0xc420152bc0 0xc420156070 0xc420152c00]
+Ret: <nil>
+
+bind$unix: ID: 29
+NR: 49
+Name: bind$unix
+CallName: bind
+Args: [0xc420013c00 0xc420013c40 0xc420091110]
+Ret: <nil>
+
+ioctl$LOOP_CTL_ADD: ID: 494
+NR: 16
+Name: ioctl$LOOP_CTL_ADD
+CallName: ioctl
+Args: [0xc42013b740 0xc42013d7a0 0xc42013b780]
+Ret: <nil>
+
+prctl$setmm: ID: 839
+NR: 157
+Name: prctl$setmm
+CallName: prctl
+Args: [0xc420170310 0xc420170380 0xc42016e100]
+Ret: <nil>
+
+pipe2: ID: 826
+NR: 293
+Name: pipe2
+CallName: pipe2
+Args: [0xc420169cc0 0xc42016d9d0]
+Ret: <nil>
+
+setsockopt$BT_VOICE: ID: 971
+NR: 54
+Name: setsockopt$BT_VOICE
+CallName: setsockopt
+Args: [0xc42017cfc0 0xc4201807e0 0xc420180850 0xc42017d000 0xc420180930]
+Ret: <nil>
+
+setsockopt$icmp_buf: ID: 1036
+NR: 54
+Name: setsockopt$icmp_buf
+CallName: setsockopt
+Args: [0xc420185140 0xc420194c40 0xc420194cb0 0xc420185180 0xc420194d20]
+Ret: <nil>
+
+accept: ID: 0
+NR: 43
+Name: accept
+CallName: accept
+Args: [0xc420012600 0xc420012640 0xc420012680]
+Ret: &{{sock ret 1 false} 0xc420014f50}
+
+faccessat: ID: 80
+NR: 269
+Name: faccessat
+CallName: faccessat
+Args: [0xc4200fd380 0xc4200fd3c0 0xc420100c40 0xc420100cb0]
+Ret: <nil>
+
+getsockopt$ipv6_mtu: ID: 228
+NR: 55
+Name: getsockopt$ipv6_mtu
+CallName: getsockopt
+Args: [0xc4201134c0 0xc42011e1c0 0xc42011e230 0xc420113500 0xc420113540]
+Ret: <nil>
+
+ioctl$RNDCLEARPOOL: ID: 528
+NR: 16
+Name: ioctl$RNDCLEARPOOL
+CallName: ioctl
+Args: [0xc420146680 0xc420142cb0 0xc4201466c0]
+Ret: <nil>
+
+keyctl$reject: ID: 718
+NR: 250
+Name: keyctl$reject
+CallName: keyctl
+Args: [0xc420157c00 0xc420158080 0xc420157c70 0xc420157ce0 0xc4201580c0]
+Ret: <nil>
+
+setsockopt$ip_opts: ID: 1047
+NR: 54
+Name: setsockopt$ip_opts
+CallName: setsockopt
+Args: [0xc4201856c0 0xc420195c00 0xc420195c70 0xc420185700 0xc420195ce0]
+Ret: <nil>
+
+bpf$BPF_PROG_DETACH: ID: 31
+NR: 321
+Name: bpf$BPF_PROG_DETACH
+CallName: bpf
+Args: [0xc420091260 0xc420013cc0 0xc4200912d0]
+Ret: <nil>
+
+getsockopt$ip_int: ID: 219
+NR: 55
+Name: getsockopt$ip_int
+CallName: getsockopt
+Args: [0xc420112e00 0xc420115500 0xc420115570 0xc420112e40 0xc420112e80]
+Ret: <nil>
+
+ioctl$KVM_PPC_ALLOCATE_HTAB: ID: 444
+NR: 16
+Name: ioctl$KVM_PPC_ALLOCATE_HTAB
+CallName: ioctl
+Args: [0xc420135fc0 0xc420139ce0 0xc42013a000]
+Ret: <nil>
+
+ioctl$TCSBRK: ID: 611
+NR: 16
+Name: ioctl$TCSBRK
+CallName: ioctl
+Args: [0xc42014cec0 0xc42014b810 0xc42014b880]
+Ret: <nil>
+
+setfsuid: ID: 949
+NR: 122
+Name: setfsuid
+CallName: setfsuid
+Args: [0xc42017c5c0]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_POWER_STATE: ID: 554
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_POWER_STATE
+CallName: ioctl
+Args: [0xc420147380 0xc420143b90 0xc4201473c0]
+Ret: <nil>
+
+ioctl$TE_IOCTL_LAUNCH_OPERATION: ID: 621
+NR: 16
+Name: ioctl$TE_IOCTL_LAUNCH_OPERATION
+CallName: ioctl
+Args: [0xc42014d300 0xc42014bdc0 0xc42014d340]
+Ret: <nil>
+
+process_vm_readv: ID: 846
+NR: 310
+Name: process_vm_readv
+CallName: process_vm_readv
+Args: [0xc42016e440 0xc42016e480 0xc420170770 0xc42016e4c0 0xc4201707e0 0xc420170850]
+Ret: <nil>
+
+socket$icmp6: ID: 1097
+NR: 41
+Name: socket$icmp6
+CallName: socket
+Args: [0xc42019d3b0 0xc42019d420 0xc42019d490]
+Ret: &{{sock_icmp6 ret 1 false} 0xc4200153b0}
+
+ioctl$KDSETLED: ID: 384
+NR: 16
+Name: ioctl$KDSETLED
+CallName: ioctl
+Args: [0xc420134500 0xc420133c70 0xc420133ce0]
+Ret: <nil>
+
+ioprio_set$uid: ID: 701
+NR: 251
+Name: ioprio_set$uid
+CallName: ioprio_set
+Args: [0xc420157030 0xc4201536c0 0xc4201570a0]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_HWDEP_INFO: ID: 549
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_HWDEP_INFO
+CallName: ioctl
+Args: [0xc420147100 0xc420143880 0xc420147140]
+Ret: <nil>
+
+rt_sigreturn: ID: 892
+NR: 15
+Name: rt_sigreturn
+CallName: rt_sigreturn
+Args: []
+Ret: <nil>
+
+shmctl$IPC_INFO: ID: 1070
+NR: 31
+Name: shmctl$IPC_INFO
+CallName: shmctl
+Args: [0xc42019a300 0xc420199b90 0xc42019a340]
+Ret: <nil>
+
+recvfrom$inet6: ID: 873
+NR: 45
+Name: recvfrom$inet6
+CallName: recvfrom
+Args: [0xc42016f700 0xc42016f740 0xc4201760e0 0xc420176150 0xc42016f7c0 0xc4201761c0]
+Ret: <nil>
+
+setreuid: ID: 959
+NR: 113
+Name: setreuid
+CallName: setreuid
+Args: [0xc42017ca40 0xc42017ca80]
+Ret: <nil>
+
+setsockopt$SCTP_CONTEXT: ID: 1004
+NR: 54
+Name: setsockopt$SCTP_CONTEXT
+CallName: setsockopt
+Args: [0xc4201840c0 0xc420183dc0 0xc420183e30 0xc420184100 0xc420183ea0]
+Ret: <nil>
+
+fcntl$lock: ID: 94
+NR: 72
+Name: fcntl$lock
+CallName: fcntl
+Args: [0xc4200fdb80 0xc420101570 0xc4200fdbc0]
+Ret: <nil>
+
+ioctl$KVM_GET_DEVICE_ATTR: ID: 414
+NR: 16
+Name: ioctl$KVM_GET_DEVICE_ATTR
+CallName: ioctl
+Args: [0xc420135200 0xc420138e70 0xc420135240]
+Ret: <nil>
+
+ioctl$RNDGETENTCNT: ID: 529
+NR: 16
+Name: ioctl$RNDGETENTCNT
+CallName: ioctl
+Args: [0xc420146700 0xc420142d90 0xc420146740]
+Ret: <nil>
+
+ioctl$UFFDIO_WAKE: ID: 678
+NR: 16
+Name: ioctl$UFFDIO_WAKE
+CallName: ioctl
+Args: [0xc420152e40 0xc420156310 0xc420152e80]
+Ret: <nil>
+
+ioprio_get$uid: ID: 699
+NR: 252
+Name: ioprio_get$uid
+CallName: ioprio_get
+Args: [0xc420156ee0 0xc420153640]
+Ret: <nil>
+
+setsockopt$SCTP_PEER_ADDR_PARAMS: ID: 1018
+NR: 54
+Name: setsockopt$SCTP_PEER_ADDR_PARAMS
+CallName: setsockopt
+Args: [0xc4201847c0 0xc420187260 0xc4201872d0 0xc420184800 0xc420187340]
+Ret: <nil>
+
+setsockopt$ALG_SET_AEAD_AUTHSIZE: ID: 962
+NR: 54
+Name: setsockopt$ALG_SET_AEAD_AUTHSIZE
+CallName: setsockopt
+Args: [0xc42017cb80 0xc42017b8f0 0xc42017b960 0xc42017b9d0 0xc42017ba40]
+Ret: <nil>
+
+setsockopt$SCTP_AUTH_CHUNK: ID: 999
+NR: 54
+Name: setsockopt$SCTP_AUTH_CHUNK
+CallName: setsockopt
+Args: [0xc42017de40 0xc4201835e0 0xc420183650 0xc42017de80 0xc420183730]
+Ret: <nil>
+
+syz_test$length10: ID: 1205
+NR: 1000001
+Name: syz_test$length10
+CallName: syz_test
+Args: [0xc4201a7ac0 0xc4201ac850]
+Ret: <nil>
+
+getsockopt$SCTP_DEFAULT_SEND_PARAM: ID: 178
+NR: 55
+Name: getsockopt$SCTP_DEFAULT_SEND_PARAM
+CallName: getsockopt
+Args: [0xc42010aec0 0xc42010f9d0 0xc42010fa40 0xc42010af00 0xc42010af40]
+Ret: <nil>
+
+ioctl$KVM_CREATE_DEVICE: ID: 401
+NR: 16
+Name: ioctl$KVM_CREATE_DEVICE
+CallName: ioctl
+Args: [0xc420134bc0 0xc4201387e0 0xc420134c00]
+Ret: <nil>
+
+ioctl$KVM_GET_NR_MMU_PAGES: ID: 423
+NR: 16
+Name: ioctl$KVM_GET_NR_MMU_PAGES
+CallName: ioctl
+Args: [0xc420135680 0xc4201392d0 0xc420139340]
+Ret: <nil>
+
+ioctl$PIO_FONT: ID: 519
+NR: 16
+Name: ioctl$PIO_FONT
+CallName: ioctl
+Args: [0xc420146240 0xc4201427e0 0xc420146280]
+Ret: <nil>
+
+ioctl$TE_IOCTL_SS_CMD: ID: 623
+NR: 16
+Name: ioctl$TE_IOCTL_SS_CMD
+CallName: ioctl
+Args: [0xc42014d400 0xc42014bea0 0xc42014bf10]
+Ret: <nil>
+
+fcntl$getown: ID: 92
+NR: 72
+Name: fcntl$getown
+CallName: fcntl
+Args: [0xc4200fdac0 0xc420101490]
+Ret: &{{pid ret 1 false} 0xc420014e60}
+
+ioctl$DRM_IOCTL_AGP_ALLOC: ID: 270
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_ALLOC
+CallName: ioctl
+Args: [0xc420122dc0 0xc420128230 0xc420122e00]
+Ret: <nil>
+
+ioctl$KVM_GET_FPU: ID: 417
+NR: 16
+Name: ioctl$KVM_GET_FPU
+CallName: ioctl
+Args: [0xc420135380 0xc420138fc0 0xc4201353c0]
+Ret: <nil>
+
+munmap: ID: 782
+NR: 11
+Name: munmap
+CallName: munmap
+Args: [0xc420159e80 0xc4201668c0]
+Ret: <nil>
+
+socket$tcp: ID: 1109
+NR: 41
+Name: socket$tcp
+CallName: socket
+Args: [0xc4201a2380 0xc4201a23f0 0xc4201a2460]
+Ret: &{{sock_tcp ret 1 false} 0xc4200156d0}
+
+fdatasync: ID: 103
+NR: 75
+Name: fdatasync
+CallName: fdatasync
+Args: [0xc4200fdf00]
+Ret: <nil>
+
+ioctl$TIOCSSOFTCAR: ID: 652
+NR: 16
+Name: ioctl$TIOCSSOFTCAR
+CallName: ioctl
+Args: [0xc420152140 0xc42014f110 0xc420152180]
+Ret: <nil>
+
+keyctl$get_security: ID: 710
+NR: 250
+Name: keyctl$get_security
+CallName: keyctl
+Args: [0xc420157650 0xc420153bc0 0xc420153c00 0xc4201576c0]
+Ret: <nil>
+
+pause: ID: 822
+NR: 34
+Name: pause
+CallName: pause
+Args: []
+Ret: <nil>
+
+bpf$MAP_UPDATE_ELEM: ID: 36
+NR: 321
+Name: bpf$MAP_UPDATE_ELEM
+CallName: bpf
+Args: [0xc4200916c0 0xc420013e40 0xc420091730]
+Ret: <nil>
+
+syz_test$union1: ID: 1233
+NR: 1000001
+Name: syz_test$union1
+CallName: syz_test
+Args: [0xc4201b01c0]
+Ret: <nil>
+
+timer_getoverrun: ID: 1241
+NR: 225
+Name: timer_getoverrun
+CallName: timer_getoverrun
+Args: [0xc4201b05c0]
+Ret: <nil>
+
+write$fuse_interrupt: ID: 1269
+NR: 1
+Name: write$fuse_interrupt
+CallName: write
+Args: [0xc4201b1340 0xc4201b1380 0xc4201adc70]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SET_MASTER: ID: 310
+NR: 16
+Name: ioctl$DRM_IOCTL_SET_MASTER
+CallName: ioctl
+Args: [0xc42012e140 0xc420129500]
+Ret: <nil>
+
+ioctl$RNDADDENTROPY: ID: 526
+NR: 16
+Name: ioctl$RNDADDENTROPY
+CallName: ioctl
+Args: [0xc420146580 0xc420142b60 0xc4201465c0]
+Ret: <nil>
+
+prctl$getname: ID: 833
+NR: 157
+Name: prctl$getname
+CallName: prctl
+Args: [0xc42016ddc0 0xc420169fc0]
+Ret: <nil>
+
+setfsgid: ID: 948
+NR: 123
+Name: setfsgid
+CallName: setfsgid
+Args: [0xc42017c580]
+Ret: <nil>
+
+setsockopt$ipv6_mreq: ID: 1049
+NR: 54
+Name: setsockopt$ipv6_mreq
+CallName: setsockopt
+Args: [0xc4201857c0 0xc420195ea0 0xc420195f10 0xc420185800 0xc420195f80]
+Ret: <nil>
+
+statfs: ID: 1131
+NR: 137
+Name: statfs
+CallName: statfs
+Args: [0xc42019bbc0 0xc42019bc00]
+Ret: <nil>
+
+syz_kvm_setup_cpu$x86: ID: 1146
+NR: 1000007
+Name: syz_kvm_setup_cpu$x86
+CallName: syz_kvm_setup_cpu
+Args: [0xc4201a6300 0xc4201a6340 0xc4201a6380 0xc4201a63c0 0xc4201a4850 0xc4201a48c0 0xc4201a6440 0xc4201a4930]
+Ret: <nil>
+
+getsockopt$BT_SECURITY: ID: 156
+NR: 55
+Name: getsockopt$BT_SECURITY
+CallName: getsockopt
+Args: [0xc420103ec0 0xc4201057a0 0xc420105810 0xc420103f00 0xc420105880]
+Ret: <nil>
+
+ioctl$KVM_GET_MSR_INDEX_LIST: ID: 422
+NR: 16
+Name: ioctl$KVM_GET_MSR_INDEX_LIST
+CallName: ioctl
+Args: [0xc420135600 0xc420139260 0xc420135640]
+Ret: <nil>
+
+listen$netrom: ID: 732
+NR: 50
+Name: listen$netrom
+CallName: listen
+Args: [0xc420158780 0xc42015c3f0]
+Ret: <nil>
+
+lseek: ID: 737
+NR: 8
+Name: lseek
+CallName: lseek
+Args: [0xc420158980 0xc42015c620 0xc42015c690]
+Ret: <nil>
+
+ppoll: ID: 832
+NR: 271
+Name: ppoll
+CallName: ppoll
+Args: [0xc420169f00 0xc42016dce0 0xc420169f40 0xc420169f80 0xc42016dd50]
+Ret: <nil>
+
+syz_open_dev$sndseq: ID: 1170
+NR: 1000002
+Name: syz_open_dev$sndseq
+CallName: syz_open_dev
+Args: [0xc4201a7040 0xc4201a5dc0 0xc4201a5e30]
+Ret: &{{fd_sndseq ret 1 false} 0xc420014910}
+
+vmsplice: ID: 1261
+NR: 278
+Name: vmsplice
+CallName: vmsplice
+Args: [0xc4201b0e40 0xc4201b0e80 0xc4201ad6c0 0xc4201ad730]
+Ret: <nil>
+
+ioctl$EVIOCGKEYCODE: ID: 330
+NR: 16
+Name: ioctl$EVIOCGKEYCODE
+CallName: ioctl
+Args: [0xc42012eb00 0xc420129dc0 0xc42012eb40]
+Ret: <nil>
+
+ioctl$GIO_UNIMAP: ID: 362
+NR: 16
+Name: ioctl$GIO_UNIMAP
+CallName: ioctl
+Args: [0xc42012fb40 0xc420132ee0 0xc42012fb80]
+Ret: <nil>
+
+ioctl$HIDPGETCONNLIST: ID: 367
+NR: 16
+Name: ioctl$HIDPGETCONNLIST
+CallName: ioctl
+Args: [0xc42012fdc0 0xc420133110 0xc42012fe00]
+Ret: <nil>
+
+ioctl$TIOCPKT: ID: 646
+NR: 16
+Name: ioctl$TIOCPKT
+CallName: ioctl
+Args: [0xc42014de80 0xc42014ed20 0xc42014dec0]
+Ret: <nil>
+
+setsockopt$SCTP_RTOINFO: ID: 1023
+NR: 54
+Name: setsockopt$SCTP_RTOINFO
+CallName: setsockopt
+Args: [0xc420184a40 0xc4201879d0 0xc420187a40 0xc420184a80 0xc420187ab0]
+Ret: <nil>
+
+write$fuse_notify_poll_wakeup: ID: 1274
+NR: 1
+Name: write$fuse_notify_poll_wakeup
+CallName: write
+Args: [0xc4201b15c0 0xc4201b1600 0xc4201adea0]
+Ret: <nil>
+
+accept$inet6: ID: 3
+NR: 43
+Name: accept$inet6
+CallName: accept
+Args: [0xc420012900 0xc420012940 0xc420012980]
+Ret: &{{sock_in6 ret 1 false} 0xc420015450}
+
+ioctl$DRM_IOCTL_AGP_UNBIND: ID: 276
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_UNBIND
+CallName: ioctl
+Args: [0xc420123080 0xc420128540 0xc4201230c0]
+Ret: <nil>
+
+ioctl$KVM_ENABLE_CAP_CPU: ID: 410
+NR: 16
+Name: ioctl$KVM_ENABLE_CAP_CPU
+CallName: ioctl
+Args: [0xc420135000 0xc420138cb0 0xc420135040]
+Ret: <nil>
+
+ioctl$KVM_GET_REG_LIST: ID: 428
+NR: 16
+Name: ioctl$KVM_GET_REG_LIST
+CallName: ioctl
+Args: [0xc4201358c0 0xc420139570 0xc420135900]
+Ret: <nil>
+
+syz_open_dev$floppy: ID: 1157
+NR: 1000002
+Name: syz_open_dev$floppy
+CallName: syz_open_dev
+Args: [0xc4201a69c0 0xc4201a5260 0xc4201a52d0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+getsockopt$SCTP_AUTOCLOSE: ID: 175
+NR: 55
+Name: getsockopt$SCTP_AUTOCLOSE
+CallName: getsockopt
+Args: [0xc42010ac80 0xc42010f500 0xc42010f570 0xc42010acc0 0xc42010ad00]
+Ret: <nil>
+
+ioctl$TIOCLINUX5: ID: 636
+NR: 16
+Name: ioctl$TIOCLINUX5
+CallName: ioctl
+Args: [0xc42014da00 0xc42014e690 0xc42014da40]
+Ret: <nil>
+
+tee: ID: 1236
+NR: 276
+Name: tee
+CallName: tee
+Args: [0xc4201b0300 0xc4201b0340 0xc4201acf50 0xc4201acfc0]
+Ret: <nil>
+
+timerfd_settime: ID: 1246
+NR: 286
+Name: timerfd_settime
+CallName: timerfd_settime
+Args: [0xc4201b0880 0xc4201ad2d0 0xc4201b08c0 0xc4201b0900]
+Ret: <nil>
+
+sendto$inet6: ID: 941
+NR: 44
+Name: sendto$inet6
+CallName: sendto
+Args: [0xc42017c240 0xc42017c280 0xc42017aee0 0xc42017af50 0xc42017c2c0 0xc42017afc0]
+Ret: <nil>
+
+syz_test$union0: ID: 1232
+NR: 1000001
+Name: syz_test$union0
+CallName: syz_test
+Args: [0xc4201b0180]
+Ret: <nil>
+
+bind: ID: 17
+NR: 49
+Name: bind
+CallName: bind
+Args: [0xc420013600 0xc420013640 0xc420090bd0]
+Ret: <nil>
+
+bind$netlink: ID: 25
+NR: 49
+Name: bind$netlink
+CallName: bind
+Args: [0xc420013a00 0xc420013a40 0xc420090f50]
+Ret: <nil>
+
+connect$inet: ID: 56
+NR: 42
+Name: connect$inet
+CallName: connect
+Args: [0xc4200fc7c0 0xc4200fc800 0xc4201000e0]
+Ret: <nil>
+
+ioctl$GIO_UNISCRNMAP: ID: 363
+NR: 16
+Name: ioctl$GIO_UNISCRNMAP
+CallName: ioctl
+Args: [0xc42012fbc0 0xc420132f50 0xc42012fc00]
+Ret: <nil>
+
+ptrace$setsig: ID: 862
+NR: 101
+Name: ptrace$setsig
+CallName: ptrace
+Args: [0xc4201717a0 0xc42016ef80 0xc420171810 0xc42016efc0]
+Ret: <nil>
+
+recvmsg$kcm: ID: 878
+NR: 47
+Name: recvmsg$kcm
+CallName: recvmsg
+Args: [0xc42016fbc0 0xc42016fc00 0xc420176620]
+Ret: <nil>
+
+sched_setparam: ID: 903
+NR: 142
+Name: sched_setparam
+CallName: sched_setparam
+Args: [0xc420178a80 0xc420178ac0]
+Ret: <nil>
+
+set_robust_list: ID: 945
+NR: 273
+Name: set_robust_list
+CallName: set_robust_list
+Args: [0xc42017c4c0 0xc42017b420]
+Ret: <nil>
+
+ioctl$CMTPGETCONNINFO: ID: 264
+NR: 16
+Name: ioctl$CMTPGETCONNINFO
+CallName: ioctl
+Args: [0xc420122b00 0xc42011ff80 0xc420122b40]
+Ret: <nil>
+
+ioctl$KVM_GET_LAPIC: ID: 419
+NR: 16
+Name: ioctl$KVM_GET_LAPIC
+CallName: ioctl
+Args: [0xc420135480 0xc4201390a0 0xc4201354c0]
+Ret: <nil>
+
+ioctl$SCTP_SIOCINQ: ID: 531
+NR: 16
+Name: ioctl$SCTP_SIOCINQ
+CallName: ioctl
+Args: [0xc420146800 0xc420142f50 0xc420146840]
+Ret: <nil>
+
+openat$rtc: ID: 811
+NR: 257
+Name: openat$rtc
+CallName: openat
+Args: [0xc42016ca10 0xc420169380 0xc42016ca80 0xc42016caf0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+recvfrom$inet: ID: 872
+NR: 45
+Name: recvfrom$inet
+CallName: recvfrom
+Args: [0xc42016f600 0xc42016f640 0xc420171f80 0xc420176000 0xc42016f6c0 0xc420176070]
+Ret: <nil>
+
+syz_open_dev$ircomm: ID: 1158
+NR: 1000002
+Name: syz_open_dev$ircomm
+CallName: syz_open_dev
+Args: [0xc4201a6a40 0xc4201a5340 0xc4201a53b0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_INFO: ID: 588
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_INFO
+CallName: ioctl
+Args: [0xc42014c480 0xc42014acb0 0xc42014c4c0]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_GSTATUS: ID: 597
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_GSTATUS
+CallName: ioctl
+Args: [0xc42014c8c0 0xc42014b0a0 0xc42014c900]
+Ret: <nil>
+
+ioctl$TCSETSF: ID: 617
+NR: 16
+Name: ioctl$TCSETSF
+CallName: ioctl
+Args: [0xc42014d140 0xc42014bb90 0xc42014d180]
+Ret: <nil>
+
+keyctl$set_timeout: ID: 723
+NR: 250
+Name: keyctl$set_timeout
+CallName: keyctl
+Args: [0xc420157f80 0xc420158240 0xc42015c000]
+Ret: <nil>
+
+modify_ldt$write: ID: 757
+NR: 154
+Name: modify_ldt$write
+CallName: modify_ldt
+Args: [0xc42015d810 0xc420159180 0xc42015d880]
+Ret: <nil>
+
+ioctl$KDGETLED: ID: 373
+NR: 16
+Name: ioctl$KDGETLED
+CallName: ioctl
+Args: [0xc42012ffc0 0xc420133490 0xc420134000]
+Ret: <nil>
+
+ioctl$KVM_GET_IRQCHIP: ID: 418
+NR: 16
+Name: ioctl$KVM_GET_IRQCHIP
+CallName: ioctl
+Args: [0xc420135400 0xc420139030 0xc420135440]
+Ret: <nil>
+
+ioctl$TUNSETSNDBUF: ID: 671
+NR: 16
+Name: ioctl$TUNSETSNDBUF
+CallName: ioctl
+Args: [0xc420152ac0 0xc42014ff10 0xc420152b00]
+Ret: <nil>
+
+bpf$MAP_GET_NEXT_KEY: ID: 34
+NR: 321
+Name: bpf$MAP_GET_NEXT_KEY
+CallName: bpf
+Args: [0xc420091500 0xc420013dc0 0xc420091570]
+Ret: <nil>
+
+getsockopt$SCO_OPTIONS: ID: 171
+NR: 55
+Name: getsockopt$SCO_OPTIONS
+CallName: getsockopt
+Args: [0xc42010a980 0xc42010efc0 0xc42010f030 0xc42010a9c0 0xc42010aa00]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_AGP_INFO: ID: 274
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_INFO
+CallName: ioctl
+Args: [0xc420122fc0 0xc420128460 0xc420123000]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_CLIENT: ID: 286
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_CLIENT
+CallName: ioctl
+Args: [0xc420123540 0xc420128a10 0xc420123580]
+Ret: <nil>
+
+ioctl$EVIOCGABS0: ID: 320
+NR: 16
+Name: ioctl$EVIOCGABS0
+CallName: ioctl
+Args: [0xc42012e600 0xc420129960 0xc42012e640]
+Ret: <nil>
+
+ioctl$VT_SETMODE: ID: 688
+NR: 16
+Name: ioctl$VT_SETMODE
+CallName: ioctl
+Args: [0xc420153280 0xc420156850 0xc4201532c0]
+Ret: <nil>
+
+recvfrom$unix: ID: 875
+NR: 45
+Name: recvfrom$unix
+CallName: recvfrom
+Args: [0xc42016f900 0xc42016f940 0xc420176380 0xc4201763f0 0xc42016f9c0 0xc420176460]
+Ret: <nil>
+
+socket$bt_cmtp: ID: 1088
+NR: 41
+Name: socket$bt_cmtp
+CallName: socket
+Args: [0xc42019c7e0 0xc42019c850 0xc42019c8c0]
+Ret: &{{sock_bt_cmtp ret 1 false} 0xc4200150e0}
+
+ioctl$LOOP_SET_DIRECT_IO: ID: 500
+NR: 16
+Name: ioctl$LOOP_SET_DIRECT_IO
+CallName: ioctl
+Args: [0xc42013ba00 0xc42013da40 0xc42013dab0]
+Ret: <nil>
+
+ioctl$SIOCKCMCLONE: ID: 535
+NR: 16
+Name: ioctl$SIOCKCMCLONE
+CallName: ioctl
+Args: [0xc420146a00 0xc4201431f0 0xc420146a40]
+Ret: <nil>
+
+get_kernel_syms: ID: 116
+NR: 177
+Name: get_kernel_syms
+CallName: get_kernel_syms
+Args: [0xc4201025c0]
+Ret: <nil>
+
+getsockopt$dccp6_buf: ID: 210
+NR: 55
+Name: getsockopt$dccp6_buf
+CallName: getsockopt
+Args: [0xc4201126c0 0xc4201147e0 0xc420114850 0xc420112740 0xc420112780]
+Ret: <nil>
+
+ioctl$TUNDETACHFILTER: ID: 658
+NR: 16
+Name: ioctl$TUNDETACHFILTER
+CallName: ioctl
+Args: [0xc420152400 0xc42014f500 0xc420152440]
+Ret: <nil>
+
+sendmsg$sctp: ID: 937
+NR: 46
+Name: sendmsg$sctp
+CallName: sendmsg
+Args: [0xc420179fc0 0xc42017c000 0xc42017ab60]
+Ret: <nil>
+
+setsockopt$SCTP_SOCKOPT_BINDX_REM: ID: 1026
+NR: 54
+Name: setsockopt$SCTP_SOCKOPT_BINDX_REM
+CallName: setsockopt
+Args: [0xc420184bc0 0xc420187dc0 0xc420187e30 0xc420184c00 0xc420187ea0]
+Ret: <nil>
+
+socket$bt_hidp: ID: 1090
+NR: 41
+Name: socket$bt_hidp
+CallName: socket
+Args: [0xc42019ca80 0xc42019caf0 0xc42019cb60]
+Ret: &{{sock_bt_hidp ret 1 false} 0xc420015180}
+
+socket$sctp: ID: 1107
+NR: 41
+Name: socket$sctp
+CallName: socket
+Args: [0xc4201a20e0 0xc4201a2150 0xc4201a21c0]
+Ret: &{{sock_sctp ret 1 false} 0xc420015680}
+
+syz_test$length11: ID: 1206
+NR: 1000001
+Name: syz_test$length11
+CallName: syz_test
+Args: [0xc4201a7b00 0xc4201ac8c0]
+Ret: <nil>
+
+getsockopt$udp6_int: ID: 241
+NR: 55
+Name: getsockopt$udp6_int
+CallName: getsockopt
+Args: [0xc420113ec0 0xc42011f490 0xc42011f500 0xc420113f00 0xc420113f40]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_IRQ_BUSID: ID: 294
+NR: 16
+Name: ioctl$DRM_IOCTL_IRQ_BUSID
+CallName: ioctl
+Args: [0xc420123940 0xc420128e00 0xc420123980]
+Ret: <nil>
+
+ioctl$EVIOCGPHYS: ID: 336
+NR: 16
+Name: ioctl$EVIOCGPHYS
+CallName: ioctl
+Args: [0xc42012ee00 0xc420132070 0xc42012ee40]
+Ret: <nil>
+
+ioctl$TUNATTACHFILTER: ID: 657
+NR: 16
+Name: ioctl$TUNATTACHFILTER
+CallName: ioctl
+Args: [0xc420152380 0xc42014f490 0xc4201523c0]
+Ret: <nil>
+
+ptrace$setregset: ID: 861
+NR: 101
+Name: ptrace$setregset
+CallName: ptrace
+Args: [0xc4201716c0 0xc42016ee80 0xc420171730 0xc42016ef00]
+Ret: <nil>
+
+fchown: ID: 87
+NR: 93
+Name: fchown
+CallName: fchown
+Args: [0xc4200fd780 0xc4200fd7c0 0xc4200fd800]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SG_ALLOC: ID: 314
+NR: 16
+Name: ioctl$DRM_IOCTL_SG_ALLOC
+CallName: ioctl
+Args: [0xc42012e300 0xc4201296c0 0xc42012e340]
+Ret: <nil>
+
+ioctl$TUNSETIFINDEX: ID: 664
+NR: 16
+Name: ioctl$TUNSETIFINDEX
+CallName: ioctl
+Args: [0xc420152700 0xc42014f9d0 0xc420152740]
+Ret: <nil>
+
+pipe: ID: 825
+NR: 22
+Name: pipe
+CallName: pipe
+Args: [0xc420169c80]
+Ret: <nil>
+
+getsockopt$SCTP_INITMSG: ID: 191
+NR: 55
+Name: getsockopt$SCTP_INITMSG
+CallName: getsockopt
+Args: [0xc42010b880 0xc420110c40 0xc420110cb0 0xc42010b8c0 0xc42010b900]
+Ret: <nil>
+
+socket$bt_bnep: ID: 1087
+NR: 41
+Name: socket$bt_bnep
+CallName: socket
+Args: [0xc42019c690 0xc42019c700 0xc42019c770]
+Ret: &{{sock_bt_bnep ret 1 false} 0xc420015090}
+
+syncfs: ID: 1136
+NR: 306
+Name: syncfs
+CallName: syncfs
+Args: [0xc42019be00]
+Ret: <nil>
+
+recvfrom$sctp: ID: 874
+NR: 45
+Name: recvfrom$sctp
+CallName: recvfrom
+Args: [0xc42016f800 0xc42016f840 0xc420176230 0xc4201762a0 0xc42016f8c0 0xc420176310]
+Ret: <nil>
+
+syz_open_dev$sndtimer: ID: 1171
+NR: 1000002
+Name: syz_open_dev$sndtimer
+CallName: syz_open_dev
+Args: [0xc4201a70c0 0xc4201a5ea0 0xc4201a5f10]
+Ret: &{{fd_sndtimer ret 1 false} 0xc420014960}
+
+connect$nfc_raw: ID: 61
+NR: 42
+Name: connect$nfc_raw
+CallName: connect
+Args: [0xc4200fca40 0xc4200fca80 0xc420100310]
+Ret: <nil>
+
+getsockopt$ip_ipsec: ID: 220
+NR: 55
+Name: getsockopt$ip_ipsec
+CallName: getsockopt
+Args: [0xc420112ec0 0xc4201156c0 0xc420115730 0xc420112f00 0xc420112f40]
+Ret: <nil>
+
+ioctl$KVM_GET_PIT: ID: 425
+NR: 16
+Name: ioctl$KVM_GET_PIT
+CallName: ioctl
+Args: [0xc420135740 0xc420139420 0xc420135780]
+Ret: <nil>
+
+lsetxattr: ID: 738
+NR: 189
+Name: lsetxattr
+CallName: lsetxattr
+Args: [0xc4201589c0 0xc420158a00 0xc420158a40 0xc42015c700 0xc42015c770]
+Ret: <nil>
+
+openat$zygote: ID: 821
+NR: 257
+Name: openat$zygote
+CallName: openat
+Args: [0xc42016d730 0xc420169b00 0xc42016d7a0 0xc42016d810]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+seccomp: ID: 906
+NR: 317
+Name: seccomp
+CallName: seccomp
+Args: [0xc420177260 0xc4201772d0 0xc420178b80]
+Ret: <nil>
+
+syz_test$length6: ID: 1220
+NR: 1000001
+Name: syz_test$length6
+CallName: syz_test
+Args: [0xc4201a7ec0]
+Ret: <nil>
+
+bind$bt_sco: ID: 22
+NR: 49
+Name: bind$bt_sco
+CallName: bind
+Args: [0xc420013880 0xc4200138c0 0xc420090e00]
+Ret: <nil>
+
+connect$bt_rfcomm: ID: 54
+NR: 42
+Name: connect$bt_rfcomm
+CallName: connect
+Args: [0xc4200fc6c0 0xc4200fc700 0xc420100000]
+Ret: <nil>
+
+futex: ID: 114
+NR: 202
+Name: futex
+CallName: futex
+Args: [0xc420102440 0xc420101f80 0xc420104000 0xc420102480 0xc4201024c0 0xc4201040e0]
+Ret: <nil>
+
+ioctl$KVM_REGISTER_COALESCED_MMIO: ID: 447
+NR: 16
+Name: ioctl$KVM_REGISTER_COALESCED_MMIO
+CallName: ioctl
+Args: [0xc42013a140 0xc420139ea0 0xc42013a180]
+Ret: <nil>
+
+prctl$void: ID: 842
+NR: 157
+Name: prctl$void
+CallName: prctl
+Args: [0xc4201704d0]
+Ret: <nil>
+
+iopl: ID: 697
+NR: 172
+Name: iopl
+CallName: iopl
+Args: [0xc420156e00]
+Ret: <nil>
+
+setsockopt$BT_SECURITY: ID: 969
+NR: 54
+Name: setsockopt$BT_SECURITY
+CallName: setsockopt
+Args: [0xc42017cec0 0xc4201804d0 0xc420180540 0xc42017cf00 0xc4201805b0]
+Ret: <nil>
+
+setsockopt$NETLINK_RX_RING: ID: 986
+NR: 54
+Name: setsockopt$NETLINK_RX_RING
+CallName: setsockopt
+Args: [0xc42017d780 0xc4201820e0 0xc420182150 0xc42017d7c0 0xc4201821c0]
+Ret: <nil>
+
+getsockopt: ID: 150
+NR: 55
+Name: getsockopt
+CallName: getsockopt
+Args: [0xc420103a40 0xc420104d90 0xc420104e00 0xc420103a80 0xc420103ac0]
+Ret: <nil>
+
+getsockopt$SCTP_DELAYED_SACK: ID: 180
+NR: 55
+Name: getsockopt$SCTP_DELAYED_SACK
+CallName: getsockopt
+Args: [0xc42010b040 0xc42010fc70 0xc42010fce0 0xc42010b080 0xc42010b0c0]
+Ret: <nil>
+
+inotify_init1: ID: 249
+NR: 294
+Name: inotify_init1
+CallName: inotify_init1
+Args: [0xc42011f960]
+Ret: &{{fd_inotify ret 1 false} 0xc420014550}
+
+ioctl$UFFDIO_COPY: ID: 675
+NR: 16
+Name: ioctl$UFFDIO_COPY
+CallName: ioctl
+Args: [0xc420152cc0 0xc4201561c0 0xc420152d00]
+Ret: <nil>
+
+ioctl$int_out: ID: 694
+NR: 16
+Name: ioctl$int_out
+CallName: ioctl
+Args: [0xc420153540 0xc420156b60 0xc420153580]
+Ret: <nil>
+
+ioctl$KDGKBENT: ID: 376
+NR: 16
+Name: ioctl$KDGKBENT
+CallName: ioctl
+Args: [0xc420134140 0xc4201336c0 0xc420134180]
+Ret: <nil>
+
+ioctl$KVM_SET_VCPU_EVENTS: ID: 480
+NR: 16
+Name: ioctl$KVM_SET_VCPU_EVENTS
+CallName: ioctl
+Args: [0xc42013b0c0 0xc42013d180 0xc42013b100]
+Ret: <nil>
+
+restart_syscall: ID: 886
+NR: 219
+Name: restart_syscall
+CallName: restart_syscall
+Args: []
+Ret: <nil>
+
+setsockopt$sock_cred: ID: 1053
+NR: 54
+Name: setsockopt$sock_cred
+CallName: setsockopt
+Args: [0xc420185a00 0xc420198460 0xc4201984d0 0xc420185a40 0xc420198540]
+Ret: <nil>
+
+write$fuse_notify_store: ID: 1276
+NR: 1
+Name: write$fuse_notify_store
+CallName: write
+Args: [0xc4201b16c0 0xc4201b1700 0xc4201adf80]
+Ret: <nil>
+
+getpeername$netrom: ID: 131
+NR: 52
+Name: getpeername$netrom
+CallName: getpeername
+Args: [0xc420102d80 0xc420102dc0 0xc420102e00]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_ENABLE: ID: 510
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_ENABLE
+CallName: ioctl
+Args: [0xc42013be80 0xc4201421c0 0xc420142230]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_SUBSCRIPTION: ID: 577
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_SUBSCRIPTION
+CallName: ioctl
+Args: [0xc420147f00 0xc42014a770 0xc420147f40]
+Ret: <nil>
+
+semctl$GETNCNT: ID: 909
+NR: 66
+Name: semctl$GETNCNT
+CallName: semctl
+Args: [0xc420178d80 0xc420177490 0xc420177500 0xc420178dc0]
+Ret: <nil>
+
+ustat: ID: 1257
+NR: 136
+Name: ustat
+CallName: ustat
+Args: [0xc4201ad5e0 0xc4201b0c00]
+Ret: <nil>
+
+getsockopt$SCTP_I_WANT_MAPPED_V4_ADDR: ID: 192
+NR: 55
+Name: getsockopt$SCTP_I_WANT_MAPPED_V4_ADDR
+CallName: getsockopt
+Args: [0xc42010b940 0xc420110d90 0xc420110e00 0xc42010b980 0xc42010b9c0]
+Ret: <nil>
+
+ioctl$KVM_SET_TSS_ADDR: ID: 477
+NR: 16
+Name: ioctl$KVM_SET_TSS_ADDR
+CallName: ioctl
+Args: [0xc42013af80 0xc42013cee0 0xc42013cf50]
+Ret: <nil>
+
+kexec_load: ID: 703
+NR: 246
+Name: kexec_load
+CallName: kexec_load
+Args: [0xc420157180 0xc4201571f0 0xc420153840 0xc420157260]
+Ret: <nil>
+
+sendmmsg$alg: ID: 927
+NR: 307
+Name: sendmmsg$alg
+CallName: sendmmsg
+Args: [0xc4201799c0 0xc420179a00 0xc42017a540 0xc42017a5b0]
+Ret: <nil>
+
+capset: ID: 43
+NR: 126
+Name: capset
+CallName: capset
+Args: [0xc4200fc100 0xc4200fc140]
+Ret: <nil>
+
+getpeername$unix: ID: 133
+NR: 52
+Name: getpeername$unix
+CallName: getpeername
+Args: [0xc420102f00 0xc420102f40 0xc420102f80]
+Ret: <nil>
+
+select: ID: 907
+NR: 23
+Name: select
+CallName: select
+Args: [0xc420177340 0xc420178bc0 0xc420178c00 0xc420178c40 0xc420178c80]
+Ret: <nil>
+
+setsockopt$ip6_buf: ID: 1037
+NR: 54
+Name: setsockopt$ip6_buf
+CallName: setsockopt
+Args: [0xc4201851c0 0xc420194d90 0xc420194e00 0xc420185200 0xc420194e70]
+Ret: <nil>
+
+getsockopt$BT_RCVMTU: ID: 155
+NR: 55
+Name: getsockopt$BT_RCVMTU
+CallName: getsockopt
+Args: [0xc420103e00 0xc4201055e0 0xc420105650 0xc420103e40 0xc420103e80]
+Ret: <nil>
+
+ioctl$EVIOCSMASK: ID: 354
+NR: 16
+Name: ioctl$EVIOCSMASK
+CallName: ioctl
+Args: [0xc42012f700 0xc420132a80 0xc42012f740]
+Ret: <nil>
+
+ioctl$TIOCNOTTY: ID: 643
+NR: 16
+Name: ioctl$TIOCNOTTY
+CallName: ioctl
+Args: [0xc42014dd80 0xc42014eb60]
+Ret: <nil>
+
+ioctl$TUNSETQUEUE: ID: 670
+NR: 16
+Name: ioctl$TUNSETQUEUE
+CallName: ioctl
+Args: [0xc420152a40 0xc42014fea0 0xc420152a80]
+Ret: <nil>
+
+semctl$GETALL: ID: 908
+NR: 66
+Name: semctl$GETALL
+CallName: semctl
+Args: [0xc420178cc0 0xc4201773b0 0xc420177420 0xc420178d00]
+Ret: <nil>
+
+sched_rr_get_interval: ID: 900
+NR: 148
+Name: sched_rr_get_interval
+CallName: sched_rr_get_interval
+Args: [0xc420178900 0xc420178940]
+Ret: <nil>
+
+setsockopt$tcp6_int: ID: 1060
+NR: 54
+Name: setsockopt$tcp6_int
+CallName: setsockopt
+Args: [0xc420185d80 0xc420198e70 0xc420198ee0 0xc420185dc0 0xc420198fc0]
+Ret: <nil>
+
+setsockopt$udp6_int: ID: 1064
+NR: 54
+Name: setsockopt$udp6_int
+CallName: setsockopt
+Args: [0xc420185fc0 0xc420199500 0xc420199570 0xc42019a000 0xc420199650]
+Ret: <nil>
+
+fcntl$setownex: ID: 99
+NR: 72
+Name: fcntl$setownex
+CallName: fcntl
+Args: [0xc4200fddc0 0xc4201018f0 0xc4200fde00]
+Ret: <nil>
+
+mincore: ID: 745
+NR: 27
+Name: mincore
+CallName: mincore
+Args: [0xc420158d40 0xc42015cd90 0xc420158d80]
+Ret: <nil>
+
+modify_ldt$write2: ID: 758
+NR: 154
+Name: modify_ldt$write2
+CallName: modify_ldt
+Args: [0xc42015d8f0 0xc4201591c0 0xc42015d960]
+Ret: <nil>
+
+pkey_alloc: ID: 828
+NR: 330
+Name: pkey_alloc
+CallName: pkey_alloc
+Args: [0xc42016da40 0xc42016dab0]
+Ret: &{{pkey ret 1 false} 0xc420014eb0}
+
+ptrace$setregs: ID: 860
+NR: 101
+Name: ptrace$setregs
+CallName: ptrace
+Args: [0xc4201715e0 0xc42016edc0 0xc420171650 0xc42016ee00]
+Ret: <nil>
+
+accept4$inet6: ID: 10
+NR: 288
+Name: accept4$inet6
+CallName: accept4
+Args: [0xc4200130c0 0xc420013100 0xc420013140 0xc4200907e0]
+Ret: &{{sock_in6 ret 1 false} 0xc420015450}
+
+pwrite64: ID: 863
+NR: 18
+Name: pwrite64
+CallName: pwrite64
+Args: [0xc42016f040 0xc42016f080 0xc420171880 0xc4201718f0]
+Ret: <nil>
+
+syz_test$length8: ID: 1222
+NR: 1000001
+Name: syz_test$length8
+CallName: syz_test
+Args: [0xc4201a7f40]
+Ret: <nil>
+
+prctl$setname: ID: 840
+NR: 157
+Name: prctl$setname
+CallName: prctl
+Args: [0xc4201703f0 0xc42016e140]
+Ret: <nil>
+
+syz_test$csum_ipv4_tcp: ID: 1195
+NR: 1000001
+Name: syz_test$csum_ipv4_tcp
+CallName: syz_test
+Args: [0xc4201a7880]
+Ret: <nil>
+
+ioctl$KVM_CREATE_PIT2: ID: 403
+NR: 16
+Name: ioctl$KVM_CREATE_PIT2
+CallName: ioctl
+Args: [0xc420134c80 0xc4201388c0 0xc420134cc0]
+Ret: <nil>
+
+ioctl$KVM_S390_INTERRUPT: ID: 450
+NR: 16
+Name: ioctl$KVM_S390_INTERRUPT
+CallName: ioctl
+Args: [0xc42013a280 0xc42013c000 0xc42013a2c0]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_TLV_READ: ID: 561
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_TLV_READ
+CallName: ioctl
+Args: [0xc420147700 0xc42014a000 0xc420147740]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_STATUS: ID: 605
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_STATUS
+CallName: ioctl
+Args: [0xc42014cc40 0xc42014b490 0xc42014cc80]
+Ret: <nil>
+
+ioctl$TCSETAW: ID: 615
+NR: 16
+Name: ioctl$TCSETAW
+CallName: ioctl
+Args: [0xc42014d040 0xc42014bab0 0xc42014d080]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_LIST: ID: 542
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_LIST
+CallName: ioctl
+Args: [0xc420146d80 0xc420143570 0xc420146dc0]
+Ret: <nil>
+
+setsockopt$tcp6_buf: ID: 1059
+NR: 54
+Name: setsockopt$tcp6_buf
+CallName: setsockopt
+Args: [0xc420185cc0 0xc420198d20 0xc420198d90 0xc420185d40 0xc420198e00]
+Ret: <nil>
+
+syz_test$array2: ID: 1190
+NR: 1000001
+Name: syz_test$array2
+CallName: syz_test
+Args: [0xc4201a7740]
+Ret: <nil>
+
+getrandom: ID: 138
+NR: 318
+Name: getrandom
+CallName: getrandom
+Args: [0xc420103140 0xc4201048c0 0xc420104930]
+Ret: <nil>
+
+getsockopt$netlink: ID: 230
+NR: 55
+Name: getsockopt$netlink
+CallName: getsockopt
+Args: [0xc420113640 0xc42011e4d0 0xc42011e540 0xc420113680 0xc4201136c0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_RES_CTX: ID: 306
+NR: 16
+Name: ioctl$DRM_IOCTL_RES_CTX
+CallName: ioctl
+Args: [0xc420123f40 0xc420129340 0xc420123f80]
+Ret: <nil>
+
+ioctl$KVM_CREATE_VM: ID: 405
+NR: 16
+Name: ioctl$KVM_CREATE_VM
+CallName: ioctl
+Args: [0xc420134dc0 0xc420138a10 0xc420138a80]
+Ret: &{{fd_kvmvm ret 1 false} 0xc420014640}
+
+ioctl$KVM_TRANSLATE: ID: 486
+NR: 16
+Name: ioctl$KVM_TRANSLATE
+CallName: ioctl
+Args: [0xc42013b380 0xc42013d420 0xc42013b3c0]
+Ret: <nil>
+
+timer_gettime: ID: 1242
+NR: 224
+Name: timer_gettime
+CallName: timer_gettime
+Args: [0xc4201b0600 0xc4201b0640]
+Ret: <nil>
+
+getsockopt$SCTP_GET_ASSOC_NUMBER: ID: 185
+NR: 55
+Name: getsockopt$SCTP_GET_ASSOC_NUMBER
+CallName: getsockopt
+Args: [0xc42010b400 0xc4201103f0 0xc420110460 0xc42010b440 0xc42010b480]
+Ret: <nil>
+
+getsockopt$SCTP_MAXSEG: ID: 194
+NR: 55
+Name: getsockopt$SCTP_MAXSEG
+CallName: getsockopt
+Args: [0xc42010bac0 0xc4201110a0 0xc420111110 0xc42010bb00 0xc42010bb40]
+Ret: <nil>
+
+getsockopt$ip_mtu: ID: 224
+NR: 55
+Name: getsockopt$ip_mtu
+CallName: getsockopt
+Args: [0xc4201131c0 0xc420115c00 0xc420115c70 0xc420113200 0xc420113240]
+Ret: <nil>
+
+syz_open_dev$mice: ID: 1160
+NR: 1000002
+Name: syz_open_dev$mice
+CallName: syz_open_dev
+Args: [0xc4201a6b40 0xc4201a5500 0xc4201a5570]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+mbind: ID: 741
+NR: 237
+Name: mbind
+CallName: mbind
+Args: [0xc420158b40 0xc42015c8c0 0xc42015c930 0xc420158b80 0xc42015ca10 0xc42015ca80]
+Ret: <nil>
+
+openat$ppp: ID: 807
+NR: 257
+Name: openat$ppp
+CallName: openat
+Args: [0xc42016c4d0 0xc420169080 0xc42016c540 0xc42016c5b0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$sock_int: ID: 1054
+NR: 54
+Name: setsockopt$sock_int
+CallName: setsockopt
+Args: [0xc420185a80 0xc4201985b0 0xc420198620 0xc420185ac0 0xc420198700]
+Ret: <nil>
+
+readlinkat: ID: 869
+NR: 267
+Name: readlinkat
+CallName: readlinkat
+Args: [0xc42016f380 0xc42016f3c0 0xc42016f400 0xc420171d50]
+Ret: <nil>
+
+getsockopt$BT_CHANNEL_POLICY: ID: 151
+NR: 55
+Name: getsockopt$BT_CHANNEL_POLICY
+CallName: getsockopt
+Args: [0xc420103b00 0xc420104ee0 0xc420104f50 0xc420103b40 0xc420103b80]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_CONTROL: ID: 278
+NR: 16
+Name: ioctl$DRM_IOCTL_CONTROL
+CallName: ioctl
+Args: [0xc420123180 0xc420128690 0xc4201231c0]
+Ret: <nil>
+
+setrlimit: ID: 960
+NR: 160
+Name: setrlimit
+CallName: setrlimit
+Args: [0xc42017b730 0xc42017cac0]
+Ret: <nil>
+
+setsockopt$sock_timeval: ID: 1057
+NR: 54
+Name: setsockopt$sock_timeval
+CallName: setsockopt
+Args: [0xc420185c00 0xc420198a10 0xc420198a80 0xc420185c40 0xc420198af0]
+Ret: <nil>
+
+syz_open_dev$vcsn: ID: 1178
+NR: 1000002
+Name: syz_open_dev$vcsn
+CallName: syz_open_dev
+Args: [0xc4201a7440 0xc4201ac4d0 0xc4201ac540]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+timer_settime: ID: 1243
+NR: 223
+Name: timer_settime
+CallName: timer_settime
+Args: [0xc4201b0680 0xc4201ad180 0xc4201b06c0 0xc4201b0700]
+Ret: <nil>
+
+getsockopt$SCTP_NODELAY: ID: 196
+NR: 55
+Name: getsockopt$SCTP_NODELAY
+CallName: getsockopt
+Args: [0xc42010bc40 0xc4201113b0 0xc420111420 0xc42010bc80 0xc42010bcc0]
+Ret: <nil>
+
+getsockopt$ip_pktinfo: ID: 226
+NR: 55
+Name: getsockopt$ip_pktinfo
+CallName: getsockopt
+Args: [0xc420113340 0xc420115f10 0xc420115f80 0xc420113380 0xc4201133c0]
+Ret: <nil>
+
+mkdir: ID: 746
+NR: 83
+Name: mkdir
+CallName: mkdir
+Args: [0xc420158dc0 0xc42015ce00]
+Ret: <nil>
+
+setsockopt$SCTP_DEFAULT_SEND_PARAM: ID: 1005
+NR: 54
+Name: setsockopt$SCTP_DEFAULT_SEND_PARAM
+CallName: setsockopt
+Args: [0xc420184140 0xc420183f10 0xc420183f80 0xc420184180 0xc420186000]
+Ret: <nil>
+
+setsockopt$SCTP_PRIMARY_ADDR: ID: 1020
+NR: 54
+Name: setsockopt$SCTP_PRIMARY_ADDR
+CallName: setsockopt
+Args: [0xc4201848c0 0xc420187500 0xc420187570 0xc420184900 0xc4201875e0]
+Ret: <nil>
+
+exit_group: ID: 79
+NR: 231
+Name: exit_group
+CallName: exit_group
+Args: [0xc420100bd0]
+Ret: <nil>
+
+ioctl$KVM_DIRTY_TLB: ID: 408
+NR: 16
+Name: ioctl$KVM_DIRTY_TLB
+CallName: ioctl
+Args: [0xc420134f00 0xc420138bd0 0xc420134f40]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_WRITE: ID: 548
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_WRITE
+CallName: ioctl
+Args: [0xc420147080 0xc420143810 0xc4201470c0]
+Ret: <nil>
+
+setsockopt$SCTP_ADAPTATION_LAYER: ID: 996
+NR: 54
+Name: setsockopt$SCTP_ADAPTATION_LAYER
+CallName: setsockopt
+Args: [0xc42017dcc0 0xc420183180 0xc4201831f0 0xc42017dd00 0xc4201832d0]
+Ret: <nil>
+
+socket$alg: ID: 1086
+NR: 41
+Name: socket$alg
+CallName: socket
+Args: [0xc42019c540 0xc42019c5b0 0xc42019c620]
+Ret: &{{sock_alg ret 1 false} 0xc420014fa0}
+
+setsockopt$ip_pktinfo: ID: 1048
+NR: 54
+Name: setsockopt$ip_pktinfo
+CallName: setsockopt
+Args: [0xc420185740 0xc420195d50 0xc420195dc0 0xc420185780 0xc420195e30]
+Ret: <nil>
+
+getsockopt$sock_buf: ID: 232
+NR: 55
+Name: getsockopt$sock_buf
+CallName: getsockopt
+Args: [0xc420113780 0xc42011e770 0xc42011e7e0 0xc4201137c0 0xc420113800]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_DROP_MASTER: ID: 280
+NR: 16
+Name: ioctl$DRM_IOCTL_DROP_MASTER
+CallName: ioctl
+Args: [0xc420123280 0xc420128770]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_MAGIC: ID: 288
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_MAGIC
+CallName: ioctl
+Args: [0xc420123640 0xc420128af0 0xc420123680]
+Ret: <nil>
+
+ioctl$PIO_UNISCRNMAP: ID: 525
+NR: 16
+Name: ioctl$PIO_UNISCRNMAP
+CallName: ioctl
+Args: [0xc420146500 0xc420142af0 0xc420146540]
+Ret: <nil>
+
+ioctl$TIOCSETD: ID: 649
+NR: 16
+Name: ioctl$TIOCSETD
+CallName: ioctl
+Args: [0xc42014df80 0xc42014ef50 0xc42014dfc0]
+Ret: <nil>
+
+mlock: ID: 751
+NR: 149
+Name: mlock
+CallName: mlock
+Args: [0xc420158fc0 0xc42015d2d0]
+Ret: <nil>
+
+syz_test$csum_ipv4: ID: 1194
+NR: 1000001
+Name: syz_test$csum_ipv4
+CallName: syz_test
+Args: [0xc4201a7840]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SET_SAREA_CTX: ID: 311
+NR: 16
+Name: ioctl$DRM_IOCTL_SET_SAREA_CTX
+CallName: ioctl
+Args: [0xc42012e180 0xc420129570 0xc42012e1c0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_WAIT_VBLANK: ID: 319
+NR: 16
+Name: ioctl$DRM_IOCTL_WAIT_VBLANK
+CallName: ioctl
+Args: [0xc42012e580 0xc4201298f0 0xc42012e5c0]
+Ret: <nil>
+
+keyctl$join: ID: 714
+NR: 250
+Name: keyctl$join
+CallName: keyctl
+Args: [0xc420157960 0xc420153e40]
+Ret: <nil>
+
+openat$irnet: ID: 800
+NR: 257
+Name: openat$irnet
+CallName: openat
+Args: [0xc420167b90 0xc420168b40 0xc420167c00 0xc420167c70]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+fsync: ID: 112
+NR: 74
+Name: fsync
+CallName: fsync
+Args: [0xc4201023c0]
+Ret: <nil>
+
+ioctl$UFFDIO_API: ID: 674
+NR: 16
+Name: ioctl$UFFDIO_API
+CallName: ioctl
+Args: [0xc420152c40 0xc420156150 0xc420152c80]
+Ret: <nil>
+
+ptrace$getsig: ID: 854
+NR: 101
+Name: ptrace$getsig
+CallName: ptrace
+Args: [0xc420170f50 0xc42016ea40 0xc420170fc0 0xc42016ea80]
+Ret: <nil>
+
+msgctl$IPC_STAT: ID: 772
+NR: 71
+Name: msgctl$IPC_STAT
+CallName: msgctl
+Args: [0xc420159ac0 0xc420166230 0xc420159b00]
+Ret: <nil>
+
+socketpair$udp: ID: 1126
+NR: 53
+Name: socketpair$udp
+CallName: socketpair
+Args: [0xc4201a39d0 0xc4201a3a40 0xc4201a3ab0 0xc42019b940]
+Ret: <nil>
+
+syz_test$align2: ID: 1183
+NR: 1000001
+Name: syz_test$align2
+CallName: syz_test
+Args: [0xc4201a7580]
+Ret: <nil>
+
+getsockname$netlink: ID: 146
+NR: 51
+Name: getsockname$netlink
+CallName: getsockname
+Args: [0xc420103740 0xc420103780 0xc4201037c0]
+Ret: <nil>
+
+io_setup: ID: 254
+NR: 206
+Name: io_setup
+CallName: io_setup
+Args: [0xc42011fab0 0xc420122600]
+Ret: <nil>
+
+ioctl$BNEPGETCONNLIST: ID: 260
+NR: 16
+Name: ioctl$BNEPGETCONNLIST
+CallName: ioctl
+Args: [0xc420122900 0xc42011fd50 0xc420122940]
+Ret: <nil>
+
+ioctl$KDGKBTYPE: ID: 381
+NR: 16
+Name: ioctl$KDGKBTYPE
+CallName: ioctl
+Args: [0xc4201343c0 0xc420133a40 0xc420134400]
+Ret: <nil>
+
+lchown: ID: 727
+NR: 94
+Name: lchown
+CallName: lchown
+Args: [0xc420158400 0xc420158440 0xc420158480]
+Ret: <nil>
+
+syz_test$length14: ID: 1209
+NR: 1000001
+Name: syz_test$length14
+CallName: syz_test
+Args: [0xc4201a7c00 0xc4201a7c40]
+Ret: <nil>
+
+ioctl$KDGKBDIACR: ID: 375
+NR: 16
+Name: ioctl$KDGKBDIACR
+CallName: ioctl
+Args: [0xc4201340c0 0xc420133650 0xc420134100]
+Ret: <nil>
+
+syz_open_dev$drirender: ID: 1154
+NR: 1000002
+Name: syz_open_dev$drirender
+CallName: syz_open_dev
+Args: [0xc4201a6840 0xc4201a4fc0 0xc4201a5030]
+Ret: &{{fd_dri ret 1 false} 0xc420014370}
+
+ioctl$KVM_GET_DIRTY_LOG: ID: 415
+NR: 16
+Name: ioctl$KVM_GET_DIRTY_LOG
+CallName: ioctl
+Args: [0xc420135280 0xc420138ee0 0xc4201352c0]
+Ret: <nil>
+
+ioctl$TE_IOCTL_CLOSE_CLIENT_SESSION: ID: 620
+NR: 16
+Name: ioctl$TE_IOCTL_CLOSE_CLIENT_SESSION
+CallName: ioctl
+Args: [0xc42014d280 0xc42014bd50 0xc42014d2c0]
+Ret: <nil>
+
+prctl$getreaper: ID: 834
+NR: 157
+Name: prctl$getreaper
+CallName: prctl
+Args: [0xc42016de30 0xc42016e040]
+Ret: <nil>
+
+connect$netlink: ID: 58
+NR: 42
+Name: connect$netlink
+CallName: connect
+Args: [0xc4200fc8c0 0xc4200fc900 0xc4201001c0]
+Ret: <nil>
+
+getsockopt$SCO_CONNINFO: ID: 170
+NR: 55
+Name: getsockopt$SCO_CONNINFO
+CallName: getsockopt
+Args: [0xc42010a8c0 0xc42010ee70 0xc42010eee0 0xc42010a900 0xc42010a940]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_STATS: ID: 291
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_STATS
+CallName: ioctl
+Args: [0xc4201237c0 0xc420128cb0 0xc420123800]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MODE_GETPLANERESOURCES: ID: 300
+NR: 16
+Name: ioctl$DRM_IOCTL_MODE_GETPLANERESOURCES
+CallName: ioctl
+Args: [0xc420123c40 0xc4201290a0 0xc420123c80]
+Ret: <nil>
+
+ioctl$EVIOCRMFF: ID: 345
+NR: 16
+Name: ioctl$EVIOCRMFF
+CallName: ioctl
+Args: [0xc42012f280 0xc420132540 0xc42012f2c0]
+Ret: <nil>
+
+renameat2: ID: 884
+NR: 316
+Name: renameat2
+CallName: renameat2
+Args: [0xc42016ffc0 0xc420178000 0xc420178040 0xc420178080 0xc4201768c0]
+Ret: <nil>
+
+setsockopt$SCTP_EVENTS: ID: 1009
+NR: 54
+Name: setsockopt$SCTP_EVENTS
+CallName: setsockopt
+Args: [0xc420184340 0xc4201864d0 0xc420186540 0xc420184380 0xc4201865b0]
+Ret: <nil>
+
+mq_getsetattr: ID: 762
+NR: 245
+Name: mq_getsetattr
+CallName: mq_getsetattr
+Args: [0xc420159480 0xc4201594c0 0xc420159500]
+Ret: <nil>
+
+getsockopt$SCTP_PEER_ADDR_PARAMS: ID: 198
+NR: 55
+Name: getsockopt$SCTP_PEER_ADDR_PARAMS
+CallName: getsockopt
+Args: [0xc42010bdc0 0xc4201116c0 0xc420111730 0xc42010be00 0xc42010be40]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_AGP_RELEASE: ID: 275
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_RELEASE
+CallName: ioctl
+Args: [0xc420123040 0xc4201284d0]
+Ret: <nil>
+
+ioctl$KDSKBMETA: ID: 388
+NR: 16
+Name: ioctl$KDSKBMETA
+CallName: ioctl
+Args: [0xc420134600 0xc420138000 0xc420134640]
+Ret: <nil>
+
+keyctl$assume_authority: ID: 704
+NR: 250
+Name: keyctl$assume_authority
+CallName: keyctl
+Args: [0xc4201572d0 0xc4201538c0]
+Ret: <nil>
+
+mknod$loop: ID: 749
+NR: 133
+Name: mknod$loop
+CallName: mknod
+Args: [0xc420158ec0 0xc42015d030 0xc42015d110]
+Ret: <nil>
+
+getsockopt$ip_mreqn: ID: 222
+NR: 55
+Name: getsockopt$ip_mreqn
+CallName: getsockopt
+Args: [0xc420113040 0xc420115960 0xc4201159d0 0xc420113080 0xc4201130c0]
+Ret: <nil>
+
+ioctl$EVIOCSKEYCODE: ID: 352
+NR: 16
+Name: ioctl$EVIOCSKEYCODE
+CallName: ioctl
+Args: [0xc42012f600 0xc420132930 0xc42012f640]
+Ret: <nil>
+
+ioctl$KVM_RUN: ID: 449
+NR: 16
+Name: ioctl$KVM_RUN
+CallName: ioctl
+Args: [0xc42013a240 0xc420139f80]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_CONTINUE: ID: 594
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_CONTINUE
+CallName: ioctl
+Args: [0xc42014c780 0xc42014af50]
+Ret: <nil>
+
+setsockopt$SCTP_DISABLE_FRAGMENTS: ID: 1008
+NR: 54
+Name: setsockopt$SCTP_DISABLE_FRAGMENTS
+CallName: setsockopt
+Args: [0xc4201842c0 0xc420186310 0xc420186380 0xc420184300 0xc420186460]
+Ret: <nil>
+
+delete_module: ID: 65
+NR: 176
+Name: delete_module
+CallName: delete_module
+Args: [0xc4200fcc40 0xc4201004d0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_INFO_BUFS: ID: 293
+NR: 16
+Name: ioctl$DRM_IOCTL_INFO_BUFS
+CallName: ioctl
+Args: [0xc4201238c0 0xc420128d90 0xc420123900]
+Ret: <nil>
+
+sched_yield: ID: 905
+NR: 24
+Name: sched_yield
+CallName: sched_yield
+Args: []
+Ret: <nil>
+
+waitid: ID: 1263
+NR: 247
+Name: waitid
+CallName: waitid
+Args: [0xc4201ad880 0xc4201b1000 0xc4201b1040 0xc4201ad8f0 0xc4201b1080]
+Ret: <nil>
+
+accept4$unix: ID: 12
+NR: 288
+Name: accept4$unix
+CallName: accept4
+Args: [0xc420013340 0xc420013380 0xc4200133c0 0xc4200909a0]
+Ret: &{{sock_unix ret 1 false} 0xc420015810}
+
+ioctl$EVIOCGPROP: ID: 337
+NR: 16
+Name: ioctl$EVIOCGPROP
+CallName: ioctl
+Args: [0xc42012ee80 0xc4201320e0 0xc42012eec0]
+Ret: <nil>
+
+ioctl$LOOP_CTL_REMOVE: ID: 496
+NR: 16
+Name: ioctl$LOOP_CTL_REMOVE
+CallName: ioctl
+Args: [0xc42013b840 0xc42013d880 0xc42013b880]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_REPLACE: ID: 546
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_REPLACE
+CallName: ioctl
+Args: [0xc420146f80 0xc420143730 0xc420146fc0]
+Ret: <nil>
+
+setsockopt$tcp_int: ID: 1062
+NR: 54
+Name: setsockopt$tcp_int
+CallName: setsockopt
+Args: [0xc420185ec0 0xc420199180 0xc4201991f0 0xc420185f00 0xc4201992d0]
+Ret: <nil>
+
+ioctl$KVM_SET_USER_MEMORY_REGION: ID: 478
+NR: 16
+Name: ioctl$KVM_SET_USER_MEMORY_REGION
+CallName: ioctl
+Args: [0xc42013afc0 0xc42013cfc0 0xc42013b000]
+Ret: <nil>
+
+ioctl$TCGETS: ID: 610
+NR: 16
+Name: ioctl$TCGETS
+CallName: ioctl
+Args: [0xc42014ce40 0xc42014b7a0 0xc42014ce80]
+Ret: <nil>
+
+flock: ID: 107
+NR: 73
+Name: flock
+CallName: flock
+Args: [0xc420102140 0xc420101d50]
+Ret: <nil>
+
+ioctl$SIOCGIFHWADDR: ID: 532
+NR: 16
+Name: ioctl$SIOCGIFHWADDR
+CallName: ioctl
+Args: [0xc420146880 0xc420143030 0xc4201468c0]
+Ret: <nil>
+
+semget: ID: 921
+NR: 64
+Name: semget
+CallName: semget
+Args: [0xc42017a000 0xc42017a070 0xc42017a0e0]
+Ret: &{{ipc_sem ret 1 false} 0xc420014d20}
+
+syz_open_dev$sndhw: ID: 1166
+NR: 1000002
+Name: syz_open_dev$sndhw
+CallName: syz_open_dev
+Args: [0xc4201a6e40 0xc4201a5a40 0xc4201a5ab0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+syz_test$bf0: ID: 1191
+NR: 1000001
+Name: syz_test$bf0
+CallName: syz_test
+Args: [0xc4201a7780]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MODESET_CTL: ID: 298
+NR: 16
+Name: ioctl$DRM_IOCTL_MODESET_CTL
+CallName: ioctl
+Args: [0xc420123b40 0xc420128fc0 0xc420123b80]
+Ret: <nil>
+
+openat$hidraw0: ID: 796
+NR: 257
+Name: openat$hidraw0
+CallName: openat
+Args: [0xc420167650 0xc420168840 0xc4201676c0 0xc420167730]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ptrace$pokeuser: ID: 858
+NR: 101
+Name: ptrace$pokeuser
+CallName: ptrace
+Args: [0xc420171340 0xc42016ec80 0xc4201713b0 0xc420171420]
+Ret: <nil>
+
+shmctl$SHM_INFO: ID: 1074
+NR: 31
+Name: shmctl$SHM_INFO
+CallName: shmctl
+Args: [0xc42019a4c0 0xc420199d50 0xc42019a500]
+Ret: <nil>
+
+shmget: ID: 1079
+NR: 29
+Name: shmget
+CallName: shmget
+Args: [0xc420199f10 0xc420199f80 0xc42019c000 0xc42019a6c0]
+Ret: &{{ipc_shm ret 1 false} 0xc420014d70}
+
+socket$inet6: ID: 1101
+NR: 41
+Name: socket$inet6
+CallName: socket
+Args: [0xc42019d8f0 0xc42019d960 0xc42019d9d0]
+Ret: &{{sock_in6 ret 1 false} 0xc420015450}
+
+syz_test$length16: ID: 1211
+NR: 1000001
+Name: syz_test$length16
+CallName: syz_test
+Args: [0xc4201a7c80]
+Ret: <nil>
+
+setregid: ID: 956
+NR: 114
+Name: setregid
+CallName: setregid
+Args: [0xc42017c840 0xc42017c880]
+Ret: <nil>
+
+socketpair$icmp: ID: 1117
+NR: 53
+Name: socketpair$icmp
+CallName: socketpair
+Args: [0xc4201a2e00 0xc4201a2e70 0xc4201a2ee0 0xc42019b440]
+Ret: <nil>
+
+getsockopt$ipv6_opts: ID: 229
+NR: 55
+Name: getsockopt$ipv6_opts
+CallName: getsockopt
+Args: [0xc420113580 0xc42011e380 0xc42011e3f0 0xc4201135c0 0xc420113600]
+Ret: <nil>
+
+gettid: ID: 243
+NR: 186
+Name: gettid
+CallName: gettid
+Args: []
+Ret: &{{pid ret 1 false} 0xc420014e60}
+
+ioctl$KDSIGACCEPT: ID: 386
+NR: 16
+Name: ioctl$KDSIGACCEPT
+CallName: ioctl
+Args: [0xc420134580 0xc420133e30 0xc420133ea0]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_REMOVE: ID: 545
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_REMOVE
+CallName: ioctl
+Args: [0xc420146f00 0xc4201436c0 0xc420146f40]
+Ret: <nil>
+
+ioctl$TUNGETSNDBUF: ID: 661
+NR: 16
+Name: ioctl$TUNGETSNDBUF
+CallName: ioctl
+Args: [0xc420152580 0xc42014f7a0 0xc4201525c0]
+Ret: <nil>
+
+rt_sigsuspend: ID: 893
+NR: 130
+Name: rt_sigsuspend
+CallName: rt_sigsuspend
+Args: [0xc4201784c0 0xc420176c40]
+Ret: <nil>
+
+setsockopt$L2CAP_OPTIONS: ID: 978
+NR: 54
+Name: setsockopt$L2CAP_OPTIONS
+CallName: setsockopt
+Args: [0xc42017d380 0xc420181340 0xc4201813b0 0xc42017d3c0 0xc420181420]
+Ret: <nil>
+
+setsockopt$dccp_buf: ID: 1033
+NR: 54
+Name: setsockopt$dccp_buf
+CallName: setsockopt
+Args: [0xc420184f80 0xc4201947e0 0xc420194850 0xc420185000 0xc4201948c0]
+Ret: <nil>
+
+accept4$sctp: ID: 11
+NR: 288
+Name: accept4$sctp
+CallName: accept4
+Args: [0xc420013200 0xc420013240 0xc420013280 0xc4200908c0]
+Ret: &{{sock_sctp ret 1 false} 0xc420015680}
+
+getsockopt$L2CAP_CONNINFO: ID: 160
+NR: 55
+Name: getsockopt$L2CAP_CONNINFO
+CallName: getsockopt
+Args: [0xc42010a140 0xc420105e30 0xc420105ea0 0xc42010a180 0xc42010a1c0]
+Ret: <nil>
+
+getsockopt$SCTP_DEFAULT_SNDINFO: ID: 179
+NR: 55
+Name: getsockopt$SCTP_DEFAULT_SNDINFO
+CallName: getsockopt
+Args: [0xc42010af80 0xc42010fb20 0xc42010fb90 0xc42010afc0 0xc42010b000]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_STATUS: ID: 574
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_STATUS
+CallName: ioctl
+Args: [0xc420147d80 0xc42014a620 0xc420147dc0]
+Ret: <nil>
+
+ioctl$UFFDIO_ZEROPAGE: ID: 679
+NR: 16
+Name: ioctl$UFFDIO_ZEROPAGE
+CallName: ioctl
+Args: [0xc420152ec0 0xc420156380 0xc420152f00]
+Ret: <nil>
+
+syz_test$text_x86_64: ID: 1230
+NR: 1000001
+Name: syz_test$text_x86_64
+CallName: syz_test
+Args: [0xc4201b0100 0xc4201acd20]
+Ret: <nil>
+
+sync: ID: 1134
+NR: 162
+Name: sync
+CallName: sync
+Args: []
+Ret: <nil>
+
+syz_test$length17: ID: 1212
+NR: 1000001
+Name: syz_test$length17
+CallName: syz_test
+Args: [0xc4201a7cc0]
+Ret: <nil>
+
+syz_test$regression0: ID: 1227
+NR: 1000001
+Name: syz_test$regression0
+CallName: syz_test
+Args: [0xc4201b0040]
+Ret: <nil>
+
+syz_test$csum_ipv6_icmp: ID: 1197
+NR: 1000001
+Name: syz_test$csum_ipv6_icmp
+CallName: syz_test
+Args: [0xc4201a7900]
+Ret: <nil>
+
+syz_test$length4: ID: 1218
+NR: 1000001
+Name: syz_test$length4
+CallName: syz_test
+Args: [0xc4201a7e40]
+Ret: <nil>
+
+futimesat: ID: 115
+NR: 261
+Name: futimesat
+CallName: futimesat
+Args: [0xc420102500 0xc420102540 0xc420102580]
+Ret: <nil>
+
+getsockopt$SCTP_PARTIAL_DELIVERY_POINT: ID: 197
+NR: 55
+Name: getsockopt$SCTP_PARTIAL_DELIVERY_POINT
+CallName: getsockopt
+Args: [0xc42010bd00 0xc420111570 0xc4201115e0 0xc42010bd40 0xc42010bd80]
+Ret: <nil>
+
+ioctl$TCXONC: ID: 619
+NR: 16
+Name: ioctl$TCXONC
+CallName: ioctl
+Args: [0xc42014d240 0xc42014bc70 0xc42014bce0]
+Ret: <nil>
+
+setsockopt$SCTP_FRAGMENT_INTERLEAVE: ID: 1010
+NR: 54
+Name: setsockopt$SCTP_FRAGMENT_INTERLEAVE
+CallName: setsockopt
+Args: [0xc4201843c0 0xc420186620 0xc420186690 0xc420184400 0xc420186770]
+Ret: <nil>
+
+ioctl$VT_ACTIVATE: ID: 680
+NR: 16
+Name: ioctl$VT_ACTIVATE
+CallName: ioctl
+Args: [0xc420152f40 0xc4201563f0 0xc420156460]
+Ret: <nil>
+
+mount: ID: 759
+NR: 165
+Name: mount
+CallName: mount
+Args: [0xc420159200 0xc420159240 0xc420159280 0xc42015d9d0 0xc4201592c0]
+Ret: <nil>
+
+shmctl$IPC_STAT: ID: 1073
+NR: 31
+Name: shmctl$IPC_STAT
+CallName: shmctl
+Args: [0xc42019a440 0xc420199ce0 0xc42019a480]
+Ret: <nil>
+
+exit: ID: 78
+NR: 60
+Name: exit
+CallName: exit
+Args: [0xc420100b60]
+Ret: <nil>
+
+getresuid: ID: 140
+NR: 118
+Name: getresuid
+CallName: getresuid
+Args: [0xc420103340 0xc4201033c0 0xc420103440]
+Ret: <nil>
+
+getsockopt$RFCOMM_LM: ID: 169
+NR: 55
+Name: getsockopt$RFCOMM_LM
+CallName: getsockopt
+Args: [0xc42010a800 0xc42010ecb0 0xc42010ed20 0xc42010a840 0xc42010a880]
+Ret: <nil>
+
+getsockopt$ip_buf: ID: 218
+NR: 55
+Name: getsockopt$ip_buf
+CallName: getsockopt
+Args: [0xc420112d40 0xc4201153b0 0xc420115420 0xc420112d80 0xc420112dc0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_NAMED_QUEUE: ID: 570
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_NAMED_QUEUE
+CallName: ioctl
+Args: [0xc420147b80 0xc42014a460 0xc420147bc0]
+Ret: <nil>
+
+syz_test$bf1: ID: 1192
+NR: 1000001
+Name: syz_test$bf1
+CallName: syz_test
+Args: [0xc4201a77c0]
+Ret: <nil>
+
+write$fuse_bmap: ID: 1267
+NR: 1
+Name: write$fuse_bmap
+CallName: write
+Args: [0xc4201b1240 0xc4201b1280 0xc4201adb90]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_LOCK: ID: 295
+NR: 16
+Name: ioctl$DRM_IOCTL_LOCK
+CallName: ioctl
+Args: [0xc4201239c0 0xc420128e70 0xc420123a00]
+Ret: <nil>
+
+ioctl$TCFLSH: ID: 608
+NR: 16
+Name: ioctl$TCFLSH
+CallName: ioctl
+Args: [0xc42014cd80 0xc42014b650 0xc42014b6c0]
+Ret: <nil>
+
+openat$userio: ID: 816
+NR: 257
+Name: openat$userio
+CallName: openat
+Args: [0xc42016d0a0 0xc420169740 0xc42016d110 0xc42016d180]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+read$eventfd: ID: 866
+NR: 0
+Name: read$eventfd
+CallName: read
+Args: [0xc42016f240 0xc42016f280 0xc420171b90]
+Ret: <nil>
+
+recvmsg: ID: 877
+NR: 47
+Name: recvmsg
+CallName: recvmsg
+Args: [0xc42016fb00 0xc42016fb40 0xc4201765b0]
+Ret: <nil>
+
+syz_open_pts: ID: 1179
+NR: 1000003
+Name: syz_open_pts
+CallName: syz_open_pts
+Args: [0xc4201a74c0 0xc4201ac5b0]
+Ret: &{{fd_tty ret 1 false} 0xc420014a50}
+
+getpeername: ID: 127
+NR: 52
+Name: getpeername
+CallName: getpeername
+Args: [0xc420102a80 0xc420102ac0 0xc420102b00]
+Ret: <nil>
+
+getsockopt$SCTP_AUTO_ASCONF: ID: 176
+NR: 55
+Name: getsockopt$SCTP_AUTO_ASCONF
+CallName: getsockopt
+Args: [0xc42010ad40 0xc42010f6c0 0xc42010f730 0xc42010ad80 0xc42010adc0]
+Ret: <nil>
+
+ioctl$KVM_CHECK_EXTENSION_VM: ID: 400
+NR: 16
+Name: ioctl$KVM_CHECK_EXTENSION_VM
+CallName: ioctl
+Args: [0xc420134b80 0xc420138700 0xc420138770]
+Ret: <nil>
+
+open_by_handle_at: ID: 787
+NR: 304
+Name: open_by_handle_at
+CallName: open_by_handle_at
+Args: [0xc420168140 0xc420168180 0xc420166bd0]
+Ret: <nil>
+
+perf_event_open: ID: 823
+NR: 298
+Name: perf_event_open
+CallName: perf_event_open
+Args: [0xc420169bc0 0xc420169c00 0xc42016d880 0xc420169c40 0xc42016d8f0]
+Ret: &{{fd_perf ret 1 false} 0xc4200147d0}
+
+ioctl$KIOCSOUND: ID: 391
+NR: 16
+Name: ioctl$KIOCSOUND
+CallName: ioctl
+Args: [0xc420134780 0xc420138230 0xc4201382a0]
+Ret: <nil>
+
+mlock2: ID: 752
+NR: 325
+Name: mlock2
+CallName: mlock2
+Args: [0xc420159000 0xc42015d340 0xc42015d3b0]
+Ret: <nil>
+
+mq_open: ID: 764
+NR: 240
+Name: mq_open
+CallName: mq_open
+Args: [0xc420159600 0xc42015dce0 0xc42015dd50 0xc420159680]
+Ret: &{{fd_mq ret 1 false} 0xc420014780}
+
+setsockopt$KCM_RECV_DISABLE: ID: 975
+NR: 54
+Name: setsockopt$KCM_RECV_DISABLE
+CallName: setsockopt
+Args: [0xc42017d1c0 0xc420180e70 0xc420180ee0 0xc42017d200 0xc420180fc0]
+Ret: <nil>
+
+ioctl$EVIOCGBITSW: ID: 326
+NR: 16
+Name: ioctl$EVIOCGBITSW
+CallName: ioctl
+Args: [0xc42012e900 0xc420129c00 0xc42012e940]
+Ret: <nil>
+
+ioctl$KVM_ASSIGN_SET_MSIX_ENTRY: ID: 397
+NR: 16
+Name: ioctl$KVM_ASSIGN_SET_MSIX_ENTRY
+CallName: ioctl
+Args: [0xc420134a40 0xc420138540 0xc420134a80]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE: ID: 553
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE
+CallName: ioctl
+Args: [0xc420147300 0xc420143ab0 0xc420147340]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_CREATE_PORT: ID: 564
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_CREATE_PORT
+CallName: ioctl
+Args: [0xc420147880 0xc42014a1c0 0xc4201478c0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_TIMER: ID: 590
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_TIMER
+CallName: ioctl
+Args: [0xc42014c580 0xc42014ad90 0xc42014c5c0]
+Ret: <nil>
+
+setsockopt$sock_void: ID: 1058
+NR: 54
+Name: setsockopt$sock_void
+CallName: setsockopt
+Args: [0xc420185c80 0xc420198b60 0xc420198bd0 0xc420198c40 0xc420198cb0]
+Ret: <nil>
+
+timer_delete: ID: 1240
+NR: 226
+Name: timer_delete
+CallName: timer_delete
+Args: [0xc4201b0580]
+Ret: <nil>
+
+getsockname$inet6: ID: 145
+NR: 51
+Name: getsockname$inet6
+CallName: getsockname
+Args: [0xc420103680 0xc4201036c0 0xc420103700]
+Ret: <nil>
+
+ioctl$KVM_SET_CLOCK: ID: 456
+NR: 16
+Name: ioctl$KVM_SET_CLOCK
+CallName: ioctl
+Args: [0xc42013a580 0xc42013c380 0xc42013a5c0]
+Ret: <nil>
+
+ioctl$bt_hci: ID: 691
+NR: 16
+Name: ioctl$bt_hci
+CallName: ioctl
+Args: [0xc4201533c0 0xc4201569a0 0xc420153400]
+Ret: <nil>
+
+openat$pktcdvd: ID: 806
+NR: 257
+Name: openat$pktcdvd
+CallName: openat
+Args: [0xc42016c380 0xc420168fc0 0xc42016c3f0 0xc42016c460]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$SCTP_DEFAULT_SNDINFO: ID: 1006
+NR: 54
+Name: setsockopt$SCTP_DEFAULT_SNDINFO
+CallName: setsockopt
+Args: [0xc4201841c0 0xc420186070 0xc4201860e0 0xc420184200 0xc420186150]
+Ret: <nil>
+
+sendmmsg$unix: ID: 930
+NR: 307
+Name: sendmmsg$unix
+CallName: sendmmsg
+Args: [0xc420179c00 0xc420179c40 0xc42017a7e0 0xc42017a850]
+Ret: <nil>
+
+setsockopt$BT_CHANNEL_POLICY: ID: 964
+NR: 54
+Name: setsockopt$BT_CHANNEL_POLICY
+CallName: setsockopt
+Args: [0xc42017cc40 0xc42017bc00 0xc42017bc70 0xc42017cc80 0xc42017bd50]
+Ret: <nil>
+
+syz_open_dev$usbmon: ID: 1176
+NR: 1000002
+Name: syz_open_dev$usbmon
+CallName: syz_open_dev
+Args: [0xc4201a7340 0xc4201ac310 0xc4201ac380]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+add_key: ID: 14
+NR: 248
+Name: add_key
+CallName: add_key
+Args: [0xc4200134c0 0xc420013500 0xc420013540 0xc420090a10 0xc420090a80]
+Ret: &{{key ret 1 false} 0xc420014dc0}
+
+getitimer: ID: 126
+NR: 36
+Name: getitimer
+CallName: getitimer
+Args: [0xc4201044d0 0xc420102a40]
+Ret: <nil>
+
+ioctl$TCSETS: ID: 616
+NR: 16
+Name: ioctl$TCSETS
+CallName: ioctl
+Args: [0xc42014d0c0 0xc42014bb20 0xc42014d100]
+Ret: <nil>
+
+modify_ldt$read: ID: 755
+NR: 154
+Name: modify_ldt$read
+CallName: modify_ldt
+Args: [0xc42015d650 0xc420159100 0xc42015d6c0]
+Ret: <nil>
+
+ptrace: ID: 849
+NR: 101
+Name: ptrace
+CallName: ptrace
+Args: [0xc420170a80 0xc42016e700]
+Ret: <nil>
+
+write$fuse_notify_inval_entry: ID: 1272
+NR: 1
+Name: write$fuse_notify_inval_entry
+CallName: write
+Args: [0xc4201b14c0 0xc4201b1500 0xc4201addc0]
+Ret: <nil>
+
+syz_test$csum_ipv4_udp: ID: 1196
+NR: 1000001
+Name: syz_test$csum_ipv4_udp
+CallName: syz_test
+Args: [0xc4201a78c0]
+Ret: <nil>
+
+ioctl$EVIOCGKEYCODE_V2: ID: 331
+NR: 16
+Name: ioctl$EVIOCGKEYCODE_V2
+CallName: ioctl
+Args: [0xc42012eb80 0xc420129e30 0xc42012ebc0]
+Ret: <nil>
+
+ioctl$KVM_ASSIGN_SET_INTX_MASK: ID: 396
+NR: 16
+Name: ioctl$KVM_ASSIGN_SET_INTX_MASK
+CallName: ioctl
+Args: [0xc4201349c0 0xc4201384d0 0xc420134a00]
+Ret: <nil>
+
+ioctl$KVM_SMI: ID: 484
+NR: 16
+Name: ioctl$KVM_SMI
+CallName: ioctl
+Args: [0xc42013b2c0 0xc42013d340]
+Ret: <nil>
+
+ioctl$LOOP_SET_CAPACITY: ID: 499
+NR: 16
+Name: ioctl$LOOP_SET_CAPACITY
+CallName: ioctl
+Args: [0xc42013b9c0 0xc42013d9d0]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_PVERSION: ID: 602
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_PVERSION
+CallName: ioctl
+Args: [0xc42014cb00 0xc42014b2d0 0xc42014cb40]
+Ret: <nil>
+
+getsockopt$SCTP_DISABLE_FRAGMENTS: ID: 181
+NR: 55
+Name: getsockopt$SCTP_DISABLE_FRAGMENTS
+CallName: getsockopt
+Args: [0xc42010b100 0xc42010fdc0 0xc42010fe30 0xc42010b140 0xc42010b180]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SWITCH_CTX: ID: 316
+NR: 16
+Name: ioctl$DRM_IOCTL_SWITCH_CTX
+CallName: ioctl
+Args: [0xc42012e400 0xc4201297a0 0xc42012e440]
+Ret: <nil>
+
+ioctl$KVM_TPR_ACCESS_REPORTING: ID: 485
+NR: 16
+Name: ioctl$KVM_TPR_ACCESS_REPORTING
+CallName: ioctl
+Args: [0xc42013b300 0xc42013d3b0 0xc42013b340]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_QUERY_SUBS: ID: 581
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_QUERY_SUBS
+CallName: ioctl
+Args: [0xc42014c100 0xc42014a9a0 0xc42014c140]
+Ret: <nil>
+
+getsockopt$SO_TIMESTAMPING: ID: 208
+NR: 55
+Name: getsockopt$SO_TIMESTAMPING
+CallName: getsockopt
+Args: [0xc420112540 0xc4201144d0 0xc420114540 0xc420112580 0xc4201125c0]
+Ret: <nil>
+
+ioctl$SIOCINQ: ID: 533
+NR: 16
+Name: ioctl$SIOCINQ
+CallName: ioctl
+Args: [0xc420146900 0xc4201430a0 0xc420146940]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_CLIENT_INFO: ID: 568
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_CLIENT_INFO
+CallName: ioctl
+Args: [0xc420147a80 0xc42014a380 0xc420147ac0]
+Ret: <nil>
+
+socket$dccp: ID: 1094
+NR: 41
+Name: socket$dccp
+CallName: socket
+Args: [0xc42019cfc0 0xc42019d030 0xc42019d0a0]
+Ret: &{{sock_dccp ret 1 false} 0xc4200152c0}
+
+ioctl$TUNSETOFFLOAD: ID: 667
+NR: 16
+Name: ioctl$TUNSETOFFLOAD
+CallName: ioctl
+Args: [0xc420152880 0xc42014fc70 0xc4201528c0]
+Ret: <nil>
+
+sched_setaffinity: ID: 901
+NR: 203
+Name: sched_setaffinity
+CallName: sched_setaffinity
+Args: [0xc420178980 0xc420176fc0 0xc4201789c0]
+Ret: <nil>
+
+getsockopt$dccp6_int: ID: 211
+NR: 55
+Name: getsockopt$dccp6_int
+CallName: getsockopt
+Args: [0xc4201127c0 0xc420114930 0xc4201149a0 0xc420112800 0xc420112840]
+Ret: <nil>
+
+getuid: ID: 244
+NR: 102
+Name: getuid
+CallName: getuid
+Args: []
+Ret: &{{uid ret 1 false} 0xc420015900}
+
+ioctl$BNEPCONNADD: ID: 257
+NR: 16
+Name: ioctl$BNEPCONNADD
+CallName: ioctl
+Args: [0xc420122780 0xc42011fc00 0xc4201227c0]
+Ret: <nil>
+
+ioctl$GIO_FONTX: ID: 360
+NR: 16
+Name: ioctl$GIO_FONTX
+CallName: ioctl
+Args: [0xc42012fa40 0xc420132e00 0xc42012fa80]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_PORT_INFO: ID: 571
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_PORT_INFO
+CallName: ioctl
+Args: [0xc420147c00 0xc42014a4d0 0xc420147c40]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_DELETE_PORT: ID: 566
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_DELETE_PORT
+CallName: ioctl
+Args: [0xc420147980 0xc42014a2a0 0xc4201479c0]
+Ret: <nil>
+
+semctl$SEM_STAT: ID: 918
+NR: 66
+Name: semctl$SEM_STAT
+CallName: semctl
+Args: [0xc4201793c0 0xc420177c70 0xc420177ce0 0xc420179400]
+Ret: <nil>
+
+bind$inet: ID: 23
+NR: 49
+Name: bind$inet
+CallName: bind
+Args: [0xc420013900 0xc420013940 0xc420090e70]
+Ret: <nil>
+
+ioctl$EVIOCGBITKEY: ID: 324
+NR: 16
+Name: ioctl$EVIOCGBITKEY
+CallName: ioctl
+Args: [0xc42012e800 0xc420129b20 0xc42012e840]
+Ret: <nil>
+
+nanosleep: ID: 784
+NR: 35
+Name: nanosleep
+CallName: nanosleep
+Args: [0xc420159fc0 0xc420168000]
+Ret: <nil>
+
+getsockopt$BT_POWER: ID: 154
+NR: 55
+Name: getsockopt$BT_POWER
+CallName: getsockopt
+Args: [0xc420103d40 0xc420105420 0xc420105490 0xc420103d80 0xc420103dc0]
+Ret: <nil>
+
+ioctl$KDGKBSENT: ID: 380
+NR: 16
+Name: ioctl$KDGKBSENT
+CallName: ioctl
+Args: [0xc420134340 0xc4201339d0 0xc420134380]
+Ret: <nil>
+
+process_vm_writev: ID: 847
+NR: 311
+Name: process_vm_writev
+CallName: process_vm_writev
+Args: [0xc42016e500 0xc42016e540 0xc4201708c0 0xc42016e580 0xc420170930 0xc4201709a0]
+Ret: <nil>
+
+setitimer: ID: 952
+NR: 38
+Name: setitimer
+CallName: setitimer
+Args: [0xc42017b570 0xc42017c6c0 0xc42017c700]
+Ret: <nil>
+
+syz_test$csum_ipv6_tcp: ID: 1198
+NR: 1000001
+Name: syz_test$csum_ipv6_tcp
+CallName: syz_test
+Args: [0xc4201a7940]
+Ret: <nil>
+
+setsockopt$BT_DEFER_SETUP: ID: 965
+NR: 54
+Name: setsockopt$BT_DEFER_SETUP
+CallName: setsockopt
+Args: [0xc42017ccc0 0xc42017bdc0 0xc42017be30 0xc42017cd00 0xc42017bf10]
+Ret: <nil>
+
+setsockopt$HCI_FILTER: ID: 973
+NR: 54
+Name: setsockopt$HCI_FILTER
+CallName: setsockopt
+Args: [0xc42017d0c0 0xc420180b60 0xc420180bd0 0xc42017d100 0xc420180c40]
+Ret: <nil>
+
+splice: ID: 1129
+NR: 275
+Name: splice
+CallName: splice
+Args: [0xc42019bac0 0xc4201a3dc0 0xc42019bb00 0xc4201a3e30 0xc4201a3ea0 0xc4201a3f10]
+Ret: <nil>
+
+ioctl$EVIOCGMTSLOTS: ID: 334
+NR: 16
+Name: ioctl$EVIOCGMTSLOTS
+CallName: ioctl
+Args: [0xc42012ed00 0xc420129f80 0xc42012ed40]
+Ret: <nil>
+
+ioctl$KDSKBSENT: ID: 390
+NR: 16
+Name: ioctl$KDSKBSENT
+CallName: ioctl
+Args: [0xc420134700 0xc4201381c0 0xc420134740]
+Ret: <nil>
+
+ioctl$VT_RELDISP: ID: 685
+NR: 16
+Name: ioctl$VT_RELDISP
+CallName: ioctl
+Args: [0xc420153140 0xc420156700]
+Ret: <nil>
+
+keyctl$describe: ID: 707
+NR: 250
+Name: keyctl$describe
+CallName: keyctl
+Args: [0xc420157420 0xc420153a40 0xc420153a80 0xc420157490]
+Ret: <nil>
+
+openat$sequencer: ID: 812
+NR: 257
+Name: openat$sequencer
+CallName: openat
+Args: [0xc42016cb60 0xc420169440 0xc42016cbd0 0xc42016cc40]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+syz_open_dev$amidi: ID: 1149
+NR: 1000002
+Name: syz_open_dev$amidi
+CallName: syz_open_dev
+Args: [0xc4201a65c0 0xc4201a4b60 0xc4201a4bd0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+syz_test$array1: ID: 1189
+NR: 1000001
+Name: syz_test$array1
+CallName: syz_test
+Args: [0xc4201a7700]
+Ret: <nil>
+
+accept4$inet: ID: 9
+NR: 288
+Name: accept4$inet
+CallName: accept4
+Args: [0xc420012f80 0xc420012fc0 0xc420013000 0xc420090700]
+Ret: &{{sock_in ret 1 false} 0xc420015400}
+
+ioctl$GIO_CMAP: ID: 358
+NR: 16
+Name: ioctl$GIO_CMAP
+CallName: ioctl
+Args: [0xc42012f940 0xc420132d20 0xc42012f980]
+Ret: <nil>
+
+ptrace$peek: ID: 855
+NR: 101
+Name: ptrace$peek
+CallName: ptrace
+Args: [0xc420171030 0xc42016eb00 0xc42016eb40]
+Ret: <nil>
+
+getsockopt$sock_timeval: ID: 236
+NR: 55
+Name: getsockopt$sock_timeval
+CallName: getsockopt
+Args: [0xc420113a80 0xc42011ed20 0xc42011ed90 0xc420113ac0 0xc420113b00]
+Ret: <nil>
+
+ioctl$KVM_SET_XCRS: ID: 481
+NR: 16
+Name: ioctl$KVM_SET_XCRS
+CallName: ioctl
+Args: [0xc42013b140 0xc42013d1f0 0xc42013b180]
+Ret: <nil>
+
+ioctl$LOOP_SET_STATUS64: ID: 503
+NR: 16
+Name: ioctl$LOOP_SET_STATUS64
+CallName: ioctl
+Args: [0xc42013bb40 0xc42013dc00 0xc42013bb80]
+Ret: <nil>
+
+socket$udp6: ID: 1112
+NR: 41
+Name: socket$udp6
+CallName: socket
+Args: [0xc4201a2770 0xc4201a27e0 0xc4201a2850]
+Ret: &{{sock_udp6 ret 1 false} 0xc4200157c0}
+
+getsockopt$SCTP_EVENTS: ID: 182
+NR: 55
+Name: getsockopt$SCTP_EVENTS
+CallName: getsockopt
+Args: [0xc42010b1c0 0xc42010ff80 0xc420110000 0xc42010b200 0xc42010b240]
+Ret: <nil>
+
+ioctl$CMTPGETCONNLIST: ID: 265
+NR: 16
+Name: ioctl$CMTPGETCONNLIST
+CallName: ioctl
+Args: [0xc420122b80 0xc420128000 0xc420122bc0]
+Ret: <nil>
+
+ioctl$KVM_SET_PIT: ID: 471
+NR: 16
+Name: ioctl$KVM_SET_PIT
+CallName: ioctl
+Args: [0xc42013acc0 0xc42013cbd0 0xc42013ad00]
+Ret: <nil>
+
+ioctl$VT_OPENQRY: ID: 684
+NR: 16
+Name: ioctl$VT_OPENQRY
+CallName: ioctl
+Args: [0xc4201530c0 0xc420156620 0xc420153100]
+Ret: <nil>
+
+socketpair$udp6: ID: 1127
+NR: 53
+Name: socketpair$udp6
+CallName: socketpair
+Args: [0xc4201a3b20 0xc4201a3b90 0xc4201a3c00 0xc42019b9c0]
+Ret: <nil>
+
+fcntl$setpipe: ID: 100
+NR: 72
+Name: fcntl$setpipe
+CallName: fcntl
+Args: [0xc4200fde40 0xc420101960 0xc4201019d0]
+Ret: <nil>
+
+getsockopt$sock_linger: ID: 235
+NR: 55
+Name: getsockopt$sock_linger
+CallName: getsockopt
+Args: [0xc4201139c0 0xc42011ebd0 0xc42011ec40 0xc420113a00 0xc420113a40]
+Ret: <nil>
+
+ioctl$EVIOCGNAME: ID: 335
+NR: 16
+Name: ioctl$EVIOCGNAME
+CallName: ioctl
+Args: [0xc42012ed80 0xc420132000 0xc42012edc0]
+Ret: <nil>
+
+ioctl$KDGETMODE: ID: 374
+NR: 16
+Name: ioctl$KDGETMODE
+CallName: ioctl
+Args: [0xc420134040 0xc420133570 0xc420134080]
+Ret: <nil>
+
+ioctl$KVM_CREATE_IRQCHIP: ID: 402
+NR: 16
+Name: ioctl$KVM_CREATE_IRQCHIP
+CallName: ioctl
+Args: [0xc420134c40 0xc420138850]
+Ret: <nil>
+
+syz_open_dev$mouse: ID: 1162
+NR: 1000002
+Name: syz_open_dev$mouse
+CallName: syz_open_dev
+Args: [0xc4201a6c40 0xc4201a56c0 0xc4201a5730]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+syz_test$int: ID: 1202
+NR: 1000001
+Name: syz_test$int
+CallName: syz_test
+Args: [0xc4201ac620 0xc4201ac690 0xc4201ac700 0xc4201ac770 0xc4201ac7e0]
+Ret: <nil>
+
+write$fuse_notify_delete: ID: 1271
+NR: 1
+Name: write$fuse_notify_delete
+CallName: write
+Args: [0xc4201b1440 0xc4201b1480 0xc4201add50]
+Ret: <nil>
+
+setsockopt$SCTP_RECVNXTINFO: ID: 1021
+NR: 54
+Name: setsockopt$SCTP_RECVNXTINFO
+CallName: setsockopt
+Args: [0xc420184940 0xc420187650 0xc4201876c0 0xc420184980 0xc4201877a0]
+Ret: <nil>
+
+shmctl$SHM_STAT: ID: 1076
+NR: 31
+Name: shmctl$SHM_STAT
+CallName: shmctl
+Args: [0xc42019a580 0xc420199e30 0xc42019a5c0]
+Ret: <nil>
+
+bpf$MAP_DELETE_ELEM: ID: 33
+NR: 321
+Name: bpf$MAP_DELETE_ELEM
+CallName: bpf
+Args: [0xc420091420 0xc420013d80 0xc420091490]
+Ret: <nil>
+
+capget: ID: 42
+NR: 125
+Name: capget
+CallName: capget
+Args: [0xc4200fc080 0xc4200fc0c0]
+Ret: <nil>
+
+fanotify_mark: ID: 84
+NR: 301
+Name: fanotify_mark
+CallName: fanotify_mark
+Args: [0xc4200fd5c0 0xc4201010a0 0xc420101110 0xc4200fd640 0xc4200fd680]
+Ret: <nil>
+
+kcmp: ID: 702
+NR: 312
+Name: kcmp
+CallName: kcmp
+Args: [0xc420153700 0xc420153740 0xc420157110 0xc4201537c0 0xc420153800]
+Ret: <nil>
+
+setgid: ID: 950
+NR: 106
+Name: setgid
+CallName: setgid
+Args: [0xc42017c600]
+Ret: <nil>
+
+ioctl$TCGETA: ID: 609
+NR: 16
+Name: ioctl$TCGETA
+CallName: ioctl
+Args: [0xc42014cdc0 0xc42014b730 0xc42014ce00]
+Ret: <nil>
+
+lookup_dcookie: ID: 735
+NR: 212
+Name: lookup_dcookie
+CallName: lookup_dcookie
+Args: [0xc42015c540 0xc4201588c0 0xc42015c5b0]
+Ret: <nil>
+
+prctl$intptr: ID: 835
+NR: 157
+Name: prctl$intptr
+CallName: prctl
+Args: [0xc42016df10 0xc420170000]
+Ret: <nil>
+
+sync_file_range: ID: 1135
+NR: 277
+Name: sync_file_range
+CallName: sync_file_range
+Args: [0xc42019bd80 0xc4201a3f80 0xc4201a4000 0xc4201a4070]
+Ret: <nil>
+
+bind$netrom: ID: 26
+NR: 49
+Name: bind$netrom
+CallName: bind
+Args: [0xc420013a80 0xc420013ac0 0xc420090fc0]
+Ret: <nil>
+
+ioctl$KDDELIO: ID: 369
+NR: 16
+Name: ioctl$KDDELIO
+CallName: ioctl
+Args: [0xc42012fe80 0xc420133260 0xc4201332d0]
+Ret: <nil>
+
+openat$ion: ID: 799
+NR: 257
+Name: openat$ion
+CallName: openat
+Args: [0xc420167a40 0xc420168a80 0xc420167ab0 0xc420167b20]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+semctl$SETALL: ID: 919
+NR: 66
+Name: semctl$SETALL
+CallName: semctl
+Args: [0xc420179480 0xc420177d50 0xc420177dc0 0xc4201794c0]
+Ret: <nil>
+
+symlinkat: ID: 1133
+NR: 266
+Name: symlinkat
+CallName: symlinkat
+Args: [0xc42019bcc0 0xc42019bd00 0xc42019bd40]
+Ret: <nil>
+
+setuid: ID: 1067
+NR: 105
+Name: setuid
+CallName: setuid
+Args: [0xc42019a140]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_PRIME_FD_TO_HANDLE: ID: 304
+NR: 16
+Name: ioctl$DRM_IOCTL_PRIME_FD_TO_HANDLE
+CallName: ioctl
+Args: [0xc420123e40 0xc420129260 0xc420123e80]
+Ret: <nil>
+
+ioctl$KVM_ARM_VCPU_INIT: ID: 393
+NR: 16
+Name: ioctl$KVM_ARM_VCPU_INIT
+CallName: ioctl
+Args: [0xc420134840 0xc420138380 0xc420134880]
+Ret: <nil>
+
+ioctl$KVM_ASSIGN_PCI_DEVICE: ID: 395
+NR: 16
+Name: ioctl$KVM_ASSIGN_PCI_DEVICE
+CallName: ioctl
+Args: [0xc420134940 0xc420138460 0xc420134980]
+Ret: <nil>
+
+memfd_create: ID: 743
+NR: 319
+Name: memfd_create
+CallName: memfd_create
+Args: [0xc420158c00 0xc42015cbd0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+preadv: ID: 844
+NR: 295
+Name: preadv
+CallName: preadv
+Args: [0xc42016e280 0xc42016e2c0 0xc420170620 0xc420170690]
+Ret: <nil>
+
+ioctl$KVM_X86_GET_MCE_CAP_SUPPORTED: ID: 488
+NR: 16
+Name: ioctl$KVM_X86_GET_MCE_CAP_SUPPORTED
+CallName: ioctl
+Args: [0xc42013b480 0xc42013d500 0xc42013b4c0]
+Ret: <nil>
+
+ioctl$LOOP_SET_STATUS: ID: 502
+NR: 16
+Name: ioctl$LOOP_SET_STATUS
+CallName: ioctl
+Args: [0xc42013bac0 0xc42013db90 0xc42013bb00]
+Ret: <nil>
+
+openat: ID: 788
+NR: 257
+Name: openat
+CallName: openat
+Args: [0xc420168200 0xc420168240 0xc420166c40 0xc420166cb0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$ipv6_opts: ID: 1051
+NR: 54
+Name: setsockopt$ipv6_opts
+CallName: setsockopt
+Args: [0xc4201858c0 0xc4201981c0 0xc420198230 0xc420185900 0xc4201982a0]
+Ret: <nil>
+
+syz_fuseblk_mount: ID: 1144
+NR: 1000005
+Name: syz_fuseblk_mount
+CallName: syz_fuseblk_mount
+Args: [0xc4201a60c0 0xc4201a6100 0xc4201a4540 0xc4201a6140 0xc4201a6180 0xc4201a45b0 0xc4201a4620 0xc4201a4690]
+Ret: &{{fd_fuse ret 1 false} 0xc420014500}
+
+eventfd: ID: 76
+NR: 284
+Name: eventfd
+CallName: eventfd
+Args: [0xc420100a10]
+Ret: &{{fd_event ret 1 false} 0xc420014460}
+
+ioctl$SNDRV_SEQ_IOCTL_SET_PORT_INFO: ID: 586
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_PORT_INFO
+CallName: ioctl
+Args: [0xc42014c380 0xc42014abd0 0xc42014c3c0]
+Ret: <nil>
+
+name_to_handle_at: ID: 783
+NR: 303
+Name: name_to_handle_at
+CallName: name_to_handle_at
+Args: [0xc420159ec0 0xc420159f00 0xc420159f40 0xc420159f80 0xc4201669a0]
+Ret: <nil>
+
+recvfrom: ID: 871
+NR: 45
+Name: recvfrom
+CallName: recvfrom
+Args: [0xc42016f500 0xc42016f540 0xc420171e30 0xc420171ea0 0xc42016f5c0 0xc420171f10]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_ADD_CTX: ID: 267
+NR: 16
+Name: ioctl$DRM_IOCTL_ADD_CTX
+CallName: ioctl
+Args: [0xc420122c80 0xc4201280e0 0xc420122cc0]
+Ret: <nil>
+
+ioctl$TIOCSPGRP: ID: 651
+NR: 16
+Name: ioctl$TIOCSPGRP
+CallName: ioctl
+Args: [0xc420152080 0xc42014f0a0 0xc420152100]
+Ret: <nil>
+
+openat$loop_ctrl: ID: 804
+NR: 257
+Name: openat$loop_ctrl
+CallName: openat
+Args: [0xc42016c0e0 0xc420168e40 0xc42016c150 0xc42016c1c0]
+Ret: &{{fd_loop_ctrl ret 1 false} 0xc4200146e0}
+
+setsockopt$NFC_LLCP_MIUX: ID: 993
+NR: 54
+Name: setsockopt$NFC_LLCP_MIUX
+CallName: setsockopt
+Args: [0xc42017db00 0xc420182c40 0xc420182cb0 0xc42017db40 0xc420182d90]
+Ret: <nil>
+
+socket$bt_rfcomm: ID: 1092
+NR: 41
+Name: socket$bt_rfcomm
+CallName: socket
+Args: [0xc42019cd20 0xc42019cd90 0xc42019ce00]
+Ret: &{{sock_bt_rfcomm ret 1 false} 0xc420015220}
+
+ioctl$KDGKBLED: ID: 377
+NR: 16
+Name: ioctl$KDGKBLED
+CallName: ioctl
+Args: [0xc4201341c0 0xc420133730 0xc420134200]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_DELETE_QUEUE: ID: 567
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_DELETE_QUEUE
+CallName: ioctl
+Args: [0xc420147a00 0xc42014a310 0xc420147a40]
+Ret: <nil>
+
+listen: ID: 731
+NR: 50
+Name: listen
+CallName: listen
+Args: [0xc420158740 0xc42015c380]
+Ret: <nil>
+
+setsockopt$NETROM_T2: ID: 991
+NR: 54
+Name: setsockopt$NETROM_T2
+CallName: setsockopt
+Args: [0xc42017da00 0xc4201828c0 0xc420182930 0xc42017da40 0xc420182a10]
+Ret: <nil>
+
+fcntl$addseals: ID: 89
+NR: 72
+Name: fcntl$addseals
+CallName: fcntl
+Args: [0xc4200fd940 0xc4201012d0 0xc420101340]
+Ret: <nil>
+
+ioctl$TIOCGSOFTCAR: ID: 631
+NR: 16
+Name: ioctl$TIOCGSOFTCAR
+CallName: ioctl
+Args: [0xc42014d780 0xc42014e310 0xc42014d7c0]
+Ret: <nil>
+
+membarrier: ID: 742
+NR: 324
+Name: membarrier
+CallName: membarrier
+Args: [0xc42015caf0 0xc42015cb60]
+Ret: <nil>
+
+stat: ID: 1130
+NR: 4
+Name: stat
+CallName: stat
+Args: [0xc42019bb40 0xc42019bb80]
+Ret: <nil>
+
+geteuid: ID: 123
+NR: 107
+Name: geteuid
+CallName: geteuid
+Args: []
+Ret: &{{uid ret 1 false} 0xc420015900}
+
+open$dir: ID: 786
+NR: 2
+Name: open$dir
+CallName: open
+Args: [0xc420168100 0xc420166af0 0xc420166b60]
+Ret: &{{fd_dir ret 1 false} 0xc420014320}
+
+semctl$SEM_INFO: ID: 917
+NR: 66
+Name: semctl$SEM_INFO
+CallName: semctl
+Args: [0xc420179300 0xc420177b90 0xc420177c00 0xc420179340]
+Ret: <nil>
+
+bind$inet6: ID: 24
+NR: 49
+Name: bind$inet6
+CallName: bind
+Args: [0xc420013980 0xc4200139c0 0xc420090ee0]
+Ret: <nil>
+
+ioctl$KDENABIO: ID: 371
+NR: 16
+Name: ioctl$KDENABIO
+CallName: ioctl
+Args: [0xc42012ff00 0xc4201333b0]
+Ret: <nil>
+
+ioprio_get$pid: ID: 698
+NR: 252
+Name: ioprio_get$pid
+CallName: ioprio_get
+Args: [0xc420156e70 0xc420153600]
+Ret: <nil>
+
+setsockopt$sock_str: ID: 1056
+NR: 54
+Name: setsockopt$sock_str
+CallName: setsockopt
+Args: [0xc420185b80 0xc4201988c0 0xc420198930 0xc420185bc0 0xc4201989a0]
+Ret: <nil>
+
+write$tun: ID: 1279
+NR: 1
+Name: write$tun
+CallName: write
+Args: [0xc4201b1840 0xc4201b1880 0xc4201b60e0]
+Ret: <nil>
+
+acct: ID: 13
+NR: 163
+Name: acct
+CallName: acct
+Args: [0xc420013440]
+Ret: <nil>
+
+getsockopt$NETROM_N2: ID: 164
+NR: 55
+Name: getsockopt$NETROM_N2
+CallName: getsockopt
+Args: [0xc42010a440 0xc42010e460 0xc42010e4d0 0xc42010a480 0xc42010a4c0]
+Ret: <nil>
+
+migrate_pages: ID: 744
+NR: 256
+Name: migrate_pages
+CallName: migrate_pages
+Args: [0xc420158c40 0xc42015cc40 0xc420158c80 0xc420158cc0]
+Ret: <nil>
+
+socket$nfc_llcp: ID: 1105
+NR: 41
+Name: socket$nfc_llcp
+CallName: socket
+Args: [0xc42019de30 0xc42019dea0 0xc42019df10]
+Ret: &{{sock_nfc_llcp ret 1 false} 0xc4200155e0}
+
+syz_open_dev$dspn: ID: 1155
+NR: 1000002
+Name: syz_open_dev$dspn
+CallName: syz_open_dev
+Args: [0xc4201a68c0 0xc4201a50a0 0xc4201a5110]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+getsockopt$SCTP_RTOINFO: ID: 204
+NR: 55
+Name: getsockopt$SCTP_RTOINFO
+CallName: getsockopt
+Args: [0xc420112240 0xc420111f80 0xc420114000 0xc420112280 0xc4201122c0]
+Ret: <nil>
+
+ioctl$EVIOCGSW: ID: 341
+NR: 16
+Name: ioctl$EVIOCGSW
+CallName: ioctl
+Args: [0xc42012f080 0xc420132310 0xc42012f0c0]
+Ret: <nil>
+
+ioctl$PIO_FONTX: ID: 521
+NR: 16
+Name: ioctl$PIO_FONTX
+CallName: ioctl
+Args: [0xc420146300 0xc420142930 0xc420146340]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_PVERSION: ID: 578
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_PVERSION
+CallName: ioctl
+Args: [0xc420147f80 0xc42014a7e0 0xc420147fc0]
+Ret: <nil>
+
+syz_open_dev$sndpcmc: ID: 1168
+NR: 1000002
+Name: syz_open_dev$sndpcmc
+CallName: syz_open_dev
+Args: [0xc4201a6f40 0xc4201a5c00 0xc4201a5c70]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+utimes: ID: 1260
+NR: 235
+Name: utimes
+CallName: utimes
+Args: [0xc4201b0dc0 0xc4201b0e00]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GET_CAP: ID: 285
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_CAP
+CallName: ioctl
+Args: [0xc4201234c0 0xc4201289a0 0xc420123500]
+Ret: <nil>
+
+ioctl$TIOCEXCL: ID: 626
+NR: 16
+Name: ioctl$TIOCEXCL
+CallName: ioctl
+Args: [0xc42014d4c0 0xc42014e070]
+Ret: <nil>
+
+ioctl$TIOCMGET: ID: 641
+NR: 16
+Name: ioctl$TIOCMGET
+CallName: ioctl
+Args: [0xc42014dc80 0xc42014e9a0 0xc42014dcc0]
+Ret: <nil>
+
+msgget$private: ID: 776
+NR: 68
+Name: msgget$private
+CallName: msgget
+Args: [0xc420166460 0xc4201664d0]
+Ret: &{{ipc_msq ret 1 false} 0xc420014cd0}
+
+rt_sigqueueinfo: ID: 891
+NR: 129
+Name: rt_sigqueueinfo
+CallName: rt_sigqueueinfo
+Args: [0xc420178440 0xc420176bd0 0xc420178480]
+Ret: <nil>
+
+socket$unix: ID: 1113
+NR: 41
+Name: socket$unix
+CallName: socket
+Args: [0xc4201a28c0 0xc4201a2930 0xc4201a29a0]
+Ret: &{{sock_unix ret 1 false} 0xc420015810}
+
+ioctl$DRM_IOCTL_RM_CTX: ID: 307
+NR: 16
+Name: ioctl$DRM_IOCTL_RM_CTX
+CallName: ioctl
+Args: [0xc420123fc0 0xc4201293b0 0xc42012e000]
+Ret: <nil>
+
+mremap: ID: 768
+NR: 25
+Name: mremap
+CallName: mremap
+Args: [0xc420159900 0xc42015df80 0xc420166000 0xc420166070 0xc420159940]
+Ret: &{{vma ret 1 false} 0 0}
+
+msgctl$MSG_STAT: ID: 774
+NR: 71
+Name: msgctl$MSG_STAT
+CallName: msgctl
+Args: [0xc420159bc0 0xc420166310 0xc420159c00]
+Ret: <nil>
+
+pkey_mprotect: ID: 830
+NR: 329
+Name: pkey_mprotect
+CallName: pkey_mprotect
+Args: [0xc420169e00 0xc42016db20 0xc42016db90 0xc420169e40]
+Ret: <nil>
+
+socket$tcp6: ID: 1110
+NR: 41
+Name: socket$tcp6
+CallName: socket
+Args: [0xc4201a24d0 0xc4201a2540 0xc4201a25b0]
+Ret: &{{sock_tcp6 ret 1 false} 0xc420015720}
+
+ioctl$SNDRV_CTL_IOCTL_PVERSION: ID: 555
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_PVERSION
+CallName: ioctl
+Args: [0xc420147400 0xc420143c00 0xc420147440]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_CLIENT_POOL: ID: 569
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_CLIENT_POOL
+CallName: ioctl
+Args: [0xc420147b00 0xc42014a3f0 0xc420147b40]
+Ret: <nil>
+
+ioctl$TUNSETLINK: ID: 665
+NR: 16
+Name: ioctl$TUNSETLINK
+CallName: ioctl
+Args: [0xc420152780 0xc42014fab0 0xc4201527c0]
+Ret: <nil>
+
+sched_setscheduler: ID: 904
+NR: 144
+Name: sched_setscheduler
+CallName: sched_setscheduler
+Args: [0xc420178b00 0xc420177180 0xc420178b40]
+Ret: <nil>
+
+ioctl$NETROM_TIOCOUTQ: ID: 508
+NR: 16
+Name: ioctl$NETROM_TIOCOUTQ
+CallName: ioctl
+Args: [0xc42013bdc0 0xc420142000 0xc42013be00]
+Ret: <nil>
+
+ioctl$TUNGETIFF: ID: 660
+NR: 16
+Name: ioctl$TUNGETIFF
+CallName: ioctl
+Args: [0xc420152500 0xc42014f6c0 0xc420152540]
+Ret: <nil>
+
+setsockopt$NETROM_T1: ID: 990
+NR: 54
+Name: setsockopt$NETROM_T1
+CallName: setsockopt
+Args: [0xc42017d980 0xc420182700 0xc420182770 0xc42017d9c0 0xc420182850]
+Ret: <nil>
+
+socket$netrom: ID: 1104
+NR: 41
+Name: socket$netrom
+CallName: socket
+Args: [0xc42019dce0 0xc42019dd50 0xc42019ddc0]
+Ret: &{{sock_netrom ret 1 false} 0xc420015590}
+
+socketpair: ID: 1114
+NR: 53
+Name: socketpair
+CallName: socketpair
+Args: [0xc4201a2a10 0xc4201a2a80 0xc4201a2af0 0xc42019b2c0]
+Ret: <nil>
+
+syz_test$text_x86_32: ID: 1229
+NR: 1000001
+Name: syz_test$text_x86_32
+CallName: syz_test
+Args: [0xc4201b00c0 0xc4201accb0]
+Ret: <nil>
+
+connect$bt_sco: ID: 55
+NR: 42
+Name: connect$bt_sco
+CallName: connect
+Args: [0xc4200fc740 0xc4200fc780 0xc420100070]
+Ret: <nil>
+
+getpriority: ID: 137
+NR: 140
+Name: getpriority
+CallName: getpriority
+Args: [0xc420104850 0xc420103100]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_PRIME_HANDLE_TO_FD: ID: 305
+NR: 16
+Name: ioctl$DRM_IOCTL_PRIME_HANDLE_TO_FD
+CallName: ioctl
+Args: [0xc420123ec0 0xc4201292d0 0xc420123f00]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_CREATE_QUEUE: ID: 565
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_CREATE_QUEUE
+CallName: ioctl
+Args: [0xc420147900 0xc42014a230 0xc420147940]
+Ret: <nil>
+
+ioctl$TIOCLINUX4: ID: 635
+NR: 16
+Name: ioctl$TIOCLINUX4
+CallName: ioctl
+Args: [0xc42014d980 0xc42014e5b0 0xc42014d9c0]
+Ret: <nil>
+
+setpriority: ID: 955
+NR: 141
+Name: setpriority
+CallName: setpriority
+Args: [0xc42017b650 0xc42017c800 0xc42017b6c0]
+Ret: <nil>
+
+umount2: ID: 1250
+NR: 166
+Name: umount2
+CallName: umount2
+Args: [0xc4201b0a40 0xc4201ad420]
+Ret: <nil>
+
+socketpair$dccp: ID: 1115
+NR: 53
+Name: socketpair$dccp
+CallName: socketpair
+Args: [0xc4201a2b60 0xc4201a2bd0 0xc4201a2c40 0xc42019b340]
+Ret: <nil>
+
+syz_open_dev$urandom: ID: 1174
+NR: 1000002
+Name: syz_open_dev$urandom
+CallName: syz_open_dev
+Args: [0xc4201a7240 0xc4201ac150 0xc4201ac1c0]
+Ret: &{{fd_random ret 1 false} 0xc420014820}
+
+getsockopt$SCTP_CONTEXT: ID: 177
+NR: 55
+Name: getsockopt$SCTP_CONTEXT
+CallName: getsockopt
+Args: [0xc42010ae00 0xc42010f880 0xc42010f8f0 0xc42010ae40 0xc42010ae80]
+Ret: <nil>
+
+ioctl$KVM_GET_SREGS: ID: 429
+NR: 16
+Name: ioctl$KVM_GET_SREGS
+CallName: ioctl
+Args: [0xc420135940 0xc4201395e0 0xc420135980]
+Ret: <nil>
+
+ioctl$LOOP_CTL_GET_FREE: ID: 495
+NR: 16
+Name: ioctl$LOOP_CTL_GET_FREE
+CallName: ioctl
+Args: [0xc42013b800 0xc42013d810]
+Ret: &{{fd_loop_num ret 1 false} 0xc420014730}
+
+msgctl$IPC_RMID: ID: 770
+NR: 71
+Name: msgctl$IPC_RMID
+CallName: msgctl
+Args: [0xc420159a00 0xc420166150]
+Ret: <nil>
+
+ptrace$setopts: ID: 859
+NR: 101
+Name: ptrace$setopts
+CallName: ptrace
+Args: [0xc420171490 0xc42016ed00 0xc420171500 0xc420171570]
+Ret: <nil>
+
+setsockopt$ip_mtu: ID: 1046
+NR: 54
+Name: setsockopt$ip_mtu
+CallName: setsockopt
+Args: [0xc420185640 0xc420195a40 0xc420195ab0 0xc420185680 0xc420195b90]
+Ret: <nil>
+
+socket$kcm: ID: 1102
+NR: 41
+Name: socket$kcm
+CallName: socket
+Args: [0xc42019da40 0xc42019dab0 0xc42019db20]
+Ret: &{{sock_kcm ret 1 false} 0xc4200154a0}
+
+syz_emit_ethernet: ID: 1142
+NR: 1000006
+Name: syz_emit_ethernet
+CallName: syz_emit_ethernet
+Args: [0xc4201a4380 0xc42019bf40]
+Ret: <nil>
+
+fadvise64: ID: 81
+NR: 221
+Name: fadvise64
+CallName: fadvise64
+Args: [0xc4200fd440 0xc420100d20 0xc420100d90 0xc420100e00]
+Ret: <nil>
+
+fallocate: ID: 82
+NR: 285
+Name: fallocate
+CallName: fallocate
+Args: [0xc4200fd4c0 0xc420100e70 0xc420100ee0 0xc420100f50]
+Ret: <nil>
+
+getpid: ID: 136
+NR: 39
+Name: getpid
+CallName: getpid
+Args: []
+Ret: &{{pid ret 1 false} 0xc420014e60}
+
+mkdirat: ID: 747
+NR: 258
+Name: mkdirat
+CallName: mkdirat
+Args: [0xc420158e00 0xc420158e40 0xc42015ce70]
+Ret: <nil>
+
+sendmsg: ID: 931
+NR: 46
+Name: sendmsg
+CallName: sendmsg
+Args: [0xc420179cc0 0xc420179d00 0xc42017a8c0]
+Ret: <nil>
+
+getsockopt$tcp_int: ID: 240
+NR: 55
+Name: getsockopt$tcp_int
+CallName: getsockopt
+Args: [0xc420113e00 0xc42011f2d0 0xc42011f340 0xc420113e40 0xc420113e80]
+Ret: <nil>
+
+ioctl$EVIOCGID: ID: 328
+NR: 16
+Name: ioctl$EVIOCGID
+CallName: ioctl
+Args: [0xc42012ea00 0xc420129ce0 0xc42012ea40]
+Ret: <nil>
+
+ioctl$KVM_SET_BOOT_CPU_ID: ID: 455
+NR: 16
+Name: ioctl$KVM_SET_BOOT_CPU_ID
+CallName: ioctl
+Args: [0xc42013a500 0xc42013c2a0 0xc42013a540]
+Ret: <nil>
+
+ioctl$KVM_SET_PIT2: ID: 472
+NR: 16
+Name: ioctl$KVM_SET_PIT2
+CallName: ioctl
+Args: [0xc42013ad40 0xc42013cc40 0xc42013ad80]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_STOP: ID: 606
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_STOP
+CallName: ioctl
+Args: [0xc42014ccc0 0xc42014b500]
+Ret: <nil>
+
+ioctl$KVM_SET_FPU: ID: 461
+NR: 16
+Name: ioctl$KVM_SET_FPU
+CallName: ioctl
+Args: [0xc42013a800 0xc42013c5b0 0xc42013a840]
+Ret: <nil>
+
+pivot_root: ID: 827
+NR: 155
+Name: pivot_root
+CallName: pivot_root
+Args: [0xc420169d00 0xc420169d40]
+Ret: <nil>
+
+sendfile: ID: 925
+NR: 40
+Name: sendfile
+CallName: sendfile
+Args: [0xc420179800 0xc420179840 0xc420179880 0xc42017a3f0]
+Ret: <nil>
+
+bind$sctp: ID: 28
+NR: 49
+Name: bind$sctp
+CallName: bind
+Args: [0xc420013b80 0xc420013bc0 0xc4200910a0]
+Ret: <nil>
+
+fcntl$setstatus: ID: 102
+NR: 72
+Name: fcntl$setstatus
+CallName: fcntl
+Args: [0xc4200fdec0 0xc420101b20 0xc420101b90]
+Ret: <nil>
+
+getsockopt$nfc_llcp: ID: 231
+NR: 55
+Name: getsockopt$nfc_llcp
+CallName: getsockopt
+Args: [0xc420113700 0xc42011e620 0xc42011e690 0xc420113740 0xc42011e700]
+Ret: <nil>
+
+ioctl$KDADDIO: ID: 368
+NR: 16
+Name: ioctl$KDADDIO
+CallName: ioctl
+Args: [0xc42012fe40 0xc420133180 0xc4201331f0]
+Ret: <nil>
+
+ioctl$KDMKTONE: ID: 382
+NR: 16
+Name: ioctl$KDMKTONE
+CallName: ioctl
+Args: [0xc420134440 0xc420133b20 0xc420133b90]
+Ret: <nil>
+
+setxattr: ID: 1068
+NR: 188
+Name: setxattr
+CallName: setxattr
+Args: [0xc42019a180 0xc42019a1c0 0xc42019a200 0xc420199a40 0xc420199ab0]
+Ret: <nil>
+
+write$fuse_poll: ID: 1277
+NR: 1
+Name: write$fuse_poll
+CallName: write
+Args: [0xc4201b1740 0xc4201b1780 0xc4201b6000]
+Ret: <nil>
+
+ioctl$TIOCLINUX3: ID: 634
+NR: 16
+Name: ioctl$TIOCLINUX3
+CallName: ioctl
+Args: [0xc42014d900 0xc42014e4d0 0xc42014d940]
+Ret: <nil>
+
+ioprio_set$pid: ID: 700
+NR: 251
+Name: ioprio_set$pid
+CallName: ioprio_set
+Args: [0xc420156f50 0xc420153680 0xc420156fc0]
+Ret: <nil>
+
+setsockopt$ip_mreqsrc: ID: 1044
+NR: 54
+Name: setsockopt$ip_mreqsrc
+CallName: setsockopt
+Args: [0xc420185540 0xc4201957a0 0xc420195810 0xc420185580 0xc420195880]
+Ret: <nil>
+
+ioctl$KVM_SET_TSC_KHZ: ID: 476
+NR: 16
+Name: ioctl$KVM_SET_TSC_KHZ
+CallName: ioctl
+Args: [0xc42013af40 0xc42013ce00 0xc42013ce70]
+Ret: <nil>
+
+ioctl$PIO_SCRNMAP: ID: 522
+NR: 16
+Name: ioctl$PIO_SCRNMAP
+CallName: ioctl
+Args: [0xc420146380 0xc4201429a0 0xc4201463c0]
+Ret: <nil>
+
+ioctl$TUNSETOWNER: ID: 668
+NR: 16
+Name: ioctl$TUNSETOWNER
+CallName: ioctl
+Args: [0xc420152900 0xc42014fd50 0xc420152980]
+Ret: <nil>
+
+keyctl$chown: ID: 705
+NR: 250
+Name: keyctl$chown
+CallName: keyctl
+Args: [0xc420157340 0xc420153900 0xc420153940 0xc420153980]
+Ret: <nil>
+
+syz_test$length2: ID: 1215
+NR: 1000001
+Name: syz_test$length2
+CallName: syz_test
+Args: [0xc4201a7d80]
+Ret: <nil>
+
+syz_test$text_x86_16: ID: 1228
+NR: 1000001
+Name: syz_test$text_x86_16
+CallName: syz_test
+Args: [0xc4201b0080 0xc4201acc40]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_DMA: ID: 279
+NR: 16
+Name: ioctl$DRM_IOCTL_DMA
+CallName: ioctl
+Args: [0xc420123200 0xc420128700 0xc420123240]
+Ret: <nil>
+
+ioctl$LOOP_SET_FD: ID: 501
+NR: 16
+Name: ioctl$LOOP_SET_FD
+CallName: ioctl
+Args: [0xc42013ba40 0xc42013db20 0xc42013ba80]
+Ret: <nil>
+
+keyctl$set_reqkey_keyring: ID: 722
+NR: 250
+Name: keyctl$set_reqkey_keyring
+CallName: keyctl
+Args: [0xc420157ea0 0xc420157f10]
+Ret: <nil>
+
+openat$qat_adf_ctl: ID: 809
+NR: 257
+Name: openat$qat_adf_ctl
+CallName: openat
+Args: [0xc42016c770 0xc420169200 0xc42016c7e0 0xc42016c850]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+pwritev: ID: 864
+NR: 296
+Name: pwritev
+CallName: pwritev
+Args: [0xc42016f100 0xc42016f140 0xc420171960 0xc4201719d0]
+Ret: <nil>
+
+epoll_create: ID: 69
+NR: 213
+Name: epoll_create
+CallName: epoll_create
+Args: [0xc4201005b0]
+Ret: &{{fd_epoll ret 1 false} 0xc4200143c0}
+
+ioctl$DRM_IOCTL_GET_SAREA_CTX: ID: 290
+NR: 16
+Name: ioctl$DRM_IOCTL_GET_SAREA_CTX
+CallName: ioctl
+Args: [0xc420123740 0xc420128c40 0xc420123780]
+Ret: <nil>
+
+readahead: ID: 867
+NR: 187
+Name: readahead
+CallName: readahead
+Args: [0xc42016f2c0 0xc420171c00 0xc420171c70]
+Ret: <nil>
+
+ioctl$CMTPCONNADD: ID: 262
+NR: 16
+Name: ioctl$CMTPCONNADD
+CallName: ioctl
+Args: [0xc420122a00 0xc42011fea0 0xc420122a40]
+Ret: <nil>
+
+setsockopt$SCTP_DELAYED_SACK: ID: 1007
+NR: 54
+Name: setsockopt$SCTP_DELAYED_SACK
+CallName: setsockopt
+Args: [0xc420184240 0xc4201861c0 0xc420186230 0xc420184280 0xc4201862a0]
+Ret: <nil>
+
+inotify_rm_watch: ID: 250
+NR: 255
+Name: inotify_rm_watch
+CallName: inotify_rm_watch
+Args: [0xc420122380 0xc4201223c0]
+Ret: <nil>
+
+prlimit64: ID: 845
+NR: 302
+Name: prlimit64
+CallName: prlimit64
+Args: [0xc42016e340 0xc420170700 0xc42016e380 0xc42016e3c0]
+Ret: <nil>
+
+socketpair$sctp: ID: 1123
+NR: 53
+Name: socketpair$sctp
+CallName: socketpair
+Args: [0xc4201a35e0 0xc4201a3650 0xc4201a36c0 0xc42019b7c0]
+Ret: <nil>
+
+getsockopt$SCTP_STATUS: ID: 207
+NR: 55
+Name: getsockopt$SCTP_STATUS
+CallName: getsockopt
+Args: [0xc420112480 0xc420114380 0xc4201143f0 0xc4201124c0 0xc420112500]
+Ret: <nil>
+
+ioctl$KVM_GET_TSC_KHZ: ID: 431
+NR: 16
+Name: ioctl$KVM_GET_TSC_KHZ
+CallName: ioctl
+Args: [0xc420135a40 0xc4201396c0]
+Ret: <nil>
+
+keyctl$clear: ID: 706
+NR: 250
+Name: keyctl$clear
+CallName: keyctl
+Args: [0xc4201573b0 0xc420153a00]
+Ret: <nil>
+
+tkill: ID: 1248
+NR: 200
+Name: tkill
+CallName: tkill
+Args: [0xc4201b09c0 0xc4201ad340]
+Ret: <nil>
+
+fcntl$setown: ID: 98
+NR: 72
+Name: fcntl$setown
+CallName: fcntl
+Args: [0xc4200fdd40 0xc420101880 0xc4200fdd80]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MAP_BUFS: ID: 296
+NR: 16
+Name: ioctl$DRM_IOCTL_MAP_BUFS
+CallName: ioctl
+Args: [0xc420123a40 0xc420128ee0 0xc420123a80]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_REFRESH: ID: 513
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_REFRESH
+CallName: ioctl
+Args: [0xc42013bfc0 0xc420142460 0xc4201424d0]
+Ret: <nil>
+
+mq_unlink: ID: 767
+NR: 241
+Name: mq_unlink
+CallName: mq_unlink
+Args: [0xc420159880]
+Ret: <nil>
+
+syz_open_dev$dmmidi: ID: 1151
+NR: 1000002
+Name: syz_open_dev$dmmidi
+CallName: syz_open_dev
+Args: [0xc4201a66c0 0xc4201a4d20 0xc4201a4d90]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+fcntl$setsig: ID: 101
+NR: 72
+Name: fcntl$setsig
+CallName: fcntl
+Args: [0xc4200fde80 0xc420101a40 0xc420101ab0]
+Ret: <nil>
+
+getsockopt$SCTP_GET_ASSOC_ID_LIST: ID: 184
+NR: 55
+Name: getsockopt$SCTP_GET_ASSOC_ID_LIST
+CallName: getsockopt
+Args: [0xc42010b340 0xc4201102a0 0xc420110310 0xc42010b380 0xc42010b3c0]
+Ret: <nil>
+
+ioctl$KVM_SET_IDENTITY_MAP_ADDR: ID: 464
+NR: 16
+Name: ioctl$KVM_SET_IDENTITY_MAP_ADDR
+CallName: ioctl
+Args: [0xc42013a980 0xc42013c700 0xc42013a9c0]
+Ret: <nil>
+
+sendmsg$unix: ID: 938
+NR: 46
+Name: sendmsg$unix
+CallName: sendmsg
+Args: [0xc42017c040 0xc42017c080 0xc42017abd0]
+Ret: <nil>
+
+connect$inet6: ID: 57
+NR: 42
+Name: connect$inet6
+CallName: connect
+Args: [0xc4200fc840 0xc4200fc880 0xc420100150]
+Ret: <nil>
+
+getsockname$unix: ID: 149
+NR: 51
+Name: getsockname$unix
+CallName: getsockname
+Args: [0xc420103980 0xc4201039c0 0xc420103a00]
+Ret: <nil>
+
+getsockopt$ip_mreq: ID: 221
+NR: 55
+Name: getsockopt$ip_mreq
+CallName: getsockopt
+Args: [0xc420112f80 0xc420115810 0xc420115880 0xc420112fc0 0xc420113000]
+Ret: <nil>
+
+ioctl$KVM_SET_MSRS: ID: 468
+NR: 16
+Name: ioctl$KVM_SET_MSRS
+CallName: ioctl
+Args: [0xc42013ab80 0xc42013ca10 0xc42013abc0]
+Ret: <nil>
+
+keyctl$revoke: ID: 719
+NR: 250
+Name: keyctl$revoke
+CallName: keyctl
+Args: [0xc420157d50 0xc420158100]
+Ret: <nil>
+
+ioctl$EVIOCSREP: ID: 355
+NR: 16
+Name: ioctl$EVIOCSREP
+CallName: ioctl
+Args: [0xc42012f780 0xc420132af0 0xc42012f7c0]
+Ret: <nil>
+
+syz_test$length1: ID: 1204
+NR: 1000001
+Name: syz_test$length1
+CallName: syz_test
+Args: [0xc4201a7a80]
+Ret: <nil>
+
+syz_test$length9: ID: 1223
+NR: 1000001
+Name: syz_test$length9
+CallName: syz_test
+Args: [0xc4201a7f80]
+Ret: <nil>
+
+madvise: ID: 740
+NR: 28
+Name: madvise
+CallName: madvise
+Args: [0xc420158b00 0xc42015c7e0 0xc42015c850]
+Ret: <nil>
+
+socket$bt_sco: ID: 1093
+NR: 41
+Name: socket$bt_sco
+CallName: socket
+Args: [0xc42019ce70 0xc42019cee0 0xc42019cf50]
+Ret: &{{sock_bt_sco ret 1 false} 0xc420015270}
+
+socket$icmp: ID: 1096
+NR: 41
+Name: socket$icmp
+CallName: socket
+Args: [0xc42019d260 0xc42019d2d0 0xc42019d340]
+Ret: &{{sock_icmp ret 1 false} 0xc420015360}
+
+getpgid: ID: 134
+NR: 121
+Name: getpgid
+CallName: getpgid
+Args: [0xc420103000]
+Ret: &{{pid ret 1 false} 0xc420014e60}
+
+ioctl$PERF_EVENT_IOC_SET_FILTER: ID: 516
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_SET_FILTER
+CallName: ioctl
+Args: [0xc4201460c0 0xc420142690 0xc420146100]
+Ret: <nil>
+
+semctl$IPC_RMID: ID: 914
+NR: 66
+Name: semctl$IPC_RMID
+CallName: semctl
+Args: [0xc420179140 0xc4201778f0 0xc420177960]
+Ret: <nil>
+
+prctl$setptracer: ID: 841
+NR: 157
+Name: prctl$setptracer
+CallName: prctl
+Args: [0xc420170460 0xc42016e180]
+Ret: <nil>
+
+rt_sigtimedwait: ID: 894
+NR: 128
+Name: rt_sigtimedwait
+CallName: rt_sigtimedwait
+Args: [0xc420178500 0xc420178540 0xc420178580 0xc420176cb0]
+Ret: <nil>
+
+setsockopt$dccp_int: ID: 1034
+NR: 54
+Name: setsockopt$dccp_int
+CallName: setsockopt
+Args: [0xc420185040 0xc420194930 0xc4201949a0 0xc420185080 0xc420194a80]
+Ret: <nil>
+
+dup3: ID: 68
+NR: 292
+Name: dup3
+CallName: dup3
+Args: [0xc4200fce00 0xc4200fce40 0xc420100540]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$DRM_IOCTL_FREE_BUFS: ID: 281
+NR: 16
+Name: ioctl$DRM_IOCTL_FREE_BUFS
+CallName: ioctl
+Args: [0xc4201232c0 0xc4201287e0 0xc420123300]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GEM_CLOSE: ID: 282
+NR: 16
+Name: ioctl$DRM_IOCTL_GEM_CLOSE
+CallName: ioctl
+Args: [0xc420123340 0xc420128850 0xc420123380]
+Ret: <nil>
+
+ioctl$KDSKBLED: ID: 387
+NR: 16
+Name: ioctl$KDSKBLED
+CallName: ioctl
+Args: [0xc4201345c0 0xc420133f10 0xc420133f80]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_QUERY_NEXT_CLIENT: ID: 579
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_QUERY_NEXT_CLIENT
+CallName: ioctl
+Args: [0xc42014c000 0xc42014a8c0 0xc42014c040]
+Ret: <nil>
+
+syz_test$text_x86_real: ID: 1231
+NR: 1000001
+Name: syz_test$text_x86_real
+CallName: syz_test
+Args: [0xc4201b0140 0xc4201acd90]
+Ret: <nil>
+
+lgetxattr: ID: 728
+NR: 192
+Name: lgetxattr
+CallName: lgetxattr
+Args: [0xc4201584c0 0xc420158500 0xc420158540 0xc42015c2a0]
+Ret: <nil>
+
+mknodat: ID: 750
+NR: 259
+Name: mknodat
+CallName: mknodat
+Args: [0xc420158f00 0xc420158f40 0xc42015d180 0xc42015d260]
+Ret: <nil>
+
+sysinfo: ID: 1140
+NR: 99
+Name: sysinfo
+CallName: sysinfo
+Args: [0xc42019bec0]
+Ret: <nil>
+
+bind$bt_l2cap: ID: 20
+NR: 49
+Name: bind$bt_l2cap
+CallName: bind
+Args: [0xc420013780 0xc4200137c0 0xc420090d20]
+Ret: <nil>
+
+getxattr: ID: 245
+NR: 191
+Name: getxattr
+CallName: getxattr
+Args: [0xc4201220c0 0xc420122100 0xc420122140 0xc42011f810]
+Ret: <nil>
+
+ioctl$BNEPGETCONNINFO: ID: 259
+NR: 16
+Name: ioctl$BNEPGETCONNINFO
+CallName: ioctl
+Args: [0xc420122880 0xc42011fce0 0xc4201228c0]
+Ret: <nil>
+
+ioctl$KVM_SET_LAPIC: ID: 466
+NR: 16
+Name: ioctl$KVM_SET_LAPIC
+CallName: ioctl
+Args: [0xc42013aa80 0xc42013c8c0 0xc42013aac0]
+Ret: <nil>
+
+ioctl$TIOCLINUX7: ID: 638
+NR: 16
+Name: ioctl$TIOCLINUX7
+CallName: ioctl
+Args: [0xc42014db00 0xc42014e770 0xc42014db40]
+Ret: <nil>
+
+syz_test$csum_encode: ID: 1193
+NR: 1000001
+Name: syz_test$csum_encode
+CallName: syz_test
+Args: [0xc4201a7800]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_CARD_INFO: ID: 539
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_CARD_INFO
+CallName: ioctl
+Args: [0xc420146c00 0xc420143420 0xc420146c40]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_SET_CLIENT_POOL: ID: 585
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_CLIENT_POOL
+CallName: ioctl
+Args: [0xc42014c300 0xc42014ab60 0xc42014c340]
+Ret: <nil>
+
+getpeername$inet6: ID: 129
+NR: 52
+Name: getpeername$inet6
+CallName: getpeername
+Args: [0xc420102c00 0xc420102c40 0xc420102c80]
+Ret: <nil>
+
+getsockopt$NETROM_IDLE: ID: 163
+NR: 55
+Name: getsockopt$NETROM_IDLE
+CallName: getsockopt
+Args: [0xc42010a380 0xc42010e2a0 0xc42010e310 0xc42010a3c0 0xc42010a400]
+Ret: <nil>
+
+getsockopt$NETROM_T2: ID: 166
+NR: 55
+Name: getsockopt$NETROM_T2
+CallName: getsockopt
+Args: [0xc42010a5c0 0xc42010e7e0 0xc42010e850 0xc42010a600 0xc42010a640]
+Ret: <nil>
+
+ioctl$KVM_SET_GUEST_DEBUG: ID: 463
+NR: 16
+Name: ioctl$KVM_SET_GUEST_DEBUG
+CallName: ioctl
+Args: [0xc42013a900 0xc42013c690 0xc42013a940]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_SET_OUTPUT: ID: 517
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_SET_OUTPUT
+CallName: ioctl
+Args: [0xc420146140 0xc420142700 0xc420146180]
+Ret: <nil>
+
+keyctl$session_to_parent: ID: 721
+NR: 250
+Name: keyctl$session_to_parent
+CallName: keyctl
+Args: [0xc420157e30]
+Ret: <nil>
+
+linkat: ID: 730
+NR: 265
+Name: linkat
+CallName: linkat
+Args: [0xc420158640 0xc420158680 0xc4201586c0 0xc420158700 0xc42015c310]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_RM_MAP: ID: 308
+NR: 16
+Name: ioctl$DRM_IOCTL_RM_MAP
+CallName: ioctl
+Args: [0xc42012e040 0xc420129420 0xc42012e080]
+Ret: <nil>
+
+ioctl$KVM_X86_SET_MCE: ID: 490
+NR: 16
+Name: ioctl$KVM_X86_SET_MCE
+CallName: ioctl
+Args: [0xc42013b580 0xc42013d5e0 0xc42013b5c0]
+Ret: <nil>
+
+ioctl$LOOP_GET_STATUS64: ID: 498
+NR: 16
+Name: ioctl$LOOP_GET_STATUS64
+CallName: ioctl
+Args: [0xc42013b940 0xc42013d960 0xc42013b980]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_INFO: ID: 598
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_INFO
+CallName: ioctl
+Args: [0xc42014c940 0xc42014b110 0xc42014c980]
+Ret: <nil>
+
+ioctl$VT_GETSTATE: ID: 683
+NR: 16
+Name: ioctl$VT_GETSTATE
+CallName: ioctl
+Args: [0xc420153040 0xc4201565b0 0xc420153080]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MODE_GETCRTC: ID: 299
+NR: 16
+Name: ioctl$DRM_IOCTL_MODE_GETCRTC
+CallName: ioctl
+Args: [0xc420123bc0 0xc420129030 0xc420123c00]
+Ret: <nil>
+
+ioctl$PIO_FONTRESET: ID: 520
+NR: 16
+Name: ioctl$PIO_FONTRESET
+CallName: ioctl
+Args: [0xc4201462c0 0xc420142850 0xc4201428c0]
+Ret: <nil>
+
+ioctl$UFFDIO_REGISTER: ID: 676
+NR: 16
+Name: ioctl$UFFDIO_REGISTER
+CallName: ioctl
+Args: [0xc420152d40 0xc420156230 0xc420152d80]
+Ret: <nil>
+
+ioctl$KVM_SET_VAPIC_ADDR: ID: 479
+NR: 16
+Name: ioctl$KVM_SET_VAPIC_ADDR
+CallName: ioctl
+Args: [0xc42013b040 0xc42013d030 0xc42013b080]
+Ret: <nil>
+
+ioctl$TCSETSW: ID: 618
+NR: 16
+Name: ioctl$TCSETSW
+CallName: ioctl
+Args: [0xc42014d1c0 0xc42014bc00 0xc42014d200]
+Ret: <nil>
+
+setsockopt$HCI_TIME_STAMP: ID: 974
+NR: 54
+Name: setsockopt$HCI_TIME_STAMP
+CallName: setsockopt
+Args: [0xc42017d140 0xc420180cb0 0xc420180d20 0xc42017d180 0xc420180e00]
+Ret: <nil>
+
+shmctl$IPC_RMID: ID: 1071
+NR: 31
+Name: shmctl$IPC_RMID
+CallName: shmctl
+Args: [0xc42019a380 0xc420199c00]
+Ret: <nil>
+
+syz_open_dev$loop: ID: 1159
+NR: 1000002
+Name: syz_open_dev$loop
+CallName: syz_open_dev
+Args: [0xc4201a6ac0 0xc4201a5420 0xc4201a5490]
+Ret: &{{fd_loop ret 1 false} 0xc420014690}
+
+setsockopt$BT_SNDMTU: ID: 970
+NR: 54
+Name: setsockopt$BT_SNDMTU
+CallName: setsockopt
+Args: [0xc42017cf40 0xc420180620 0xc420180690 0xc42017cf80 0xc420180770]
+Ret: <nil>
+
+setsockopt$NETROM_N2: ID: 989
+NR: 54
+Name: setsockopt$NETROM_N2
+CallName: setsockopt
+Args: [0xc42017d900 0xc420182540 0xc4201825b0 0xc42017d940 0xc420182690]
+Ret: <nil>
+
+shmctl$IPC_SET: ID: 1072
+NR: 31
+Name: shmctl$IPC_SET
+CallName: shmctl
+Args: [0xc42019a3c0 0xc420199c70 0xc42019a400]
+Ret: <nil>
+
+ioctl$EVIOCGBITSND: ID: 325
+NR: 16
+Name: ioctl$EVIOCGBITSND
+CallName: ioctl
+Args: [0xc42012e880 0xc420129b90 0xc42012e8c0]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_SET_BPF: ID: 515
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_SET_BPF
+CallName: ioctl
+Args: [0xc420146040 0xc420142620 0xc420146080]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_PCM_NEXT_DEVICE: ID: 552
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_PCM_NEXT_DEVICE
+CallName: ioctl
+Args: [0xc420147280 0xc420143a40 0xc4201472c0]
+Ret: <nil>
+
+move_pages: ID: 760
+NR: 279
+Name: move_pages
+CallName: move_pages
+Args: [0xc420159300 0xc42015da40 0xc420159380 0xc4201593c0 0xc420159400 0xc42015db90]
+Ret: <nil>
+
+semctl$SETVAL: ID: 920
+NR: 66
+Name: semctl$SETVAL
+CallName: semctl
+Args: [0xc420179540 0xc420177ea0 0xc420177f10 0xc420179580]
+Ret: <nil>
+
+socketpair$tcp: ID: 1124
+NR: 53
+Name: socketpair$tcp
+CallName: socketpair
+Args: [0xc4201a3730 0xc4201a37a0 0xc4201a3810 0xc42019b840]
+Ret: <nil>
+
+write$fuse_notify_inval_inode: ID: 1273
+NR: 1
+Name: write$fuse_notify_inval_inode
+CallName: write
+Args: [0xc4201b1540 0xc4201b1580 0xc4201ade30]
+Ret: <nil>
+
+getsockopt$SCTP_PRIMARY_ADDR: ID: 201
+NR: 55
+Name: getsockopt$SCTP_PRIMARY_ADDR
+CallName: getsockopt
+Args: [0xc420112000 0xc420111ab0 0xc420111b20 0xc420112040 0xc420112080]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_SYSTEM_INFO: ID: 592
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SYSTEM_INFO
+CallName: ioctl
+Args: [0xc42014c680 0xc42014ae70 0xc42014c6c0]
+Ret: <nil>
+
+signalfd: ID: 1083
+NR: 282
+Name: signalfd
+CallName: signalfd
+Args: [0xc42019a900 0xc42019a940 0xc42019c2a0]
+Ret: &{{fd_signal ret 1 false} 0xc420014870}
+
+clock_getres: ID: 47
+NR: 229
+Name: clock_getres
+CallName: clock_getres
+Args: [0xc420091ce0 0xc4200fc340]
+Ret: <nil>
+
+ioctl$KVM_REINJECT_CONTROL: ID: 448
+NR: 16
+Name: ioctl$KVM_REINJECT_CONTROL
+CallName: ioctl
+Args: [0xc42013a1c0 0xc420139f10 0xc42013a200]
+Ret: <nil>
+
+keyctl$read: ID: 717
+NR: 250
+Name: keyctl$read
+CallName: keyctl
+Args: [0xc420157b20 0xc420153fc0 0xc420158000 0xc420157b90]
+Ret: <nil>
+
+sendmsg$kcm: ID: 933
+NR: 46
+Name: sendmsg$kcm
+CallName: sendmsg
+Args: [0xc420179dc0 0xc420179e00 0xc42017a9a0]
+Ret: <nil>
+
+setsockopt$SO_ATTACH_FILTER: ID: 1029
+NR: 54
+Name: setsockopt$SO_ATTACH_FILTER
+CallName: setsockopt
+Args: [0xc420184d40 0xc4201941c0 0xc420194230 0xc420184d80 0xc4201942a0]
+Ret: <nil>
+
+getresgid: ID: 139
+NR: 120
+Name: getresgid
+CallName: getresgid
+Args: [0xc4201031c0 0xc420103240 0xc4201032c0]
+Ret: <nil>
+
+ioctl$KDGKBMODE: ID: 379
+NR: 16
+Name: ioctl$KDGKBMODE
+CallName: ioctl
+Args: [0xc4201342c0 0xc4201338f0 0xc420134300]
+Ret: <nil>
+
+semctl$GETPID: ID: 910
+NR: 66
+Name: semctl$GETPID
+CallName: semctl
+Args: [0xc420178e40 0xc420177570 0xc4201775e0 0xc420178e80]
+Ret: <nil>
+
+setsockopt$SCTP_SOCKOPT_CONNECTX_OLD: ID: 1028
+NR: 54
+Name: setsockopt$SCTP_SOCKOPT_CONNECTX_OLD
+CallName: setsockopt
+Args: [0xc420184cc0 0xc420194070 0xc4201940e0 0xc420184d00 0xc420194150]
+Ret: <nil>
+
+ioctl$SIOCKCMUNATTACH: ID: 536
+NR: 16
+Name: ioctl$SIOCKCMUNATTACH
+CallName: ioctl
+Args: [0xc420146a80 0xc420143260 0xc420146ac0]
+Ret: <nil>
+
+read: ID: 865
+NR: 0
+Name: read
+CallName: read
+Args: [0xc42016f1c0 0xc42016f200 0xc420171ab0]
+Ret: &{{{len ret 1 false} 8 false 0 0 false} 0 buf}
+
+rmdir: ID: 887
+NR: 84
+Name: rmdir
+CallName: rmdir
+Args: [0xc420178240]
+Ret: <nil>
+
+socketpair$icmp6: ID: 1118
+NR: 53
+Name: socketpair$icmp6
+CallName: socketpair
+Args: [0xc4201a2f50 0xc4201a2fc0 0xc4201a3030 0xc42019b4c0]
+Ret: <nil>
+
+connect$sctp: ID: 62
+NR: 42
+Name: connect$sctp
+CallName: connect
+Args: [0xc4200fcac0 0xc4200fcb00 0xc420100380]
+Ret: <nil>
+
+fcntl$getflags: ID: 91
+NR: 72
+Name: fcntl$getflags
+CallName: fcntl
+Args: [0xc4200fda40 0xc420101420]
+Ret: <nil>
+
+ioctl$KDSETMODE: ID: 385
+NR: 16
+Name: ioctl$KDSETMODE
+CallName: ioctl
+Args: [0xc420134540 0xc420133d50 0xc420133dc0]
+Ret: <nil>
+
+ioctl$KVM_ASSIGN_DEV_IRQ: ID: 394
+NR: 16
+Name: ioctl$KVM_ASSIGN_DEV_IRQ
+CallName: ioctl
+Args: [0xc4201348c0 0xc4201383f0 0xc420134900]
+Ret: <nil>
+
+semop: ID: 923
+NR: 65
+Name: semop
+CallName: semop
+Args: [0xc420179680 0xc4201796c0 0xc42017a2a0]
+Ret: <nil>
+
+ioctl$KVM_PPC_GET_SMMU_INFO: ID: 446
+NR: 16
+Name: ioctl$KVM_PPC_GET_SMMU_INFO
+CallName: ioctl
+Args: [0xc42013a0c0 0xc420139e30 0xc42013a100]
+Ret: <nil>
+
+ioctl$KVM_UNREGISTER_COALESCED_MMIO: ID: 487
+NR: 16
+Name: ioctl$KVM_UNREGISTER_COALESCED_MMIO
+CallName: ioctl
+Args: [0xc42013b400 0xc42013d490 0xc42013b440]
+Ret: <nil>
+
+shmctl$SHM_UNLOCK: ID: 1077
+NR: 31
+Name: shmctl$SHM_UNLOCK
+CallName: shmctl
+Args: [0xc42019a600 0xc420199ea0]
+Ret: <nil>
+
+socket$dccp6: ID: 1095
+NR: 41
+Name: socket$dccp6
+CallName: socket
+Args: [0xc42019d110 0xc42019d180 0xc42019d1f0]
+Ret: &{{sock_dccp6 ret 1 false} 0xc420015310}
+
+socket$udp: ID: 1111
+NR: 41
+Name: socket$udp
+CallName: socket
+Args: [0xc4201a2620 0xc4201a2690 0xc4201a2700]
+Ret: &{{sock_udp ret 1 false} 0xc420015770}
+
+getsockopt$NETROM_T1: ID: 165
+NR: 55
+Name: getsockopt$NETROM_T1
+CallName: getsockopt
+Args: [0xc42010a500 0xc42010e620 0xc42010e690 0xc42010a540 0xc42010a580]
+Ret: <nil>
+
+getsockopt$sock_int: ID: 234
+NR: 55
+Name: getsockopt$sock_int
+CallName: getsockopt
+Args: [0xc420113900 0xc42011ea10 0xc42011ea80 0xc420113940 0xc420113980]
+Ret: <nil>
+
+msgsnd: ID: 778
+NR: 69
+Name: msgsnd
+CallName: msgsnd
+Args: [0xc420159d40 0xc420159d80 0xc420166690 0xc420166700]
+Ret: <nil>
+
+timerfd_create: ID: 1244
+NR: 283
+Name: timerfd_create
+CallName: timerfd_create
+Args: [0xc4201ad1f0 0xc4201ad260]
+Ret: &{{fd_timer ret 1 false} 0xc4200149b0}
+
+pselect6: ID: 848
+NR: 270
+Name: pselect6
+CallName: pselect6
+Args: [0xc420170a10 0xc42016e5c0 0xc42016e600 0xc42016e640 0xc42016e680 0xc42016e6c0]
+Ret: <nil>
+
+rt_tgsigqueueinfo: ID: 895
+NR: 297
+Name: rt_tgsigqueueinfo
+CallName: rt_tgsigqueueinfo
+Args: [0xc420178600 0xc420178640 0xc420176d20 0xc420178680]
+Ret: <nil>
+
+ioctl$EVIOCSFF: ID: 351
+NR: 16
+Name: ioctl$EVIOCSFF
+CallName: ioctl
+Args: [0xc42012f580 0xc4201328c0 0xc42012f5c0]
+Ret: <nil>
+
+ioctl$KVM_SET_GSI_ROUTING: ID: 462
+NR: 16
+Name: ioctl$KVM_SET_GSI_ROUTING
+CallName: ioctl
+Args: [0xc42013a880 0xc42013c620 0xc42013a8c0]
+Ret: <nil>
+
+ioctl$PIO_CMAP: ID: 518
+NR: 16
+Name: ioctl$PIO_CMAP
+CallName: ioctl
+Args: [0xc4201461c0 0xc420142770 0xc420146200]
+Ret: <nil>
+
+ioctl$PIO_UNIMAPCLR: ID: 524
+NR: 16
+Name: ioctl$PIO_UNIMAPCLR
+CallName: ioctl
+Args: [0xc420146480 0xc420142a80 0xc4201464c0]
+Ret: <nil>
+
+ioctl$VT_GETMODE: ID: 682
+NR: 16
+Name: ioctl$VT_GETMODE
+CallName: ioctl
+Args: [0xc420152fc0 0xc420156540 0xc420153000]
+Ret: <nil>
+
+getsockopt$icmp6_buf: ID: 214
+NR: 55
+Name: getsockopt$icmp6_buf
+CallName: getsockopt
+Args: [0xc420112a40 0xc420114e00 0xc420114e70 0xc420112a80 0xc420112ac0]
+Ret: <nil>
+
+ioctl$RNDZAPENTCNT: ID: 530
+NR: 16
+Name: ioctl$RNDZAPENTCNT
+CallName: ioctl
+Args: [0xc420146780 0xc420142e70 0xc4201467c0]
+Ret: <nil>
+
+recvmsg$netrom: ID: 879
+NR: 47
+Name: recvmsg$netrom
+CallName: recvmsg
+Args: [0xc42016fc80 0xc42016fcc0 0xc420176690]
+Ret: <nil>
+
+rt_sigpending: ID: 889
+NR: 127
+Name: rt_sigpending
+CallName: rt_sigpending
+Args: [0xc420178340 0xc420176a80]
+Ret: <nil>
+
+modify_ldt$read_default: ID: 756
+NR: 154
+Name: modify_ldt$read_default
+CallName: modify_ldt
+Args: [0xc42015d730 0xc420159140 0xc42015d7a0]
+Ret: <nil>
+
+sendmsg$netrom: ID: 935
+NR: 46
+Name: sendmsg$netrom
+CallName: sendmsg
+Args: [0xc420179ec0 0xc420179f00 0xc42017aa80]
+Ret: <nil>
+
+setsockopt$NETLINK_CAP_ACK: ID: 981
+NR: 54
+Name: setsockopt$NETLINK_CAP_ACK
+CallName: setsockopt
+Args: [0xc42017d500 0xc420181810 0xc420181880 0xc42017d540 0xc420181960]
+Ret: <nil>
+
+syz_test$length7: ID: 1221
+NR: 1000001
+Name: syz_test$length7
+CallName: syz_test
+Args: [0xc4201a7f00]
+Ret: <nil>
+
+write: ID: 1264
+NR: 1
+Name: write
+CallName: write
+Args: [0xc4201b10c0 0xc4201b1100 0xc4201ad9d0]
+Ret: &{{{len ret 1 false} 8 false 0 0 false} 0 buf}
+
+connect$netrom: ID: 59
+NR: 42
+Name: connect$netrom
+CallName: connect
+Args: [0xc4200fc940 0xc4200fc980 0xc420100230]
+Ret: <nil>
+
+epoll_ctl$EPOLL_CTL_DEL: ID: 72
+NR: 233
+Name: epoll_ctl$EPOLL_CTL_DEL
+CallName: epoll_ctl
+Args: [0xc4200fd000 0xc420100700 0xc4200fd040]
+Ret: <nil>
+
+semctl$IPC_STAT: ID: 916
+NR: 66
+Name: semctl$IPC_STAT
+CallName: semctl
+Args: [0xc420179240 0xc420177ab0 0xc420177b20 0xc420179280]
+Ret: <nil>
+
+syz_test$length18: ID: 1213
+NR: 1000001
+Name: syz_test$length18
+CallName: syz_test
+Args: [0xc4201a7d00]
+Ret: <nil>
+
+unshare: ID: 1254
+NR: 272
+Name: unshare
+CallName: unshare
+Args: [0xc4201ad500]
+Ret: <nil>
+
+getrusage: ID: 142
+NR: 98
+Name: getrusage
+CallName: getrusage
+Args: [0xc420104a10 0xc4201034c0]
+Ret: <nil>
+
+getsockopt$SCTP_RECVRCVINFO: ID: 203
+NR: 55
+Name: getsockopt$SCTP_RECVRCVINFO
+CallName: getsockopt
+Args: [0xc420112180 0xc420111dc0 0xc420111e30 0xc4201121c0 0xc420112200]
+Ret: <nil>
+
+prctl$setendian: ID: 837
+NR: 157
+Name: prctl$setendian
+CallName: prctl
+Args: [0xc420170150 0xc4201701c0]
+Ret: <nil>
+
+openat$binder: ID: 791
+NR: 257
+Name: openat$binder
+CallName: openat
+Args: [0xc420166fc0 0xc420168480 0xc420167030 0xc4201670a0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+openat$vcs: ID: 817
+NR: 257
+Name: openat$vcs
+CallName: openat
+Args: [0xc42016d1f0 0xc420169800 0xc42016d260 0xc42016d2d0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$SCTP_PARTIAL_DELIVERY_POINT: ID: 1017
+NR: 54
+Name: setsockopt$SCTP_PARTIAL_DELIVERY_POINT
+CallName: setsockopt
+Args: [0xc420184740 0xc4201870a0 0xc420187110 0xc420184780 0xc4201871f0]
+Ret: <nil>
+
+connect$unix: ID: 63
+NR: 42
+Name: connect$unix
+CallName: connect
+Args: [0xc4200fcb40 0xc4200fcb80 0xc4201003f0]
+Ret: <nil>
+
+finit_module: ID: 105
+NR: 313
+Name: finit_module
+CallName: finit_module
+Args: [0xc420102040 0xc420102080 0xc420101c70]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_AGP_BIND: ID: 271
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_BIND
+CallName: ioctl
+Args: [0xc420122e40 0xc4201282a0 0xc420122e80]
+Ret: <nil>
+
+ioctl$TIOCGLCKTRMIOS: ID: 628
+NR: 16
+Name: ioctl$TIOCGLCKTRMIOS
+CallName: ioctl
+Args: [0xc42014d580 0xc42014e1c0 0xc42014d5c0]
+Ret: <nil>
+
+mprotect: ID: 761
+NR: 10
+Name: mprotect
+CallName: mprotect
+Args: [0xc420159440 0xc42015dc00 0xc42015dc70]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_ADD: ID: 540
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_ADD
+CallName: ioctl
+Args: [0xc420146c80 0xc420143490 0xc420146cc0]
+Ret: <nil>
+
+connect: ID: 52
+NR: 42
+Name: connect
+CallName: connect
+Args: [0xc4200fc5c0 0xc4200fc600 0xc420091f10]
+Ret: <nil>
+
+get_thread_area: ID: 119
+NR: 211
+Name: get_thread_area
+CallName: get_thread_area
+Args: [0xc4201027c0]
+Ret: <nil>
+
+io_cancel: ID: 251
+NR: 210
+Name: io_cancel
+CallName: io_cancel
+Args: [0xc420122400 0xc420122440 0xc420122480]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_AGP_ENABLE: ID: 272
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_ENABLE
+CallName: ioctl
+Args: [0xc420122ec0 0xc420128310 0xc420122f00]
+Ret: <nil>
+
+ioctl$KVM_GET_XSAVE: ID: 435
+NR: 16
+Name: ioctl$KVM_GET_XSAVE
+CallName: ioctl
+Args: [0xc420135bc0 0xc420139880 0xc420135c00]
+Ret: <nil>
+
+setsockopt$RFCOMM_LM: ID: 995
+NR: 54
+Name: setsockopt$RFCOMM_LM
+CallName: setsockopt
+Args: [0xc42017dc00 0xc420182fc0 0xc420183030 0xc42017dc80 0xc420183110]
+Ret: <nil>
+
+setsockopt$SCTP_MAXSEG: ID: 1014
+NR: 54
+Name: setsockopt$SCTP_MAXSEG
+CallName: setsockopt
+Args: [0xc4201845c0 0xc420186c40 0xc420186cb0 0xc420184600 0xc420186d20]
+Ret: <nil>
+
+setsockopt$udp_encap: ID: 1065
+NR: 54
+Name: setsockopt$udp_encap
+CallName: setsockopt
+Args: [0xc42019a040 0xc4201996c0 0xc420199730 0xc42019a080 0xc420199810]
+Ret: <nil>
+
+accept$alg: ID: 1
+NR: 43
+Name: accept$alg
+CallName: accept
+Args: [0xc420012700 0xc420012740 0xc420012780]
+Ret: &{{sock_algconn ret 1 false} 0xc420014ff0}
+
+accept$nfc_llcp: ID: 5
+NR: 43
+Name: accept$nfc_llcp
+CallName: accept
+Args: [0xc420012b40 0xc420012b80 0xc420012bc0]
+Ret: &{{sock_nfc_llcp ret 1 false} 0xc4200155e0}
+
+ioctl$HIDPCONNADD: ID: 364
+NR: 16
+Name: ioctl$HIDPCONNADD
+CallName: ioctl
+Args: [0xc42012fc40 0xc420132fc0 0xc42012fc80]
+Ret: <nil>
+
+ioctl$TUNGETFEATURES: ID: 659
+NR: 16
+Name: ioctl$TUNGETFEATURES
+CallName: ioctl
+Args: [0xc420152480 0xc42014f5e0 0xc4201524c0]
+Ret: <nil>
+
+lremovexattr: ID: 736
+NR: 198
+Name: lremovexattr
+CallName: lremovexattr
+Args: [0xc420158900 0xc420158940]
+Ret: <nil>
+
+write$eventfd: ID: 1266
+NR: 1
+Name: write$eventfd
+CallName: write
+Args: [0xc4201b11c0 0xc4201b1200 0xc4201adb20]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_HWDEP_NEXT_DEVICE: ID: 550
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_HWDEP_NEXT_DEVICE
+CallName: ioctl
+Args: [0xc420147180 0xc4201438f0 0xc4201471c0]
+Ret: <nil>
+
+ptrace$poke: ID: 857
+NR: 101
+Name: ptrace$poke
+CallName: ptrace
+Args: [0xc4201711f0 0xc42016ebc0 0xc42016ec00 0xc4201712d0]
+Ret: <nil>
+
+syz_test$csum_ipv6_udp: ID: 1199
+NR: 1000001
+Name: syz_test$csum_ipv6_udp
+CallName: syz_test
+Args: [0xc4201a7980]
+Ret: <nil>
+
+clock_gettime: ID: 48
+NR: 228
+Name: clock_gettime
+CallName: clock_gettime
+Args: [0xc420091d50 0xc4200fc3c0]
+Ret: <nil>
+
+ioctl$RNDADDTOENTCNT: ID: 527
+NR: 16
+Name: ioctl$RNDADDTOENTCNT
+CallName: ioctl
+Args: [0xc420146600 0xc420142bd0 0xc420146640]
+Ret: <nil>
+
+openat$hpet: ID: 797
+NR: 257
+Name: openat$hpet
+CallName: openat
+Args: [0xc4201677a0 0xc420168900 0xc420167810 0xc420167880]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$KVM_KVMCLOCK_CTRL: ID: 442
+NR: 16
+Name: ioctl$KVM_KVMCLOCK_CTRL
+CallName: ioctl
+Args: [0xc420135f40 0xc420139c00]
+Ret: <nil>
+
+msgrcv: ID: 777
+NR: 70
+Name: msgrcv
+CallName: msgrcv
+Args: [0xc420159cc0 0xc420159d00 0xc420166540 0xc4201665b0 0xc420166620]
+Ret: <nil>
+
+bpf$OBJ_PIN_MAP: ID: 39
+NR: 321
+Name: bpf$OBJ_PIN_MAP
+CallName: bpf
+Args: [0xc420091960 0xc420013f80 0xc4200919d0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_UNLOCK: ID: 317
+NR: 16
+Name: ioctl$DRM_IOCTL_UNLOCK
+CallName: ioctl
+Args: [0xc42012e480 0xc420129810 0xc42012e4c0]
+Ret: <nil>
+
+ioctl$TIOCLINUX6: ID: 637
+NR: 16
+Name: ioctl$TIOCLINUX6
+CallName: ioctl
+Args: [0xc42014da80 0xc42014e700 0xc42014dac0]
+Ret: <nil>
+
+listxattr: ID: 733
+NR: 194
+Name: listxattr
+CallName: listxattr
+Args: [0xc4201587c0 0xc420158800 0xc42015c460]
+Ret: <nil>
+
+llistxattr: ID: 734
+NR: 195
+Name: llistxattr
+CallName: llistxattr
+Args: [0xc420158840 0xc420158880 0xc42015c4d0]
+Ret: <nil>
+
+syz_open_dev$midi: ID: 1161
+NR: 1000002
+Name: syz_open_dev$midi
+CallName: syz_open_dev
+Args: [0xc4201a6bc0 0xc4201a55e0 0xc4201a5650]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+epoll_ctl$EPOLL_CTL_ADD: ID: 71
+NR: 233
+Name: epoll_ctl$EPOLL_CTL_ADD
+CallName: epoll_ctl
+Args: [0xc4200fcf00 0xc420100690 0xc4200fcf40 0xc4200fcf80]
+Ret: <nil>
+
+fchmod: ID: 85
+NR: 91
+Name: fchmod
+CallName: fchmod
+Args: [0xc4200fd6c0 0xc420101180]
+Ret: <nil>
+
+getsockopt$SCTP_GET_LOCAL_ADDRS: ID: 187
+NR: 55
+Name: getsockopt$SCTP_GET_LOCAL_ADDRS
+CallName: getsockopt
+Args: [0xc42010b580 0xc420110700 0xc420110770 0xc42010b5c0 0xc42010b600]
+Ret: <nil>
+
+prctl$setfpexc: ID: 838
+NR: 157
+Name: prctl$setfpexc
+CallName: prctl
+Args: [0xc420170230 0xc4201702a0]
+Ret: <nil>
+
+socketpair$icmp6_raw: ID: 1119
+NR: 53
+Name: socketpair$icmp6_raw
+CallName: socketpair
+Args: [0xc4201a30a0 0xc4201a3110 0xc4201a3180 0xc42019b540]
+Ret: <nil>
+
+uselib: ID: 1255
+NR: 134
+Name: uselib
+CallName: uselib
+Args: [0xc4201b0b80]
+Ret: <nil>
+
+get_mempolicy: ID: 117
+NR: 239
+Name: get_mempolicy
+CallName: get_mempolicy
+Args: [0xc420102600 0xc420102640 0xc420104230 0xc420102680 0xc4201042a0]
+Ret: <nil>
+
+getsockopt$SCTP_FRAGMENT_INTERLEAVE: ID: 183
+NR: 55
+Name: getsockopt$SCTP_FRAGMENT_INTERLEAVE
+CallName: getsockopt
+Args: [0xc42010b280 0xc4201100e0 0xc420110150 0xc42010b2c0 0xc42010b300]
+Ret: <nil>
+
+ioctl$EVIOCGEFFECTS: ID: 327
+NR: 16
+Name: ioctl$EVIOCGEFFECTS
+CallName: ioctl
+Args: [0xc42012e980 0xc420129c70 0xc42012e9c0]
+Ret: <nil>
+
+ioctl$KVM_S390_UCAS_UNMAP: ID: 453
+NR: 16
+Name: ioctl$KVM_S390_UCAS_UNMAP
+CallName: ioctl
+Args: [0xc42013a400 0xc42013c150 0xc42013a440]
+Ret: <nil>
+
+syz_test$align1: ID: 1182
+NR: 1000001
+Name: syz_test$align1
+CallName: syz_test
+Args: [0xc4201a7540]
+Ret: <nil>
+
+sendto$inet: ID: 940
+NR: 44
+Name: sendto$inet
+CallName: sendto
+Args: [0xc42017c180 0xc42017c1c0 0xc42017ad90 0xc42017ae00 0xc42017c200 0xc42017ae70]
+Ret: <nil>
+
+syz_test$length5: ID: 1219
+NR: 1000001
+Name: syz_test$length5
+CallName: syz_test
+Args: [0xc4201a7e80]
+Ret: <nil>
+
+accept$inet: ID: 2
+NR: 43
+Name: accept$inet
+CallName: accept
+Args: [0xc420012800 0xc420012840 0xc420012880]
+Ret: &{{sock_in ret 1 false} 0xc420015400}
+
+ioctl$KVM_GET_EMULATED_CPUID: ID: 416
+NR: 16
+Name: ioctl$KVM_GET_EMULATED_CPUID
+CallName: ioctl
+Args: [0xc420135300 0xc420138f50 0xc420135340]
+Ret: <nil>
+
+ioctl$KVM_GET_SUPPORTED_CPUID: ID: 430
+NR: 16
+Name: ioctl$KVM_GET_SUPPORTED_CPUID
+CallName: ioctl
+Args: [0xc4201359c0 0xc420139650 0xc420135a00]
+Ret: <nil>
+
+sched_getparam: ID: 898
+NR: 143
+Name: sched_getparam
+CallName: sched_getparam
+Args: [0xc420178840 0xc420178880]
+Ret: <nil>
+
+sendmsg$nfc_llcp: ID: 936
+NR: 46
+Name: sendmsg$nfc_llcp
+CallName: sendmsg
+Args: [0xc420179f40 0xc420179f80 0xc42017aaf0]
+Ret: <nil>
+
+ioctl$TCSBRKP: ID: 612
+NR: 16
+Name: ioctl$TCSBRKP
+CallName: ioctl
+Args: [0xc42014cf00 0xc42014b8f0 0xc42014b960]
+Ret: <nil>
+
+setsockopt$SCTP_ASSOCINFO: ID: 997
+NR: 54
+Name: setsockopt$SCTP_ASSOCINFO
+CallName: setsockopt
+Args: [0xc42017dd40 0xc420183340 0xc4201833b0 0xc42017dd80 0xc420183420]
+Ret: <nil>
+
+setsockopt$SCTP_SOCKOPT_CONNECTX: ID: 1027
+NR: 54
+Name: setsockopt$SCTP_SOCKOPT_CONNECTX
+CallName: setsockopt
+Args: [0xc420184c40 0xc420187f10 0xc420187f80 0xc420184c80 0xc420194000]
+Ret: <nil>
+
+getsockname$sctp: ID: 148
+NR: 51
+Name: getsockname$sctp
+CallName: getsockname
+Args: [0xc4201038c0 0xc420103900 0xc420103940]
+Ret: <nil>
+
+ioctl$KVM_SIGNAL_MSI: ID: 483
+NR: 16
+Name: ioctl$KVM_SIGNAL_MSI
+CallName: ioctl
+Args: [0xc42013b240 0xc42013d2d0 0xc42013b280]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_UNSUBSCRIBE_PORT: ID: 593
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_UNSUBSCRIBE_PORT
+CallName: ioctl
+Args: [0xc42014c700 0xc42014aee0 0xc42014c740]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_GPARAMS: ID: 596
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_GPARAMS
+CallName: ioctl
+Args: [0xc42014c840 0xc42014b030 0xc42014c880]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_PARAMS: ID: 600
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_PARAMS
+CallName: ioctl
+Args: [0xc42014ca40 0xc42014b1f0 0xc42014ca80]
+Ret: <nil>
+
+dup: ID: 66
+NR: 32
+Name: dup
+CallName: dup
+Args: [0xc4200fccc0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_TEMPO: ID: 589
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_TEMPO
+CallName: ioctl
+Args: [0xc42014c500 0xc42014ad20 0xc42014c540]
+Ret: <nil>
+
+setresuid: ID: 958
+NR: 117
+Name: setresuid
+CallName: setresuid
+Args: [0xc42017c980 0xc42017c9c0 0xc42017ca00]
+Ret: <nil>
+
+setsockopt$icmp6_buf: ID: 1035
+NR: 54
+Name: setsockopt$icmp6_buf
+CallName: setsockopt
+Args: [0xc4201850c0 0xc420194af0 0xc420194b60 0xc420185100 0xc420194bd0]
+Ret: <nil>
+
+wait4: ID: 1262
+NR: 61
+Name: wait4
+CallName: wait4
+Args: [0xc4201b0f00 0xc4201b0f40 0xc4201ad810 0xc4201b0f80]
+Ret: <nil>
+
+fchownat: ID: 88
+NR: 260
+Name: fchownat
+CallName: fchownat
+Args: [0xc4200fd840 0xc4200fd880 0xc4200fd8c0 0xc4200fd900 0xc420101260]
+Ret: <nil>
+
+ioctl$KDGKBMETA: ID: 378
+NR: 16
+Name: ioctl$KDGKBMETA
+CallName: ioctl
+Args: [0xc420134240 0xc420133810 0xc420134280]
+Ret: <nil>
+
+ioctl$TIOCLINUX2: ID: 633
+NR: 16
+Name: ioctl$TIOCLINUX2
+CallName: ioctl
+Args: [0xc42014d880 0xc42014e460 0xc42014d8c0]
+Ret: <nil>
+
+renameat: ID: 883
+NR: 264
+Name: renameat
+CallName: renameat
+Args: [0xc42016fe80 0xc42016fec0 0xc42016ff00 0xc42016ff40]
+Ret: <nil>
+
+semctl$IPC_SET: ID: 915
+NR: 66
+Name: semctl$IPC_SET
+CallName: semctl
+Args: [0xc420179180 0xc4201779d0 0xc420177a40 0xc4201791c0]
+Ret: <nil>
+
+getsockopt$bt_hci: ID: 209
+NR: 55
+Name: getsockopt$bt_hci
+CallName: getsockopt
+Args: [0xc420112600 0xc420114690 0xc420114700 0xc420112640 0xc420112680]
+Ret: <nil>
+
+ioctl$EVIOCGSND: ID: 340
+NR: 16
+Name: ioctl$EVIOCGSND
+CallName: ioctl
+Args: [0xc42012f000 0xc4201322a0 0xc42012f040]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_TLV_COMMAND: ID: 560
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_TLV_COMMAND
+CallName: ioctl
+Args: [0xc420147680 0xc420143f80 0xc4201476c0]
+Ret: <nil>
+
+sched_getscheduler: ID: 899
+NR: 145
+Name: sched_getscheduler
+CallName: sched_getscheduler
+Args: [0xc4201788c0]
+Ret: <nil>
+
+syz_open_dev$audion: ID: 1150
+NR: 1000002
+Name: syz_open_dev$audion
+CallName: syz_open_dev
+Args: [0xc4201a6640 0xc4201a4c40 0xc4201a4cb0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$TIOCSBRK: ID: 647
+NR: 16
+Name: ioctl$TIOCSBRK
+CallName: ioctl
+Args: [0xc42014df00 0xc42014ee00]
+Ret: <nil>
+
+setsockopt$ip_mreqn: ID: 1043
+NR: 54
+Name: setsockopt$ip_mreqn
+CallName: setsockopt
+Args: [0xc4201854c0 0xc420195650 0xc4201956c0 0xc420185500 0xc420195730]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_START: ID: 604
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_START
+CallName: ioctl
+Args: [0xc42014cc00 0xc42014b420]
+Ret: <nil>
+
+ioctl$TIOCGSID: ID: 630
+NR: 16
+Name: ioctl$TIOCGSID
+CallName: ioctl
+Args: [0xc42014d6c0 0xc42014e2a0 0xc42014d740]
+Ret: <nil>
+
+ioctl$TIOCNXCL: ID: 644
+NR: 16
+Name: ioctl$TIOCNXCL
+CallName: ioctl
+Args: [0xc42014ddc0 0xc42014ebd0]
+Ret: <nil>
+
+keyctl$instantiate_iov: ID: 712
+NR: 250
+Name: keyctl$instantiate_iov
+CallName: keyctl
+Args: [0xc420157810 0xc420153d40 0xc420153d80 0xc420157880 0xc420153dc0]
+Ret: <nil>
+
+set_mempolicy: ID: 944
+NR: 238
+Name: set_mempolicy
+CallName: set_mempolicy
+Args: [0xc42017b2d0 0xc42017c480 0xc42017b3b0]
+Ret: <nil>
+
+syz_open_dev$vcsa: ID: 1177
+NR: 1000002
+Name: syz_open_dev$vcsa
+CallName: syz_open_dev
+Args: [0xc4201a73c0 0xc4201ac3f0 0xc4201ac460]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+accept$netrom: ID: 4
+NR: 43
+Name: accept$netrom
+CallName: accept
+Args: [0xc420012a00 0xc420012a40 0xc420012a80]
+Ret: &{{sock_netrom ret 1 false} 0xc420015590}
+
+ioctl$GIO_SCRNMAP: ID: 361
+NR: 16
+Name: ioctl$GIO_SCRNMAP
+CallName: ioctl
+Args: [0xc42012fac0 0xc420132e70 0xc42012fb00]
+Ret: <nil>
+
+ioctl$KVM_IRQFD: ID: 439
+NR: 16
+Name: ioctl$KVM_IRQFD
+CallName: ioctl
+Args: [0xc420135dc0 0xc420139ab0 0xc420135e00]
+Ret: <nil>
+
+keyctl$link: ID: 715
+NR: 250
+Name: keyctl$link
+CallName: keyctl
+Args: [0xc4201579d0 0xc420153e80 0xc420153ec0]
+Ret: <nil>
+
+semget$private: ID: 922
+NR: 64
+Name: semget$private
+CallName: semget
+Args: [0xc42017a150 0xc42017a1c0 0xc42017a230]
+Ret: &{{ipc_sem ret 1 false} 0xc420014d20}
+
+getsockopt$icmp_buf: ID: 215
+NR: 55
+Name: getsockopt$icmp_buf
+CallName: getsockopt
+Args: [0xc420112b00 0xc420114f50 0xc420114fc0 0xc420112b40 0xc420112b80]
+Ret: <nil>
+
+ioctl$VT_RESIZEX: ID: 687
+NR: 16
+Name: ioctl$VT_RESIZEX
+CallName: ioctl
+Args: [0xc420153200 0xc4201567e0 0xc420153240]
+Ret: <nil>
+
+pkey_free: ID: 829
+NR: 331
+Name: pkey_free
+CallName: pkey_free
+Args: [0xc420169dc0]
+Ret: <nil>
+
+syz_open_dev$tlk_device: ID: 1172
+NR: 1000002
+Name: syz_open_dev$tlk_device
+CallName: syz_open_dev
+Args: [0xc4201a7140 0xc4201a5f80 0xc4201ac000]
+Ret: &{{fd_tlk ret 1 false} 0xc420014a00}
+
+syz_test$align0: ID: 1181
+NR: 1000001
+Name: syz_test$align0
+CallName: syz_test
+Args: [0xc4201a7500]
+Ret: <nil>
+
+syz_test$opt2: ID: 1226
+NR: 1000001
+Name: syz_test$opt2
+CallName: syz_test
+Args: [0xc4201b0000]
+Ret: <nil>
+
+times: ID: 1247
+NR: 100
+Name: times
+CallName: times
+Args: [0xc4201b0980]
+Ret: <nil>
+
+ioctl$TIOCGETD: ID: 627
+NR: 16
+Name: ioctl$TIOCGETD
+CallName: ioctl
+Args: [0xc42014d500 0xc42014e0e0 0xc42014d540]
+Ret: <nil>
+
+ioctl$TUNSETNOCSUM: ID: 666
+NR: 16
+Name: ioctl$TUNSETNOCSUM
+CallName: ioctl
+Args: [0xc420152800 0xc42014fb90 0xc420152840]
+Ret: <nil>
+
+ioperm: ID: 696
+NR: 173
+Name: ioperm
+CallName: ioperm
+Args: [0xc420156cb0 0xc420156d20 0xc420156d90]
+Ret: <nil>
+
+rt_sigprocmask: ID: 890
+NR: 14
+Name: rt_sigprocmask
+CallName: rt_sigprocmask
+Args: [0xc420176af0 0xc420178380 0xc4201783c0 0xc420176b60]
+Ret: <nil>
+
+socketpair$inet: ID: 1121
+NR: 53
+Name: socketpair$inet
+CallName: socketpair
+Args: [0xc4201a3340 0xc4201a33b0 0xc4201a3420 0xc42019b680]
+Ret: <nil>
+
+socket$icmp_raw: ID: 1099
+NR: 41
+Name: socket$icmp_raw
+CallName: socket
+Args: [0xc42019d650 0xc42019d6c0 0xc42019d730]
+Ret: &{{sock_icmp ret 1 false} 0xc420015360}
+
+getsockopt$dccp_buf: ID: 212
+NR: 55
+Name: getsockopt$dccp_buf
+CallName: getsockopt
+Args: [0xc420112880 0xc420114af0 0xc420114b60 0xc420112900 0xc420112940]
+Ret: <nil>
+
+ioctl$KVM_SET_SIGNAL_MASK: ID: 474
+NR: 16
+Name: ioctl$KVM_SET_SIGNAL_MASK
+CallName: ioctl
+Args: [0xc42013ae40 0xc42013cd20 0xc42013ae80]
+Ret: <nil>
+
+ioctl$TIOCSTI: ID: 653
+NR: 16
+Name: ioctl$TIOCSTI
+CallName: ioctl
+Args: [0xc4201521c0 0xc42014f1f0 0xc42014f260]
+Ret: <nil>
+
+keyctl$unlink: ID: 725
+NR: 250
+Name: keyctl$unlink
+CallName: keyctl
+Args: [0xc42015c150 0xc4201582c0 0xc420158300]
+Ret: <nil>
+
+setsockopt$NETLINK_TX_RING: ID: 987
+NR: 54
+Name: setsockopt$NETLINK_TX_RING
+CallName: setsockopt
+Args: [0xc42017d800 0xc420182230 0xc4201822a0 0xc42017d840 0xc420182310]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_LOCK: ID: 543
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_LOCK
+CallName: ioctl
+Args: [0xc420146e00 0xc4201435e0 0xc420146e40]
+Ret: <nil>
+
+ioctl$TIOCMSET: ID: 642
+NR: 16
+Name: ioctl$TIOCMSET
+CallName: ioctl
+Args: [0xc42014dd00 0xc42014ea80 0xc42014dd40]
+Ret: <nil>
+
+fstatfs: ID: 111
+NR: 138
+Name: fstatfs
+CallName: fstatfs
+Args: [0xc420102340 0xc420102380]
+Ret: <nil>
+
+getsockopt$SCTP_RECVNXTINFO: ID: 202
+NR: 55
+Name: getsockopt$SCTP_RECVNXTINFO
+CallName: getsockopt
+Args: [0xc4201120c0 0xc420111c00 0xc420111c70 0xc420112100 0xc420112140]
+Ret: <nil>
+
+getsockopt$ip6_buf: ID: 216
+NR: 55
+Name: getsockopt$ip6_buf
+CallName: getsockopt
+Args: [0xc420112bc0 0xc4201150a0 0xc420115110 0xc420112c00 0xc420112c40]
+Ret: <nil>
+
+ioctl$KVM_GET_CPUID2: ID: 412
+NR: 16
+Name: ioctl$KVM_GET_CPUID2
+CallName: ioctl
+Args: [0xc420135100 0xc420138d90 0xc420135140]
+Ret: <nil>
+
+ioctl$SIOCKCMATTACH: ID: 534
+NR: 16
+Name: ioctl$SIOCKCMATTACH
+CallName: ioctl
+Args: [0xc420146980 0xc420143180 0xc4201469c0]
+Ret: <nil>
+
+semctl$GETVAL: ID: 911
+NR: 66
+Name: semctl$GETVAL
+CallName: semctl
+Args: [0xc420178f00 0xc420177650 0xc4201776c0 0xc420178f40]
+Ret: <nil>
+
+setsockopt$SCTP_AUTH_KEY: ID: 1001
+NR: 54
+Name: setsockopt$SCTP_AUTH_KEY
+CallName: setsockopt
+Args: [0xc42017df40 0xc4201838f0 0xc420183960 0xc42017df80 0xc4201839d0]
+Ret: <nil>
+
+getsockopt$SCTP_LOCAL_AUTH_CHUNKS: ID: 193
+NR: 55
+Name: getsockopt$SCTP_LOCAL_AUTH_CHUNKS
+CallName: getsockopt
+Args: [0xc42010ba00 0xc420110f50 0xc420110fc0 0xc42010ba40 0xc42010ba80]
+Ret: <nil>
+
+ioctl$FIONREAD: ID: 356
+NR: 16
+Name: ioctl$FIONREAD
+CallName: ioctl
+Args: [0xc42012f800 0xc420132bd0 0xc42012f840]
+Ret: <nil>
+
+ioctl$KDGETKEYCODE: ID: 372
+NR: 16
+Name: ioctl$KDGETKEYCODE
+CallName: ioctl
+Args: [0xc42012ff40 0xc420133420 0xc42012ff80]
+Ret: <nil>
+
+ioctl$KVM_ARM_SET_DEVICE_ADDR: ID: 392
+NR: 16
+Name: ioctl$KVM_ARM_SET_DEVICE_ADDR
+CallName: ioctl
+Args: [0xc4201347c0 0xc420138310 0xc420134800]
+Ret: <nil>
+
+ioctl$KVM_CHECK_EXTENSION: ID: 399
+NR: 16
+Name: ioctl$KVM_CHECK_EXTENSION
+CallName: ioctl
+Args: [0xc420134b40 0xc420138620 0xc420138690]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_ID: ID: 511
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_ID
+CallName: ioctl
+Args: [0xc42013bec0 0xc4201422a0 0xc42013bf00]
+Ret: <nil>
+
+syz_open_dev$sndmidi: ID: 1167
+NR: 1000002
+Name: syz_open_dev$sndmidi
+CallName: syz_open_dev
+Args: [0xc4201a6ec0 0xc4201a5b20 0xc4201a5b90]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$KVM_SET_XSAVE: ID: 482
+NR: 16
+Name: ioctl$KVM_SET_XSAVE
+CallName: ioctl
+Args: [0xc42013b1c0 0xc42013d260 0xc42013b200]
+Ret: <nil>
+
+set_tid_address: ID: 947
+NR: 218
+Name: set_tid_address
+CallName: set_tid_address
+Args: [0xc42017c540]
+Ret: <nil>
+
+epoll_wait: ID: 75
+NR: 232
+Name: epoll_wait
+CallName: epoll_wait
+Args: [0xc4200fd240 0xc4200fd280 0xc420100930 0xc4201009a0]
+Ret: <nil>
+
+fsetxattr: ID: 109
+NR: 190
+Name: fsetxattr
+CallName: fsetxattr
+Args: [0xc420102200 0xc420102240 0xc420102280 0xc420101dc0 0xc420101e30]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_CLIENT: ID: 587
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SET_QUEUE_CLIENT
+CallName: ioctl
+Args: [0xc42014c400 0xc42014ac40 0xc42014c440]
+Ret: <nil>
+
+ioctl$VT_WAITACTIVE: ID: 689
+NR: 16
+Name: ioctl$VT_WAITACTIVE
+CallName: ioctl
+Args: [0xc420153300 0xc4201568c0]
+Ret: <nil>
+
+shutdown: ID: 1081
+NR: 48
+Name: shutdown
+CallName: shutdown
+Args: [0xc42019a800 0xc42019c1c0]
+Ret: <nil>
+
+getsockopt$SCTP_MAX_BURST: ID: 195
+NR: 55
+Name: getsockopt$SCTP_MAX_BURST
+CallName: getsockopt
+Args: [0xc42010bb80 0xc4201111f0 0xc420111260 0xc42010bbc0 0xc42010bc00]
+Ret: <nil>
+
+ioctl$KVM_ASSIGN_SET_MSIX_NR: ID: 398
+NR: 16
+Name: ioctl$KVM_ASSIGN_SET_MSIX_NR
+CallName: ioctl
+Args: [0xc420134ac0 0xc4201385b0 0xc420134b00]
+Ret: <nil>
+
+ptrace$cont: ID: 850
+NR: 101
+Name: ptrace$cont
+CallName: ptrace
+Args: [0xc420170af0 0xc42016e740 0xc420170b60 0xc420170bd0]
+Ret: <nil>
+
+sendmsg$alg: ID: 932
+NR: 46
+Name: sendmsg$alg
+CallName: sendmsg
+Args: [0xc420179d40 0xc420179d80 0xc42017a930]
+Ret: <nil>
+
+syz_test$opt0: ID: 1224
+NR: 1000001
+Name: syz_test$opt0
+CallName: syz_test
+Args: [0xc4201acb60]
+Ret: <nil>
+
+ioctl$KDSETKEYCODE: ID: 383
+NR: 16
+Name: ioctl$KDSETKEYCODE
+CallName: ioctl
+Args: [0xc420134480 0xc420133c00 0xc4201344c0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_REMOVE_EVENTS: ID: 582
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_REMOVE_EVENTS
+CallName: ioctl
+Args: [0xc42014c180 0xc42014aa10 0xc42014c1c0]
+Ret: <nil>
+
+syz_test$align3: ID: 1184
+NR: 1000001
+Name: syz_test$align3
+CallName: syz_test
+Args: [0xc4201a75c0]
+Ret: <nil>
+
+fcntl$getownex: ID: 93
+NR: 72
+Name: fcntl$getownex
+CallName: fcntl
+Args: [0xc4200fdb00 0xc420101500 0xc4200fdb40]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_RUNNING_MODE: ID: 583
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_RUNNING_MODE
+CallName: ioctl
+Args: [0xc42014c200 0xc42014aa80 0xc42014c240]
+Ret: <nil>
+
+ioctl$TTUNGETFILTER: ID: 656
+NR: 16
+Name: ioctl$TTUNGETFILTER
+CallName: ioctl
+Args: [0xc420152300 0xc42014f3b0 0xc420152340]
+Ret: <nil>
+
+keyctl$setperm: ID: 724
+NR: 250
+Name: keyctl$setperm
+CallName: keyctl
+Args: [0xc42015c070 0xc420158280 0xc42015c0e0]
+Ret: <nil>
+
+mq_timedreceive: ID: 765
+NR: 243
+Name: mq_timedreceive
+CallName: mq_timedreceive
+Args: [0xc420159700 0xc420159740 0xc42015ddc0 0xc42015de30 0xc420159780]
+Ret: <nil>
+
+rename: ID: 882
+NR: 82
+Name: rename
+CallName: rename
+Args: [0xc42016fe00 0xc42016fe40]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_SUBSCRIBE_PORT: ID: 591
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_SUBSCRIBE_PORT
+CallName: ioctl
+Args: [0xc42014c600 0xc42014ae00 0xc42014c640]
+Ret: <nil>
+
+keyctl$instantiate: ID: 711
+NR: 250
+Name: keyctl$instantiate
+CallName: keyctl
+Args: [0xc420157730 0xc420153c80 0xc420153cc0 0xc4201577a0 0xc420153d00]
+Ret: <nil>
+
+openat$kvm: ID: 802
+NR: 257
+Name: openat$kvm
+CallName: openat
+Args: [0xc420167e30 0xc420168cc0 0xc420167ea0 0xc420167f10]
+Ret: &{{fd_kvm ret 1 false} 0xc4200145a0}
+
+ioctl$HIDPCONNDEL: ID: 365
+NR: 16
+Name: ioctl$HIDPCONNDEL
+CallName: ioctl
+Args: [0xc42012fcc0 0xc420133030 0xc42012fd00]
+Ret: <nil>
+
+ioctl$TUNSETIFF: ID: 663
+NR: 16
+Name: ioctl$TUNSETIFF
+CallName: ioctl
+Args: [0xc420152680 0xc42014f960 0xc4201526c0]
+Ret: <nil>
+
+syz_test$length3: ID: 1217
+NR: 1000001
+Name: syz_test$length3
+CallName: syz_test
+Args: [0xc4201a7e00]
+Ret: <nil>
+
+keyctl$update: ID: 726
+NR: 250
+Name: keyctl$update
+CallName: keyctl
+Args: [0xc42015c1c0 0xc420158340 0xc420158380 0xc42015c230]
+Ret: <nil>
+
+sendmmsg: ID: 926
+NR: 307
+Name: sendmmsg
+CallName: sendmmsg
+Args: [0xc420179900 0xc420179940 0xc42017a460 0xc42017a4d0]
+Ret: <nil>
+
+setsockopt$SCTP_I_WANT_MAPPED_V4_ADDR: ID: 1013
+NR: 54
+Name: setsockopt$SCTP_I_WANT_MAPPED_V4_ADDR
+CallName: setsockopt
+Args: [0xc420184540 0xc420186a80 0xc420186af0 0xc420184580 0xc420186bd0]
+Ret: <nil>
+
+bind$bt_hci: ID: 19
+NR: 49
+Name: bind$bt_hci
+CallName: bind
+Args: [0xc420013700 0xc420013740 0xc420090cb0]
+Ret: <nil>
+
+clock_nanosleep: ID: 49
+NR: 230
+Name: clock_nanosleep
+CallName: clock_nanosleep
+Args: [0xc420091dc0 0xc420091e30 0xc4200fc440 0xc4200fc480]
+Ret: <nil>
+
+getsockopt$ip_opts: ID: 225
+NR: 55
+Name: getsockopt$ip_opts
+CallName: getsockopt
+Args: [0xc420113280 0xc420115dc0 0xc420115e30 0xc4201132c0 0xc420113300]
+Ret: <nil>
+
+getsockopt$ipv6_mreq: ID: 227
+NR: 55
+Name: getsockopt$ipv6_mreq
+CallName: getsockopt
+Args: [0xc420113400 0xc42011e070 0xc42011e0e0 0xc420113440 0xc420113480]
+Ret: <nil>
+
+ioctl$bt: ID: 690
+NR: 16
+Name: ioctl$bt
+CallName: ioctl
+Args: [0xc420153340 0xc420156930 0xc420153380]
+Ret: <nil>
+
+setsockopt$ipv6_mtu: ID: 1050
+NR: 54
+Name: setsockopt$ipv6_mtu
+CallName: setsockopt
+Args: [0xc420185840 0xc420198000 0xc420198070 0xc420185880 0xc420198150]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_MODE_SETCRTC: ID: 302
+NR: 16
+Name: ioctl$DRM_IOCTL_MODE_SETCRTC
+CallName: ioctl
+Args: [0xc420123d40 0xc420129180 0xc420123d80]
+Ret: <nil>
+
+ioctl$EVIOCSABS0: ID: 346
+NR: 16
+Name: ioctl$EVIOCSABS0
+CallName: ioctl
+Args: [0xc42012f300 0xc420132620 0xc42012f340]
+Ret: <nil>
+
+ioctl$KVM_IOEVENTFD: ID: 438
+NR: 16
+Name: ioctl$KVM_IOEVENTFD
+CallName: ioctl
+Args: [0xc420135d40 0xc420139a40 0xc420135d80]
+Ret: <nil>
+
+ioctl$KVM_SET_REGS: ID: 473
+NR: 16
+Name: ioctl$KVM_SET_REGS
+CallName: ioctl
+Args: [0xc42013adc0 0xc42013ccb0 0xc42013ae00]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_RAWMIDI_PREFER_SUBDEVICE: ID: 558
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_RAWMIDI_PREFER_SUBDEVICE
+CallName: ioctl
+Args: [0xc420147580 0xc420143dc0 0xc4201475c0]
+Ret: <nil>
+
+clock_adjtime: ID: 46
+NR: 305
+Name: clock_adjtime
+CallName: clock_adjtime
+Args: [0xc420091c70 0xc4200fc2c0]
+Ret: <nil>
+
+getpgrp: ID: 135
+NR: 111
+Name: getpgrp
+CallName: getpgrp
+Args: [0xc420103080]
+Ret: &{{pid ret 1 false} 0xc420014e60}
+
+ioctl$SNDRV_TIMER_IOCTL_NEXT_DEVICE: ID: 599
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_NEXT_DEVICE
+CallName: ioctl
+Args: [0xc42014c9c0 0xc42014b180 0xc42014ca00]
+Ret: <nil>
+
+semctl$IPC_INFO: ID: 913
+NR: 66
+Name: semctl$IPC_INFO
+CallName: semctl
+Args: [0xc420179080 0xc420177810 0xc420177880 0xc4201790c0]
+Ret: <nil>
+
+bpf$MAP_LOOKUP_ELEM: ID: 35
+NR: 321
+Name: bpf$MAP_LOOKUP_ELEM
+CallName: bpf
+Args: [0xc4200915e0 0xc420013e00 0xc420091650]
+Ret: <nil>
+
+getsockopt$L2CAP_LM: ID: 161
+NR: 55
+Name: getsockopt$L2CAP_LM
+CallName: getsockopt
+Args: [0xc42010a200 0xc420105f80 0xc42010e000 0xc42010a240 0xc42010a280]
+Ret: <nil>
+
+ioctl$KVM_SET_DEVICE_ATTR: ID: 460
+NR: 16
+Name: ioctl$KVM_SET_DEVICE_ATTR
+CallName: ioctl
+Args: [0xc42013a780 0xc42013c540 0xc42013a7c0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_CLIENT: ID: 572
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_CLIENT
+CallName: ioctl
+Args: [0xc420147c80 0xc42014a540 0xc420147cc0]
+Ret: <nil>
+
+socket$bt_hci: ID: 1089
+NR: 41
+Name: socket$bt_hci
+CallName: socket
+Args: [0xc42019c930 0xc42019c9a0 0xc42019ca10]
+Ret: &{{sock_bt_hci ret 1 false} 0xc420015130}
+
+setsockopt$sock_linger: ID: 1055
+NR: 54
+Name: setsockopt$sock_linger
+CallName: setsockopt
+Args: [0xc420185b00 0xc420198770 0xc4201987e0 0xc420185b40 0xc420198850]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_ADD_BUFS: ID: 266
+NR: 16
+Name: ioctl$DRM_IOCTL_ADD_BUFS
+CallName: ioctl
+Args: [0xc420122c00 0xc420128070 0xc420122c40]
+Ret: <nil>
+
+ioctl$EVIOCGREP: ID: 339
+NR: 16
+Name: ioctl$EVIOCGREP
+CallName: ioctl
+Args: [0xc42012ef80 0xc420132230 0xc42012efc0]
+Ret: <nil>
+
+ioctl$EVIOCGVERSION: ID: 343
+NR: 16
+Name: ioctl$EVIOCGVERSION
+CallName: ioctl
+Args: [0xc42012f180 0xc4201323f0 0xc42012f1c0]
+Ret: <nil>
+
+ioctl$KVM_GET_VCPU_MMAP_SIZE: ID: 433
+NR: 16
+Name: ioctl$KVM_GET_VCPU_MMAP_SIZE
+CallName: ioctl
+Args: [0xc420135b00 0xc4201397a0]
+Ret: <nil>
+
+ioctl$KVM_SET_DEBUGREGS: ID: 459
+NR: 16
+Name: ioctl$KVM_SET_DEBUGREGS
+CallName: ioctl
+Args: [0xc42013a700 0xc42013c4d0 0xc42013a740]
+Ret: <nil>
+
+getsockopt$tcp6_int: ID: 238
+NR: 55
+Name: getsockopt$tcp6_int
+CallName: getsockopt
+Args: [0xc420113c40 0xc42011efc0 0xc42011f030 0xc420113c80 0xc420113cc0]
+Ret: <nil>
+
+sendto$sctp: ID: 942
+NR: 44
+Name: sendto$sctp
+CallName: sendto
+Args: [0xc42017c300 0xc42017c340 0xc42017b030 0xc42017b0a0 0xc42017c380 0xc42017b110]
+Ret: <nil>
+
+syz_fuse_mount: ID: 1143
+NR: 1000004
+Name: syz_fuse_mount
+CallName: syz_fuse_mount
+Args: [0xc42019bfc0 0xc4201a43f0 0xc4201a6000 0xc4201a6040 0xc4201a4460 0xc4201a44d0]
+Ret: &{{fd_fuse ret 1 false} 0xc420014500}
+
+syz_open_dev$sndctrl: ID: 1165
+NR: 1000002
+Name: syz_open_dev$sndctrl
+CallName: syz_open_dev
+Args: [0xc4201a6dc0 0xc4201a5960 0xc4201a59d0]
+Ret: &{{fd_sndctrl ret 1 false} 0xc4200148c0}
+
+tgkill: ID: 1237
+NR: 234
+Name: tgkill
+CallName: tgkill
+Args: [0xc4201b03c0 0xc4201b0400 0xc4201ad030]
+Ret: <nil>
+
+chown: ID: 45
+NR: 92
+Name: chown
+CallName: chown
+Args: [0xc4200fc1c0 0xc4200fc200 0xc4200fc240]
+Ret: <nil>
+
+getsockname: ID: 143
+NR: 51
+Name: getsockname
+CallName: getsockname
+Args: [0xc420103500 0xc420103540 0xc420103580]
+Ret: <nil>
+
+ioctl$FUSE_DEV_IOC_CLONE: ID: 357
+NR: 16
+Name: ioctl$FUSE_DEV_IOC_CLONE
+CallName: ioctl
+Args: [0xc42012f880 0xc420132cb0 0xc42012f900]
+Ret: <nil>
+
+socket$inet: ID: 1100
+NR: 41
+Name: socket$inet
+CallName: socket
+Args: [0xc42019d7a0 0xc42019d810 0xc42019d880]
+Ret: &{{sock_in ret 1 false} 0xc420015400}
+
+syz_open_dev$dricontrol: ID: 1153
+NR: 1000002
+Name: syz_open_dev$dricontrol
+CallName: syz_open_dev
+Args: [0xc4201a67c0 0xc4201a4ee0 0xc4201a4f50]
+Ret: &{{fd_dri ret 1 false} 0xc420014370}
+
+openat$sr: ID: 814
+NR: 257
+Name: openat$sr
+CallName: openat
+Args: [0xc42016ce00 0xc4201695c0 0xc42016ce70 0xc42016cee0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+request_key: ID: 885
+NR: 249
+Name: request_key
+CallName: request_key
+Args: [0xc420178100 0xc420178140 0xc420178180 0xc420176930]
+Ret: &{{key ret 1 false} 0xc420014dc0}
+
+shmat: ID: 1069
+NR: 30
+Name: shmat
+CallName: shmat
+Args: [0xc42019a280 0xc42019a2c0 0xc420199b20]
+Ret: &{{shmaddr ret 1 false} 0xc420014f00}
+
+accept$unix: ID: 7
+NR: 43
+Name: accept$unix
+CallName: accept
+Args: [0xc420012d40 0xc420012d80 0xc420012dc0]
+Ret: &{{sock_unix ret 1 false} 0xc420015810}
+
+ioctl$KVM_CREATE_VCPU: ID: 404
+NR: 16
+Name: ioctl$KVM_CREATE_VCPU
+CallName: ioctl
+Args: [0xc420134d40 0xc420138930 0xc4201389a0]
+Ret: &{{fd_kvmcpu ret 1 false} 0xc4200145f0}
+
+ioctl$KVM_S390_UCAS_MAP: ID: 452
+NR: 16
+Name: ioctl$KVM_S390_UCAS_MAP
+CallName: ioctl
+Args: [0xc42013a380 0xc42013c0e0 0xc42013a3c0]
+Ret: <nil>
+
+ioctl$KVM_SET_ONE_REG: ID: 470
+NR: 16
+Name: ioctl$KVM_SET_ONE_REG
+CallName: ioctl
+Args: [0xc42013ac40 0xc42013cb60 0xc42013ac80]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_INFO: ID: 541
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_INFO
+CallName: ioctl
+Args: [0xc420146d00 0xc420143500 0xc420146d40]
+Ret: <nil>
+
+getsockopt$BT_FLUSHABLE: ID: 153
+NR: 55
+Name: getsockopt$BT_FLUSHABLE
+CallName: getsockopt
+Args: [0xc420103c80 0xc420105260 0xc4201052d0 0xc420103cc0 0xc420103d00]
+Ret: <nil>
+
+ioctl$EVIOCSKEYCODE_V2: ID: 353
+NR: 16
+Name: ioctl$EVIOCSKEYCODE_V2
+CallName: ioctl
+Args: [0xc42012f680 0xc420132a10 0xc42012f6c0]
+Ret: <nil>
+
+openat$ptmx: ID: 808
+NR: 257
+Name: openat$ptmx
+CallName: openat
+Args: [0xc42016c620 0xc420169140 0xc42016c690 0xc42016c700]
+Ret: &{{fd_tty ret 1 false} 0xc420014a50}
+
+getsockopt$tcp6_buf: ID: 237
+NR: 55
+Name: getsockopt$tcp6_buf
+CallName: getsockopt
+Args: [0xc420113b40 0xc42011ee70 0xc42011eee0 0xc420113bc0 0xc420113c00]
+Ret: <nil>
+
+ioctl$KVM_SET_CPUID: ID: 457
+NR: 16
+Name: ioctl$KVM_SET_CPUID
+CallName: ioctl
+Args: [0xc42013a600 0xc42013c3f0 0xc42013a640]
+Ret: <nil>
+
+openat$vga_arbiter: ID: 818
+NR: 257
+Name: openat$vga_arbiter
+CallName: openat
+Args: [0xc42016d340 0xc4201698c0 0xc42016d3b0 0xc42016d420]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$DRM_IOCTL_AUTH_MAGIC: ID: 277
+NR: 16
+Name: ioctl$DRM_IOCTL_AUTH_MAGIC
+CallName: ioctl
+Args: [0xc420123100 0xc4201285b0 0xc420123140]
+Ret: <nil>
+
+ioctl$EVIOCGABS20: ID: 321
+NR: 16
+Name: ioctl$EVIOCGABS20
+CallName: ioctl
+Args: [0xc42012e680 0xc4201299d0 0xc42012e6c0]
+Ret: <nil>
+
+setsockopt$NETLINK_BROADCAST_ERROR: ID: 980
+NR: 54
+Name: setsockopt$NETLINK_BROADCAST_ERROR
+CallName: setsockopt
+Args: [0xc42017d480 0xc420181650 0xc4201816c0 0xc42017d4c0 0xc4201817a0]
+Ret: <nil>
+
+setsockopt$SCTP_INITMSG: ID: 1012
+NR: 54
+Name: setsockopt$SCTP_INITMSG
+CallName: setsockopt
+Args: [0xc4201844c0 0xc420186930 0xc4201869a0 0xc420184500 0xc420186a10]
+Ret: <nil>
+
+getsockopt$SCTP_GET_PEER_ADDR_INFO: ID: 189
+NR: 55
+Name: getsockopt$SCTP_GET_PEER_ADDR_INFO
+CallName: getsockopt
+Args: [0xc42010b700 0xc4201109a0 0xc420110a10 0xc42010b740 0xc42010b780]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_ELEM_UNLOCK: ID: 547
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_ELEM_UNLOCK
+CallName: ioctl
+Args: [0xc420147000 0xc4201437a0 0xc420147040]
+Ret: <nil>
+
+setsockopt$sock_attach_bpf: ID: 1052
+NR: 54
+Name: setsockopt$sock_attach_bpf
+CallName: setsockopt
+Args: [0xc420185940 0xc420198310 0xc420198380 0xc4201859c0 0xc4201983f0]
+Ret: <nil>
+
+syz_test$end0: ID: 1200
+NR: 1000001
+Name: syz_test$end0
+CallName: syz_test
+Args: [0xc4201a79c0]
+Ret: <nil>
+
+truncate: ID: 1249
+NR: 76
+Name: truncate
+CallName: truncate
+Args: [0xc4201b0a00 0xc4201ad3b0]
+Ret: <nil>
+
+ioctl$EVIOCGLED: ID: 332
+NR: 16
+Name: ioctl$EVIOCGLED
+CallName: ioctl
+Args: [0xc42012ec00 0xc420129ea0 0xc42012ec40]
+Ret: <nil>
+
+ioctl$GIO_FONT: ID: 359
+NR: 16
+Name: ioctl$GIO_FONT
+CallName: ioctl
+Args: [0xc42012f9c0 0xc420132d90 0xc42012fa00]
+Ret: <nil>
+
+munlockall: ID: 781
+NR: 152
+Name: munlockall
+CallName: munlockall
+Args: []
+Ret: <nil>
+
+setsockopt$SCTP_AUTH_DELETE_KEY: ID: 1000
+NR: 54
+Name: setsockopt$SCTP_AUTH_DELETE_KEY
+CallName: setsockopt
+Args: [0xc42017dec0 0xc4201837a0 0xc420183810 0xc42017df00 0xc420183880]
+Ret: <nil>
+
+syz_kvm_setup_cpu$arm64: ID: 1145
+NR: 1000007
+Name: syz_kvm_setup_cpu$arm64
+CallName: syz_kvm_setup_cpu
+Args: [0xc4201a61c0 0xc4201a6200 0xc4201a6240 0xc4201a6280 0xc4201a4700 0xc4201a4770 0xc4201a62c0 0xc4201a47e0]
+Ret: <nil>
+
+ioctl$PIO_UNIMAP: ID: 523
+NR: 16
+Name: ioctl$PIO_UNIMAP
+CallName: ioctl
+Args: [0xc420146400 0xc420142a10 0xc420146440]
+Ret: <nil>
+
+ioctl$VT_RESIZE: ID: 686
+NR: 16
+Name: ioctl$VT_RESIZE
+CallName: ioctl
+Args: [0xc420153180 0xc420156770 0xc4201531c0]
+Ret: <nil>
+
+syz_test$length15: ID: 1210
+NR: 1000001
+Name: syz_test$length15
+CallName: syz_test
+Args: [0xc4201aca80 0xc4201acaf0]
+Ret: <nil>
+
+setsockopt$SCTP_RECVRCVINFO: ID: 1022
+NR: 54
+Name: setsockopt$SCTP_RECVRCVINFO
+CallName: setsockopt
+Args: [0xc4201849c0 0xc420187810 0xc420187880 0xc420184a00 0xc420187960]
+Ret: <nil>
+
+connect$nfc_llcp: ID: 60
+NR: 42
+Name: connect$nfc_llcp
+CallName: connect
+Args: [0xc4200fc9c0 0xc4200fca00 0xc4201002a0]
+Ret: <nil>
+
+getsockopt$ip_mreqsrc: ID: 223
+NR: 55
+Name: getsockopt$ip_mreqsrc
+CallName: getsockopt
+Args: [0xc420113100 0xc420115ab0 0xc420115b20 0xc420113140 0xc420113180]
+Ret: <nil>
+
+ioctl$CMTPCONNDEL: ID: 263
+NR: 16
+Name: ioctl$CMTPCONNDEL
+CallName: ioctl
+Args: [0xc420122a80 0xc42011ff10 0xc420122ac0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_AGP_ACQUIRE: ID: 269
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_ACQUIRE
+CallName: ioctl
+Args: [0xc420122d80 0xc4201281c0]
+Ret: <nil>
+
+openat$capi20: ID: 792
+NR: 257
+Name: openat$capi20
+CallName: openat
+Args: [0xc420167110 0xc420168540 0xc420167180 0xc4201671f0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ptrace$getenv: ID: 851
+NR: 101
+Name: ptrace$getenv
+CallName: ptrace
+Args: [0xc420170c40 0xc42016e7c0 0xc420170cb0 0xc42016e800]
+Ret: <nil>
+
+setsockopt$NFC_LLCP_RW: ID: 994
+NR: 54
+Name: setsockopt$NFC_LLCP_RW
+CallName: setsockopt
+Args: [0xc42017db80 0xc420182e00 0xc420182e70 0xc42017dbc0 0xc420182f50]
+Ret: <nil>
+
+socket: ID: 1085
+NR: 41
+Name: socket
+CallName: socket
+Args: [0xc42019c3f0 0xc42019c460 0xc42019c4d0]
+Ret: &{{sock ret 1 false} 0xc420014f50}
+
+unlink: ID: 1252
+NR: 87
+Name: unlink
+CallName: unlink
+Args: [0xc4201b0ac0]
+Ret: <nil>
+
+epoll_pwait: ID: 74
+NR: 281
+Name: epoll_pwait
+CallName: epoll_pwait
+Args: [0xc4200fd180 0xc4200fd1c0 0xc4201007e0 0xc420100850 0xc4200fd200 0xc4201008c0]
+Ret: <nil>
+
+ioctl$EVIOCGMASK: ID: 333
+NR: 16
+Name: ioctl$EVIOCGMASK
+CallName: ioctl
+Args: [0xc42012ec80 0xc420129f10 0xc42012ecc0]
+Ret: <nil>
+
+getsockopt$SCTP_PEER_ADDR_THLDS: ID: 199
+NR: 55
+Name: getsockopt$SCTP_PEER_ADDR_THLDS
+CallName: getsockopt
+Args: [0xc42010be80 0xc420111810 0xc420111880 0xc42010bec0 0xc42010bf00]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SET_CLIENT_CAP: ID: 309
+NR: 16
+Name: ioctl$DRM_IOCTL_SET_CLIENT_CAP
+CallName: ioctl
+Args: [0xc42012e0c0 0xc420129490 0xc42012e100]
+Ret: <nil>
+
+ioctl$KVM_GET_PIT2: ID: 426
+NR: 16
+Name: ioctl$KVM_GET_PIT2
+CallName: ioctl
+Args: [0xc4201357c0 0xc420139490 0xc420135800]
+Ret: <nil>
+
+socket$icmp6_raw: ID: 1098
+NR: 41
+Name: socket$icmp6_raw
+CallName: socket
+Args: [0xc42019d500 0xc42019d570 0xc42019d5e0]
+Ret: &{{sock_icmp6 ret 1 false} 0xc4200153b0}
+
+openat$dsp: ID: 794
+NR: 257
+Name: openat$dsp
+CallName: openat
+Args: [0xc4201673b0 0xc4201686c0 0xc420167420 0xc420167490]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setpgid: ID: 954
+NR: 109
+Name: setpgid
+CallName: setpgid
+Args: [0xc42017c780 0xc42017c7c0]
+Ret: <nil>
+
+shmctl$SHM_LOCK: ID: 1075
+NR: 31
+Name: shmctl$SHM_LOCK
+CallName: shmctl
+Args: [0xc42019a540 0xc420199dc0]
+Ret: <nil>
+
+bpf$PROG_LOAD: ID: 41
+NR: 321
+Name: bpf$PROG_LOAD
+CallName: bpf
+Args: [0xc420091b20 0xc4200fc040 0xc420091b90]
+Ret: &{{fd_bpf_prog ret 1 false} 0xc4200142d0}
+
+getegid: ID: 122
+NR: 108
+Name: getegid
+CallName: getegid
+Args: []
+Ret: &{{gid ret 1 false} 0xc420014b40}
+
+ioctl$KVM_GET_MSRS: ID: 421
+NR: 16
+Name: ioctl$KVM_GET_MSRS
+CallName: ioctl
+Args: [0xc420135580 0xc4201391f0 0xc4201355c0]
+Ret: <nil>
+
+ioctl$fiemap: ID: 692
+NR: 16
+Name: ioctl$fiemap
+CallName: ioctl
+Args: [0xc420153440 0xc420156a10 0xc420153480]
+Ret: <nil>
+
+msgget: ID: 775
+NR: 68
+Name: msgget
+CallName: msgget
+Args: [0xc420166380 0xc4201663f0]
+Ret: &{{ipc_msq ret 1 false} 0xc420014cd0}
+
+ioctl$KVM_S390_VCPU_FAULT: ID: 454
+NR: 16
+Name: ioctl$KVM_S390_VCPU_FAULT
+CallName: ioctl
+Args: [0xc42013a480 0xc42013c1c0 0xc42013a4c0]
+Ret: <nil>
+
+ioctl$TE_IOCTL_OPEN_CLIENT_SESSION: ID: 622
+NR: 16
+Name: ioctl$TE_IOCTL_OPEN_CLIENT_SESSION
+CallName: ioctl
+Args: [0xc42014d380 0xc42014be30 0xc42014d3c0]
+Ret: <nil>
+
+mmap: ID: 754
+NR: 9
+Name: mmap
+CallName: mmap
+Args: [0xc420159080 0xc42015d490 0xc42015d500 0xc42015d570 0xc4201590c0 0xc42015d5e0]
+Ret: &{{vma ret 1 false} 0 0}
+
+openat$rfkill: ID: 810
+NR: 257
+Name: openat$rfkill
+CallName: openat
+Args: [0xc42016c8c0 0xc4201692c0 0xc42016c930 0xc42016c9a0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$L2CAP_CONNINFO: ID: 976
+NR: 54
+Name: setsockopt$L2CAP_CONNINFO
+CallName: setsockopt
+Args: [0xc42017d240 0xc420181030 0xc4201810a0 0xc42017d280 0xc420181110]
+Ret: <nil>
+
+alarm: ID: 15
+NR: 37
+Name: alarm
+CallName: alarm
+Args: [0xc420090af0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SET_VERSION: ID: 313
+NR: 16
+Name: ioctl$DRM_IOCTL_SET_VERSION
+CallName: ioctl
+Args: [0xc42012e280 0xc420129650 0xc42012e2c0]
+Ret: <nil>
+
+setsockopt$tcp_buf: ID: 1061
+NR: 54
+Name: setsockopt$tcp_buf
+CallName: setsockopt
+Args: [0xc420185e00 0xc420199030 0xc4201990a0 0xc420185e80 0xc420199110]
+Ret: <nil>
+
+syz_open_dev$adsp: ID: 1148
+NR: 1000002
+Name: syz_open_dev$adsp
+CallName: syz_open_dev
+Args: [0xc4201a6540 0xc4201a4a80 0xc4201a4af0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$SNDRV_CTL_IOCTL_PCM_INFO: ID: 551
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_PCM_INFO
+CallName: ioctl
+Args: [0xc420147200 0xc4201439d0 0xc420147240]
+Ret: <nil>
+
+ioctl$TUNSETTXFILTER: ID: 672
+NR: 16
+Name: ioctl$TUNSETTXFILTER
+CallName: ioctl
+Args: [0xc420152b40 0xc420156000 0xc420152b80]
+Ret: <nil>
+
+recvmmsg: ID: 876
+NR: 299
+Name: recvmmsg
+CallName: recvmmsg
+Args: [0xc42016fa00 0xc42016fa40 0xc4201764d0 0xc420176540]
+Ret: <nil>
+
+bind$alg: ID: 18
+NR: 49
+Name: bind$alg
+CallName: bind
+Args: [0xc420013680 0xc4200136c0 0xc420090c40]
+Ret: <nil>
+
+getsockopt$udp_int: ID: 242
+NR: 55
+Name: getsockopt$udp_int
+CallName: getsockopt
+Args: [0xc420113f80 0xc42011f650 0xc42011f6c0 0xc420113fc0 0xc420122000]
+Ret: <nil>
+
+ioctl$KVM_IRQ_LINE: ID: 440
+NR: 16
+Name: ioctl$KVM_IRQ_LINE
+CallName: ioctl
+Args: [0xc420135e40 0xc420139b20 0xc420135e80]
+Ret: <nil>
+
+ioctl$KVM_SET_NR_MMU_PAGES: ID: 469
+NR: 16
+Name: ioctl$KVM_SET_NR_MMU_PAGES
+CallName: ioctl
+Args: [0xc42013ac00 0xc42013ca80 0xc42013caf0]
+Ret: <nil>
+
+ioctl$LOOP_CHANGE_FD: ID: 492
+NR: 16
+Name: ioctl$LOOP_CHANGE_FD
+CallName: ioctl
+Args: [0xc42013b680 0xc42013d6c0 0xc42013b6c0]
+Ret: <nil>
+
+setsockopt$SCTP_SOCKOPT_BINDX_ADD: ID: 1025
+NR: 54
+Name: setsockopt$SCTP_SOCKOPT_BINDX_ADD
+CallName: setsockopt
+Args: [0xc420184b40 0xc420187c70 0xc420187ce0 0xc420184b80 0xc420187d50]
+Ret: <nil>
+
+syz_test$length19: ID: 1214
+NR: 1000001
+Name: syz_test$length19
+CallName: syz_test
+Args: [0xc4201a7d40]
+Ret: <nil>
+
+timer_create: ID: 1239
+NR: 222
+Name: timer_create
+CallName: timer_create
+Args: [0xc4201ad110 0xc4201b04c0 0xc4201b0540]
+Ret: <nil>
+
+utime: ID: 1258
+NR: 132
+Name: utime
+CallName: utime
+Args: [0xc4201b0c40 0xc4201b0c80]
+Ret: <nil>
+
+sigaltstack: ID: 1082
+NR: 131
+Name: sigaltstack
+CallName: sigaltstack
+Args: [0xc42019a840 0xc42019a880]
+Ret: <nil>
+
+syz_test$align4: ID: 1185
+NR: 1000001
+Name: syz_test$align4
+CallName: syz_test
+Args: [0xc4201a7600]
+Ret: <nil>
+
+getsockopt$L2CAP_OPTIONS: ID: 162
+NR: 55
+Name: getsockopt$L2CAP_OPTIONS
+CallName: getsockopt
+Args: [0xc42010a2c0 0xc42010e150 0xc42010e1c0 0xc42010a300 0xc42010a340]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GEM_FLINK: ID: 283
+NR: 16
+Name: ioctl$DRM_IOCTL_GEM_FLINK
+CallName: ioctl
+Args: [0xc4201233c0 0xc4201288c0 0xc420123400]
+Ret: <nil>
+
+mlockall: ID: 753
+NR: 151
+Name: mlockall
+CallName: mlockall
+Args: [0xc42015d420]
+Ret: <nil>
+
+openat$audio: ID: 789
+NR: 257
+Name: openat$audio
+CallName: openat
+Args: [0xc420166d20 0xc420168300 0xc420166d90 0xc420166e00]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$SCTP_NODELAY: ID: 1016
+NR: 54
+Name: setsockopt$SCTP_NODELAY
+CallName: setsockopt
+Args: [0xc4201846c0 0xc420186ee0 0xc420186f50 0xc420184700 0xc420187030]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_RESET: ID: 514
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_RESET
+CallName: ioctl
+Args: [0xc420146000 0xc420142540 0xc4201425b0]
+Ret: <nil>
+
+ioctl$TIOCOUTQ: ID: 645
+NR: 16
+Name: ioctl$TIOCOUTQ
+CallName: ioctl
+Args: [0xc42014de00 0xc42014ec40 0xc42014de40]
+Ret: <nil>
+
+ioctl$TUNGETVNETHDRSZ: ID: 662
+NR: 16
+Name: ioctl$TUNGETVNETHDRSZ
+CallName: ioctl
+Args: [0xc420152600 0xc42014f880 0xc420152640]
+Ret: <nil>
+
+setsockopt$SCTP_AUTOCLOSE: ID: 1002
+NR: 54
+Name: setsockopt$SCTP_AUTOCLOSE
+CallName: setsockopt
+Args: [0xc42017dfc0 0xc420183a40 0xc420183ab0 0xc420184000 0xc420183b90]
+Ret: <nil>
+
+syz_test$length12: ID: 1207
+NR: 1000001
+Name: syz_test$length12
+CallName: syz_test
+Args: [0xc4201a7b40 0xc4201ac930]
+Ret: <nil>
+
+ioctl$EVIOCGRAB: ID: 338
+NR: 16
+Name: ioctl$EVIOCGRAB
+CallName: ioctl
+Args: [0xc42012ef00 0xc420132150 0xc42012ef40]
+Ret: <nil>
+
+link: ID: 729
+NR: 86
+Name: link
+CallName: link
+Args: [0xc4201585c0 0xc420158600]
+Ret: <nil>
+
+setsockopt$ip_int: ID: 1040
+NR: 54
+Name: setsockopt$ip_int
+CallName: setsockopt
+Args: [0xc420185340 0xc4201951f0 0xc420195260 0xc420185380 0xc420195340]
+Ret: <nil>
+
+getpeername$sctp: ID: 132
+NR: 52
+Name: getpeername$sctp
+CallName: getpeername
+Args: [0xc420102e40 0xc420102e80 0xc420102ec0]
+Ret: <nil>
+
+getsockopt$SCTP_GET_ASSOC_STATS: ID: 186
+NR: 55
+Name: getsockopt$SCTP_GET_ASSOC_STATS
+CallName: getsockopt
+Args: [0xc42010b4c0 0xc4201105b0 0xc420110620 0xc42010b500 0xc42010b540]
+Ret: <nil>
+
+munlock: ID: 780
+NR: 150
+Name: munlock
+CallName: munlock
+Args: [0xc420159e40 0xc420166850]
+Ret: <nil>
+
+prctl$seccomp: ID: 836
+NR: 157
+Name: prctl$seccomp
+CallName: prctl
+Args: [0xc420170070 0xc4201700e0 0xc42016e080]
+Ret: <nil>
+
+syz_test$length0: ID: 1203
+NR: 1000001
+Name: syz_test$length0
+CallName: syz_test
+Args: [0xc4201a7a40]
+Ret: <nil>
+
+socketpair$icmp_raw: ID: 1120
+NR: 53
+Name: socketpair$icmp_raw
+CallName: socketpair
+Args: [0xc4201a31f0 0xc4201a3260 0xc4201a32d0 0xc42019b5c0]
+Ret: <nil>
+
+connect$bt_l2cap: ID: 53
+NR: 42
+Name: connect$bt_l2cap
+CallName: connect
+Args: [0xc4200fc640 0xc4200fc680 0xc420091f80]
+Ret: <nil>
+
+dup2: ID: 67
+NR: 33
+Name: dup2
+CallName: dup2
+Args: [0xc4200fcd40 0xc4200fcd80]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$SNDRV_TIMER_IOCTL_GINFO: ID: 595
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_GINFO
+CallName: ioctl
+Args: [0xc42014c7c0 0xc42014afc0 0xc42014c800]
+Ret: <nil>
+
+setsockopt$SCTP_PEER_ADDR_THLDS: ID: 1019
+NR: 54
+Name: setsockopt$SCTP_PEER_ADDR_THLDS
+CallName: setsockopt
+Args: [0xc420184840 0xc4201873b0 0xc420187420 0xc420184880 0xc420187490]
+Ret: <nil>
+
+shmget$private: ID: 1080
+NR: 29
+Name: shmget$private
+CallName: shmget
+Args: [0xc42019c070 0xc42019c0e0 0xc42019c150 0xc42019a780]
+Ret: &{{ipc_shm ret 1 false} 0xc420014d70}
+
+getsockopt$BT_SNDMTU: ID: 157
+NR: 55
+Name: getsockopt$BT_SNDMTU
+CallName: getsockopt
+Args: [0xc420103f40 0xc4201058f0 0xc420105960 0xc420103f80 0xc420103fc0]
+Ret: <nil>
+
+getsockopt$sock_cred: ID: 233
+NR: 55
+Name: getsockopt$sock_cred
+CallName: getsockopt
+Args: [0xc420113840 0xc42011e8c0 0xc42011e930 0xc420113880 0xc4201138c0]
+Ret: <nil>
+
+sendto: ID: 939
+NR: 44
+Name: sendto
+CallName: sendto
+Args: [0xc42017c0c0 0xc42017c100 0xc42017ac40 0xc42017acb0 0xc42017c140 0xc42017ad20]
+Ret: <nil>
+
+ioctl$BNEPCONNDEL: ID: 258
+NR: 16
+Name: ioctl$BNEPCONNDEL
+CallName: ioctl
+Args: [0xc420122800 0xc42011fc70 0xc420122840]
+Ret: <nil>
+
+ioctl$KVM_SET_SREGS: ID: 475
+NR: 16
+Name: ioctl$KVM_SET_SREGS
+CallName: ioctl
+Args: [0xc42013aec0 0xc42013cd90 0xc42013af00]
+Ret: <nil>
+
+ioctl$TIOCMBIC: ID: 639
+NR: 16
+Name: ioctl$TIOCMBIC
+CallName: ioctl
+Args: [0xc42014db80 0xc42014e7e0 0xc42014dbc0]
+Ret: <nil>
+
+openat$cuse: ID: 793
+NR: 257
+Name: openat$cuse
+CallName: openat
+Args: [0xc420167260 0xc420168600 0xc4201672d0 0xc420167340]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$NETLINK_PKTINFO: ID: 985
+NR: 54
+Name: setsockopt$NETLINK_PKTINFO
+CallName: setsockopt
+Args: [0xc42017d700 0xc420181f10 0xc420181f80 0xc42017d740 0xc420182070]
+Ret: <nil>
+
+accept4: ID: 8
+NR: 288
+Name: accept4
+CallName: accept4
+Args: [0xc420012e40 0xc420012e80 0xc420012ec0 0xc420090620]
+Ret: &{{sock ret 1 false} 0xc420014f50}
+
+getsockopt$SCTP_HMAC_IDENT: ID: 190
+NR: 55
+Name: getsockopt$SCTP_HMAC_IDENT
+CallName: getsockopt
+Args: [0xc42010b7c0 0xc420110af0 0xc420110b60 0xc42010b800 0xc42010b840]
+Ret: <nil>
+
+ioctl$EVIOCSABS3F: ID: 349
+NR: 16
+Name: ioctl$EVIOCSABS3F
+CallName: ioctl
+Args: [0xc42012f480 0xc420132770 0xc42012f4c0]
+Ret: <nil>
+
+setsockopt$NETLINK_ADD_MEMBERSHIP: ID: 979
+NR: 54
+Name: setsockopt$NETLINK_ADD_MEMBERSHIP
+CallName: setsockopt
+Args: [0xc42017d400 0xc420181490 0xc420181500 0xc42017d440 0xc4201815e0]
+Ret: <nil>
+
+syz_test$array0: ID: 1188
+NR: 1000001
+Name: syz_test$array0
+CallName: syz_test
+Args: [0xc4201a76c0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_AGP_FREE: ID: 273
+NR: 16
+Name: ioctl$DRM_IOCTL_AGP_FREE
+CallName: ioctl
+Args: [0xc420122f40 0xc4201283f0 0xc420122f80]
+Ret: <nil>
+
+ioctl$KVM_GET_XCRS: ID: 434
+NR: 16
+Name: ioctl$KVM_GET_XCRS
+CallName: ioctl
+Args: [0xc420135b40 0xc420139810 0xc420135b80]
+Ret: <nil>
+
+ioctl$TCSETA: ID: 613
+NR: 16
+Name: ioctl$TCSETA
+CallName: ioctl
+Args: [0xc42014cf40 0xc42014b9d0 0xc42014cf80]
+Ret: <nil>
+
+io_destroy: ID: 252
+NR: 207
+Name: io_destroy
+CallName: io_destroy
+Args: [0xc4201224c0]
+Ret: <nil>
+
+pread64: ID: 843
+NR: 17
+Name: pread64
+CallName: pread64
+Args: [0xc42016e1c0 0xc42016e200 0xc420170540 0xc4201705b0]
+Ret: <nil>
+
+setsockopt$SO_TIMESTAMPING: ID: 1030
+NR: 54
+Name: setsockopt$SO_TIMESTAMPING
+CallName: setsockopt
+Args: [0xc420184dc0 0xc420194310 0xc420194380 0xc420184e00 0xc420194460]
+Ret: <nil>
+
+getdents: ID: 120
+NR: 78
+Name: getdents
+CallName: getdents
+Args: [0xc420102800 0xc420102840 0xc420104380]
+Ret: <nil>
+
+ioctl$BNEPGETSUPPFEAT: ID: 261
+NR: 16
+Name: ioctl$BNEPGETSUPPFEAT
+CallName: ioctl
+Args: [0xc420122980 0xc42011fdc0 0xc4201229c0]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_GEM_OPEN: ID: 284
+NR: 16
+Name: ioctl$DRM_IOCTL_GEM_OPEN
+CallName: ioctl
+Args: [0xc420123440 0xc420128930 0xc420123480]
+Ret: <nil>
+
+signalfd4: ID: 1084
+NR: 289
+Name: signalfd4
+CallName: signalfd4
+Args: [0xc42019a9c0 0xc42019aa00 0xc42019c310 0xc42019c380]
+Ret: &{{fd_signal ret 1 false} 0xc420014870}
+
+ioctl$DRM_IOCTL_ADD_MAP: ID: 268
+NR: 16
+Name: ioctl$DRM_IOCTL_ADD_MAP
+CallName: ioctl
+Args: [0xc420122d00 0xc420128150 0xc420122d40]
+Ret: <nil>
+
+ioctl$EVIOCSCLOCKID: ID: 350
+NR: 16
+Name: ioctl$EVIOCSCLOCKID
+CallName: ioctl
+Args: [0xc42012f500 0xc4201327e0 0xc42012f540]
+Ret: <nil>
+
+ioctl$KDDISABIO: ID: 370
+NR: 16
+Name: ioctl$KDDISABIO
+CallName: ioctl
+Args: [0xc42012fec0 0xc420133340]
+Ret: <nil>
+
+socketpair$dccp6: ID: 1116
+NR: 53
+Name: socketpair$dccp6
+CallName: socketpair
+Args: [0xc4201a2cb0 0xc4201a2d20 0xc4201a2d90 0xc42019b3c0]
+Ret: <nil>
+
+symlink: ID: 1132
+NR: 88
+Name: symlink
+CallName: symlink
+Args: [0xc42019bc40 0xc42019bc80]
+Ret: <nil>
+
+getgroups: ID: 125
+NR: 115
+Name: getgroups
+CallName: getgroups
+Args: [0xc420104460 0xc420102a00]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SET_UNIQUE: ID: 312
+NR: 16
+Name: ioctl$DRM_IOCTL_SET_UNIQUE
+CallName: ioctl
+Args: [0xc42012e200 0xc4201295e0 0xc42012e240]
+Ret: <nil>
+
+ioctl$EVIOCGABS2F: ID: 322
+NR: 16
+Name: ioctl$EVIOCGABS2F
+CallName: ioctl
+Args: [0xc42012e700 0xc420129a40 0xc42012e740]
+Ret: <nil>
+
+setsockopt$NETROM_T4: ID: 992
+NR: 54
+Name: setsockopt$NETROM_T4
+CallName: setsockopt
+Args: [0xc42017da80 0xc420182a80 0xc420182af0 0xc42017dac0 0xc420182bd0]
+Ret: <nil>
+
+getpeername$netlink: ID: 130
+NR: 52
+Name: getpeername$netlink
+CallName: getpeername
+Args: [0xc420102cc0 0xc420102d00 0xc420102d40]
+Ret: <nil>
+
+getsockopt$BT_DEFER_SETUP: ID: 152
+NR: 55
+Name: getsockopt$BT_DEFER_SETUP
+CallName: getsockopt
+Args: [0xc420103bc0 0xc4201050a0 0xc420105110 0xc420103c00 0xc420103c40]
+Ret: <nil>
+
+getsockopt$tcp_buf: ID: 239
+NR: 55
+Name: getsockopt$tcp_buf
+CallName: getsockopt
+Args: [0xc420113d00 0xc42011f180 0xc42011f1f0 0xc420113d80 0xc420113dc0]
+Ret: <nil>
+
+ioctl$KVM_GET_DEBUGREGS: ID: 413
+NR: 16
+Name: ioctl$KVM_GET_DEBUGREGS
+CallName: ioctl
+Args: [0xc420135180 0xc420138e00 0xc4201351c0]
+Ret: <nil>
+
+openat$vhci: ID: 819
+NR: 257
+Name: openat$vhci
+CallName: openat
+Args: [0xc42016d490 0xc420169980 0xc42016d500 0xc42016d570]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$KVM_NMI: ID: 443
+NR: 16
+Name: ioctl$KVM_NMI
+CallName: ioctl
+Args: [0xc420135f80 0xc420139c70]
+Ret: <nil>
+
+setresgid: ID: 957
+NR: 119
+Name: setresgid
+CallName: setresgid
+Args: [0xc42017c8c0 0xc42017c900 0xc42017c940]
+Ret: <nil>
+
+unlinkat: ID: 1253
+NR: 263
+Name: unlinkat
+CallName: unlinkat
+Args: [0xc4201b0b00 0xc4201b0b40 0xc4201ad490]
+Ret: <nil>
+
+fcntl$setflags: ID: 96
+NR: 72
+Name: fcntl$setflags
+CallName: fcntl
+Args: [0xc4200fdcc0 0xc4201016c0 0xc420101730]
+Ret: <nil>
+
+getsockopt$ip6_int: ID: 217
+NR: 55
+Name: getsockopt$ip6_int
+CallName: getsockopt
+Args: [0xc420112c80 0xc4201151f0 0xc420115260 0xc420112cc0 0xc420112d00]
+Ret: <nil>
+
+inotify_add_watch: ID: 247
+NR: 254
+Name: inotify_add_watch
+CallName: inotify_add_watch
+Args: [0xc420122280 0xc4201222c0 0xc42011f8f0]
+Ret: &{{inotifydesc ret 1 false} 0xc420014b90}
+
+ioctl$TIOCTTYGSTRUCT: ID: 655
+NR: 16
+Name: ioctl$TIOCTTYGSTRUCT
+CallName: ioctl
+Args: [0xc420152280 0xc42014f340 0xc4201522c0]
+Ret: <nil>
+
+setsockopt$SCTP_SET_PEER_PRIMARY_ADDR: ID: 1024
+NR: 54
+Name: setsockopt$SCTP_SET_PEER_PRIMARY_ADDR
+CallName: setsockopt
+Args: [0xc420184ac0 0xc420187b20 0xc420187b90 0xc420184b00 0xc420187c00]
+Ret: <nil>
+
+fgetxattr: ID: 104
+NR: 193
+Name: fgetxattr
+CallName: fgetxattr
+Args: [0xc4200fdf40 0xc4200fdf80 0xc4200fdfc0 0xc420101c00]
+Ret: <nil>
+
+getsockname$netrom: ID: 147
+NR: 51
+Name: getsockname$netrom
+CallName: getsockname
+Args: [0xc420103800 0xc420103840 0xc420103880]
+Ret: <nil>
+
+getsockopt$SCTP_GET_PEER_ADDRS: ID: 188
+NR: 55
+Name: getsockopt$SCTP_GET_PEER_ADDRS
+CallName: getsockopt
+Args: [0xc42010b640 0xc420110850 0xc4201108c0 0xc42010b680 0xc42010b6c0]
+Ret: <nil>
+
+setsockopt$NETLINK_LISTEN_ALL_NSID: ID: 983
+NR: 54
+Name: setsockopt$NETLINK_LISTEN_ALL_NSID
+CallName: setsockopt
+Args: [0xc42017d600 0xc420181b90 0xc420181c00 0xc42017d640 0xc420181ce0]
+Ret: <nil>
+
+openat$autofs: ID: 790
+NR: 257
+Name: openat$autofs
+CallName: openat
+Args: [0xc420166e70 0xc4201683c0 0xc420166ee0 0xc420166f50]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+syz_open_dev$usb: ID: 1175
+NR: 1000002
+Name: syz_open_dev$usb
+CallName: syz_open_dev
+Args: [0xc4201a72c0 0xc4201ac230 0xc4201ac2a0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+chmod: ID: 44
+NR: 90
+Name: chmod
+CallName: chmod
+Args: [0xc4200fc180 0xc420091c00]
+Ret: <nil>
+
+epoll_ctl$EPOLL_CTL_MOD: ID: 73
+NR: 233
+Name: epoll_ctl$EPOLL_CTL_MOD
+CallName: epoll_ctl
+Args: [0xc4200fd080 0xc420100770 0xc4200fd0c0 0xc4200fd100]
+Ret: <nil>
+
+getsockopt$KCM_RECV_DISABLE: ID: 159
+NR: 55
+Name: getsockopt$KCM_RECV_DISABLE
+CallName: getsockopt
+Args: [0xc42010a0c0 0xc420105c70 0xc420105ce0 0xc42010a100 0xc420105dc0]
+Ret: <nil>
+
+ioctl$KVM_ENABLE_CAP: ID: 409
+NR: 16
+Name: ioctl$KVM_ENABLE_CAP
+CallName: ioctl
+Args: [0xc420134f80 0xc420138c40 0xc420134fc0]
+Ret: <nil>
+
+ioctl$KVM_XEN_HVM_CONFIG: ID: 491
+NR: 16
+Name: ioctl$KVM_XEN_HVM_CONFIG
+CallName: ioctl
+Args: [0xc42013b600 0xc42013d650 0xc42013b640]
+Ret: <nil>
+
+ioctl$void: ID: 695
+NR: 16
+Name: ioctl$void
+CallName: ioctl
+Args: [0xc4201535c0 0xc420156c40]
+Ret: <nil>
+
+openat$sequencer2: ID: 813
+NR: 257
+Name: openat$sequencer2
+CallName: openat
+Args: [0xc42016ccb0 0xc420169500 0xc42016cd20 0xc42016cd90]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+socket$sctp6: ID: 1108
+NR: 41
+Name: socket$sctp6
+CallName: socket
+Args: [0xc4201a2230 0xc4201a22a0 0xc4201a2310]
+Ret: &{{sock_sctp ret 1 false} 0xc420015680}
+
+socketpair$tcp6: ID: 1125
+NR: 53
+Name: socketpair$tcp6
+CallName: socketpair
+Args: [0xc4201a3880 0xc4201a38f0 0xc4201a3960 0xc42019b8c0]
+Ret: <nil>
+
+syz_test: ID: 1180
+NR: 1000001
+Name: syz_test
+CallName: syz_test
+Args: []
+Ret: <nil>
+
+eventfd2: ID: 77
+NR: 290
+Name: eventfd2
+CallName: eventfd2
+Args: [0xc420100a80 0xc420100af0]
+Ret: &{{fd_event ret 1 false} 0xc420014460}
+
+ioctl$TIOCCBRK: ID: 624
+NR: 16
+Name: ioctl$TIOCCBRK
+CallName: ioctl
+Args: [0xc42014d440 0xc42014bf80]
+Ret: <nil>
+
+msync: ID: 779
+NR: 26
+Name: msync
+CallName: msync
+Args: [0xc420159e00 0xc420166770 0xc4201667e0]
+Ret: <nil>
+
+sched_setattr: ID: 902
+NR: 314
+Name: sched_setattr
+CallName: sched_setattr
+Args: [0xc420178a00 0xc420178a40 0xc4201770a0]
+Ret: <nil>
+
+sysfs$3: ID: 1139
+NR: 139
+Name: sysfs$3
+CallName: sysfs
+Args: [0xc4201a4230]
+Ret: <nil>
+
+bpf$OBJ_GET_MAP: ID: 37
+NR: 321
+Name: bpf$OBJ_GET_MAP
+CallName: bpf
+Args: [0xc4200917a0 0xc420013ec0 0xc420091810]
+Ret: &{{fd_bpf_map ret 1 false} 0xc420014280}
+
+io_submit: ID: 255
+NR: 209
+Name: io_submit
+CallName: io_submit
+Args: [0xc420122640 0xc42011fb20 0xc4201226c0]
+Ret: <nil>
+
+ioctl$EVIOCGABS3F: ID: 323
+NR: 16
+Name: ioctl$EVIOCGABS3F
+CallName: ioctl
+Args: [0xc42012e780 0xc420129ab0 0xc42012e7c0]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_DISABLE: ID: 509
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_DISABLE
+CallName: ioctl
+Args: [0xc42013be40 0xc4201420e0 0xc420142150]
+Ret: <nil>
+
+set_thread_area: ID: 946
+NR: 205
+Name: set_thread_area
+CallName: set_thread_area
+Args: [0xc42017c500]
+Ret: <nil>
+
+setgroups: ID: 951
+NR: 116
+Name: setgroups
+CallName: setgroups
+Args: [0xc42017b500 0xc42017c680]
+Ret: <nil>
+
+socket$netlink: ID: 1103
+NR: 41
+Name: socket$netlink
+CallName: socket
+Args: [0xc42019db90 0xc42019dc00 0xc42019dc70]
+Ret: &{{sock_netlink ret 1 false} 0xc420015540}
+
+write$fuse_notify_retrieve: ID: 1275
+NR: 1
+Name: write$fuse_notify_retrieve
+CallName: write
+Args: [0xc4201b1640 0xc4201b1680 0xc4201adf10]
+Ret: <nil>
+
+bind$nfc_llcp: ID: 27
+NR: 49
+Name: bind$nfc_llcp
+CallName: bind
+Args: [0xc420013b00 0xc420013b40 0xc420091030]
+Ret: <nil>
+
+getsockopt$SCTP_PEER_AUTH_CHUNKS: ID: 200
+NR: 55
+Name: getsockopt$SCTP_PEER_AUTH_CHUNKS
+CallName: getsockopt
+Args: [0xc42010bf40 0xc420111960 0xc4201119d0 0xc42010bf80 0xc42010bfc0]
+Ret: <nil>
+
+ioctl$KVM_SET_CPUID2: ID: 458
+NR: 16
+Name: ioctl$KVM_SET_CPUID2
+CallName: ioctl
+Args: [0xc42013a680 0xc42013c460 0xc42013a6c0]
+Ret: <nil>
+
+ioctl$SNDRV_TIMER_IOCTL_PAUSE: ID: 601
+NR: 16
+Name: ioctl$SNDRV_TIMER_IOCTL_PAUSE
+CallName: ioctl
+Args: [0xc42014cac0 0xc42014b260]
+Ret: <nil>
+
+openat$keychord: ID: 801
+NR: 257
+Name: openat$keychord
+CallName: openat
+Args: [0xc420167ce0 0xc420168c00 0xc420167d50 0xc420167dc0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+ioctl$TIOCGPGRP: ID: 629
+NR: 16
+Name: ioctl$TIOCGPGRP
+CallName: ioctl
+Args: [0xc42014d600 0xc42014e230 0xc42014d680]
+Ret: <nil>
+
+openat$hwrng: ID: 798
+NR: 257
+Name: openat$hwrng
+CallName: openat
+Args: [0xc4201678f0 0xc4201689c0 0xc420167960 0xc4201679d0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+setsockopt$ALG_SET_KEY: ID: 963
+NR: 54
+Name: setsockopt$ALG_SET_KEY
+CallName: setsockopt
+Args: [0xc42017cbc0 0xc42017bab0 0xc42017bb20 0xc42017cc00 0xc42017bb90]
+Ret: <nil>
+
+write$fuse_init: ID: 1268
+NR: 1
+Name: write$fuse_init
+CallName: write
+Args: [0xc4201b12c0 0xc4201b1300 0xc4201adc00]
+Ret: <nil>
+
+setsockopt$SCTP_HMAC_IDENT: ID: 1011
+NR: 54
+Name: setsockopt$SCTP_HMAC_IDENT
+CallName: setsockopt
+Args: [0xc420184440 0xc4201867e0 0xc420186850 0xc420184480 0xc4201868c0]
+Ret: <nil>
+
+setsockopt$ip_mreq: ID: 1042
+NR: 54
+Name: setsockopt$ip_mreq
+CallName: setsockopt
+Args: [0xc420185440 0xc420195500 0xc420195570 0xc420185480 0xc4201955e0]
+Ret: <nil>
+
+fanotify_init: ID: 83
+NR: 300
+Name: fanotify_init
+CallName: fanotify_init
+Args: [0xc420100fc0 0xc420101030]
+Ret: &{{fd_fanotify ret 1 false} 0xc4200144b0}
+
+ioctl$KVM_INTERRUPT: ID: 437
+NR: 16
+Name: ioctl$KVM_INTERRUPT
+CallName: ioctl
+Args: [0xc420135cc0 0xc420139960 0xc420135d00]
+Ret: <nil>
+
+ioctl$NETROM_SIOCGSTAMP: ID: 505
+NR: 16
+Name: ioctl$NETROM_SIOCGSTAMP
+CallName: ioctl
+Args: [0xc42013bc40 0xc42013dd50 0xc42013bc80]
+Ret: <nil>
+
+ioctl$PERF_EVENT_IOC_PERIOD: ID: 512
+NR: 16
+Name: ioctl$PERF_EVENT_IOC_PERIOD
+CallName: ioctl
+Args: [0xc42013bf40 0xc420142380 0xc42013bf80]
+Ret: <nil>
+
+ioctl$VT_DISALLOCATE: ID: 681
+NR: 16
+Name: ioctl$VT_DISALLOCATE
+CallName: ioctl
+Args: [0xc420152f80 0xc4201564d0]
+Ret: <nil>
+
+ioctl$TIOCSLCKTRMIOS: ID: 650
+NR: 16
+Name: ioctl$TIOCSLCKTRMIOS
+CallName: ioctl
+Args: [0xc420152000 0xc42014f030 0xc420152040]
+Ret: <nil>
+
+sched_getaffinity: ID: 896
+NR: 204
+Name: sched_getaffinity
+CallName: sched_getaffinity
+Args: [0xc420178700 0xc420176d90 0xc420178740]
+Ret: <nil>
+
+setsockopt$ip6_int: ID: 1038
+NR: 54
+Name: setsockopt$ip6_int
+CallName: setsockopt
+Args: [0xc420185240 0xc420194ee0 0xc420194f50 0xc420185280 0xc420195030]
+Ret: <nil>
+
+bpf$OBJ_PIN_PROG: ID: 40
+NR: 321
+Name: bpf$OBJ_PIN_PROG
+CallName: bpf
+Args: [0xc420091a40 0xc420013fc0 0xc420091ab0]
+Ret: <nil>
+
+flistxattr: ID: 106
+NR: 196
+Name: flistxattr
+CallName: flistxattr
+Args: [0xc4201020c0 0xc420102100 0xc420101ce0]
+Ret: <nil>
+
+ioctl$KVM_HAS_DEVICE_ATTR: ID: 436
+NR: 16
+Name: ioctl$KVM_HAS_DEVICE_ATTR
+CallName: ioctl
+Args: [0xc420135c40 0xc4201398f0 0xc420135c80]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_SUBSCRIBE_EVENTS: ID: 559
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_SUBSCRIBE_EVENTS
+CallName: ioctl
+Args: [0xc420147600 0xc420143ea0 0xc420147640]
+Ret: <nil>
+
+ioctl$TIOCGWINSZ: ID: 632
+NR: 16
+Name: ioctl$TIOCGWINSZ
+CallName: ioctl
+Args: [0xc42014d800 0xc42014e3f0 0xc42014d840]
+Ret: <nil>
+
+syz_open_dev$dri: ID: 1152
+NR: 1000002
+Name: syz_open_dev$dri
+CallName: syz_open_dev
+Args: [0xc4201a6740 0xc4201a4e00 0xc4201a4e70]
+Ret: &{{fd_dri ret 1 false} 0xc420014370}
+
+syz_test$end1: ID: 1201
+NR: 1000001
+Name: syz_test$end1
+CallName: syz_test
+Args: [0xc4201a7a00]
+Ret: <nil>
+
+syz_test$opt1: ID: 1225
+NR: 1000001
+Name: syz_test$opt1
+CallName: syz_test
+Args: [0xc4201a7fc0]
+Ret: <nil>
+
+userfaultfd: ID: 1256
+NR: 323
+Name: userfaultfd
+CallName: userfaultfd
+Args: [0xc4201ad570]
+Ret: &{{fd_uffd ret 1 false} 0xc420014af0}
+
+getsockopt$SCTP_ASSOCINFO: ID: 173
+NR: 55
+Name: getsockopt$SCTP_ASSOCINFO
+CallName: getsockopt
+Args: [0xc42010ab00 0xc42010f260 0xc42010f2d0 0xc42010ab40 0xc42010ab80]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_SG_FREE: ID: 315
+NR: 16
+Name: ioctl$DRM_IOCTL_SG_FREE
+CallName: ioctl
+Args: [0xc42012e380 0xc420129730 0xc42012e3c0]
+Ret: <nil>
+
+shmdt: ID: 1078
+NR: 67
+Name: shmdt
+CallName: shmdt
+Args: [0xc42019a640]
+Ret: <nil>
+
+syz_test$align6: ID: 1187
+NR: 1000001
+Name: syz_test$align6
+CallName: syz_test
+Args: [0xc4201a7680]
+Ret: <nil>
+
+ptrace$peekuser: ID: 856
+NR: 101
+Name: ptrace$peekuser
+CallName: ptrace
+Args: [0xc420171110 0xc42016eb80 0xc420171180]
+Ret: <nil>
+
+setsockopt: ID: 961
+NR: 54
+Name: setsockopt
+CallName: setsockopt
+Args: [0xc42017cb00 0xc42017b7a0 0xc42017b810 0xc42017cb40 0xc42017b880]
+Ret: <nil>
+
+bind$bt_rfcomm: ID: 21
+NR: 49
+Name: bind$bt_rfcomm
+CallName: bind
+Args: [0xc420013800 0xc420013840 0xc420090d90]
+Ret: <nil>
+
+creat: ID: 64
+NR: 85
+Name: creat
+CallName: creat
+Args: [0xc4200fcc00 0xc420100460]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+getdents64: ID: 121
+NR: 217
+Name: getdents64
+CallName: getdents64
+Args: [0xc420102880 0xc4201028c0 0xc4201043f0]
+Ret: <nil>
+
+getgid: ID: 124
+NR: 104
+Name: getgid
+CallName: getgid
+Args: []
+Ret: &{{gid ret 1 false} 0xc420014b40}
+
+openat$lightnvm: ID: 803
+NR: 257
+Name: openat$lightnvm
+CallName: openat
+Args: [0xc420167f80 0xc420168d80 0xc42016c000 0xc42016c070]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+socket$bt_l2cap: ID: 1091
+NR: 41
+Name: socket$bt_l2cap
+CallName: socket
+Args: [0xc42019cbd0 0xc42019cc40 0xc42019ccb0]
+Ret: &{{sock_bt_l2cap ret 1 false} 0xc4200151d0}
+
+socketpair$inet6: ID: 1122
+NR: 53
+Name: socketpair$inet6
+CallName: socketpair
+Args: [0xc4201a3490 0xc4201a3500 0xc4201a3570 0xc42019b740]
+Ret: <nil>
+
+syz_open_dev$sndpcmp: ID: 1169
+NR: 1000002
+Name: syz_open_dev$sndpcmp
+CallName: syz_open_dev
+Args: [0xc4201a6fc0 0xc4201a5ce0 0xc4201a5d50]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+getsockname$inet: ID: 144
+NR: 51
+Name: getsockname$inet
+CallName: getsockname
+Args: [0xc4201035c0 0xc420103600 0xc420103640]
+Ret: <nil>
+
+getsockopt$SCTP_ADAPTATION_LAYER: ID: 172
+NR: 55
+Name: getsockopt$SCTP_ADAPTATION_LAYER
+CallName: getsockopt
+Args: [0xc42010aa40 0xc42010f110 0xc42010f180 0xc42010aa80 0xc42010aac0]
+Ret: <nil>
+
+getsockopt$SCTP_AUTH_ACTIVE_KEY: ID: 174
+NR: 55
+Name: getsockopt$SCTP_AUTH_ACTIVE_KEY
+CallName: getsockopt
+Args: [0xc42010abc0 0xc42010f3b0 0xc42010f420 0xc42010ac00 0xc42010ac40]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_NEW_CTX: ID: 303
+NR: 16
+Name: ioctl$DRM_IOCTL_NEW_CTX
+CallName: ioctl
+Args: [0xc420123dc0 0xc4201291f0 0xc420123e00]
+Ret: <nil>
+
+ioctl$KVM_DEASSIGN_PCI_DEVICE: ID: 407
+NR: 16
+Name: ioctl$KVM_DEASSIGN_PCI_DEVICE
+CallName: ioctl
+Args: [0xc420134e80 0xc420138b60 0xc420134ec0]
+Ret: <nil>
+
+removexattr: ID: 881
+NR: 197
+Name: removexattr
+CallName: removexattr
+Args: [0xc42016fd80 0xc42016fdc0]
+Ret: <nil>
+
+sched_getattr: ID: 897
+NR: 315
+Name: sched_getattr
+CallName: sched_getattr
+Args: [0xc420178780 0xc4201787c0 0xc420176e70 0xc420176ee0]
+Ret: <nil>
+
+setsockopt$udp6_encap: ID: 1063
+NR: 54
+Name: setsockopt$udp6_encap
+CallName: setsockopt
+Args: [0xc420185f40 0xc420199340 0xc4201993b0 0xc420185f80 0xc420199490]
+Ret: <nil>
+
+arch_prctl: ID: 16
+NR: 158
+Name: arch_prctl
+CallName: arch_prctl
+Args: [0xc420090b60 0xc4200135c0]
+Ret: <nil>
+
+close: ID: 51
+NR: 3
+Name: close
+CallName: close
+Args: [0xc4200fc580]
+Ret: <nil>
+
+get_robust_list: ID: 118
+NR: 274
+Name: get_robust_list
+CallName: get_robust_list
+Args: [0xc4201026c0 0xc420102740 0xc420102780]
+Ret: <nil>
+
+ioctl$DRM_IOCTL_VERSION: ID: 318
+NR: 16
+Name: ioctl$DRM_IOCTL_VERSION
+CallName: ioctl
+Args: [0xc42012e500 0xc420129880 0xc42012e540]
+Ret: <nil>
+
+ioctl$TIOCCONS: ID: 625
+NR: 16
+Name: ioctl$TIOCCONS
+CallName: ioctl
+Args: [0xc42014d480 0xc42014e000]
+Ret: <nil>
+
+ioctl: ID: 256
+NR: 16
+Name: ioctl
+CallName: ioctl
+Args: [0xc420122700 0xc42011fb90 0xc420122740]
+Ret: <nil>
+
+ioctl$KDSKBMODE: ID: 389
+NR: 16
+Name: ioctl$KDSKBMODE
+CallName: ioctl
+Args: [0xc420134680 0xc4201380e0 0xc4201346c0]
+Ret: <nil>
+
+ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_INFO: ID: 573
+NR: 16
+Name: ioctl$SNDRV_SEQ_IOCTL_GET_QUEUE_INFO
+CallName: ioctl
+Args: [0xc420147d00 0xc42014a5b0 0xc420147d40]
+Ret: <nil>
+
+semctl$GETZCNT: ID: 912
+NR: 66
+Name: semctl$GETZCNT
+CallName: semctl
+Args: [0xc420178fc0 0xc420177730 0xc4201777a0 0xc420179000]
+Ret: <nil>
+
+sendmmsg$sctp: ID: 929
+NR: 307
+Name: sendmmsg$sctp
+CallName: sendmmsg
+Args: [0xc420179b40 0xc420179b80 0xc42017a700 0xc42017a770]
+Ret: <nil>
+
+bpf$MAP_CREATE: ID: 32
+NR: 321
+Name: bpf$MAP_CREATE
+CallName: bpf
+Args: [0xc420091340 0xc420013d40 0xc4200913b0]
+Ret: &{{fd_bpf_map ret 1 false} 0xc420014280}
+
+msgctl$IPC_INFO: ID: 769
+NR: 71
+Name: msgctl$IPC_INFO
+CallName: msgctl
+Args: [0xc420159980 0xc4201660e0 0xc4201599c0]
+Ret: <nil>
+
+fcntl$notify: ID: 95
+NR: 72
+Name: fcntl$notify
+CallName: fcntl
+Args: [0xc4200fdc00 0xc4201015e0 0xc420101650]
+Ret: <nil>
+
+fstat: ID: 110
+NR: 5
+Name: fstat
+CallName: fstat
+Args: [0xc4201022c0 0xc420102300]
+Ret: <nil>
+
+ioctl$NETROM_SIOCGSTAMPNS: ID: 506
+NR: 16
+Name: ioctl$NETROM_SIOCGSTAMPNS
+CallName: ioctl
+Args: [0xc42013bcc0 0xc42013de30 0xc42013bd00]
+Ret: <nil>
+
+syz_open_dev$evdev: ID: 1156
+NR: 1000002
+Name: syz_open_dev$evdev
+CallName: syz_open_dev
+Args: [0xc4201a6940 0xc4201a5180 0xc4201a51f0]
+Ret: &{{fd_evdev ret 1 false} 0xc420014410}
+
+syz_test$vma0: ID: 1235
+NR: 1000001
+Name: syz_test$vma0
+CallName: syz_test
+Args: [0xc4201b0240 0xc4201ace00 0xc4201b0280 0xc4201ace70 0xc4201b02c0 0xc4201acee0]
+Ret: <nil>
+
+mq_notify: ID: 763
+NR: 244
+Name: mq_notify
+CallName: mq_notify
+Args: [0xc420159540 0xc420159580]
+Ret: <nil>
+
+openat$xenevtchn: ID: 820
+NR: 257
+Name: openat$xenevtchn
+CallName: openat
+Args: [0xc42016d5e0 0xc420169a40 0xc42016d650 0xc42016d6c0]
+Ret: &{{fd ret 1 false} 0xc420014230}
+
+sendmsg$netlink: ID: 934
+NR: 46
+Name: sendmsg$netlink
+CallName: sendmsg
+Args: [0xc420179e40 0xc420179e80 0xc42017aa10]
+Ret: <nil>
+
+fcntl$setlease: ID: 97
+NR: 72
+Name: fcntl$setlease
+CallName: fcntl
+Args: [0xc4200fdd00 0xc4201017a0 0xc420101810]
+Ret: <nil>
+
+fremovexattr: ID: 108
+NR: 199
+Name: fremovexattr
+CallName: fremovexattr
+Args: [0xc420102180 0xc4201021c0]
+Ret: <nil>
+
+getsockopt$SCTP_SOCKOPT_CONNECTX3: ID: 205
+NR: 55
+Name: getsockopt$SCTP_SOCKOPT_CONNECTX3
+CallName: getsockopt
+Args: [0xc420112300 0xc4201140e0 0xc420114150 0xc420112340 0xc420112380]
+Ret: <nil>
+
+ioctl$LOOP_GET_STATUS: ID: 497
+NR: 16
+Name: ioctl$LOOP_GET_STATUS
+CallName: ioctl
+Args: [0xc42013b8c0 0xc42013d8f0 0xc42013b900]
+Ret: <nil>
+
+ioctl$SNDRV_CTL_IOCTL_TLV_WRITE: ID: 562
+NR: 16
+Name: ioctl$SNDRV_CTL_IOCTL_TLV_WRITE
+CallName: ioctl
+Args: [0xc420147780 0xc42014a070 0xc4201477c0]
+Ret: <nil>
+
+setsockopt$ip_msfilter: ID: 1045
+NR: 54
+Name: setsockopt$ip_msfilter
+CallName: setsockopt
+Args: [0xc4201855c0 0xc4201958f0 0xc420195960 0xc420185600 0xc4201959d0]
+Ret: <nil>
+
+socket$nfc_raw: ID: 1106
+NR: 41
+Name: socket$nfc_raw
+CallName: socket
+Args: [0xc42019df80 0xc4201a2000 0xc4201a2070]
+Ret: &{{sock_nfc_raw ret 1 false} 0xc420015630}
+
+timerfd_gettime: ID: 1245
+NR: 287
+Name: timerfd_gettime
+CallName: timerfd_gettime
+Args: [0xc4201b0800 0xc4201b0840]
+Ret: <nil>
+
+write$sndseq: ID: 1278
+NR: 1
+Name: write$sndseq
+CallName: write
+Args: [0xc4201b17c0 0xc4201b1800 0xc4201b6070]
+Ret: <nil>
+
+setsockopt$NETROM_IDLE: ID: 988
+NR: 54
+Name: setsockopt$NETROM_IDLE
+CallName: setsockopt
+Args: [0xc42017d880 0xc420182380 0xc4201823f0 0xc42017d8c0 0xc4201824d0]
+Ret: <nil>
+
+getpeername$inet: ID: 128
+NR: 52
+Name: getpeername$inet
+CallName: getpeername
+Args: [0xc420102b40 0xc420102b80 0xc420102bc0]
+Ret: <nil>
+
+getrlimit: ID: 141
+NR: 97
+Name: getrlimit
+CallName: getrlimit
+Args: [0xc4201049a0 0xc420103480]
+Ret: <nil>
+
+getsockopt$dccp_int: ID: 213
+NR: 55
+Name: getsockopt$dccp_int
+CallName: getsockopt
+Args: [0xc420112980 0xc420114c40 0xc420114cb0 0xc4201129c0 0xc420112a00]
+Ret: <nil>
+
+setsockopt$HCI_DATA_DIR: ID: 972
+NR: 54
+Name: setsockopt$HCI_DATA_DIR
+CallName: setsockopt
+Args: [0xc42017d040 0xc4201809a0 0xc420180a10 0xc42017d080 0xc420180af0]
+Ret: <nil>
+
+setsockopt$NETLINK_DROP_MEMBERSHIP: ID: 982
+NR: 54
+Name: setsockopt$NETLINK_DROP_MEMBERSHIP
+CallName: setsockopt
+Args: [0xc42017d580 0xc4201819d0 0xc420181a40 0xc42017d5c0 0xc420181b20]
+Ret: <nil>
+

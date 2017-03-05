@@ -64,7 +64,7 @@ include <linux/ioprio.h>
 
 
 
-
+# write breaks on the first, and AT_FDCWD is current working directory
 resource fd[int32]: 0xffffffffffffffff, AT_FDCWD
 resource fd_dir[fd]
 
@@ -76,7 +76,7 @@ creat(file ptr[in, filename], mode flags[open_mode]) fd
 close(fd fd)
 read(fd fd, buf buffer[out], count len[buf]) len[buf]
 pread64(fd fd, buf buffer[out], count len[buf], pos fileoff)
-readv(fd fd, vec ptr[in, array[iovec_out]], vlen len[vec])
+readv(fd fd, vec ptr[in, array[iovec_out]], vlen len[vec])m
 preadv(fd fd, vec ptr[in, array[iovec_out]], vlen len[vec], off fileoff)
 write(fd fd, buf buffer[in], count len[buf]) len[buf]
 pwrite64(fd fd, buf buffer[in], count len[buf], pos fileoff)

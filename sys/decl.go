@@ -40,6 +40,15 @@ type Type interface {
 	BitfieldLast() bool
 }
 
+func (c *Call) String() string {
+	return fmt.Sprintf("\n{ID: %v\n" +
+		"NR: %v\n" +
+		"Name: %v\n" +
+		"CallName: %v\n" +
+		"Args: %v\n" +
+		"Ret: %v}\n", c.ID, c.NR, c.Name, c.CallName, c.Args, c.Ret)
+}
+
 func IsPad(t Type) bool {
 	if ct, ok := t.(*ConstType); ok && ct.IsPad {
 		return true
