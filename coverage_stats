@@ -1,0 +1,11 @@
+Total programs: 3300, Total Covered: 45030
+Threshold: 100, Num Programs: 74, Coverage: 32209, Average Len: 53.027039
+Threshold: 200, Num Programs: 33, Coverage: 26628, Average Len: 58.303036
+Threshold: 300, Num Programs: 24, Coverage: 24405, Average Len: 65.500000
+Threshold: 400, Num Programs: 16, Coverage: 21665, Average Len: 74.937500
+Threshold: 500, Num Programs: 11, Coverage: 19466, Average Len: 66.181816
+Threshold: 600, Num Programs: 9, Coverage: 18322, Average Len: 73.666664
+Threshold: 700, Num Programs: 7, Coverage: 17015, Average Len: 82.428566
+Threshold: 800, Num Programs: 7, Coverage: 17015, Average Len: 82.428566
+Threshold: 900, Num Programs: 4, Coverage: 14484, Average Len: 68.000000
+Threshold: 1000, Num Programs: 4, Coverage: 14484, Average Len: 68.000000
