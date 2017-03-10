@@ -83,6 +83,9 @@ func (p *Prog) SerializeForExec(buffer []byte, pid int) error {
 			if len(arg.Uses) == 0 {
 				return
 			}
+			fmt.Printf("foreachArg on call: %v\n", c.Meta.CallName)
+			fmt.Printf("arg: %v\n", arg)
+			fmt.Printf("base: %v\n", base)
 			switch arg.Kind {
 			case ArgReturn:
 				// Idx is already assigned above.
