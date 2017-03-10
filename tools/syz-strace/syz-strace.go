@@ -20,6 +20,7 @@ var (
 	unsupported = map[string]bool{
 		"brk": true,
 		"fstat": true,
+    "exit_group": true,
 	}
 )
 
@@ -102,7 +103,9 @@ func main() {
 		if line.Result == "?" {
 			ret_arg = returnArg(meta.Ret, 0)
 		} else {
-			ret_arg = returnArg(meta.Ret, toVal(line.Result))
+			// ret_arg = returnArg(meta.Ret, toVal(line.Result))
+			ret_arg = returnArg(meta.Ret, meta.Ret.Default())
+      
 		}
 
 		c := &Call{
