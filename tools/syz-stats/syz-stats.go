@@ -36,8 +36,9 @@ func main() {
 	}
 	corpii := readCorpus(*corpuses)
 	newestCorpus := corpii[len(corpii)-1]
-	countHeavyHitters(newestCorpus, []int{0, 1, 2, 3, 4, 5, 6, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100})
+	countHeavyHitters(newestCorpus, []int{100, 200, 300, 400, 500, 600, 700, 800, 900, 1000})
 
+	/*
 	for _, input := range newestCorpus {
 
 		prg, err := prog.Deserialize(input.Prog)
@@ -46,7 +47,7 @@ func main() {
 		}
 		args := make(map[*prog.Arg]string)
 		trackProgDependencies(prg, args)
-	}
+	}*/
 }
 
 func trackProgDependencies(prg *prog.Prog, args map[*prog.Arg]string) {
