@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/google/syzkaller/sys"
+	. "github.com/google/syzkaller/log"
 )
 
 const (
@@ -83,6 +84,9 @@ func (p *Prog) SerializeForExec(buffer []byte, pid int) error {
 			if len(arg.Uses) == 0 {
 				return
 			}
+			Logf(0, "foreachArg on call: %v\n", c.Meta.CallName)
+			Logf(0, "arg: %v\n", arg)
+			Logf(0, "base: %v\n", base)
 			switch arg.Kind {
 			case ArgReturn:
 				// Idx is already assigned above.

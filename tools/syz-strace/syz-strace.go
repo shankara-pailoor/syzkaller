@@ -10,15 +10,17 @@ import (
 	"path/filepath"
 	"bufio"
 	"strconv"
-	"bytes"
 	"reflect"
+	"io/ioutil"
+	"github.com/google/syzkaller/db"
+	"github.com/google/syzkaller/hash"
 )
 
 var (
-	entered = false
 	unsupported = map[string]bool{
 		"brk": true,
 		"fstat": true,
+    "exit_group": true,
 	}
 )
 
@@ -34,14 +36,6 @@ const (
 type pointer struct {
 	Addr	string
 	Val	string
-}
-
-type parser struct {
-	r *bufio.Scanner
-	s string
-	i int
-	l int
-	e error
 }
 
 type returnType struct {
@@ -78,20 +72,45 @@ func main() {
 	for {
 		line, err := p.Parse()
 		if err != nil {
-			fmt.Errorf("Line: %s\n", err.Error())
+			if err != sparser.ErrEOF {
+				fmt.Println(err.Error())
+			}
+			break
 		}
+
 		if _, ok := unsupported[line.FuncName]; ok {
 			continue // don't parse unsupported syscalls
 		}
 
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
-			fmt.Errorf("unknown syscall %v", line.FuncName)
+			fmt.Println("unknown syscall %v", line.FuncName)
+			break
+		}
+
+		fmt.Println("---------Parsing line-----------")
+		fmt.Println("signal")
+		fmt.Printf("Signal: %v\n", line.Signal)
+		fmt.Printf("FuncName: %v\n", line.FuncName)
+		fmt.Printf("Args: %v\n", line.Args)
+		for j, arg := range line.Args {
+			fmt.Printf("\narg %v: %v\n", j, arg)
+		}
+		fmt.Printf("Result: %v\n", line.Result)
+		fmt.Println(line.Unparse())
+
+		var ret_arg *Arg
+		if line.Result == "?" {
+			ret_arg = returnArg(meta.Ret, 0)
+		} else {
+			// ret_arg = returnArg(meta.Ret, toVal(line.Result))
+			ret_arg = returnArg(meta.Ret, meta.Ret.Default())
+      
 		}
 
 		c := &Call{
 			Meta: meta,
-			Ret:  returnArg(meta.Ret, line.Result),
+			Ret:  ret_arg,
 		}
 		var calls []*Call
 
@@ -106,32 +125,42 @@ func main() {
 		}
 
 		calls = append(calls, c)
-		prog.Calls = append(prog.Calls, calls)
-		return_var := returnType{
-			getType(meta.Ret),
-			line.Result,
-		}
-		return_vars[return_var] = c.Ret
 
-		//fmt.Printf("Signal: %v\n", line.Signal)
-		//fmt.Printf("FuncName: %v\n", line.FuncName)
-		//fmt.Printf("Args: %v\n", line.Args)
-		//for j, arg := range line.Args {
-		//	fmt.Printf("\narg %v: %v\n", j, arg)
-		//}
-		//fmt.Printf("Result: %v\n", line.Result)
+		// store the return value if we had a valid return
+		if line.Result != "?" {
+			return_var := returnType{
+				getType(meta.Ret),
+				line.Result,
+			}
+			return_vars[return_var] = c.Ret
+		}
+
+		// add calls to our program
+		for _,c := range calls {
+			// TODO: sanitize c?
+			prog.Calls = append(prog.Calls, c)
+		}
+
+		fmt.Println("---------done parsing line--------\n")
 	}
 	if err := prog.Validate(); err != nil {
-		fmt.Errorf(err)
+		fmt.Println("ERROR: %v", err.Error())
+		return
 	}
 
-	//TODO: serialize and put in corpus
+	fmt.Println("success!")
+	fmt.Println("Serializing program of length", len(prog.Calls))
 
-	//fmt.Printf("--------------\n\n\n\n---------")
-	//fmt.Printf("%v\n", len(sys.CallMap))
-	//for k,v := range sys.CallMap {
-	//	fmt.Printf("%v: %v\n", k, v)
-	//}
+	os.Mkdir("serialized", 0750)
+
+	if err := ioutil.WriteFile("serialized/serialized.txt", prog.Serialize(), 0640); err != nil {
+		failf("failed to output file: %v", err)
+	}
+	fmt.Println("serialized output to serialized.txt")
+
+	fmt.Println("packing into corpus.db")
+	pack("serialized", "corpus.db")
+	return
 }
 
 
@@ -140,16 +169,22 @@ func parseArg(typ sys.Type, strace_arg string,
 	      consts *map[string]uint64, return_vars *map[returnType]*Arg,
               call string, s *state) (arg *Arg, calls []*Call) {
 
+	fmt.Printf("-----Entering parseArg-------" +
+		"\nparsing arg: %v" +
+		"\nfor call: %v \n", strace_arg, call)
 	// check if this is a return arg
 	if arg := isReturned(typ, strace_arg, return_vars); arg != nil {
+		fmt.Println("Discovered return type!")
+		fmt.Println("-------exiting parseArg--------\n")
 		return arg, nil
 	}
 
 	switch a := typ.(type) {
 	case *sys.FlagsType:
+		fmt.Println("FlagsType")
 		arg, calls = constArg(a, uintptr(extractVal(strace_arg, consts))), nil
 	case *sys.ResourceType:
-		fmt.Printf("Resource Type: %v Argument: %s\n", a.Desc, strace_arg)
+		fmt.Println("Resource Type: %v", a.Desc, strace_arg)
 		extracted_int, err := strconv.ParseInt(strace_arg, 10, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
@@ -157,41 +192,69 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.BufferType:
 		// check if its a pointer or raw string
-		fmt.Printf("Buffer Type: %v Call: %s\n", strace_arg, call)
+		fmt.Println("Buffer Type")
 		arg, calls = dataArg(a, []byte(strace_arg)), nil
 	case *sys.PtrType:
-		fmt.Printf("Pointer: %v inner type: %v Call: %s\n", strace_arg, a.Type, call)
+		fmt.Printf("Pointer with inner type: %v Call: %s\n", a.Type, call)
 		ptr := parsePointerArg(strace_arg)
 		inner_arg, inner_calls := parseArg(a.Type, ptr.Val, consts, return_vars, call, s)
 		outer_arg, outer_calls := addr(s, a, inner_arg.Size(), inner_arg)
-		inner_calls = append(inner_calls, outer_calls)
+		inner_calls = append(inner_calls, outer_calls...)
 		arg, calls = outer_arg, inner_calls
 	case *sys.IntType:
+		fmt.Println("IntType")
 		extracted_int, err := strconv.ParseInt(strace_arg, 10, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.VmaType:
+		fmt.Println("Vma type")
 		fmt.Printf("VMA Type: %v Call: %s\n", strace_arg, call)
 		// TODO: this should be covered by a previous mmap
 		arg, calls = &Arg{Type: a, Val: uintptr(1), Kind: ArgPointer}, nil
 	case *sys.ConstType, *sys.ProcType, *sys.LenType, *sys.CsumType:
-		fmt.Printf("Const/Proc/Len/Csum Type: %v Call: %s\n", strace_arg, call)
-		return constArg(a, uintptr(strace_arg)), nil
+		fmt.Println("Const/Proc/Len/Csum Type")
+		return constArg(a, toVal(strace_arg)), nil
 	case *sys.ArrayType:
-		// TODO: implement
-		panic("not implemented")
-	case *sys.StructType:
-		// TODO: implement
-		//inner_args, inner_calls, tokens := parseInnerArgs(a, strace_arg, consts, return_vars, call, s)
-		// add inner args to return map
-		for i,inner_arg := range inner_args {
-			return_var := returnType{getType(inner_arg.Type),tokens[i]}
-			return_vars[return_var] = inner_arg
+		// clip the square brackets
+		strace_arg = strace_arg[1:len(strace_arg)-1]
+		fmt.Printf("ArrayType %v\n", a.TypeName)
+		var args []*Arg
+		for i := 0; i < len(strace_arg); i++ {
+			// skip whitespace
+			for i < len(strace_arg) && (strace_arg[i] == ' ' || strace_arg[i] == '\t') {
+				i++
+			}
+			if i >= len(strace_arg) {
+				break
+			}
+			j := i
+			for strace_arg[i] != ',' && i != len(strace_arg) {
+				i++
+			}
+			inner_val := strace_arg[j:i]
+			inner_arg, inner_calls := parseArg(a.Type, inner_val, consts, return_vars, call, s)
+			args = append(args, inner_arg)
+			calls = append(calls, inner_calls...)
 		}
-
-
+		arg = groupArg(typ, args)
+	case *sys.StructType:
+		// clip the curly brackets
+		strace_arg = strace_arg[1:len(strace_arg)-1]
+		fmt.Printf("StructType %v", a.TypeName)
+		struct_args := strings.Split(strace_arg, ", ")
+		args := make([]*Arg, len(struct_args))
+		for i,struct_arg := range struct_args {
+			arg_type := a.Fields[i]
+			param := strings.SplitN(struct_arg, "=", 2)
+			name, val := param[0], param[1]
+			fmt.Printf("generating arg for structtype %v, field: %v\n", a.FldName, name)
+			inner_arg, inner_calls := parseArg(arg_type, val, consts, return_vars, call, s)
+			args = append(args, inner_arg)
+			calls = append(calls, inner_calls...)
+		}
+		arg = groupArg(a, args)
 	default:
 		fmt.Printf("Call: %s Arg: %v\n", call, typ)
 		fmt.Printf("Args: %v\n", reflect.TypeOf(typ))
@@ -203,21 +266,17 @@ func parseArg(typ sys.Type, strace_arg string,
 		getType(typ),
 		strace_arg,
 	}
-	return_vars[return_var] = arg
+	(*return_vars)[return_var] = arg
+
+	fmt.Println("-------exiting parseArg--------")
 
 	return arg, calls
 }
 
-func parseInnerArgs(typ sys.Type, strace_arg string,
+/* func parseInnerArgs(typ sys.Type, strace_arg string,
 	consts *map[string]uint64, return_vars *map[returnType]*Arg,
 	call string, s *state) (arg []*Arg, calls []*Call, tokens []string) {
-
-	p := &parser{r: bufio.NewScanner(bytes.NewReader(strace_arg))}
-	p.r.Buffer(nil, maxLineLen)
-
-	// TODO: parse internal args, recursively build out
-
-}
+} */
 
 
 
@@ -233,10 +292,10 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 		Type: getType(typ),
 		Val: val,
 	}
-	if arg,ok := return_vars[return_var]; ok {
+	if arg,ok := (*return_vars)[return_var]; ok {
 		return resultArg(typ, arg)
-
 	}
+
 	return nil
 }
 
@@ -277,7 +336,7 @@ func createMmapCall(start, npages uintptr) *Call {
 			constArg(meta.Args[4], sys.InvalidFD),
 			constArg(meta.Args[5], 0),
 		},
-		Ret: returnArg(meta.Ret, string(meta.Ret.Default())),
+		Ret: returnArg(meta.Ret, meta.Ret.Default()),
 	}
 	return mmap
 }
@@ -373,12 +432,12 @@ func failf(msg string, args ...interface{}) {
 	os.Exit(1)
 }
 
-func extractVal(flags string, consts map[string]uint64) uint64{
+func extractVal(flags string, consts *map[string]uint64) uint64{
 	var val uint64 = 0
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64  = 1 << 64 - 1
 		for _, and_op := range strings.Split(or_op, "&") {
-			and_val &= consts[and_op]
+			and_val &= (*consts)[and_op]
 		}
 		val |= and_val
 	}
@@ -395,6 +454,10 @@ func newState() *state {
 }
 
 /* Arg helper functions */
+
+func groupArg(t sys.Type, inner []*Arg) *Arg {
+	return &Arg{Type: t, Kind: ArgGroup, Inner: inner}
+}
 
 func pointerArg(t sys.Type, page uintptr, off int, npages uintptr, obj *Arg) *Arg {
 	return &Arg{Type: t, Kind: ArgPointer, AddrPage: page, AddrOffset: off, AddrPagesNum: npages, Res: obj}
@@ -424,9 +487,57 @@ func resultArg(t sys.Type, r *Arg) *Arg {
 	return arg
 }
 
-func returnArg(t sys.Type, val string) *Arg {
+func returnArg(t sys.Type, val uintptr) *Arg {
 	if t != nil {
-		return &Arg{Type: t, Kind: ArgReturn, Val: uintptr(val)}
+		return &Arg{Type: t, Kind: ArgReturn, Val: val}
 	}
 	return &Arg{Type: t, Kind: ArgReturn}
+}
+
+/* Misc Helpers */
+
+func toVal(s string) uintptr {
+	if i,e := strconv.ParseUint(s, 0, 64); e == nil {
+		return uintptr(i)
+	} else {
+		fmt.Println(e)
+		panic("invalid return format")
+	}
+}
+
+/* pack into corpus.db */
+
+func pack(dir, file string) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		failf("failed to read dir: %v", err)
+	}
+	os.Remove(file)
+	db, err := db.Open(file)
+	if err != nil {
+		failf("failed to open database file: %v", err)
+	}
+	for _, file := range files {
+		data, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
+		if err != nil {
+			failf("failed to read file %v: %v", file.Name(), err)
+		}
+		var seq uint64
+		key := file.Name()
+		if parts := strings.Split(file.Name(), "-"); len(parts) == 2 {
+			var err error
+
+			if seq, err = strconv.ParseUint(parts[1], 10, 64); err == nil {
+				key = parts[0]
+			}
+		}
+		if sig := hash.String(data); key != sig {
+			fmt.Fprintf(os.Stderr, "fixing hash %v -> %v\n", key, sig)
+			key = sig
+		}
+		db.Save(key, data, seq)
+	}
+	if err := db.Flush(); err != nil {
+		failf("failed to save database file: %v", err)
+	}
 }
