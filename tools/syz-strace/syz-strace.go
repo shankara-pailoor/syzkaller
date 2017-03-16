@@ -185,7 +185,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg, calls = constArg(a, uintptr(extractVal(strace_arg, consts))), nil
 	case *sys.ResourceType:
 		fmt.Println("Resource Type: %v", a.Desc)
-		extracted_int, err := strconv.ParseInt(strace_arg, 10, 64)
+		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
@@ -265,11 +265,12 @@ func parseArg(typ sys.Type, strace_arg string,
 	}
 
 	// insert arg into returned map in case it is used elsewhere
-	return_var := returnType{
+	// TODO: this is only done when the var is a base of a pointer.
+	/* return_var := returnType{
 		getType(typ),
 		strace_arg,
 	}
-	(*return_vars)[return_var] = arg
+	(*return_vars)[return_var] = arg */
 
 	fmt.Println("-------exiting parseArg--------")
 
