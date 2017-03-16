@@ -105,7 +105,6 @@ func main() {
 		} else {
 			// ret_arg = returnArg(meta.Ret, toVal(line.Result))
 			ret_arg = returnArg(meta.Ret, meta.Ret.Default())
-      
 		}
 
 		c := &Call{
@@ -138,6 +137,7 @@ func main() {
 		// add calls to our program
 		for _,c := range calls {
 			// TODO: sanitize c?
+			s.analyze(c)
 			prog.Calls = append(prog.Calls, c)
 		}
 
@@ -184,16 +184,19 @@ func parseArg(typ sys.Type, strace_arg string,
 		fmt.Println("FlagsType")
 		arg, calls = constArg(a, uintptr(extractVal(strace_arg, consts))), nil
 	case *sys.ResourceType:
-		fmt.Println("Resource Type: %v", a.Desc, strace_arg)
+		fmt.Println("Resource Type: %v", a.Desc)
 		extracted_int, err := strconv.ParseInt(strace_arg, 10, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.BufferType:
-		// check if its a pointer or raw string
 		fmt.Println("Buffer Type")
-		arg, calls = dataArg(a, []byte(strace_arg)), nil
+		fmt.Println(strace_arg)
+		if strace_arg[0] != '"' || strace_arg[len(strace_arg)-1] != '"' {
+			panic("unexpected buffer type, not a string")
+		}
+		arg, calls = dataArg(a, []byte(strace_arg[1:len(strace_arg)-1])), nil
 	case *sys.PtrType:
 		fmt.Printf("Pointer with inner type: %v Call: %s\n", a.Type, call)
 		ptr := parsePointerArg(strace_arg)
@@ -317,7 +320,8 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 		}
 		// found a free memory section, let's mmap
 		c := createMmapCall(i, npages)
-		return pointerArg(typ, i, 0, 0, data), []*Call{c}
+		arg, calls := pointerArg(typ, i, 0, 0, data), []*Call{c}
+		return arg, calls
 	}
 	panic("out of memory")
 	//return r.randPageAddr(s, typ, npages, data, false), nil
@@ -444,6 +448,7 @@ func extractVal(flags string, consts *map[string]uint64) uint64{
 	return val
 }
 
+/* State functions */
 func newState() *state {
 	s := &state{
 		files:     make(map[string]bool),
@@ -452,6 +457,71 @@ func newState() *state {
 	}
 	return s
 }
+
+func (s *state) analyze(c *Call) {
+	ForeachArgArray(&c.Args, c.Ret, func(arg, base *Arg, _ *[]*Arg) {
+		switch typ := arg.Type.(type) {
+		case *sys.ResourceType:
+			if arg.Type.Dir() != sys.DirIn {
+				s.resources[typ.Desc.Name] = append(s.resources[typ.Desc.Name], arg)
+				// TODO: negative PIDs and add them as well (that's process groups).
+			}
+		case *sys.BufferType:
+			if arg.Type.Dir() != sys.DirOut && arg.Kind == ArgData && len(arg.Data) != 0 {
+				switch typ.Kind {
+				case sys.BufferString:
+					s.strings[string(arg.Data)] = true
+				case sys.BufferFilename:
+					s.files[string(arg.Data)] = true
+				}
+			}
+		}
+	})
+	switch c.Meta.Name {
+	case "mmap":
+		// Filter out only very wrong arguments.
+		length := c.Args[1]
+		if length.AddrPage == 0 && length.AddrOffset == 0 {
+			break
+		}
+		if flags, fd := c.Args[4], c.Args[3]; flags.Val&sys.MAP_ANONYMOUS == 0 && fd.Kind == ArgConst && fd.Val == sys.InvalidFD {
+			break
+		}
+		s.addressable(c.Args[0], length, true)
+	case "munmap":
+		s.addressable(c.Args[0], c.Args[1], false)
+	case "mremap":
+		s.addressable(c.Args[4], c.Args[2], true)
+	case "io_submit":
+		if arr := c.Args[2].Res; arr != nil {
+			for _, ptr := range arr.Inner {
+				if ptr.Kind == ArgPointer {
+					if ptr.Res != nil && ptr.Res.Type.Name() == "iocb" {
+						s.resources["iocbptr"] = append(s.resources["iocbptr"], ptr)
+					}
+				}
+			}
+		}
+	}
+}
+
+func (s *state) addressable(addr, size *Arg, ok bool) {
+	if addr.Kind != ArgPointer || size.Kind != ArgPageSize {
+		panic("mmap/munmap/mremap args are not pages")
+	}
+	n := size.AddrPage
+	if size.AddrOffset != 0 {
+		n++
+	}
+	if addr.AddrPage+n > uintptr(len(s.pages)) {
+		panic(fmt.Sprintf("address is out of bounds: page=%v len=%v (%v, %v) bound=%v, addr: %+v, size: %+v",
+			addr.AddrPage, n, size.AddrPage, size.AddrOffset, len(s.pages), addr, size))
+	}
+	for i := uintptr(0); i < n; i++ {
+		s.pages[addr.AddrPage+i] = ok
+	}
+}
+
 
 /* Arg helper functions */
 

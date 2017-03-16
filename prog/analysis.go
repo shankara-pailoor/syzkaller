@@ -138,6 +138,10 @@ func foreachSubarg(arg *Arg, f func(arg, base *Arg, parent *[]*Arg)) {
 	foreachSubargImpl(arg, nil, f)
 }
 
+func ForeachArgArray(args *[]*Arg, ret *Arg, f func(arg, base *Arg, parent *[]*Arg)) {
+	foreachArgArray(args, ret, f)
+}
+
 func foreachArgArray(args *[]*Arg, ret *Arg, f func(arg, base *Arg, parent *[]*Arg)) {
 	for _, arg := range *args {
 		foreachSubargImpl(arg, args, f)
