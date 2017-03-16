@@ -185,7 +185,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg, calls = constArg(a, uintptr(extractVal(strace_arg, consts))), nil
 	case *sys.ResourceType:
 		fmt.Println("Resource Type: %v", a.Desc)
-		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
+		extracted_int, err := strconv.ParseUint(strace_arg, 0, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
