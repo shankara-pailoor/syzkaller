@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"github.com/google/syzkaller/db"
 	"github.com/google/syzkaller/hash"
+	. "github.com/google/syzkaller/tools/syz-structs"
 )
 
 var (
@@ -185,10 +186,12 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg, calls = constArg(a, uintptr(extractVal(strace_arg, consts))), nil
 	case *sys.ResourceType:
 		fmt.Println("Resource Type: %v", a.Desc)
+		// TODO: special parsing required if struct is type timespec or timeval
 		extracted_int, err := strconv.ParseUint(strace_arg, 0, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
+		// TODO: special values only
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.BufferType:
 		fmt.Println("Buffer Type")
@@ -201,6 +204,19 @@ func parseArg(typ sys.Type, strace_arg string,
 		fmt.Printf("Pointer with inner type: %v Call: %s\n", a.Type, call)
 		ptr := parsePointerArg(strace_arg)
 		inner_arg, inner_calls := parseArg(a.Type, ptr.Val, consts, return_vars, call, s)
+
+		/* cache this pointer value */
+		switch a.Type.(type) {
+		/* don't cache for these types */
+		case *sys.PtrType, *sys.ArrayType, *sys.StructType:
+		default:
+			return_var := returnType{
+				getType(a.Type),
+				ptr.Val,
+			}
+			(*return_vars)[return_var] = inner_arg
+		}
+
 		outer_arg, outer_calls := addr(s, a, inner_arg.Size(), inner_arg)
 		inner_calls = append(inner_calls, outer_calls...)
 		arg, calls = outer_arg, inner_calls
@@ -224,20 +240,11 @@ func parseArg(typ sys.Type, strace_arg string,
 		strace_arg = strace_arg[1:len(strace_arg)-1]
 		fmt.Printf("ArrayType %v\n", a.TypeName)
 		var args []*Arg
-		for i := 0; i < len(strace_arg); i++ {
-			// skip whitespace
-			for i < len(strace_arg) && (strace_arg[i] == ' ' || strace_arg[i] == '\t') {
-				i++
-			}
-			if i >= len(strace_arg) {
-				break
-			}
-			j := i
-			for strace_arg[i] != ',' && i != len(strace_arg) {
-				i++
-			}
-			inner_val := strace_arg[j:i]
-			inner_arg, inner_calls := parseArg(a.Type, inner_val, consts, return_vars, call, s)
+		s := make(Stack, 0)
+		for len(strace_arg > 0) {
+			param, rem := ident(s, strace_arg)
+			strace_arg = rem
+			inner_arg, inner_calls := parseArg(a.Type, param, consts, return_vars, call, s)
 			args = append(args, inner_arg)
 			calls = append(calls, inner_calls...)
 		}
@@ -254,6 +261,14 @@ func parseArg(typ sys.Type, strace_arg string,
 			name, val := param[0], param[1]
 			fmt.Printf("generating arg for structtype %v, field: %v\n", a.FldName, name)
 			inner_arg, inner_calls := parseArg(arg_type, val, consts, return_vars, call, s)
+
+			/* cache this pointer value */
+			return_var := returnType{
+				getType(arg_type),
+				val,
+			}
+			(*return_vars)[return_var] = inner_arg
+
 			args = append(args, inner_arg)
 			calls = append(calls, inner_calls...)
 		}
@@ -263,14 +278,6 @@ func parseArg(typ sys.Type, strace_arg string,
 		fmt.Printf("Args: %v\n", reflect.TypeOf(typ))
 		panic("uncaught type")
 	}
-
-	// insert arg into returned map in case it is used elsewhere
-	// TODO: this is only done when the var is a base of a pointer.
-	/* return_var := returnType{
-		getType(typ),
-		strace_arg,
-	}
-	(*return_vars)[return_var] = arg */
 
 	fmt.Println("-------exiting parseArg--------")
 
@@ -283,7 +290,44 @@ func parseArg(typ sys.Type, strace_arg string,
 } */
 
 
+func ident(s *Stack, arg string) (string, string) {
+	fmt.Printf("ident parsing arg %v\n", arg)
+	for i := 0; i < len(arg); i++ {
+		// skip whitespace and commas
+		for i < len(arg) && (arg[i] == ' ' || arg[i] == '\t' || arg[i] == ',') {
+			i++
+		}
 
+		j := i
+
+		for ; ((arg[i] != ',' && i != len(arg)) || len(s) != 0); i++ {
+			if arg[i] == '[' || arg[i] == '{' {
+				s.Push(arg[i])
+				continue
+			}
+			if arg[i] == ']' {
+				r := s.Pop()
+				if r != '[' {
+					fmt.Println(arg)
+					panic("invalid argument syntax")
+				}
+				continue
+			}
+			if arg[i] == '}' {
+				r := s.Pop()
+				if r != '{' {
+					fmt.Println(arg)
+					panic("invalid argument syntax")
+				}
+				continue
+			}
+		}
+		fmt.Printf("ident returning %v : %v\n", arg[j:i], arg[i:])
+		return arg[j:i], arg[i:]
+	}
+	fmt.Printf("Error, invalid arg. Paranthesis do not match: %v\n", arg)
+	panic("ident failed")
+}
 
 func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Arg) *Arg {
 	var val string
