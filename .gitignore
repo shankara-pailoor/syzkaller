@@ -12,3 +12,6 @@ executor/syscalls.h
 ssh/
 wheezy.img
 wheezy/
+serialized/
+deserialized/
+corpus.db
