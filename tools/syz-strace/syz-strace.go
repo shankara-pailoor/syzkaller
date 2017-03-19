@@ -15,13 +15,28 @@ import (
 	"github.com/google/syzkaller/db"
 	"github.com/google/syzkaller/hash"
 	. "github.com/google/syzkaller/tools/syz-structs"
+	"sync"
+	"math/rand"
 )
 
 var (
 	unsupported = map[string]bool{
 		"brk": true,
 		"fstat": true,
-    "exit_group": true,
+    		"exit_group": true,
+		"mprotect": true,
+		"munmap": true,
+		"execve": true,
+		"access": true,
+		"mmap": true,
+		"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
+		"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
+		"rt_sigprocmask": true, // second arg given as an array, should be pointer
+		"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
+		"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
+		"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
+		"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
+		"getdents": true, // types disagree, strace gives struct, syzkaller expects buffer
 	}
 )
 
@@ -32,6 +47,8 @@ const (
 	pageSize   = 4 << 10
 	maxPages = 4 << 10
 )
+
+var pageStartPool = sync.Pool{New: func() interface{} { return new([]uintptr) }}
 
 
 type pointer struct {
@@ -59,7 +76,7 @@ func main() {
 	s := newState() // to keep track of resources and memory
 
 	// loop until we've entered the real program by seeing munmap
-	for {
+	/* for {
 		line, err := p.Parse()
 		if err != nil {
 			fmt.Errorf("Line: %s\n", err.Error())
@@ -68,7 +85,7 @@ func main() {
 		if line.FuncName == munmap {
 			break
 		}
-	}
+	} */
 
 	for {
 		line, err := p.Parse()
@@ -85,7 +102,7 @@ func main() {
 
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
-			fmt.Println("unknown syscall %v", line.FuncName)
+			fmt.Printf("unknown syscall %v\n", line.FuncName)
 			break
 		}
 
@@ -100,25 +117,22 @@ func main() {
 		fmt.Printf("Result: %v\n", line.Result)
 		fmt.Println(line.Unparse())
 
-		var ret_arg *Arg
-		if line.Result == "?" {
-			ret_arg = returnArg(meta.Ret, 0)
-		} else {
-			// ret_arg = returnArg(meta.Ret, toVal(line.Result))
-			ret_arg = returnArg(meta.Ret, meta.Ret.Default())
-		}
-
 		c := &Call{
 			Meta: meta,
-			Ret:  ret_arg,
+			Ret:  returnArg(meta.Ret),
 		}
 		var calls []*Call
-
-		for i, strace_arg := range line.Args {
+		var strace_arg string
+		for i, typ := range meta.Args {
 			if i >= len(meta.Args) {
 				fmt.Errorf("wrong call arg count: %v, want %v", i+1, len(meta.Args))
 			}
-			typ := meta.Args[i]
+			if (i < len(line.Args)) {
+				strace_arg = line.Args[i]
+			} else {
+				strace_arg = "nil"
+			}
+
 			parsedArg, calls1 := parseArg(typ, strace_arg, &consts, &return_vars, line.FuncName, s)
 			c.Args = append(c.Args, parsedArg)
 			calls = append(calls, calls1...)
@@ -127,7 +141,7 @@ func main() {
 		calls = append(calls, c)
 
 		// store the return value if we had a valid return
-		if line.Result != "?" {
+		if line.Result != "?" && meta.Ret != nil {
 			return_var := returnType{
 				getType(meta.Ret),
 				line.Result,
@@ -199,10 +213,20 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg[0] != '"' || strace_arg[len(strace_arg)-1] != '"' {
 			panic("unexpected buffer type, not a string")
 		}
-		arg, calls = dataArg(a, []byte(strace_arg[1:len(strace_arg)-1])), nil
+
+		if a.Dir() != sys.DirOut {
+			arg = dataArg(a, []byte(strace_arg[1:len(strace_arg)-1]))
+		} else {
+			arg = dataArg(a, make([]byte, len(strace_arg)-2)) // -2 for the " "
+		}
+		return arg, nil
 	case *sys.PtrType:
 		fmt.Printf("Pointer with inner type: %v Call: %s\n", a.Type, call)
 		ptr := parsePointerArg(strace_arg)
+		if ptr.Val == "" {
+			ptr.Val = "nil" // TODO: this is really bad, consider refactoring parseArg
+		}
+
 		inner_arg, inner_calls := parseArg(a.Type, ptr.Val, consts, return_vars, call, s)
 
 		/* cache this pointer value */
@@ -222,16 +246,28 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg, calls = outer_arg, inner_calls
 	case *sys.IntType:
 		fmt.Println("IntType")
-		extracted_int, err := strconv.ParseInt(strace_arg, 10, 64)
+		var extracted_int uint64
+		var err error = nil
+		if strace_arg == "nil" {
+			extracted_int = uint64(a.Default())
+		} else {
+			extracted_int, err = strconv.ParseUint(strace_arg, 0, 64)
+		}
 		if err != nil {
-			failf("Error converting int type for syscall: %s, %s", call, err.Error())
+			extracted_int = extractVal(strace_arg, consts) // maybe a flag?
+			//failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.VmaType:
-		fmt.Println("Vma type")
 		fmt.Printf("VMA Type: %v Call: %s\n", strace_arg, call)
-		// TODO: this should be covered by a previous mmap
-		arg, calls = &Arg{Type: a, Val: uintptr(1), Kind: ArgPointer}, nil
+		npages := uintptr(1)
+		// TODO: strace doesn't give complete info, need to guess random page range
+		if a.RangeBegin != 0 || a.RangeEnd != 0 {
+			npages = uintptr(int(a.RangeBegin)) + 1 // + r.Intn(int(a.RangeEnd-a.RangeBegin+1)))
+		}
+		arg := randPageAddr(s, a, npages, nil, true)
+		//arg, calls = &Arg{Type: a, Val: uintptr(1), Kind: ArgPointer}, nil
+		return arg, nil
 	case *sys.ConstType, *sys.ProcType, *sys.LenType, *sys.CsumType:
 		fmt.Println("Const/Proc/Len/Csum Type")
 		return constArg(a, toVal(strace_arg)), nil
@@ -240,9 +276,8 @@ func parseArg(typ sys.Type, strace_arg string,
 		strace_arg = strace_arg[1:len(strace_arg)-1]
 		fmt.Printf("ArrayType %v\n", a.TypeName)
 		var args []*Arg
-		s := make(Stack, 0)
-		for len(strace_arg > 0) {
-			param, rem := ident(s, strace_arg)
+		for len(strace_arg) > 0 {
+			param, rem := ident(strace_arg)
 			strace_arg = rem
 			inner_arg, inner_calls := parseArg(a.Type, param, consts, return_vars, call, s)
 			args = append(args, inner_arg)
@@ -250,29 +285,37 @@ func parseArg(typ sys.Type, strace_arg string,
 		}
 		arg = groupArg(typ, args)
 	case *sys.StructType:
+		name, val := "nil", "nil"
+		is_nil := (strace_arg == "nil")
 		// clip the curly brackets
-		strace_arg = strace_arg[1:len(strace_arg)-1]
+		strace_arg = strace_arg[1:len(strace_arg) - 1]
 		fmt.Printf("StructType %v", a.TypeName)
 		struct_args := strings.Split(strace_arg, ", ")
-		args := make([]*Arg, len(struct_args))
-		for i,struct_arg := range struct_args {
-			arg_type := a.Fields[i]
-			param := strings.SplitN(struct_arg, "=", 2)
-			name, val := param[0], param[1]
-			fmt.Printf("generating arg for structtype %v, field: %v\n", a.FldName, name)
+		args := make([]*Arg, 0)
+		for i, arg_type := range a.Fields {
+			if !is_nil { // if nil, we need to generate nil values for entire struct
+				struct_arg := struct_args[i]
+				param := strings.SplitN(struct_arg, "=", 2)
+				name, val = param[0], param[1]
+			}
+
+			fmt.Printf("generating arg (%v) for struct type %v, field: %v\n", i, a.Name(), name)
 			inner_arg, inner_calls := parseArg(arg_type, val, consts, return_vars, call, s)
 
 			/* cache this pointer value */
-			return_var := returnType{
-				getType(arg_type),
-				val,
+			if val != "nil" {
+				return_var := returnType{
+					getType(arg_type),
+					val,
+				}
+				(*return_vars)[return_var] = inner_arg
 			}
-			(*return_vars)[return_var] = inner_arg
 
 			args = append(args, inner_arg)
 			calls = append(calls, inner_calls...)
 		}
 		arg = groupArg(a, args)
+		return arg, calls
 	default:
 		fmt.Printf("Call: %s Arg: %v\n", call, typ)
 		fmt.Printf("Args: %v\n", reflect.TypeOf(typ))
@@ -290,8 +333,10 @@ func parseArg(typ sys.Type, strace_arg string,
 } */
 
 
-func ident(s *Stack, arg string) (string, string) {
+func ident(arg string) (string, string) {
 	fmt.Printf("ident parsing arg %v\n", arg)
+	s := make(Stack, 0)
+	var r byte
 	for i := 0; i < len(arg); i++ {
 		// skip whitespace and commas
 		for i < len(arg) && (arg[i] == ' ' || arg[i] == '\t' || arg[i] == ',') {
@@ -302,11 +347,11 @@ func ident(s *Stack, arg string) (string, string) {
 
 		for ; ((arg[i] != ',' && i != len(arg)) || len(s) != 0); i++ {
 			if arg[i] == '[' || arg[i] == '{' {
-				s.Push(arg[i])
+				s = s.Push(arg[i])
 				continue
 			}
 			if arg[i] == ']' {
-				r := s.Pop()
+				s, r = s.Pop()
 				if r != '[' {
 					fmt.Println(arg)
 					panic("invalid argument syntax")
@@ -314,7 +359,7 @@ func ident(s *Stack, arg string) (string, string) {
 				continue
 			}
 			if arg[i] == '}' {
-				r := s.Pop()
+				s, r = s.Pop()
 				if r != '{' {
 					fmt.Println(arg)
 					panic("invalid argument syntax")
@@ -331,8 +376,11 @@ func ident(s *Stack, arg string) (string, string) {
 
 func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Arg) *Arg {
 	var val string
+	if len(strace_arg) == 0 || strace_arg == "nil" {
+		return nil
+	}
 	if strace_arg[0] == '&' {
-		val = parsePointerArg(strace_arg).Addr
+		val = parsePointerArg(strace_arg).Val
 	} else {
 		val = strace_arg
 	}
@@ -340,7 +388,7 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 		Type: getType(typ),
 		Val: val,
 	}
-	if arg,ok := (*return_vars)[return_var]; ok {
+	if arg, ok := (*return_vars)[return_var]; ok {
 		return resultArg(typ, arg)
 	}
 
@@ -372,6 +420,39 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 	//return r.randPageAddr(s, typ, npages, data, false), nil
 }
 
+func randPageAddr(s *state, typ sys.Type, npages uintptr, data *Arg, vma bool) *Arg {
+	poolPtr := pageStartPool.Get().(*[]uintptr)
+	starts := (*poolPtr)[:0]
+	for i := uintptr(0); i < maxPages-npages; i++ {
+		busy := true
+		for j := uintptr(0); j < npages; j++ {
+			if !s.pages[i+j] {
+				busy = false
+				break
+			}
+		}
+		// TODO: it does not need to be completely busy,
+		// for example, mmap addr arg can be new memory.
+		if !busy {
+			continue
+		}
+		starts = append(starts, i)
+	}
+	*poolPtr = starts
+	pageStartPool.Put(poolPtr)
+	var page uintptr
+	if len(starts) != 0 {
+		//page = starts[r.rand(len(starts))]
+		page = starts[0]
+	} else {
+		page = uintptr(rand.Int63n(int64(maxPages - npages)))
+	}
+	if !vma {
+		npages = 0
+	}
+	return pointerArg(typ, page, 0, npages, data)
+}
+
 // createMmapCall creates a "normal" mmap call that maps [start, start+npages) page range.
 func createMmapCall(start, npages uintptr) *Call {
 	meta := sys.CallMap["mmap"]
@@ -385,7 +466,7 @@ func createMmapCall(start, npages uintptr) *Call {
 			constArg(meta.Args[4], sys.InvalidFD),
 			constArg(meta.Args[5], 0),
 		},
-		Ret: returnArg(meta.Ret, meta.Ret.Default()),
+		Ret: returnArg(meta.Ret),
 	}
 	return mmap
 }
@@ -424,7 +505,15 @@ func getType(typ sys.Type) string {
 }
 
 func parsePointerArg(p string) pointer {
-	s := strings.Split(p, "=")
+	if p[0] == '0' {
+		return pointer{p, ""}
+	}
+	if p[0] != '&' {
+		return pointer{"", p}
+	}
+
+	/* else pointer is in format &addr=val */
+	s := strings.SplitN(p, "=", 2)
 	addr, val := s[0], s[1]
 	if addr[0] == '&' {
 		return pointer{addr[1:],val}
@@ -434,7 +523,7 @@ func parsePointerArg(p string) pointer {
 }
 
 func (p pointer) String() string {
-	return fmt.Sprintf("%v:=%v", p.Addr, p.Val)
+	return fmt.Sprintf("&%v=%v", p.Addr, p.Val)
 }
 
 func readConsts(arch string) map[string]uint64 {
@@ -602,9 +691,9 @@ func resultArg(t sys.Type, r *Arg) *Arg {
 	return arg
 }
 
-func returnArg(t sys.Type, val uintptr) *Arg {
+func returnArg(t sys.Type) *Arg {
 	if t != nil {
-		return &Arg{Type: t, Kind: ArgReturn, Val: val}
+		return &Arg{Type: t, Kind: ArgReturn, Val: t.Default()}
 	}
 	return &Arg{Type: t, Kind: ArgReturn}
 }
