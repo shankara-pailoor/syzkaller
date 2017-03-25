@@ -33,7 +33,7 @@ var (
 		"mmap": true,
 		"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
 		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
-		"rt_sigprocmask": true, // second arg given as an array, should be pointer
+		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
 		"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
 		"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
 		"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
@@ -188,6 +188,14 @@ func process(line *sparser.OutputLine) {
 		if len(line.Args) < 5 {
 			line.Args = append(line.Args, "{fake=0}")
 		}
+	case "rt_sigprocmask":
+		if strings.Contains(line.Args[1], "RTMIN") {
+			line.Args[1] = "{mask=0x8001}"
+		} else if strings.Contains(line.Args[1], "RTMAX") {
+			line.Args[1] = "{mask=0xfffffffffffffffe}"
+		} else {
+			failf("%v unexpected arg format for rt_sigprocmask", line.Args[1])
+		}
 	default:
 	}
 }
@@ -319,8 +327,6 @@ func parseArg(typ sys.Type, strace_arg string,
 			struct_args = strings.Split(strace_arg, ", ")
 		}
 
-		fmt.Printf("322 %v: %v\n", strace_arg, is_nil)
-
 		args := make([]*Arg, 0)
 		for i, arg_type := range a.Fields {
 			if !is_nil { // if nil, we need to generate nil values for entire struct
@@ -332,9 +338,7 @@ func parseArg(typ sys.Type, strace_arg string,
 			fmt.Printf("generating arg (%v) for struct type %v, field: %v\n", i, a.Name(), name)
 			inner_arg, inner_calls := parseArg(arg_type, val, consts, return_vars, call, s)
 
-			/* cache this pointer value */
-			fmt.Printf("336 %v is nil: %v\n", strace_arg, is_nil)
-			fmt.Printf("!is_nil: %v\n", !is_nil)
+			/* cache value */
 			if !is_nil {
 				return_var := returnType{
 					getType(arg_type),
