@@ -34,7 +34,7 @@ var (
 		"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
 		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
 		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
-		"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
+		//"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
 		"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
 		"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
 		"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
@@ -276,7 +276,7 @@ func parseArg(typ sys.Type, strace_arg string,
 	case *sys.IntType:
 		var extracted_int uint64
 		var err error = nil
-		if strace_arg == "nil" {
+		if strace_arg == "nil" || a.Dir() == sys.DirOut {
 			extracted_int = uint64(a.Default())
 		} else {
 			extracted_int, err = strconv.ParseUint(strace_arg, 0, 64)
@@ -617,6 +617,19 @@ func failf(msg string, args ...interface{}) {
 
 func extractVal(flags string, consts *map[string]uint64) (uint64, error) {
 	var val uint64 = 0
+	if strings.Contains(flags, "*") {
+		expression := strings.Split(flags, "*")
+		val = 1
+		for _,v := range expression {
+			v_parsed, ok := strconv.ParseUint(v, 0, 64)
+			if ok != nil {
+				failf("error evaluating expression %v\n", flags)
+			}
+			val *= v_parsed
+		}
+		return val, nil
+	}
+
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64  = 1 << 64 - 1
 		for _, and_op := range strings.Split(or_op, "&") {
