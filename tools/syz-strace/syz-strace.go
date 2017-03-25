@@ -24,22 +24,22 @@ import (
 var (
 	unsupported = map[string]bool{
 		"brk": true,
-		"fstat": true,
-    		"exit_group": true,
+		//"fstat": true,
+    		//"exit_group": true,
 		"mprotect": true,
 		"munmap": true,
 		"execve": true,
 		"access": true,
 		"mmap": true,
-		"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
+		//"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
 		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
 		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
 		//"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
-		"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
-		"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
-		"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
+		//"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
+		//"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
+		//"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
 		/* can build the ioctl$arg from the 2nd arg */
-		"getdents": true, // types disagree, strace gives struct, syzkaller expects buffer
+		//"getdents": true, // types disagree, strace gives struct, syzkaller expects buffer
 	}
 )
 
@@ -104,7 +104,7 @@ func main() {
 		}
 
 		/* adjust functions to fit syzkaller standards */
-		process(line)
+		process(line, &consts)
 
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
@@ -182,11 +182,16 @@ func main() {
 	return
 }
 
-func process(line *sparser.OutputLine) {
+func process(line *sparser.OutputLine, consts *map[string]uint64) {
 	switch line.FuncName {
 	case "rt_sigaction":
 		if len(line.Args) < 5 {
 			line.Args = append(line.Args, "{fake=0}")
+		}
+		if line.Args[0] == "SIGRT_1" {
+			min := int((*consts)["SIGRTMIN"])
+			max := int((*consts)["SIGRTMAX"])
+			line.Args[0] = strconv.Itoa(rand.Intn(max - min + 1) + min)
 		}
 	case "rt_sigprocmask":
 		if strings.Contains(line.Args[1], "RTMIN") {
@@ -196,6 +201,8 @@ func process(line *sparser.OutputLine) {
 		} else {
 			failf("%v unexpected arg format for rt_sigprocmask", line.Args[1])
 		}
+	case "ioctl":
+		line.FuncName = line.FuncName + "$" + line.Args[1]
 	default:
 	}
 }
@@ -218,12 +225,18 @@ func parseArg(typ sys.Type, strace_arg string,
 
 	switch a := typ.(type) {
 	case *sys.FlagsType:
-		fmt.Println("FlagsType")
+		fmt.Printf("Call: %v\n parsing FlagsType %v", call, strace_arg)
+		if strace_arg == "nil" {
+			return constArg(a, a.Default()), nil
+		}
 		val, _ := extractVal(strace_arg, consts)
 		arg, calls = constArg(a, uintptr(val)), nil
 	case *sys.ResourceType:
 		fmt.Println("Resource Type: %v", a.Desc)
 		// TODO: special parsing required if struct is type timespec or timeval
+		if strace_arg == "nil" {
+			return constArg(a, a.Default()), nil
+		}
 		extracted_int, err := strconv.ParseUint(strace_arg, 0, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
@@ -231,20 +244,31 @@ func parseArg(typ sys.Type, strace_arg string,
 		// TODO: special values only
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.BufferType:
-		fmt.Println("Buffer Type")
-		fmt.Println(strace_arg)
-		if strace_arg[0] != '"' || strace_arg[len(strace_arg)-1] != '"' {
-			panic("unexpected buffer type, not a string")
-		}
+		fmt.Println("Parsing Buffer Type: %v\n", strace_arg)
 
-		if a.Dir() != sys.DirOut {
+		if a.Dir() != sys.DirOut && strace_arg != "nil" {
 			arg = dataArg(a, []byte(strace_arg[1:len(strace_arg)-1]))
 		} else {
-			arg = dataArg(a, make([]byte, len(strace_arg)-2)) // -2 for the " "
+			if strace_arg != "nil" && strace_arg[0] == '"' { /* make buffer size of given string */
+				return dataArg(a, make([]byte, len(strace_arg)-1)), nil
+			}
+
+			switch a.Kind {
+			case sys.BufferFilename, sys.BufferString:
+				arg = dataArg(a, make([]byte, len(strace_arg)-1)) // -2 for the " "
+			case sys.BufferBlobRand:
+				size := rand.Intn(256)
+				arg = dataArg(a, make([]byte, size))
+			case sys.BufferBlobRange:
+				size := rand.Intn(int(a.RangeEnd) - int(a.RangeBegin) + 1) + int(a.RangeBegin)
+				arg = dataArg(a, make([]byte, size))
+			default:
+				failf("unexpected buffer type. call %v arg %v", call, strace_arg)
+			}
 		}
 		return arg, nil
 	case *sys.PtrType:
-		fmt.Printf("Pointer with inner type: %v Call: %s\n", a.Type, call)
+		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", a.Type, call)
 		if strace_arg == "NULL" {
 			arg, _ = addr(s, a, a.Type.Size(), nil)
 			return arg, nil
@@ -279,13 +303,16 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" || a.Dir() == sys.DirOut {
 			extracted_int = uint64(a.Default())
 		} else {
-			extracted_int, err = strconv.ParseUint(strace_arg, 0, 64)
+			extracted_int, err = toVal(strace_arg)
 		}
 		if err != nil { /* const */
 			/* current behavior: if constant not found, just default 0 */
 			extracted_int, err = extractVal(strace_arg, consts)
 		}
 		fmt.Printf("Parsed IntType %v with val %v\n", strace_arg, extracted_int)
+		if err != nil {
+			failf("cannot parse IntType input %v\n", strace_arg)
+		}
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.VmaType:
 		fmt.Printf("VMA Type: %v Call: %s\n", strace_arg, call)
@@ -297,14 +324,40 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg := randPageAddr(s, a, npages, nil, true)
 		//arg, calls = &Arg{Type: a, Val: uintptr(1), Kind: ArgPointer}, nil
 		return arg, nil
-	case *sys.ConstType, *sys.ProcType, *sys.LenType, *sys.CsumType:
-		fmt.Println("Const/Proc/Len/Csum Type")
-		return constArg(a, toVal(strace_arg)), nil
+	case *sys.ConstType:
+		fmt.Printf("Parsing Const type %v\n", strace_arg)
+		data, e := toVal(strace_arg)
+		if e != nil {
+			data, e = extractVal(strace_arg, consts)
+		}
+		if strace_arg == "nil" || e != nil {
+			fmt.Printf("Creating constarg with val %v\n", a.Val)
+			return constArg(a, a.Val), nil
+		}
+		fmt.Printf("Creating constarg with val %v\n", data)
+		return constArg(a, uintptr(data)), nil
+	case *sys.ProcType, *sys.LenType, *sys.CsumType:
+		fmt.Println("Proc/Len/Csum Type")
+		var data uint64
+		var e error
+		if strace_arg == "nil" {
+			data = 0
+		} else {
+			data, e = toVal(strace_arg)
+		}
+		if e == nil {
+			return constArg(a, uintptr(data)), nil
+		}
+		return constArg(a, 0), nil
 	case *sys.ArrayType:
+		var args []*Arg
+		if strace_arg == "nil" {
+			return groupArg(typ, args), nil
+		}
 		// clip the square brackets
 		strace_arg = strace_arg[1:len(strace_arg)-1]
 		fmt.Printf("ArrayType %v\n", a.TypeName)
-		var args []*Arg
+
 		for len(strace_arg) > 0 {
 			param, rem := ident(strace_arg)
 			strace_arg = rem
@@ -322,7 +375,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		fmt.Printf("StructType %v\n", a.TypeName)
 
 
-		is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
+		is_nil := (strace_arg == "nil" || len(strace_arg) == 0 || a.Dir() == sys.DirOut)
 		if !is_nil {
 			struct_args = strings.Split(strace_arg, ", ")
 		}
@@ -617,19 +670,6 @@ func failf(msg string, args ...interface{}) {
 
 func extractVal(flags string, consts *map[string]uint64) (uint64, error) {
 	var val uint64 = 0
-	if strings.Contains(flags, "*") {
-		expression := strings.Split(flags, "*")
-		val = 1
-		for _,v := range expression {
-			v_parsed, ok := strconv.ParseUint(v, 0, 64)
-			if ok != nil {
-				failf("error evaluating expression %v\n", flags)
-			}
-			val *= v_parsed
-		}
-		return val, nil
-	}
-
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64  = 1 << 64 - 1
 		for _, and_op := range strings.Split(or_op, "&") {
@@ -762,12 +802,24 @@ func returnArg(t sys.Type) *Arg {
 
 /* Misc Helpers */
 
-func toVal(s string) uintptr {
+func toVal(s string) (uint64, error) {
+	var val uint64
+	if strings.Contains(s, "*") {
+		expression := strings.Split(s, "*")
+		val = 1
+		for _,v := range expression {
+			v_parsed, ok := strconv.ParseUint(v, 0, 64)
+			if ok != nil {
+				failf("error evaluating expression %v\n", s)
+			}
+			val *= v_parsed
+		}
+		return val, nil
+	}
 	if i,e := strconv.ParseUint(s, 0, 64); e == nil {
-		return uintptr(i)
+		return i, nil
 	} else {
-		fmt.Println(e)
-		panic("invalid return format")
+		return 0, e
 	}
 }
 
