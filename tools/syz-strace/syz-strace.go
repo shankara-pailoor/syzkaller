@@ -284,7 +284,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		/* cache this pointer value */
 		switch a.Type.(type) {
 		/* don't cache for these types */
-		case *sys.PtrType, *sys.ArrayType, *sys.StructType:
+		case *sys.PtrType, *sys.ArrayType, *sys.StructType, *sys.BufferType:
 		default:
 			return_var := returnType{
 				getType(a.Type),
