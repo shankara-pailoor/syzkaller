@@ -14,4 +14,4 @@ wheezy.img
 wheezy/
 serialized/
 deserialized/
-corpus.db
+*.db
