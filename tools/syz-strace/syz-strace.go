@@ -19,6 +19,7 @@ import (
 	"math/rand"
 	"errors"
 	"math"
+	"flag"
 )
 
 var (
@@ -44,11 +45,10 @@ var (
 )
 
 const (
-	munmap = "munmap"
 	arch = "amd64"
-	maxLineLen       = 256 << 10
+	maxLineLen = 256 << 10
 	pageSize   = 4 << 10
-	maxPages = 4 << 10
+	maxPages   = 4 << 10
 )
 
 var pageStartPool = sync.Pool{New: func() interface{} { return new([]uintptr) }}
@@ -71,24 +71,66 @@ type state struct {
 	pages     [maxPages]bool
 }
 
+var (
+	flagFile = flag.String("file", "", "file to parse")
+	flagDir = flag.String("dir", "", "directory to parse")
+)
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "usage:\n")
+	fmt.Fprintf(os.Stderr, "  ./bin/syz-strace -file filename\n")
+	fmt.Fprintf(os.Stderr, "  ./bin/syz-strace -dir dirname\n")
+	os.Exit(1)
+}
+
 func main() {
-	prog :=  new(Prog)
-	p := sparser.NewParser(os.Stdin)
-	return_vars := make(map[returnType]*Arg)
-	consts := readConsts(arch)
-	s := newState() // to keep track of resources and memory
+	flag.Parse()
+	file, dir := *flagFile, *flagDir
+	if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
+		usage()
+	}
 
-	// loop until we've entered the real program by seeing munmap
-	/* for {
-		line, err := p.Parse()
+	strace_files := make([]string, 0)
+
+	if (file != "") {
+		strace_files = append(strace_files, file)
+	}
+
+	if (dir != "") {
+		files, err := ioutil.ReadDir(dir)
 		if err != nil {
-			fmt.Errorf("Line: %s\n", err.Error())
+			failf(err.Error())
 		}
+		for _, f := range files {
+			strace_files = append(strace_files, filepath.Join(dir, f.Name()))
+		}
+	}
 
-		if line.FuncName == munmap {
-			break
-		}
-	} */
+	fmt.Printf("strace_files: %v\n", strace_files)
+
+	os.Mkdir("serialized", 0750)
+	consts := readConsts(arch)
+
+	for _,filename := range strace_files {
+		fmt.Printf("----Parsing: %v----\n", filename)
+		parse(filename, &consts)
+	}
+
+
+	fmt.Println("Done, now packing into corpus.db")
+	pack("serialized", "corpus.db")
+}
+
+func parse(filename string, consts *map[string]uint64) {
+	prog :=  new(Prog)
+	f, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("failed to open file: %v\n", filename)
+		failf(err.Error())
+	}
+	p := sparser.NewParser(f)
+	return_vars := make(map[returnType]*Arg)
+	s := newState() /* to keep track of resources and memory */
 
 	for {
 		line, err := p.Parse()
@@ -104,7 +146,7 @@ func main() {
 		}
 
 		/* adjust functions to fit syzkaller standards */
-		process(line, &consts)
+		process(line, consts)
 
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
@@ -137,7 +179,7 @@ func main() {
 				strace_arg = "nil"
 			}
 
-			parsedArg, calls1 := parseArg(typ, strace_arg, &consts, &return_vars, line.FuncName, s)
+			parsedArg, calls1 := parseArg(typ, strace_arg, consts, &return_vars, line.FuncName, s)
 			c.Args = append(c.Args, parsedArg)
 			calls = append(calls, calls1...)
 		}
@@ -163,23 +205,17 @@ func main() {
 		fmt.Println("---------done parsing line--------\n")
 	}
 	if err := prog.Validate(); err != nil {
-		fmt.Println("ERROR: %v", err.Error())
-		return
+		fmt.Println("Error validating %v: %v", filename, err.Error())
+		failf(err.Error())
 	}
 
-	fmt.Println("success!")
-	fmt.Println("Serializing program of length", len(prog.Calls))
+	fmt.Printf("successfully parsed %v into program of length\n", filename, len(prog.Calls))
 
-	os.Mkdir("serialized", 0750)
-
-	if err := ioutil.WriteFile("serialized/serialized.txt", prog.Serialize(), 0640); err != nil {
+	s_name := "serialized/" + filepath.Base(filename)
+	if err := ioutil.WriteFile(s_name, prog.Serialize(), 0640); err != nil {
 		failf("failed to output file: %v", err)
 	}
-	fmt.Println("serialized output to serialized.txt")
-
-	fmt.Println("packing into corpus.db")
-	pack("serialized", "corpus.db")
-	return
+	fmt.Printf("serialized output to %v\n", s_name)
 }
 
 func process(line *sparser.OutputLine, consts *map[string]uint64) {

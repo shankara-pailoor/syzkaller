@@ -1,0 +1,92 @@
+execve("/opt/ltp/testcases/bin/setxattr02", [&0x7ffd88402ea8="/opt/ltp/testcases/bin/setxattr02"], [&0x7ffd88402eca="TERM=xterm", &0x7ffd88402ed5="SHELL=/bin/bash", &0x7ffd88402ee5="SSH_CLIENT=10.0.2.10 37306 22", &0x7ffd88402f03="SSH_TTY=/dev/pts/0", &0x7ffd88402f16="USER=root", &0x7ffd88402f20="MAIL=/var/mail/root", &0x7ffd88402f34="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", &0x7ffd88402f76="PWD=/root", &0x7ffd88402f80="LANG=en_US.UTF-8", &0x7ffd88402f91="SHLVL=1", &0x7ffd88402f99="HOME=/root", &0x7ffd88402fa4="LOGNAME=root", &0x7ffd88402fb1="SSH_CONNECTION=10.0.2.10 37306 10.0.2.15 22", &0x7ffd88402fdd="_=./syz-cover"]) = 0
+brk(NULL)                               = 0x564dff084000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe20c173000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls/x86_64", 0x7ffd4ca006b0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls", 0x7ffd4ca006b0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/x86_64", 0x7ffd4ca006b0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7ffd4ca00818="\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320\3\2\0\0\0\0\0@\0\0\0\0\0\0\0P\245\31\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0G\0F\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0\34\0\0\0\0\0\0\0\34\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0PG\31\0\0\0\0\0PG\31\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0008O\0\0\0\0\0\0\330\221\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\240{\31\0\0\0\0\0\240{9\0\0\0\0\0\240{9\0\0\0\0\0\340\1\0\0\0\0\0\0\340\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0D\0\0\0\0\0\0\0D\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\7\0\0\0\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0\20\0\0\0\0\0\0\0x\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0P\345td\4\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\224Y\0\0\0\0\0\0\224Y\0\0\0\0\0\0\4\0\0\0\0\0\0\0Q\345td\6\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0R\345td\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\00088\0\0\0\0\0\00088\0\0\0\0\0\0\1\0\0\0\0\0\0\0\4\0\0\0\24\0\0\0\3\0\0\0GNU\0K\234\303\v\244\37\2z\r\312l\330w\365\237\r\263\217@%\4\0\0\0\20\0\0\0\1\0\0\0GNU\0\0\0\0\0\2\0\0\0\6\0\0\0 \0\0\0\0\0\0\0\363\3\0\0\10\0\0\0\0\1\0\0\16\0\0\0\0000\20D\240 \2\1\210\3\346\220\305E\214\0\304\0\10\0\5\204\0`\300\200\0\r\212\f\0\4\20\0\210@2\10*@\210T<, \0162H&\204\300\214\4\10\0\2\2\16\241\254\32\4f\300\0\3002\0\300\0P\1 \201\10\204\v  ($\0\4 Z\0\20X\200\312DB(\0\6\200\20\30B\0 @\200\0IP\0Q\212@\22\0\0\0\0\10\0\0\21\20", 832) = 832
+fstat(3, {st_dev=makedev(8, 0), st_ino=394423, st_mode=S_IFREG|0755, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=3296, st_size=1685264, st_atime=2017-03-23T22:17:01+0000.453952975, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.248069954}) = 0
+mmap(NULL, 3791264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fe20bbb5000
+mprotect(0x7fe20bd4a000, 2093056, PROT_NONE) = 0
+mmap(0x7fe20bf49000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x194000) = 0x7fe20bf49000
+mmap(0x7fe20bf4f000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fe20bf4f000
+close(3)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fe20c171000
+arch_prctl(ARCH_SET_FS, 0x7fe20c171700) = 0
+mprotect(0x7fe20bf49000, 16384, PROT_READ) = 0
+mprotect(0x564dfdc05000, 8192, PROT_READ) = 0
+mprotect(0x7fe20c176000, 4096, PROT_READ) = 0
+brk(NULL)                               = 0x564dff084000
+brk(0x564dff0a5000)                     = 0x564dff0a5000
+geteuid()                               = 0
+gettimeofday({tv_sec=1490344507, tv_usec=698095}, NULL) = 0
+getpid()                                = 14883
+mkdir("/tmp/setdjvZH1", 0700)           = 0
+getgid()                                = 0
+chown("/tmp/setdjvZH1", -1, 0)          = 0
+chmod("/tmp/setdjvZH1", 0777)           = 0
+getcwd("/root", 4096)                   = 6
+chdir("/tmp/setdjvZH1")                 = 0
+creat("testfile", 0644)                 = 3
+close(3)                                = 0
+setxattr("testfile", &0x564dfd9ff51d="user.test", &0x564dfd9ff522="test", 4, XATTR_CREATE) = 0
+unlink("testfile")                      = 0
+creat("setxattr02testfile", 0644)       = 3
+close(3)                                = 0
+mkdir("setxattr02testdir", 0644)        = 0
+symlink("setxattr02testfile", "setxattr02symlink") = 0
+mknod("setxattr02fifo", S_IFIFO|0777)   = 0
+mknod("setxattr02chr", S_IFCHR|0777, makedev(1, 3)) = 0
+mknod("setxattr02blk", S_IFBLK|0777, makedev(0, 0)) = 0
+mknod("setxattr02sock", S_IFSOCK|0777)  = 0
+setxattr("setxattr02testfile", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = 0
+ioctl(1, TCGETS, 0x7ffd4c9ff420)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=88498, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:35:07+0000.628952975, st_mtime=2017-03-24T08:35:07+0000.628952975, st_ctime=2017-03-24T08:35:07+0000.628952975}) = 0
+setxattr("setxattr02testdir", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = 0
+setxattr("setxattr02symlink", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = -1 EEXIST (File exists)
+setxattr("setxattr02fifo", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = -1 EPERM (Operation not permitted)
+setxattr("setxattr02chr", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = -1 EPERM (Operation not permitted)
+setxattr("setxattr02blk", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = -1 EPERM (Operation not permitted)
+setxattr("setxattr02sock", &0x564dfd9ff4d7="user.testkey", &0x564dfd9ff4e4="this is a test value", 20, XATTR_CREATE) = -1 EPERM (Operation not permitted)
+open("/tmp/setdjvZH1", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/setdjvZH1", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=409605, st_mode=S_IFDIR|0777, st_nlink=3, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:35:07+0000.698952975, st_mtime=2017-03-24T08:35:07+0000.716952975, st_ctime=2017-03-24T08:35:07+0000.716952975}) = 0
+getdents(3, [{d_ino=402798, d_off=2071654432719151032, d_reclen=40, d_name="setxattr02blk", d_type=DT_BLK}, {d_ino=409605, d_off=3846510273434210272, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=402794, d_off=4478167799589740422, d_reclen=40, d_name="setxattr02testfile", d_type=DT_REG}, {d_ino=393678, d_off=4850653327510993894, d_reclen=24, d_name="..", d_type=DT_DIR}, {d_ino=402795, d_off=5316620779122293846, d_reclen=40, d_name="setxattr02symlink", d_type=DT_LNK}, {d_ino=402797, d_off=6061332003335784250, d_reclen=40, d_name="setxattr02chr", d_type=DT_CHR}, {d_ino=409607, d_off=6163484107346580884, d_reclen=40, d_name="setxattr02testdir", d_type=DT_DIR}, {d_ino=402796, d_off=8477383839411661118, d_reclen=40, d_name="setxattr02fifo", d_type=DT_FIFO}, {d_ino=402799, d_off=9223372036854775807, d_reclen=40, d_name="setxattr02sock", d_type=DT_SOCK}], 32768) = 328
+open("/tmp/setdjvZH1/setxattr02blk", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/setdjvZH1/setxattr02blk")  = 0
+open("/tmp/setdjvZH1/setxattr02testfile", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/setdjvZH1/setxattr02testfile") = 0
+open("/tmp/setdjvZH1/setxattr02symlink", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/setdjvZH1/setxattr02symlink") = 0
+open("/tmp/setdjvZH1/setxattr02chr", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/setdjvZH1/setxattr02chr")  = 0
+open("/tmp/setdjvZH1/setxattr02testdir", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 4
+close(4)                                = 0
+open("/tmp/setdjvZH1/setxattr02testdir", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_dev=makedev(8, 0), st_ino=409607, st_mode=S_IFDIR|0644, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:35:07+0000.711952975, st_mtime=2017-03-24T08:35:07+0000.711952975, st_ctime=2017-03-24T08:35:07+0000.720952975}) = 0
+getdents(4, [{d_ino=409607, d_off=4478167799589740422, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=409605, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 48
+getdents(4, [], 32768)                  = 0
+close(4)                                = 0
+lstat("/tmp/setdjvZH1/setxattr02testdir", {st_dev=makedev(8, 0), st_ino=409607, st_mode=S_IFDIR|0644, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:35:07+0000.740952975, st_mtime=2017-03-24T08:35:07+0000.711952975, st_ctime=2017-03-24T08:35:07+0000.720952975}) = 0
+unlink("/tmp/setdjvZH1/setxattr02testdir") = -1 EISDIR (Is a directory)
+rmdir("/tmp/setdjvZH1/setxattr02testdir") = 0
+open("/tmp/setdjvZH1/setxattr02fifo", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/setdjvZH1/setxattr02fifo") = 0
+open("/tmp/setdjvZH1/setxattr02sock", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/setdjvZH1/setxattr02sock") = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/setdjvZH1", {st_dev=makedev(8, 0), st_ino=409605, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:35:07+0000.750952975, st_mtime=2017-03-24T08:35:07+0000.749952975, st_ctime=2017-03-24T08:35:07+0000.749952975}) = 0
+unlink("/tmp/setdjvZH1")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/setdjvZH1")                 = 0
+write(1, &0x564dff084030="setxattr02    1  TPASS  :  expected behavior: TEST_ERRNO=SUCCESS(0): Success\nsetxattr02    2  TPASS  :  expected behavior: TEST_ERRNO=SUCCESS(0): Success\nsetxattr02    3  TPASS  :  expected behavior: TEST_ERRNO=EEXIST(17): File exists\nsetxattr02    4  TPASS  :  expected behavior: TEST_ERRNO=EPERM(1): Operation not permitted\nsetxattr02    5  TPASS  :  expected behavior: TEST_ERRNO=EPERM(1): Operation not permitted\nsetxattr02    6  TPASS  :  expected behavior: TEST_ERRNO=EPERM(1): Operation not permitted\nsetxattr02    7  TPASS  :  expected behavior: TEST_ERRNO=EPERM(1): Operation not permitted\n", 599) = 599
+exit_group(0)                           = ?
++++ exited with 0 +++

@@ -1,0 +1,72 @@
+execve("/opt/ltp/testcases/bin/getxattr02", [&0x7ffe4d0e4ea8="/opt/ltp/testcases/bin/getxattr02"], [&0x7ffe4d0e4eca="TERM=xterm", &0x7ffe4d0e4ed5="SHELL=/bin/bash", &0x7ffe4d0e4ee5="SSH_CLIENT=10.0.2.10 37306 22", &0x7ffe4d0e4f03="SSH_TTY=/dev/pts/0", &0x7ffe4d0e4f16="USER=root", &0x7ffe4d0e4f20="MAIL=/var/mail/root", &0x7ffe4d0e4f34="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", &0x7ffe4d0e4f76="PWD=/root", &0x7ffe4d0e4f80="LANG=en_US.UTF-8", &0x7ffe4d0e4f91="SHLVL=1", &0x7ffe4d0e4f99="HOME=/root", &0x7ffe4d0e4fa4="LOGNAME=root", &0x7ffe4d0e4fb1="SSH_CONNECTION=10.0.2.10 37306 10.0.2.15 22", &0x7ffe4d0e4fdd="_=./syz-cover"]) = 0
+brk(NULL)                               = 0x55928e6a1000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f6c5aa1b000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls/x86_64", 0x7fff452f75a0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls", 0x7fff452f75a0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/x86_64", 0x7fff452f75a0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7fff452f7708="\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320\3\2\0\0\0\0\0@\0\0\0\0\0\0\0P\245\31\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0G\0F\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0\34\0\0\0\0\0\0\0\34\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0PG\31\0\0\0\0\0PG\31\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0008O\0\0\0\0\0\0\330\221\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\240{\31\0\0\0\0\0\240{9\0\0\0\0\0\240{9\0\0\0\0\0\340\1\0\0\0\0\0\0\340\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0D\0\0\0\0\0\0\0D\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\7\0\0\0\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0\20\0\0\0\0\0\0\0x\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0P\345td\4\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\224Y\0\0\0\0\0\0\224Y\0\0\0\0\0\0\4\0\0\0\0\0\0\0Q\345td\6\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0R\345td\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\00088\0\0\0\0\0\00088\0\0\0\0\0\0\1\0\0\0\0\0\0\0\4\0\0\0\24\0\0\0\3\0\0\0GNU\0K\234\303\v\244\37\2z\r\312l\330w\365\237\r\263\217@%\4\0\0\0\20\0\0\0\1\0\0\0GNU\0\0\0\0\0\2\0\0\0\6\0\0\0 \0\0\0\0\0\0\0\363\3\0\0\10\0\0\0\0\1\0\0\16\0\0\0\0000\20D\240 \2\1\210\3\346\220\305E\214\0\304\0\10\0\5\204\0`\300\200\0\r\212\f\0\4\20\0\210@2\10*@\210T<, \0162H&\204\300\214\4\10\0\2\2\16\241\254\32\4f\300\0\3002\0\300\0P\1 \201\10\204\v  ($\0\4 Z\0\20X\200\312DB(\0\6\200\20\30B\0 @\200\0IP\0Q\212@\22\0\0\0\0\10\0\0\21\20", 832) = 832
+fstat(3, {st_dev=makedev(8, 0), st_ino=394423, st_mode=S_IFREG|0755, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=3296, st_size=1685264, st_atime=2017-03-23T22:17:01+0000.453952975, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.248069954}) = 0
+mmap(NULL, 3791264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f6c5a45d000
+mprotect(0x7f6c5a5f2000, 2093056, PROT_NONE) = 0
+mmap(0x7f6c5a7f1000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x194000) = 0x7f6c5a7f1000
+mmap(0x7f6c5a7f7000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f6c5a7f7000
+close(3)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f6c5aa19000
+arch_prctl(ARCH_SET_FS, 0x7f6c5aa19700) = 0
+mprotect(0x7f6c5a7f1000, 16384, PROT_READ) = 0
+mprotect(0x55928d40c000, 4096, PROT_READ) = 0
+mprotect(0x7f6c5aa1e000, 4096, PROT_READ) = 0
+brk(NULL)                               = 0x55928e6a1000
+brk(0x55928e6c2000)                     = 0x55928e6c2000
+geteuid()                               = 0
+gettimeofday({tv_sec=1490344406, tv_usec=854355}, NULL) = 0
+getpid()                                = 14575
+mkdir("/tmp/getY6qu5L", 0700)           = 0
+getgid()                                = 0
+chown("/tmp/getY6qu5L", -1, 0)          = 0
+chmod("/tmp/getY6qu5L", 0777)           = 0
+getcwd("/root", 4096)                   = 6
+chdir("/tmp/getY6qu5L")                 = 0
+creat("testfile", 0644)                 = 3
+close(3)                                = 0
+setxattr("testfile", &0x55928d206251="user.test", &0x55928d206256="test", 4, XATTR_CREATE) = 0
+unlink("testfile")                      = 0
+mknod("getxattr02fifo", S_IFIFO|0777)   = 0
+mknod("getxattr02chr", S_IFCHR|0777, makedev(1, 3)) = 0
+mknod("getxattr02blk", S_IFBLK|0777, makedev(0, 0)) = 0
+mknod("getxattr02sock", S_IFSOCK|0777)  = 0
+uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
+getxattr("getxattr02fifo", &0x55928d2062c5="user.testkey", 0x7fff452f5e40, 8192) = -1 ENODATA (No data available)
+ioctl(1, TCGETS, 0x7fff452f4300)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=87773, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:33:26+0000.758952975, st_mtime=2017-03-24T08:33:26+0000.758952975, st_ctime=2017-03-24T08:33:26+0000.758952975}) = 0
+getxattr("getxattr02fifo", &0x55928d2062c5="user.testkey", 0x7fff452f5e40, 8192) = -1 ENODATA (No data available)
+getxattr("getxattr02fifo", &0x55928d2062c5="user.testkey", 0x7fff452f5e40, 8192) = -1 ENODATA (No data available)
+getxattr("getxattr02fifo", &0x55928d2062c5="user.testkey", 0x7fff452f5e40, 8192) = -1 ENODATA (No data available)
+open("/tmp/getY6qu5L", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/getY6qu5L", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=537562, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:33:26+0000.863952975, st_mtime=2017-03-24T08:33:26+0000.873952975, st_ctime=2017-03-24T08:33:26+0000.873952975}) = 0
+getdents(3, [{d_ino=537562, d_off=2650735908640943814, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=537563, d_off=3729208718667024078, d_reclen=40, d_name="getxattr02fifo", d_type=DT_FIFO}, {d_ino=537564, d_off=4478167799589740422, d_reclen=40, d_name="getxattr02chr", d_type=DT_CHR}, {d_ino=393678, d_off=4962631327333685095, d_reclen=24, d_name="..", d_type=DT_DIR}, {d_ino=537565, d_off=8828580243913514543, d_reclen=40, d_name="getxattr02blk", d_type=DT_BLK}, {d_ino=537566, d_off=9223372036854775807, d_reclen=40, d_name="getxattr02sock", d_type=DT_SOCK}], 32768) = 208
+open("/tmp/getY6qu5L/getxattr02fifo", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/getY6qu5L/getxattr02fifo") = 0
+open("/tmp/getY6qu5L/getxattr02chr", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/getY6qu5L/getxattr02chr")  = 0
+open("/tmp/getY6qu5L/getxattr02blk", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/getY6qu5L/getxattr02blk")  = 0
+open("/tmp/getY6qu5L/getxattr02sock", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/getY6qu5L/getxattr02sock") = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/getY6qu5L", {st_dev=makedev(8, 0), st_ino=537562, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:33:26+0000.900952975, st_mtime=2017-03-24T08:33:26+0000.899952975, st_ctime=2017-03-24T08:33:26+0000.899952975}) = 0
+unlink("/tmp/getY6qu5L")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/getY6qu5L")                 = 0
+write(1, &0x55928e6a1030="getxattr02    1  TPASS  :  expected behavior: TEST_ERRNO=ENODATA(61): No data available\ngetxattr02    2  TPASS  :  expected behavior: TEST_ERRNO=ENODATA(61): No data available\ngetxattr02    3  TPASS  :  expected behavior: TEST_ERRNO=ENODATA(61): No data available\ngetxattr02    4  TPASS  :  expected behavior: TEST_ERRNO=ENODATA(61): No data available\n", 352) = 352
+exit_group(0)                           = ?
++++ exited with 0 +++
