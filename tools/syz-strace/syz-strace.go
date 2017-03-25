@@ -17,6 +17,8 @@ import (
 	. "github.com/google/syzkaller/tools/syz-structs"
 	"sync"
 	"math/rand"
+	"errors"
+	"math"
 )
 
 var (
@@ -30,12 +32,13 @@ var (
 		"access": true,
 		"mmap": true,
 		"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
-		"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
+		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
 		"rt_sigprocmask": true, // second arg given as an array, should be pointer
 		"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
 		"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
 		"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
 		"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
+		/* can build the ioctl$arg from the 2nd arg */
 		"getdents": true, // types disagree, strace gives struct, syzkaller expects buffer
 	}
 )
@@ -100,6 +103,9 @@ func main() {
 			continue // don't parse unsupported syscalls
 		}
 
+		/* adjust functions to fit syzkaller standards */
+		process(line)
+
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
 			fmt.Printf("unknown syscall %v\n", line.FuncName)
@@ -124,12 +130,10 @@ func main() {
 		var calls []*Call
 		var strace_arg string
 		for i, typ := range meta.Args {
-			if i >= len(meta.Args) {
-				fmt.Errorf("wrong call arg count: %v, want %v", i+1, len(meta.Args))
-			}
 			if (i < len(line.Args)) {
 				strace_arg = line.Args[i]
 			} else {
+				fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
 				strace_arg = "nil"
 			}
 
@@ -178,6 +182,16 @@ func main() {
 	return
 }
 
+func process(line *sparser.OutputLine) {
+	switch line.FuncName {
+	case "rt_sigaction":
+		if len(line.Args) < 5 {
+			line.Args = append(line.Args, "{fake=0}")
+		}
+	default:
+	}
+}
+
 
 
 func parseArg(typ sys.Type, strace_arg string,
@@ -197,7 +211,8 @@ func parseArg(typ sys.Type, strace_arg string,
 	switch a := typ.(type) {
 	case *sys.FlagsType:
 		fmt.Println("FlagsType")
-		arg, calls = constArg(a, uintptr(extractVal(strace_arg, consts))), nil
+		val, _ := extractVal(strace_arg, consts)
+		arg, calls = constArg(a, uintptr(val)), nil
 	case *sys.ResourceType:
 		fmt.Println("Resource Type: %v", a.Desc)
 		// TODO: special parsing required if struct is type timespec or timeval
@@ -222,6 +237,11 @@ func parseArg(typ sys.Type, strace_arg string,
 		return arg, nil
 	case *sys.PtrType:
 		fmt.Printf("Pointer with inner type: %v Call: %s\n", a.Type, call)
+		if strace_arg == "NULL" {
+			arg, _ = addr(s, a, a.Type.Size(), nil)
+			return arg, nil
+		}
+
 		ptr := parsePointerArg(strace_arg)
 		if ptr.Val == "" {
 			ptr.Val = "nil" // TODO: this is really bad, consider refactoring parseArg
@@ -238,6 +258,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				getType(a.Type),
 				ptr.Val,
 			}
+			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
 			(*return_vars)[return_var] = inner_arg
 		}
 
@@ -245,7 +266,6 @@ func parseArg(typ sys.Type, strace_arg string,
 		inner_calls = append(inner_calls, outer_calls...)
 		arg, calls = outer_arg, inner_calls
 	case *sys.IntType:
-		fmt.Println("IntType")
 		var extracted_int uint64
 		var err error = nil
 		if strace_arg == "nil" {
@@ -253,10 +273,11 @@ func parseArg(typ sys.Type, strace_arg string,
 		} else {
 			extracted_int, err = strconv.ParseUint(strace_arg, 0, 64)
 		}
-		if err != nil {
-			extracted_int = extractVal(strace_arg, consts) // maybe a flag?
-			//failf("Error converting int type for syscall: %s, %s", call, err.Error())
+		if err != nil { /* const */
+			/* current behavior: if constant not found, just default 0 */
+			extracted_int, err = extractVal(strace_arg, consts)
 		}
+		fmt.Printf("Parsed IntType %v with val %v\n", strace_arg, extracted_int)
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.VmaType:
 		fmt.Printf("VMA Type: %v Call: %s\n", strace_arg, call)
@@ -286,11 +307,20 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg = groupArg(typ, args)
 	case *sys.StructType:
 		name, val := "nil", "nil"
-		is_nil := (strace_arg == "nil")
-		// clip the curly brackets
-		strace_arg = strace_arg[1:len(strace_arg) - 1]
-		fmt.Printf("StructType %v", a.TypeName)
-		struct_args := strings.Split(strace_arg, ", ")
+		var struct_args []string
+		if strace_arg != "nil" {
+			strace_arg = strace_arg[1:len(strace_arg) - 1]
+		}
+		fmt.Printf("StructType %v\n", a.TypeName)
+
+
+		is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
+		if !is_nil {
+			struct_args = strings.Split(strace_arg, ", ")
+		}
+
+		fmt.Printf("322 %v: %v\n", strace_arg, is_nil)
+
 		args := make([]*Arg, 0)
 		for i, arg_type := range a.Fields {
 			if !is_nil { // if nil, we need to generate nil values for entire struct
@@ -303,12 +333,22 @@ func parseArg(typ sys.Type, strace_arg string,
 			inner_arg, inner_calls := parseArg(arg_type, val, consts, return_vars, call, s)
 
 			/* cache this pointer value */
-			if val != "nil" {
+			fmt.Printf("336 %v is nil: %v\n", strace_arg, is_nil)
+			fmt.Printf("!is_nil: %v\n", !is_nil)
+			if !is_nil {
 				return_var := returnType{
 					getType(arg_type),
 					val,
 				}
-				(*return_vars)[return_var] = inner_arg
+				switch arg_type.(type) {
+				/* check for edge null conditions */
+				case *sys.StructType:
+					if len(val) > 2 {
+						(*return_vars)[return_var] = inner_arg
+					}
+				default:
+					(*return_vars)[return_var] = inner_arg
+				}
 			}
 
 			args = append(args, inner_arg)
@@ -389,6 +429,7 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 		Val: val,
 	}
 	if arg, ok := (*return_vars)[return_var]; ok {
+		fmt.Println(return_var)
 		return resultArg(typ, arg)
 	}
 
@@ -505,7 +546,7 @@ func getType(typ sys.Type) string {
 }
 
 func parsePointerArg(p string) pointer {
-	if p[0] == '0' {
+	if p[0:int(math.Min(2,float64(len(p))))] == "0x" {
 		return pointer{p, ""}
 	}
 	if p[0] != '&' {
@@ -570,16 +611,20 @@ func failf(msg string, args ...interface{}) {
 	os.Exit(1)
 }
 
-func extractVal(flags string, consts *map[string]uint64) uint64{
+func extractVal(flags string, consts *map[string]uint64) (uint64, error) {
 	var val uint64 = 0
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64  = 1 << 64 - 1
 		for _, and_op := range strings.Split(or_op, "&") {
-			and_val &= (*consts)[and_op]
+			c, ok := (*consts)[and_op]
+			if !ok { // const doesn't exist, just return 0
+				return 0, errors.New("constant not found: " + and_op)
+			}
+			and_val &= c
 		}
 		val |= and_val
 	}
-	return val
+	return val, nil
 }
 
 /* State functions */
