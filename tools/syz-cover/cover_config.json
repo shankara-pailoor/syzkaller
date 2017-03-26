@@ -1,0 +1,995 @@
+[
+        {
+                "ExecutablePath": "/root/ltp/testcases/kernel/syscalls/setdomainname/setdomainname01",
+                "Iterations": 1,
+		"Name": "ltp_setdomainname01",
+                "FollowFork": false,
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setdomainname01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setdomainname01_kcov"
+        },
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/pread01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_pread01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pread01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pread01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getsockopt01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getsockopt01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getsockopt01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getsockopt01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getuid01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getuid01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getuid01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getuid01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/mknod01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_mknod01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mknod01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mknod01_kcov"
+	},
+	{
+		"ExecutablePath": "/bin/ls",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ls",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ls_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ls_kcov"
+	},
+	{
+		"ExecutablePath": "/bin/ps",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ps",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ps_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ps_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/memcmp01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_memcmp01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_memcmp01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_memcmp01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/mlock01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_mlock01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_memlock01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_memlock01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/accept4_01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_accept4_01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_accept4_01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_accept4_01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/abs01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_abs01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_abs01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_abs01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/accept01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_accept01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_accept01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_accept01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/alarm01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_alarm01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_alarm01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_alarm01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/alarm02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_alarm02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_alarm02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_alarm02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/alarm05",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_alarm05",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_alarm05_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_alarm05_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/asapi_02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_asapi_02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_asapi02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_asapi02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/asapi_03",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_asapi_03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_asapi03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_asapi03_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/bind01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_bind01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_bind01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_bind01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/bind02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_bind02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_bind02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_bind02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/chown01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_chown01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chown01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chown01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/chown02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_chown02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chown02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chown02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/chown03",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_chown03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chown03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chown03_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/close01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_close01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_close01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_close01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/close02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_close02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_close02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_close02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/close08",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_close08",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_close08_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_close08_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/adjtimex01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_adjtimex01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_adjtimex01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_adjtimex01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/capget01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_capget01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_capget01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_capget01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/capget02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_capget02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_capget02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_capget02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/confstr01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_confstr01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_confstr01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_confstr01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/chmod01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_chmod01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chmod01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chmod01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/chmod02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_chmod02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chmod02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chmod02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/chmod05",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_chmod05",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chmod05_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_chmod05_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/dup01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_dup01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/dup02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_dup02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/dup03",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_dup03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup03_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/dup06",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_dup06",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup06_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_dup06_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/faccessat01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_faccessat01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_faccessat01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_faccessat01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/posix_fadvise01_64",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fadvise01_64",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fadvise0164_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fadvise0164_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/posix_fadvise02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fadvise02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fadvise02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fadvise02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fallocate01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fallocate01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fallocate01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fallocate01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fallocate02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fallocate02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fallocate02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fallocate02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fallocate03",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fallocate03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fallocate03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fallocate03_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fdatasync01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fdatasync01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fdatasync01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fdatasync01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fdatasync02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fdatasync02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_faccessat02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_faccessat02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/ftruncate01_64",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_ftruncate01_64",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ftruncate0164_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ftruncate0164_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/ftruncate02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_ftruncate02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ftruncate02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ftruncate02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fstat01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fstat01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fstat01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fstat01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fstat02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fstat02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fstat02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fstat02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fstat03",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fstat03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fstat03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fstat03_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fpathconf01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fpathconf01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fpathconf01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fpathconf01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/futex_wait01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_futex_wait01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_futexwait01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_futexwait01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fsync01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fsync01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fsync01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fsync01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fsync02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fsync02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fsync02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fsync02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fsync03",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fsync03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fsync03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fsync03_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/fchmodat01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_fchmodat01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fchmodat01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_fchmodat01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/get_robust_list01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getrobustlist01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getrobustlist01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getrobustlist01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getcontext01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getcontext01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getcontext01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getcontext01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getcpu01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getcpu01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getcpu01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getcpu01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getdents01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getdents01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdents01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdents01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getdents02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getdents02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdents02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdents02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getdomainname01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getdomainname01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdomainname_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdomainname_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getdtablesize01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getdtablesize01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdtablesize01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getdtablesize01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getegid01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getegid01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getegid01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getegid01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getegid02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getegid02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getegid02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getegid02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getpgrp01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getpgrp01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getpgrp01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getpgrp01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getppid01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getppid01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getppid01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getppid01_kcov"
+	},
+        {
+		"ExecutablePath": "/opt/ltp/testcases/bin/getresuid01",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_getresuid01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getresuid01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getresuid01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getresuid02",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_getresuid02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getresuid02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getresuid02_kcov"	
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getsockname01",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_getsockname01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getsockname01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getsockname01_kcov"	
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getxattr01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getxattr01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getxattr01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getxattr01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/getxattr02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_getxattr02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getxattr02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_getxattr02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/inotify01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_inotify01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_inotify01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_inotify01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/inotify02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_inotify02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_inotify02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_inotify02_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/ioperm01",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_ioperm01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ioperm01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ioperm01_kcov"
+	},	
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/ioperm02",
+		"Iterations": 1,
+		"FollowFork": false,
+		"Name": "ltp_ioperm02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ioperm02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_ioperm02_kcov"
+	},
+        {
+		"ExecutablePath": "/opt/ltp/testcases/bin/iopl01",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_iopl01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_iopl01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_iopl01_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/iopl02",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_iopl02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_iopl02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_iopl02_kcov"	
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/keyctl01",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_keyctl01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_keyctl01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_keyctl01_kcov"	
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/lseek01",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_lseek01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek01_kcov"
+
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/lseek02",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_lseek02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek02_kcov"
+
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/lseek03",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_lseek03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek03_kcov"
+
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/lseek09",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_lseek09",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek09_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_lseek09_kcov"
+
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/listen01",
+                "Iterations": 1,
+                "FollowFork": false,
+		"Name": "ltp_listen01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_listen_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_listen_kcov"
+	},
+	{
+		"ExecutablePath": "/opt/ltp/testcases/bin/mincore01",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mincore01_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mincore01_kcov",
+		"Name": "ltp_mincore01"
+	},
+	{
+		"Name": "ltp_mincore02",
+		"ExecutablePath": "/opt/ltp/testcases/bin/mincore02",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mincore02_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mincore02_kcov"
+	},
+	{
+		"Name": "ltp_mem03",
+		"ExecutablePath": "/opt/ltp/testcases/bin/mem03",
+		"StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mem03_strace",
+		"KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mem03_kcov"
+	},
+  	{
+		"Name": "ltp_mlock02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mlock02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlock02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlock02_kcov"
+        },
+        {
+		"Name": "ltp_mlock03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mlock03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlock03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlock03_kcov"
+        },
+        {
+		"Name": "ltp_mlockall01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mlockall01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlockall01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlockall01_kcov"
+        },
+  	{
+		"Name": "ltp_mlockall02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mlockall02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlockall02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlockall02_kcov"
+        },
+        {
+		"Name": "ltp_mlockall03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mlockall03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlockall03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mlockall03_kcov"
+        },
+        {
+		"Name": "ltp_mmap15",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mmap15",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mmap15_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mmap15_kcov"
+        },
+        {
+		"Name": "ltp_mremap01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mremap01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap01_kcov"
+        },
+  	{
+		"Name": "ltp_mremap02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mremap02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap02_kcov"
+        },
+        {
+		"Name": "ltp_mremap03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mremap03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap03_kcov"
+        },
+        {
+		"Name": "ltp_mremap04",
+                "ExecutablePath": "/opt/ltp/testcases/bin/mremap04",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap04_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_mremap04_kcov"
+        },
+	{
+		"Name": "ltp_nanosleep01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/nanosleep01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_nanosleep01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_nanosleep01_kcov"
+        },
+        {
+		"Name": "ltp_newuname01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/newuname01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_newuname01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_newuname01_kcov"
+        },
+        {
+		"Name": "ltp_pwrite01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/pwrite01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pwrite01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pwrite01_kcov"
+        },
+        {
+		"Name": "ltp_pwrite02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/pwrite02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pwrite02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pwrite02_kcov"
+        },
+        {
+		"Name": "ltp_pwrite04",
+                "ExecutablePath": "/opt/ltp/testcases/bin/pwrite04",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pwrite04_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pwrite04_kcov"
+        },
+        {
+		"Name": "ltp_pselect01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/pselect01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pselect01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pselect01_kcov"
+        },
+        {
+		"Name": "ltp_pselect02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/pselect02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pselect02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_pselect02_kcov"
+        },
+        {
+		"Name": "ltp_remap_file_pages01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/remap_file_pages01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_remapfilepages01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_remapfilepages01_kcov"
+        },
+	{
+		"Name": "ltp_remap_file_pages02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/remap_file_pages02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_remapfilepages02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_remapfilepages02_kcov"
+        },
+        {
+		"Name": "ltp_removexattr01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/removexattr01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_removexattr01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_removexattr01_kcov"
+        },
+        {
+		"Name": "ltp_rename01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rename01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename01_kcov"
+        },
+        {
+		"Name": "ltp_rename02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rename02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename02_kcov"
+        },
+        {
+		"Name": "ltp_rename03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rename03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename03_kcov"
+        },
+        {
+		"Name": "ltp_rename04",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rename04",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename05_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp__kcov"
+        },
+        {
+		"Name": "ltp_rename05",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rename05",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename05_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename05_kcov"
+        },
+        {
+		"Name": "ltp_rename06",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rename06",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename06_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rename06_kcov"
+        },
+        {
+		"Name": "ltp_reboot01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/reboot01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_reboot01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_reboot01_kcov"
+        },
+        {
+		"Name": "ltp_reboot02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/reboot02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_reboot02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_reboot02_kcov"
+        },
+	{
+		"Name": "ltp_rtsigprocmask01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rt_sigprocmask01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rtsigprocmask01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rtsigprocmask01_kcov"
+        },
+        {
+		"Name": "ltp_rtsigprocmask02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/rt_sigprocmask02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rtsigprocmask02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_rtsigprocmask02_kcov"
+        },
+        {
+		"Name": "ltp_readlink01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/readlink01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink01_kcov"
+        },
+        {
+		"Name": "ltp_readlink02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/readlink02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink02_kcov"
+        },
+        {
+		"Name": "ltp_readlink03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/readlink03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink03_kcov"
+        },
+        {
+		"Name": "ltp_readlink04",
+                "ExecutablePath": "/opt/ltp/testcases/bin/readlink04",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink04_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_readlink04_kcov"
+        },
+ 	{
+		"Name": "ltp_setdomainname02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/setdomainname02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setdomainname02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setdomainname02_kcov"
+        },
+        {
+		"Name": "ltp_setdomainname03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/setdomainname03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setdomainname03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setdomainname03_kcov"
+        },
+        {
+		"Name": "ltp_select01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/select01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select01_kcov"
+        },
+        {
+		"Name": "ltp_select02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/select02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select02_kcov"
+        },
+        {
+		"Name": "ltp_select03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/select03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select03_kcov"
+        },
+        {
+		"Name": "ltp_select04",
+                "ExecutablePath": "/opt/ltp/testcases/bin/select04",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select04_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_select04_kcov"
+        },
+        {
+		"Name": "ltp_setfsuid01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/setfsuid01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setfsuid01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setfsuid01_kcov"
+        },
+	{
+		"Name": "ltp_sockioctl01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/sockioctl01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sockioctl01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sockioctl01_kcov"
+        },
+        {
+		"Name": "ltp_statfs01_64",
+                "ExecutablePath": "/opt/ltp/testcases/bin/statfs01_64",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_statfs0164_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_statfs0164_kcov"
+        },
+        {
+		"Name": "ltp_statfs02_64",
+                "ExecutablePath": "/opt/ltp/testcases/bin/statfs02_64",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_statfs0264_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_statfs0264_kcov"
+        },
+	{
+		"Name": "ltp_setxattr01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/setxattr01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setxattr01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setxattr01_kcov"
+        },
+        {
+		"Name": "ltp_setxattr02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/setxattr02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setxattr02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setxattr02_kcov"
+        },
+        {
+		"Name": "ltp_setxattr03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/setxattr03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setxattr03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_setxattr03_kcov"
+        },
+        {
+		"Name": "ltp_sysfs01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/sysfs01",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs01_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs01_kcov"
+        },
+        {
+		"Name": "ltp_sysfs02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/sysfs02",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs02_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs02_kcov"
+        },
+        {
+		"Name": "ltp_sysfs03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/sysfs03",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs03_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs03_kcov"
+        },
+        {
+		"Name": "ltp_sysfs04",
+                "ExecutablePath": "/opt/ltp/testcases/bin/sysfs04",
+                "StraceOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs04_strace",
+                "KcovOutPath": "/Users/spailoor/corpus/corpus-distilled/ltp_sysfs04_kcov"
+        }
+
+]
