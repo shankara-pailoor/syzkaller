@@ -32,6 +32,19 @@ var (
 		"execve": true,
 		"access": true,
 		"mmap": true,
+		"accept": true, // need to determine accept type from the type of sockfd. Unsure how to do this cleanly.
+		"bind": true, // same issue
+		"sendto": true, // same
+		// also: problem with select, 2nd arg not correct format
+		"select": true,
+		"recvfrom": true,
+		"socket": true, // ltp_asapi_03 has comment in format!!
+		"sendmsg": true,
+		"recvmsg": true,
+		"getsockname": true,
+		"connect": true,
+		"getsockopt": true,
+		"mremap": true, // knowing vma location is difficult
 		//"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
 		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
 		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
@@ -74,6 +87,7 @@ type state struct {
 var (
 	flagFile = flag.String("file", "", "file to parse")
 	flagDir = flag.String("dir", "", "directory to parse")
+	flagSkip = flag.Int("skip", 0, "how many to skip")
 )
 
 func usage() {
@@ -111,9 +125,13 @@ func main() {
 	os.Mkdir("serialized", 0750)
 	consts := readConsts(arch)
 
-	for _,filename := range strace_files {
-		fmt.Printf("----Parsing: %v----\n", filename)
+	for i,filename := range strace_files {
+		if i < *flagSkip {
+			continue
+		}
+		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
 		parse(filename, &consts)
+		fmt.Printf("==============================\n\n")
 	}
 
 
@@ -192,6 +210,7 @@ func parse(filename string, consts *map[string]uint64) {
 				getType(meta.Ret),
 				line.Result,
 			}
+			fmt.Printf("caching %v", return_var)
 			return_vars[return_var] = c.Ret
 		}
 
@@ -202,14 +221,14 @@ func parse(filename string, consts *map[string]uint64) {
 			prog.Calls = append(prog.Calls, c)
 		}
 
-		fmt.Println("---------done parsing line--------\n")
+		fmt.Println("\n---------done parsing line--------\n")
 	}
 	if err := prog.Validate(); err != nil {
-		fmt.Println("Error validating %v: %v", filename, err.Error())
+		fmt.Printf("Error validating %v\n", filename)
 		failf(err.Error())
 	}
 
-	fmt.Printf("successfully parsed %v into program of length\n", filename, len(prog.Calls))
+	fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(prog.Calls))
 
 	s_name := "serialized/" + filepath.Base(filename)
 	if err := ioutil.WriteFile(s_name, prog.Serialize(), 0640); err != nil {
@@ -220,20 +239,36 @@ func parse(filename string, consts *map[string]uint64) {
 
 func process(line *sparser.OutputLine, consts *map[string]uint64) {
 	switch line.FuncName {
+	case "sched_setaffinity":
+		s := line.Args[2]
+		if s[0] == '[' && s[len(s)-1] == ']' {
+			line.Args[2] = s[1:len(s)-1]
+		}
+	case "capget":
+		line.Args[1] = "[]"
+	case "select":
+		line.Args[1] = "[]" // TODO: can we work around?
 	case "rt_sigaction":
 		if len(line.Args) < 5 {
 			line.Args = append(line.Args, "{fake=0}")
 		}
-		if line.Args[0] == "SIGRT_1" {
+		if line.Args[0] == "SIGRT_1" || line.Args[0] == "SIGRT_16" {
 			min := int((*consts)["SIGRTMIN"])
 			max := int((*consts)["SIGRTMAX"])
 			line.Args[0] = strconv.Itoa(rand.Intn(max - min + 1) + min)
 		}
+		if strings.Contains(line.Args[1], "[ALRM]") {
+			new := strings.Replace(line.Args[1], "[ALRM]", "{mask=14}", 1)
+			line.Args[1] = new
+		}
+		line.Args[1] = strings.Replace(line.Args[1], "~[RTMIN RT_1]", "[]", 1)
 	case "rt_sigprocmask":
 		if strings.Contains(line.Args[1], "RTMIN") {
 			line.Args[1] = "{mask=0x8001}"
 		} else if strings.Contains(line.Args[1], "RTMAX") {
 			line.Args[1] = "{mask=0xfffffffffffffffe}"
+		} else if line.Args[1] == "NULL" {
+			line.Args[1] = "[]"
 		} else {
 			failf("%v unexpected arg format for rt_sigprocmask", line.Args[1])
 		}
@@ -255,7 +290,7 @@ func parseArg(typ sys.Type, strace_arg string,
 	// check if this is a return arg
 	if arg := isReturned(typ, strace_arg, return_vars); arg != nil {
 		fmt.Println("Discovered return type!")
-		fmt.Println("-------exiting parseArg--------\n")
+		fmt.Println("\n-------exiting parseArg--------\n")
 		return arg, nil
 	}
 
@@ -268,9 +303,9 @@ func parseArg(typ sys.Type, strace_arg string,
 		val, _ := extractVal(strace_arg, consts)
 		arg, calls = constArg(a, uintptr(val)), nil
 	case *sys.ResourceType:
-		fmt.Println("Resource Type: %v", a.Desc)
+		fmt.Printf("Resource Type: %v\n", a.Desc)
 		// TODO: special parsing required if struct is type timespec or timeval
-		if strace_arg == "nil" {
+		if strace_arg == "nil" || a.Dir() == sys.DirOut {
 			return constArg(a, a.Default()), nil
 		}
 		extracted_int, err := strconv.ParseUint(strace_arg, 0, 64)
@@ -304,15 +339,27 @@ func parseArg(typ sys.Type, strace_arg string,
 		}
 		return arg, nil
 	case *sys.PtrType:
-		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", a.Type, call)
-		if strace_arg == "NULL" {
+		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", call, a.Type.Name())
+		if strace_arg == "NULL" && a.IsOptional {
 			arg, _ = addr(s, a, a.Type.Size(), nil)
 			return arg, nil
+		}
+
+		if strace_arg == "NULL" && !a.IsOptional {
+			strace_arg = "nil" // just render the default value
 		}
 
 		ptr := parsePointerArg(strace_arg)
 		if ptr.Val == "" {
 			ptr.Val = "nil" // TODO: this is really bad, consider refactoring parseArg
+		}
+
+		if ptr.Val[0] == '[' {
+			switch a.Type.(type) {
+			case *sys.IntType, *sys.ResourceType:
+				ptr.Val = ptr.Val[1:len(ptr.Val)-1]
+			default:
+			}
 		}
 
 		inner_arg, inner_calls := parseArg(a.Type, ptr.Val, consts, return_vars, call, s)
@@ -339,17 +386,23 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" || a.Dir() == sys.DirOut {
 			extracted_int = uint64(a.Default())
 		} else {
-			extracted_int, err = toVal(strace_arg)
+			extracted_int, err = uintToVal(strace_arg)
 		}
 		if err != nil { /* const */
 			/* current behavior: if constant not found, just default 0 */
 			extracted_int, err = extractVal(strace_arg, consts)
 		}
-		fmt.Printf("Parsed IntType %v with val %v\n", strace_arg, extracted_int)
 		if err != nil {
 			failf("cannot parse IntType input %v\n", strace_arg)
 		}
-		arg, calls = constArg(a, uintptr(extracted_int)), nil
+		if a.Kind == sys.IntFileoff {
+			fmt.Printf("Parsed IntType %v with val %v\n", strace_arg, int(extracted_int))
+			arg, calls = constArg(a, uintptr(extracted_int)), nil
+		} else {
+			fmt.Printf("Parsed IntType %v with val %v\n", strace_arg, extracted_int)
+			arg, calls = constArg(a, uintptr(extracted_int)), nil
+		}
+
 	case *sys.VmaType:
 		fmt.Printf("VMA Type: %v Call: %s\n", strace_arg, call)
 		npages := uintptr(1)
@@ -362,7 +415,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		return arg, nil
 	case *sys.ConstType:
 		fmt.Printf("Parsing Const type %v\n", strace_arg)
-		data, e := toVal(strace_arg)
+		data, e := uintToVal(strace_arg)
 		if e != nil {
 			data, e = extractVal(strace_arg, consts)
 		}
@@ -379,7 +432,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" {
 			data = 0
 		} else {
-			data, e = toVal(strace_arg)
+			data, e = uintToVal(strace_arg)
 		}
 		if e == nil {
 			return constArg(a, uintptr(data)), nil
@@ -436,10 +489,12 @@ func parseArg(typ sys.Type, strace_arg string,
 				switch arg_type.(type) {
 				/* check for edge null conditions */
 				case *sys.StructType:
-					if len(val) > 2 {
-						(*return_vars)[return_var] = inner_arg
-					}
+					//if len(val) > 2 {
+					//	fmt.Printf("wtf caching val: %v\n", val)
+					//	(*return_vars)[return_var] = inner_arg
+					//}
 				default:
+					fmt.Printf("caching arg %v\n", return_var)
 					(*return_vars)[return_var] = inner_arg
 				}
 			}
@@ -450,7 +505,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg = groupArg(a, args)
 		return arg, calls
 	default:
-		fmt.Printf("Call: %s Arg: %v\n", call, typ)
+		fmt.Printf("Call: %s\n Arg: %v\n", call, typ)
 		fmt.Printf("Args: %v\n", reflect.TypeOf(typ))
 		panic("uncaught type")
 	}
@@ -838,22 +893,23 @@ func returnArg(t sys.Type) *Arg {
 
 /* Misc Helpers */
 
-func toVal(s string) (uint64, error) {
+func uintToVal(s string) (uint64, error) {
 	var val uint64
+
 	if strings.Contains(s, "*") {
 		expression := strings.Split(s, "*")
 		val = 1
 		for _,v := range expression {
-			v_parsed, ok := strconv.ParseUint(v, 0, 64)
+			v_parsed, ok := strconv.ParseInt(v, 0, 64)
 			if ok != nil {
 				failf("error evaluating expression %v\n", s)
 			}
-			val *= v_parsed
+			val *= uint64(v_parsed)
 		}
 		return val, nil
 	}
-	if i,e := strconv.ParseUint(s, 0, 64); e == nil {
-		return i, nil
+	if i,e := strconv.ParseInt(s, 0, 64); e == nil {
+		return uint64(i), nil
 	} else {
 		return 0, e
 	}
