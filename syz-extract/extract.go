@@ -1,6 +1,8 @@
 // Copyright 2016 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
+// Called directly by extract.sh on EACH *.txt file in sys/
+
 package main
 
 import (
@@ -64,11 +66,15 @@ func main() {
 	}
 	defer inf.Close()
 
+
+	// Parse the system .txt file and get Description struct for this syscall
 	desc := Parse(inf)
 	consts := compileConsts(archs[*flagArch], desc)
+	// consts is a mapping of all the constant values in desc to their actual numerical representation
 
 	out := new(bytes.Buffer)
 	generateConsts(*flagArch, consts, out)
+	// write to *.const all CONSTANT_NAME CONSTANT_VALUE
 	if err := ioutil.WriteFile(outname, out.Bytes(), 0660); err != nil {
 		failf("failed to write output file: %v", err)
 	}

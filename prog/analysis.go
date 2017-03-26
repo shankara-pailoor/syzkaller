@@ -121,6 +121,7 @@ func foreachSubargImpl(arg *Arg, parent *[]*Arg, f func(arg, base *Arg, parent *
 			if _, ok := arg.Type.(*sys.StructType); ok {
 				parent1 = &arg.Inner
 			}
+			// recursively build out parentsMap for inner args
 			rec(arg1, base, parent1)
 		}
 		if arg.Kind == ArgPointer && arg.Res != nil {
@@ -135,6 +136,10 @@ func foreachSubargImpl(arg *Arg, parent *[]*Arg, f func(arg, base *Arg, parent *
 
 func foreachSubarg(arg *Arg, f func(arg, base *Arg, parent *[]*Arg)) {
 	foreachSubargImpl(arg, nil, f)
+}
+
+func ForeachArgArray(args *[]*Arg, ret *Arg, f func(arg, base *Arg, parent *[]*Arg)) {
+	foreachArgArray(args, ret, f)
 }
 
 func foreachArgArray(args *[]*Arg, ret *Arg, f func(arg, base *Arg, parent *[]*Arg)) {
@@ -208,16 +213,27 @@ func sanitizeCall(c *Call) {
 		}
 	case "mknod", "mknodat":
 		mode := c.Args[1]
+		dev := c.Args[2]
 		if c.Meta.CallName == "mknodat" {
 			mode = c.Args[2]
+			dev = c.Args[3]
 		}
-		if mode.Kind != ArgConst {
+		if mode.Kind != ArgConst || dev.Kind != ArgConst {
 			panic("mknod mode is not const")
 		}
 		// Char and block devices read/write io ports, kernel memory and do other nasty things.
 		// TODO: not required if executor drops privileges.
-		if mode.Val != sys.S_IFREG && mode.Val != sys.S_IFIFO && mode.Val != sys.S_IFSOCK {
-			mode.Val = sys.S_IFIFO
+		switch mode.Val & (sys.S_IFREG | sys.S_IFCHR | sys.S_IFBLK | sys.S_IFIFO | sys.S_IFSOCK) {
+		case sys.S_IFREG, sys.S_IFIFO, sys.S_IFSOCK:
+		case sys.S_IFBLK:
+			if dev.Val>>8 == 7 {
+				break // loop
+			}
+			mode.Val &^= sys.S_IFBLK
+			mode.Val |= sys.S_IFREG
+		case sys.S_IFCHR:
+			mode.Val &^= sys.S_IFCHR
+			mode.Val |= sys.S_IFREG
 		}
 	case "syslog":
 		cmd := c.Args[0]

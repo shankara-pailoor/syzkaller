@@ -121,14 +121,14 @@ func Deserialize(data []byte) (prog *Prog, err error) {
 	prog = new(Prog)
 	p := &parser{r: bufio.NewScanner(bytes.NewReader(data))}
 	p.r.Buffer(nil, maxLineLen)
-	vars := make(map[string]*Arg)
+	vars := make(map[string]*Arg) // keep track of all rN vars we've seen
 	for p.Scan() {
 		if p.EOF() || p.Char() == '#' {
 			continue
 		}
 		name := p.Ident()
 		r := ""
-		if p.Char() == '=' {
+		if p.Char() == '=' { // encountered a variable rN
 			r = name
 			p.Parse('=')
 			name = p.Ident()
@@ -140,11 +140,11 @@ func Deserialize(data []byte) (prog *Prog, err error) {
 		}
 		c := &Call{
 			Meta: meta,
-			Ret:  returnArg(meta.Ret),
+			Ret:  returnArg(meta.Ret), //&Arg{Type: t, Kind: ArgReturn, Val: t.Default()}
 		}
 		prog.Calls = append(prog.Calls, c)
 		p.Parse('(')
-		for i := 0; p.Char() != ')'; i++ {
+		for i := 0; p.Char() != ')'; i++ { // construct prog.Args
 			if i >= len(meta.Args) {
 				return nil, fmt.Errorf("wrong call arg count: %v, want %v", i+1, len(meta.Args))
 			}
@@ -181,6 +181,12 @@ func Deserialize(data []byte) (prog *Prog, err error) {
 	if err := prog.validate(); err != nil {
 		return nil, err
 	}
+  for _,c := range prog.Calls {
+      for _,arg := range c.Args {
+          fmt.Printf("len(%v|%v) = %v\n%v\n", arg.Type, arg.Kind, len(arg.Uses), arg.Uses)
+      }
+  }
+
 	return
 }
 
@@ -189,12 +195,12 @@ func parseArg(typ sys.Type, p *parser, vars map[string]*Arg) (*Arg, error) {
 	if p.Char() == '<' {
 		p.Parse('<')
 		r = p.Ident()
-		p.Parse('=')
+		p.Parse('=') //TODO: what does rN=> mean in the prog file?
 		p.Parse('>')
 	}
 	var arg *Arg
 	switch p.Char() {
-	case '0':
+	case '0': // const address
 		val := p.Ident()
 		v, err := strconv.ParseUint(val, 0, 64)
 		if err != nil {
@@ -226,7 +232,7 @@ func parseArg(typ sys.Type, p *parser, vars map[string]*Arg) (*Arg, error) {
 			}
 			arg.OpAdd = uintptr(v)
 		}
-	case '&':
+	case '&': // memory address
 		var typ1 sys.Type
 		switch t1 := typ.(type) {
 		case *sys.PtrType:

@@ -1,0 +1,96 @@
+execve("/opt/ltp/testcases/bin/pwrite02", [&0x7ffcfef96eaa="/opt/ltp/testcases/bin/pwrite02"], [&0x7ffcfef96eca="TERM=xterm", &0x7ffcfef96ed5="SHELL=/bin/bash", &0x7ffcfef96ee5="SSH_CLIENT=10.0.2.10 37306 22", &0x7ffcfef96f03="SSH_TTY=/dev/pts/0", &0x7ffcfef96f16="USER=root", &0x7ffcfef96f20="MAIL=/var/mail/root", &0x7ffcfef96f34="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", &0x7ffcfef96f76="PWD=/root", &0x7ffcfef96f80="LANG=en_US.UTF-8", &0x7ffcfef96f91="SHLVL=1", &0x7ffcfef96f99="HOME=/root", &0x7ffcfef96fa4="LOGNAME=root", &0x7ffcfef96fb1="SSH_CONNECTION=10.0.2.10 37306 10.0.2.15 22", &0x7ffcfef96fdd="_=./syz-cover"]) = 0
+brk(NULL)                               = 0x56474ad90000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f7e81b4f000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls/x86_64", 0x7ffdb0dba900) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls", 0x7ffdb0dba900) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/x86_64", 0x7ffdb0dba900) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7ffdb0dbaa68="\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320\3\2\0\0\0\0\0@\0\0\0\0\0\0\0P\245\31\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0G\0F\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0\34\0\0\0\0\0\0\0\34\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0PG\31\0\0\0\0\0PG\31\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0008O\0\0\0\0\0\0\330\221\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\240{\31\0\0\0\0\0\240{9\0\0\0\0\0\240{9\0\0\0\0\0\340\1\0\0\0\0\0\0\340\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0D\0\0\0\0\0\0\0D\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\7\0\0\0\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0\20\0\0\0\0\0\0\0x\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0P\345td\4\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\224Y\0\0\0\0\0\0\224Y\0\0\0\0\0\0\4\0\0\0\0\0\0\0Q\345td\6\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0R\345td\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\00088\0\0\0\0\0\00088\0\0\0\0\0\0\1\0\0\0\0\0\0\0\4\0\0\0\24\0\0\0\3\0\0\0GNU\0K\234\303\v\244\37\2z\r\312l\330w\365\237\r\263\217@%\4\0\0\0\20\0\0\0\1\0\0\0GNU\0\0\0\0\0\2\0\0\0\6\0\0\0 \0\0\0\0\0\0\0\363\3\0\0\10\0\0\0\0\1\0\0\16\0\0\0\0000\20D\240 \2\1\210\3\346\220\305E\214\0\304\0\10\0\5\204\0`\300\200\0\r\212\f\0\4\20\0\210@2\10*@\210T<, \0162H&\204\300\214\4\10\0\2\2\16\241\254\32\4f\300\0\3002\0\300\0P\1 \201\10\204\v  ($\0\4 Z\0\20X\200\312DB(\0\6\200\20\30B\0 @\200\0IP\0Q\212@\22\0\0\0\0\10\0\0\21\20", 832) = 832
+fstat(3, {st_dev=makedev(8, 0), st_ino=394423, st_mode=S_IFREG|0755, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=3296, st_size=1685264, st_atime=2017-03-23T22:17:01+0000.453952975, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.248069954}) = 0
+mmap(NULL, 3791264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f7e81591000
+mprotect(0x7f7e81726000, 2093056, PROT_NONE) = 0
+mmap(0x7f7e81925000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x194000) = 0x7f7e81925000
+mmap(0x7f7e8192b000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f7e8192b000
+close(3)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f7e81b4d000
+arch_prctl(ARCH_SET_FS, 0x7f7e81b4d700) = 0
+mprotect(0x7f7e81925000, 16384, PROT_READ) = 0
+mprotect(0x56474a1a2000, 4096, PROT_READ) = 0
+mprotect(0x7f7e81b52000, 4096, PROT_READ) = 0
+brk(NULL)                               = 0x56474ad90000
+brk(0x56474adb1000)                     = 0x56474adb1000
+rt_sigaction(SIGHUP, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGINT, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGQUIT, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGILL, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTRAP, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGABRT, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGBUS, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGFPE, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGUSR1, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSEGV, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGUSR2, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPIPE, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGALRM, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTERM, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSTKFLT, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGCHLD, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTSTP, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTTIN, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTTOU, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGURG, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGXCPU, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGXFSZ, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGVTALRM, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPROF, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGWINCH, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGIO, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPWR, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSYS, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGRT_16, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGXFSZ, {sa_handler=0x564749f91170, sa_mask=[], sa_flags=SA_RESTORER|SA_INTERRUPT|SA_NODEFER|SA_RESETHAND, sa_restorer=0x7f7e815c4040}, {sa_handler=0x564749f97300, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7e815c4040}, 8) = 0
+gettimeofday({tv_sec=1490344450, tv_usec=600798}, NULL) = 0
+getpid()                                = 14722
+mkdir("/tmp/pwrJYRp0o", 0700)           = 0
+getgid()                                = 0
+chown("/tmp/pwrJYRp0o", -1, 0)          = 0
+chmod("/tmp/pwrJYRp0o", 0777)           = 0
+getcwd("/root", 4096)                   = 6
+chdir("/tmp/pwrJYRp0o")                 = 0
+pipe([3, 4])                            = 0
+pwrite64(4, &0x56474a1a34c0="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1024, 0) = -1 ESPIPE (Illegal seek)
+ioctl(1, TCGETS, 0x7ffdb0db9680)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=90124, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:34:10+0000.511952975, st_mtime=2017-03-24T08:34:10+0000.511952975, st_ctime=2017-03-24T08:34:10+0000.511952975}) = 0
+close(3)                                = 0
+close(4)                                = 0
+open("pwrite_file", O_RDWR|O_CREAT, 0666) = 3
+pwrite64(3, &0x56474a1a34c0="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1024, -1) = -1 EINVAL (Invalid argument)
+close(3)                                = 0
+pwrite64(-1, &0x56474a1a34c0="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1024, 0) = -1 EBADF (Bad file descriptor)
+open("pwrite_file", O_RDONLY|O_CREAT, 0666) = 3
+pwrite64(3, &0x56474a1a34c0="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1024, 0) = -1 EBADF (Bad file descriptor)
+close(3)                                = 0
+open("pwrite_file", O_RDWR|O_CREAT, 0666) = 3
+pwrite64(3, 0x56474adb1000, 1024, 0)    = -1 EFAULT (Bad address)
+close(3)                                = 0
+open("/tmp/pwrJYRp0o", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/pwrJYRp0o", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=409605, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:34:10+0000.600952975, st_mtime=2017-03-24T08:34:10+0000.603952975, st_ctime=2017-03-24T08:34:10+0000.603952975}) = 0
+getdents(3, [{d_ino=409605, d_off=2980959062886848512, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=402731, d_off=4478167799589740422, d_reclen=32, d_name="pwrite_file", d_type=DT_REG}, {d_ino=393678, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 80
+open("/tmp/pwrJYRp0o/pwrite_file", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/pwrJYRp0o/pwrite_file")    = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/pwrJYRp0o", {st_dev=makedev(8, 0), st_ino=409605, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-24T08:34:10+0000.606952975, st_mtime=2017-03-24T08:34:10+0000.606952975, st_ctime=2017-03-24T08:34:10+0000.606952975}) = 0
+unlink("/tmp/pwrJYRp0o")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/pwrJYRp0o")                 = 0
+write(1, &0x56474ad90030="pwrite02    1  TPASS  :  pwrite failed as expected: 29 - Illegal seek\npwrite02    2  TPASS  :  pwrite failed as expected: 22 - Invalid argument\npwrite02    3  TPASS  :  pwrite failed as expected: 9 - Bad file descriptor\npwrite02    4  TPASS  :  pwrite failed as expected: 9 - Bad file descriptor\npwrite02    5  TPASS  :  pwrite failed as expected: 14 - Bad address\n", 365) = 365
+exit_group(0)                           = ?
++++ exited with 0 +++

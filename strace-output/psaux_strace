@@ -1,0 +1,1444 @@
+execve("/bin/ps", [&0x7ffcfe8d2ec5="/bin/ps", &0x7ffcfe8d2ecd="aux"], [&0x7ffcfe8d2ed1="TERM=xterm", &0x7ffcfe8d2edc="SHELL=/bin/bash", &0x7ffcfe8d2eec="SSH_CLIENT=10.0.2.10 37082 22", &0x7ffcfe8d2f0a="SSH_TTY=/dev/pts/0", &0x7ffcfe8d2f1d="USER=root", &0x7ffcfe8d2f27="MAIL=/var/mail/root", &0x7ffcfe8d2f3b="PATH=/usr/local/sbin:/usr/local/"..., &0x7ffcfe8d2f7d="PWD=/root", &0x7ffcfe8d2f87="LANG=en_US.UTF-8", &0x7ffcfe8d2f98="SHLVL=1", &0x7ffcfe8d2fa0="HOME=/root", &0x7ffcfe8d2fab="LOGNAME=root", &0x7ffcfe8d2fb8="SSH_CONNECTION=10.0.2.10 37082 1"..., &0x7ffcfe8d2fe4="_=./strace"]) = 0
+brk(NULL)                               = 0x1914000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f5593073000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/x86_64/libprocps.so.0", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls/x86_64", 0x7fff4a265ba0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/libprocps.so.0", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls", 0x7fff4a265ba0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/x86_64/libprocps.so.0", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/x86_64", 0x7fff4a265ba0) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libprocps.so.0", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7fff4a265d08="\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340F\0\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_dev=makedev(8, 0), st_ino=393318, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=144, st_size=72576, st_atime=2017-03-21T14:26:45+0000.591746047, st_mtime=2013-03-28T10:59:07+0000, st_ctime=2017-03-04T09:32:47+0000.194399015}) = 0
+mmap(NULL, 2255888, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f5592c2c000
+mprotect(0x7f5592c3c000, 2097152, PROT_NONE) = 0
+mmap(0x7f5592e3c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x10000) = 0x7f5592e3c000
+mmap(0x7f5592e3e000, 85008, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f5592e3e000
+close(3)                                = 0
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7fff4a265cd8="\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320\3\2\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_dev=makedev(8, 0), st_ino=394423, st_mode=S_IFREG|0755, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=3296, st_size=1685264, st_atime=2017-03-21T21:53:13+0000.499069957, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.248069954}) = 0
+mmap(NULL, 3791264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f559288e000
+mprotect(0x7f5592a23000, 2093056, PROT_NONE) = 0
+mmap(0x7f5592c22000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x194000) = 0x7f5592c22000
+mmap(0x7f5592c28000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f5592c28000
+close(3)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f5593071000
+arch_prctl(ARCH_SET_FS, 0x7f5593071700) = 0
+mprotect(0x7f5592c22000, 16384, PROT_READ) = 0
+mprotect(0x7f5592e3c000, 4096, PROT_READ) = 0
+mprotect(0x615000, 4096, PROT_READ)     = 0
+mprotect(0x7f5593076000, 4096, PROT_READ) = 0
+uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
+open("/sys/devices/system/cpu/online", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7fff4a264360="0-3\n", 8192)  = 4
+close(3)                                = 0
+brk(NULL)                               = 0x1914000
+brk(0x1935000)                          = 0x1935000
+open("/usr/lib/locale/locale-archive", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/share/locale/locale.alias", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/lib/locale/en_US.UTF-8/LC_IDENTIFICATION", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/lib/locale/en_US.utf8/LC_IDENTIFICATION", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/lib/locale/en_US/LC_IDENTIFICATION", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/lib/locale/en.UTF-8/LC_IDENTIFICATION", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/lib/locale/en.utf8/LC_IDENTIFICATION", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/lib/locale/en/LC_IDENTIFICATION", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+rt_sigaction(SIGSYS, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGPWR, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGIO, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGVTALRM, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGXFSZ, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGXCPU, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGURG, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGTTIN, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGCONT, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGCHLD, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGSTKFLT, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGTERM, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGALRM, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGPIPE, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGUSR2, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGSEGV, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGUSR1, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGFPE, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGBUS, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGABRT, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGTRAP, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGILL, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+rt_sigaction(SIGHUP, {sa_handler=0x403120, sa_mask=~[RTMIN RT_1], sa_flags=SA_RESTORER, sa_restorer=0x7f55928c1040}, NULL, 8) = 0
+open("/proc/self/stat", O_RDONLY)       = 3
+read(3, &0x7fff4a265ee0="7125 (ps) R 7123 7123 7096 34816"..., 1023) = 277
+close(3)                                = 0
+ioctl(1, TIOCGWINSZ, {ws_row=52, ws_col=177, ws_xpixel=0, ws_ypixel=0}) = 0
+ioctl(1, TCGETS, {c_iflags=0x500, c_oflags=0x5, c_cflags=0xbf, c_lflags=0x8a3b, c_line=0, c_cc="\x03\x1c\x7f\x15\x04\x00\x01\x00\x11\x13\x1a\x00\x12\x0f\x17\x16\x00\x00\x00"}) = 0
+geteuid()                               = 0
+open("/proc/uptime", O_RDONLY)          = 3
+lseek(3, 0, SEEK_SET)                   = 0
+read(3, &0x7f5592e41f00="47734.33 190609.37\n", 2047) = 19
+open("/proc/sys/kernel/pid_max", O_RDONLY) = 4
+read(4, &0x7fff4a2661e0="32768\n", 24)  = 6
+close(4)                                = 0
+mmap(NULL, 139264, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f559304f000
+mprotect(0x7f5593070000, 4096, PROT_NONE) = 0
+open("/proc/meminfo", O_RDONLY)         = 4
+lseek(4, 0, SEEK_SET)                   = 0
+read(4, &0x7f5592e41f00="MemTotal:        2615348 kB\nMemF"..., 2047) = 1139
+stat("/proc/self/task", {st_dev=makedev(0, 4), st_ino=15567, st_mode=S_IFDIR|0555, st_nlink=3, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T03:42:01+0000.347952975, st_mtime=2017-03-22T03:42:01+0000.347952975, st_ctime=2017-03-22T03:42:01+0000.347952975}) = 0
+open("/proc", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 5
+fstat(5, {st_dev=makedev(0, 4), st_ino=1, st_mode=S_IFDIR|0555, st_nlink=107, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T14:26:27+0000.093000000, st_mtime=2017-03-21T14:26:27+0000.093000000, st_ctime=2017-03-21T14:26:27+0000.093000000}) = 0
+mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f559302e000
+mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f559300d000
+getdents(5, [{d_ino=1, d_off=1, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=1, d_off=2, d_reclen=24, d_name="..", d_type=DT_DIR}, {d_ino=4026531963, d_off=3, d_reclen=24, d_name="fb", d_type=DT_REG}, {d_ino=4026531846, d_off=4, d_reclen=24, d_name="fs", d_type=DT_DIR}, {d_ino=4026531854, d_off=5, d_reclen=24, d_name="bus", d_type=DT_DIR}, {d_ino=4026532044, d_off=6, d_reclen=24, d_name="dma", d_type=DT_REG}, {d_ino=4026531858, d_off=7, d_reclen=24, d_name="irq", d_type=DT_DIR}, {d_ino=4026531844, d_off=8, d_reclen=24, d_name="net", d_type=DT_LNK}, {d_ino=4026531855, d_off=9, d_reclen=24, d_name="sys", d_type=DT_DIR}, {d_ino=4026531849, d_off=10, d_reclen=24, d_name="tty", d_type=DT_DIR}, {d_ino=4026531965, d_off=11, d_reclen=24, d_name="acpi", d_type=DT_DIR}, {d_ino=4026532069, d_off=12, d_reclen=24, d_name="keys", d_type=DT_REG}, {d_ino=4026532004, d_off=13, d_reclen=24, d_name="kmsg", d_type=DT_REG}, {d_ino=4026531967, d_off=14, d_reclen=24, d_name="misc", d_type=DT_REG}, {d_ino=4026531961, d_off=15, d_reclen=24, d_name="mtrr", d_type=DT_REG}, {d_ino=4026531969, d_off=16, d_reclen=24, d_name="scsi", d_type=DT_DIR}, {d_ino=4026531999, d_off=17, d_reclen=24, d_name="stat", d_type=DT_REG}, {d_ino=4026532038, d_off=18, d_reclen=32, d_name="iomem", d_type=DT_REG}, {d_ino=4026532003, d_off=19, d_reclen=32, d_name="kcore", d_type=DT_REG}, {d_ino=4026531991, d_off=20, d_reclen=32, d_name="locks", d_type=DT_REG}, {d_ino=4026532053, d_off=21, d_reclen=32, d_name="swaps", d_type=DT_REG}, {d_ino=4026531976, d_off=22, d_reclen=32, d_name="asound", d_type=DT_DIR}, {d_ino=4026532071, d_off=23, d_reclen=32, d_name="crypto", d_type=DT_REG}, {d_ino=4026531847, d_off=24, d_reclen=32, d_name="driver", d_type=DT_DIR}, {d_ino=4026531975, d_off=25, d_reclen=32, d_name="mdstat", d_type=DT_REG}, {d_ino=4026531843, d_off=26, d_reclen=32, d_name="mounts", d_type=DT_LNK}, {d_ino=4026532000, d_off=27, d_reclen=32, d_name="uptime", d_type=DT_REG}, {d_ino=4026532049, d_off=28, d_reclen=32, d_name="vmstat", d_type=DT_REG}, {d_ino=4026531856, d_off=29, d_reclen=32, d_name="cgroups", d_type=DT_REG}, {d_ino=4026531992, d_off=30, d_reclen=32, d_name="cmdline", d_type=DT_REG}, {d_ino=4026531994, d_off=31, d_reclen=32, d_name="cpuinfo", d_type=DT_REG}, {d_ino=4026531995, d_off=32, d_reclen=32, d_name="devices", d_type=DT_REG}, {d_ino=4026532037, d_off=33, d_reclen=32, d_name="ioports", d_type=DT_REG}, {d_ino=4026531997, d_off=34, d_reclen=32, d_name="loadavg", d_type=DT_REG}, {d_ino=4026532039, d_off=35, d_reclen=32, d_name="lockdep", d_type=DT_REG}, {d_ino=4026531998, d_off=36, d_reclen=32, d_name="meminfo", d_type=DT_REG}, {d_ino=4026532045, d_off=37, d_reclen=32, d_name="modules", d_type=DT_REG}, {d_ino=4026531845, d_off=38, d_reclen=32, d_name="sysvipc", d_type=DT_DIR}, {d_ino=4026532001, d_off=39, d_reclen=32, d_name="version", d_type=DT_REG}, {d_ino=4026531993, d_off=40, d_reclen=32, d_name="consoles", d_type=DT_REG}, {d_ino=4026532046, d_off=41, d_reclen=32, d_name="kallsyms", d_type=DT_REG}, {d_ino=4026532051, d_off=42, d_reclen=32, d_name="slabinfo", d_type=DT_REG}, {d_ino=4026532002, d_off=43, d_reclen=32, d_name="softirqs", d_type=DT_REG}, {d_ino=4026532050, d_off=44, d_reclen=32, d_name="zoneinfo", d_type=DT_REG}, {d_ino=4026532047, d_off=45, d_reclen=32, d_name="buddyinfo", d_type=DT_REG}, {d_ino=4026532072, d_off=46, d_reclen=32, d_name="diskstats", d_type=DT_REG}, {d_ino=4026532070, d_off=47, d_reclen=32, d_name="key-users", d_type=DT_REG}, {d_ino=4026531962, d_off=48, d_reclen=32, d_name="schedstat", d_type=DT_REG}, {d_ino=4026531996, d_off=49, d_reclen=32, d_name="interrupts", d_type=DT_REG}, {d_ino=4026532005, d_off=50, d_reclen=32, d_name="kpagecount", d_type=DT_REG}, {d_ino=4026532006, d_off=51, d_reclen=32, d_name="kpageflags", d_type=DT_REG}, {d_ino=4026532073, d_off=52, d_reclen=32, d_name="partitions", d_type=DT_REG}, {d_ino=4026532042, d_off=53, d_reclen=32, d_name="timer_list", d_type=DT_REG}, {d_ino=4026532036, d_off=54, d_reclen=32, d_name="execdomains", d_type=DT_REG}, {d_ino=4026532054, d_off=55, d_reclen=32, d_name="filesystems", d_type=DT_REG}, {d_ino=4026532043, d_off=56, d_reclen=32, d_name="timer_stats", d_type=DT_REG}, {d_ino=4026532052, d_off=57, d_reclen=32, d_name="vmallocinfo", d_type=DT_REG}, {d_ino=4026532048, d_off=58, d_reclen=32, d_name="pagetypeinfo", d_type=DT_REG}, {d_ino=4026532041, d_off=59, d_reclen=40, d_name="lockdep_stats", d_type=DT_REG}, {d_ino=4026532087, d_off=60, d_reclen=40, d_name="sysrq-trigger", d_type=DT_REG}, {d_ino=4026532040, d_off=256, d_reclen=40, d_name="lockdep_chains", d_type=DT_REG}, {d_ino=4026531841, d_off=257, d_reclen=24, d_name="self", d_type=DT_LNK}, {d_ino=4026531842, d_off=259, d_reclen=32, d_name="thread-self", d_type=DT_LNK}, {d_ino=7671, d_off=260, d_reclen=24, d_name="1", d_type=DT_DIR}, {d_ino=8712, d_off=262, d_reclen=24, d_name="2", d_type=DT_DIR}, {d_ino=8713, d_off=263, d_reclen=24, d_name="4", d_type=DT_DIR}, {d_ino=8714, d_off=265, d_reclen=24, d_name="5", d_type=DT_DIR}, {d_ino=8716, d_off=266, d_reclen=24, d_name="7", d_type=DT_DIR}, {d_ino=8717, d_off=267, d_reclen=24, d_name="8", d_type=DT_DIR}, {d_ino=8718, d_off=268, d_reclen=24, d_name="9", d_type=DT_DIR}, {d_ino=8719, d_off=269, d_reclen=24, d_name="10", d_type=DT_DIR}, {d_ino=8720, d_off=270, d_reclen=24, d_name="11", d_type=DT_DIR}, {d_ino=8721, d_off=271, d_reclen=24, d_name="12", d_type=DT_DIR}, {d_ino=8722, d_off=272, d_reclen=24, d_name="13", d_type=DT_DIR}, {d_ino=8723, d_off=273, d_reclen=24, d_name="14", d_type=DT_DIR}, {d_ino=8724, d_off=275, d_reclen=24, d_name="15", d_type=DT_DIR}, {d_ino=8725, d_off=276, d_reclen=24, d_name="17", d_type=DT_DIR}, {d_ino=8726, d_off=277, d_reclen=24, d_name="18", d_type=DT_DIR}, {d_ino=8727, d_off=278, d_reclen=24, d_name="19", d_type=DT_DIR}, {d_ino=8728, d_off=280, d_reclen=24, d_name="20", d_type=DT_DIR}, {d_ino=8729, d_off=282, d_reclen=24, d_name="22", d_type=DT_DIR}, {d_ino=8731, d_off=283, d_reclen=24, d_name="24", d_type=DT_DIR}, {d_ino=8732, d_off=284, d_reclen=24, d_name="25", d_type=DT_DIR}, {d_ino=8733, d_off=286, d_reclen=24, d_name="26", d_type=DT_DIR}, {d_ino=8734, d_off=287, d_reclen=24, d_name="28", d_type=DT_DIR}, {d_ino=8735, d_off=288, d_reclen=24, d_name="29", d_type=DT_DIR}, {d_ino=8736, d_off=291, d_reclen=24, d_name="30", d_type=DT_DIR}, {d_ino=8737, d_off=693, d_reclen=24, d_name="33", d_type=DT_DIR}, {d_ino=8739, d_off=694, d_reclen=24, d_name="435", d_type=DT_DIR}, {d_ino=8740, d_off=696, d_reclen=24, d_name="436", d_type=DT_DIR}, {d_ino=8741, d_off=697, d_reclen=24, d_name="438", d_type=DT_DIR}, {d_ino=8742, d_off=698, d_reclen=24, d_name="439", d_type=DT_DIR}, {d_ino=8743, d_off=699, d_reclen=24, d_name="440", d_type=DT_DIR}, {d_ino=8744, d_off=701, d_reclen=24, d_name="441", d_type=DT_DIR}, {d_ino=8745, d_off=784, d_reclen=24, d_name="443", d_type=DT_DIR}, {d_ino=8746, d_off=801, d_reclen=24, d_name="526", d_type=DT_DIR}, {d_ino=8747, d_off=815, d_reclen=24, d_name="543", d_type=DT_DIR}, {d_ino=8748, d_off=816, d_reclen=24, d_name="557", d_type=DT_DIR}, {d_ino=8749, d_off=820, d_reclen=24, d_name="558", d_type=DT_DIR}, {d_ino=8750, d_off=821, d_reclen=24, d_name="562", d_type=DT_DIR}, {d_ino=8751, d_off=913, d_reclen=24, d_name="563", d_type=DT_DIR}, {d_ino=8753, d_off=914, d_reclen=24, d_name="655", d_type=DT_DIR}, {d_ino=8754, d_off=939, d_reclen=24, d_name="656", d_type=DT_DIR}, {d_ino=8755, d_off=944, d_reclen=24, d_name="681", d_type=DT_DIR}, {d_ino=8756, d_off=946, d_reclen=24, d_name="686", d_type=DT_DIR}, {d_ino=8757, d_off=947, d_reclen=24, d_name="688", d_type=DT_DIR}, {d_ino=8758, d_off=1069, d_reclen=24, d_name="689", d_type=DT_DIR}, {d_ino=8759, d_off=1093, d_reclen=24, d_name="811", d_type=DT_DIR}, {d_ino=8760, d_off=1151, d_reclen=24, d_name="835", d_type=DT_DIR}, {d_ino=8761, d_off=1176, d_reclen=24, d_name="893", d_type=DT_DIR}, {d_ino=8762, d_off=1179, d_reclen=24, d_name="918", d_type=DT_DIR}, {d_ino=8763, d_off=1182, d_reclen=24, d_name="921", d_type=DT_DIR}, {d_ino=8764, d_off=1185, d_reclen=24, d_name="924", d_type=DT_DIR}, {d_ino=8765, d_off=1188, d_reclen=24, d_name="927", d_type=DT_DIR}, {d_ino=8766, d_off=1191, d_reclen=24, d_name="930", d_type=DT_DIR}, {d_ino=8767, d_off=1194, d_reclen=24, d_name="933", d_type=DT_DIR}, {d_ino=8768, d_off=1197, d_reclen=24, d_name="936", d_type=DT_DIR}, {d_ino=8769, d_off=1217, d_reclen=24, d_name="939", d_type=DT_DIR}, {d_ino=8770, d_off=1218, d_reclen=24, d_name="959", d_type=DT_DIR}, {d_ino=8771, d_off=1223, d_reclen=24, d_name="960", d_type=DT_DIR}, {d_ino=8772, d_off=1224, d_reclen=24, d_name="965", d_type=DT_DIR}, {d_ino=8773, d_off=1236, d_reclen=24, d_name="966", d_type=DT_DIR}, {d_ino=8774, d_off=1241, d_reclen=24, d_name="978", d_type=DT_DIR}, {d_ino=8775, d_off=1250, d_reclen=24, d_name="983", d_type=DT_DIR}, {d_ino=8776, d_off=1299, d_reclen=24, d_name="992", d_type=DT_DIR}, {d_ino=8777, d_off=1340, d_reclen=24, d_name="1041", d_type=DT_DIR}, {d_ino=8778, d_off=1370, d_reclen=24, d_name="1082", d_type=DT_DIR}, {d_ino=8779, d_off=1386, d_reclen=24, d_name="1112", d_type=DT_DIR}, {d_ino=8780, d_off=1389, d_reclen=24, d_name="1128", d_type=DT_DIR}, {d_ino=8781, d_off=1390, d_reclen=24, d_name="1131", d_type=DT_DIR}, {d_ino=8782, d_off=1391, d_reclen=24, d_name="1132", d_type=DT_DIR}, {d_ino=8783, d_off=1398, d_reclen=24, d_name="1133", d_type=DT_DIR}, {d_ino=8784, d_off=1400, d_reclen=24, d_name="1140", d_type=DT_DIR}, {d_ino=8785, d_off=1512, d_reclen=24, d_name="1142", d_type=DT_DIR}, {d_ino=8786, d_off=1658, d_reclen=24, d_name="1254", d_type=DT_DIR}, {d_ino=8787, d_off=1680, d_reclen=24, d_name="1400", d_type=DT_DIR}, {d_ino=8788, d_off=2779, d_reclen=24, d_name="1422", d_type=DT_DIR}, {d_ino=8789, d_off=2910, d_reclen=24, d_name="2521", d_type=DT_DIR}, {d_ino=8790, d_off=2971, d_reclen=24, d_name="2652", d_type=DT_DIR}, {d_ino=8570, d_off=2995, d_reclen=24, d_name="2713", d_type=DT_DIR}, {d_ino=8791, d_off=2996, d_reclen=24, d_name="2737", d_type=DT_DIR}, {d_ino=8792, d_off=2997, d_reclen=24, d_name="2738", d_type=DT_DIR}, {d_ino=8793, d_off=2998, d_reclen=24, d_name="2739", d_type=DT_DIR}, {d_ino=8794, d_off=2999, d_reclen=24, d_name="2740", d_type=DT_DIR}, {d_ino=8795, d_off=3000, d_reclen=24, d_name="2741", d_type=DT_DIR}, {d_ino=8796, d_off=3001, d_reclen=24, d_name="2742", d_type=DT_DIR}, {d_ino=8797, d_off=3002, d_reclen=24, d_name="2743", d_type=DT_DIR}, {d_ino=8798, d_off=3003, d_reclen=24, d_name="2744", d_type=DT_DIR}, {d_ino=8799, d_off=3350, d_reclen=24, d_name="2745", d_type=DT_DIR}, {d_ino=9114, d_off=7293, d_reclen=24, d_name="3092", d_type=DT_DIR}, {d_ino=11217, d_off=7324, d_reclen=24, d_name="7035", d_type=DT_DIR}, {d_ino=13725, d_off=7352, d_reclen=24, d_name="7066", d_type=DT_DIR}, {d_ino=15509, d_off=7354, d_reclen=24, d_name="7094", d_type=DT_DIR}, {d_ino=14562, d_off=7360, d_reclen=24, d_name="7096", d_type=DT_DIR}, {d_ino=15542, d_off=7368, d_reclen=24, d_name="7102", d_type=DT_DIR}, {d_ino=15544, d_off=7381, d_reclen=24, d_name="7110", d_type=DT_DIR}, {d_ino=15568, d_off=7383, d_reclen=24, d_name="7123", d_type=DT_DIR}, {d_ino=15565, d_off=4194562, d_reclen=24, d_name="7125", d_type=DT_DIR}], 32768) = 4176
+stat("/proc/1", {st_dev=makedev(0, 4), st_ino=7671, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T14:26:58+0000.925746209, st_mtime=2017-03-21T14:26:58+0000.925746209, st_ctime=2017-03-21T14:26:58+0000.925746209}) = 0
+open("/proc/1/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="1 (init) S 0 1 1 0 -1 4210944 22"..., 4095) = 281
+close(6)                                = 0
+open("/proc/1/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\tinit\nUmask:\t0022\nState:\tS "..., 4095) = 968
+close(6)                                = 0
+socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 6
+connect(6, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110) = -1 ENOENT (No such file or directory)
+close(6)                                = 0
+socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 6
+connect(6, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110) = -1 ENOENT (No such file or directory)
+close(6)                                = 0
+open("/etc/nsswitch.conf", O_RDONLY|O_CLOEXEC) = 6
+fstat(6, {st_dev=makedev(8, 0), st_ino=393970, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=475, st_atime=2017-03-21T14:26:46+0000.004746052, st_mtime=2006-08-28T16:33:19+0000, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+read(6, &0x191d100="# /etc/nsswitch.conf\n#\n# Example"..., 4096) = 475
+read(6, &0x191d100="", 4096)            = 0
+close(6)                                = 0
+open("/lib/x86_64-linux-gnu/libnss_compat.so.2", O_RDONLY|O_CLOEXEC) = 6
+read(6, &0x7fff4a2658e8="\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\260\22\0\0\0\0\0\0"..., 832) = 832
+fstat(6, {st_dev=makedev(8, 0), st_ino=394431, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=64, st_size=31616, st_atime=2017-03-21T21:53:14+0000.331069967, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.255069954}) = 0
+mmap(NULL, 2126944, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 6, 0) = 0x7f5592686000
+mprotect(0x7f559268d000, 2093056, PROT_NONE) = 0
+mmap(0x7f559288c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 6, 0x6000) = 0x7f559288c000
+close(6)                                = 0
+open("/lib/x86_64-linux-gnu/libnsl.so.1", O_RDONLY|O_CLOEXEC) = 6
+read(6, &0x7fff4a265628="\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320?\0\0\0\0\0\0"..., 832) = 832
+fstat(6, {st_dev=makedev(8, 0), st_ino=394430, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=176, st_size=89064, st_atime=2017-03-21T21:53:14+0000.331069967, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.255069954}) = 0
+mmap(NULL, 2194008, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 6, 0) = 0x7f559246e000
+mprotect(0x7f5592482000, 2097152, PROT_NONE) = 0
+mmap(0x7f5592682000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 6, 0x14000) = 0x7f5592682000
+mmap(0x7f5592684000, 6744, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f5592684000
+close(6)                                = 0
+mprotect(0x7f5592682000, 4096, PROT_READ) = 0
+mprotect(0x7f559288c000, 4096, PROT_READ) = 0
+open("/lib/x86_64-linux-gnu/libnss_nis.so.2", O_RDONLY|O_CLOEXEC) = 6
+read(6, &0x7fff4a2657e8="\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340 \0\0\0\0\0\0"..., 832) = 832
+fstat(6, {st_dev=makedev(8, 0), st_ino=394435, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=96, st_size=47688, st_atime=2017-03-21T21:53:14+0000.331069967, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.258069954}) = 0
+mmap(NULL, 2143656, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 6, 0) = 0x7f5592262000
+mprotect(0x7f559226d000, 2093056, PROT_NONE) = 0
+mmap(0x7f559246c000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 6, 0xa000) = 0x7f559246c000
+close(6)                                = 0
+open("/lib/x86_64-linux-gnu/libnss_files.so.2", O_RDONLY|O_CLOEXEC) = 6
+read(6, &0x7fff4a2654f8="\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320!\0\0\0\0\0\0"..., 832) = 832
+fstat(6, {st_dev=makedev(8, 0), st_ino=394433, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=96, st_size=47632, st_atime=2017-03-21T21:53:14+0000.332069967, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.257069954}) = 0
+mmap(NULL, 2168600, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 6, 0) = 0x7f5592050000
+mprotect(0x7f559205a000, 2097152, PROT_NONE) = 0
+mmap(0x7f559225a000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 6, 0xa000) = 0x7f559225a000
+mmap(0x7f559225c000, 22296, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f559225c000
+close(6)                                = 0
+mprotect(0x7f559225a000, 4096, PROT_READ) = 0
+mprotect(0x7f559246c000, 4096, PROT_READ) = 0
+open("/etc/passwd", O_RDONLY|O_CLOEXEC) = 6
+lseek(6, 0, SEEK_CUR)                   = 0
+fstat(6, {st_dev=makedev(8, 0), st_ino=394234, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=810, st_atime=2017-03-21T14:26:46+0000.045746053, st_mtime=2017-03-04T09:32:43+0000.834398974, st_ctime=2017-03-04T09:32:49+0000.358399041}) = 0
+mmap(NULL, 810, PROT_READ, MAP_SHARED, 6, 0) = 0x7f559300c000
+lseek(6, 810, SEEK_SET)                 = 810
+munmap(0x7f559300c000, 810)             = 0
+close(6)                                = 0
+open("/proc/1/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="init [2]\0\0\0\0\0\0\0\0\0\0", 131072) = 18
+read(6, &0x7f559302e022="", 131054)     = 0
+close(6)                                = 0
+fstat(1, {st_dev=makedev(0, 20), st_ino=3, st_mode=S_IFCHR|0600, st_nlink=1, st_uid=0, st_gid=5, st_blksize=1024, st_blocks=0, st_rdev=makedev(136, 0), st_atime=2017-03-22T03:42:01+0000.159952975, st_mtime=2017-03-22T03:42:01+0000.159952975, st_ctime=2017-03-22T02:53:04+0000.207952975}) = 0
+write(1, &0x191efb0="USER       PID %CPU %MEM    VSZ "..., 73) = 73
+open("/etc/localtime", O_RDONLY|O_CLOEXEC) = 6
+fstat(6, {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+fstat(6, {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+read(6, &0x191f5f0="TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\1\0\0\0\0"..., 4096) = 118
+lseek(6, -62, SEEK_CUR)                 = 56
+read(6, &0x191f5f0="TZif2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\1\0\0\0\0"..., 4096) = 62
+close(6)                                = 0
+open("/proc/stat", O_RDONLY)            = 6
+fstat(6, {st_dev=makedev(0, 4), st_ino=4026531999, st_mode=S_IFREG|0444, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T03:42:01+0000.457952975, st_mtime=2017-03-22T03:42:01+0000.457952975, st_ctime=2017-03-22T03:42:01+0000.457952975}) = 0
+read(6, &0x191f5f0="cpu  3398 0 20269 19036000 469 0"..., 1024) = 1024
+read(6, &0x191f5f0="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "..., 1024) = 264
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         1  0.0  0.0  10744 "..., 83) = 83
+stat("/proc/2", {st_dev=makedev(0, 4), st_ino=8712, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.075069940, st_mtime=2017-03-21T21:53:12+0000.075069940, st_ctime=2017-03-21T21:53:12+0000.075069940}) = 0
+open("/proc/2/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="2 (kthreadd) S 0 0 0 0 -1 212998"..., 4095) = 149
+close(6)                                = 0
+open("/proc/2/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\tkthreadd\nUmask:\t0022\nState"..., 4095) = 628
+close(6)                                = 0
+open("/proc/2/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         2  0.0  0.0      0 "..., 76) = 76
+stat("/proc/4", {st_dev=makedev(0, 4), st_ino=8713, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.075069940, st_mtime=2017-03-21T21:53:12+0000.075069940, st_ctime=2017-03-21T21:53:12+0000.075069940}) = 0
+open("/proc/4/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="4 (kworker/0:0H) S 2 0 0 0 -1 69"..., 4095) = 157
+close(6)                                = 0
+open("/proc/4/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/0:0H\nUmask:\t0022\nS"..., 4095) = 628
+close(6)                                = 0
+open("/proc/4/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         4  0.0  0.0      0 "..., 80) = 80
+stat("/proc/5", {st_dev=makedev(0, 4), st_ino=8714, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.075069940, st_mtime=2017-03-21T21:53:12+0000.075069940, st_ctime=2017-03-21T21:53:12+0000.075069940}) = 0
+open("/proc/5/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="5 (kworker/u8:0) S 2 0 0 0 -1 69"..., 4095) = 156
+close(6)                                = 0
+open("/proc/5/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/u8:0\nUmask:\t0022\nS"..., 4095) = 631
+close(6)                                = 0
+open("/proc/5/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         5  0.0  0.0      0 "..., 80) = 80
+stat("/proc/7", {st_dev=makedev(0, 4), st_ino=8716, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.075069940, st_mtime=2017-03-21T21:53:12+0000.075069940, st_ctime=2017-03-21T21:53:12+0000.075069940}) = 0
+open("/proc/7/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="7 (ksoftirqd/0) S 2 0 0 0 -1 692"..., 4095) = 157
+close(6)                                = 0
+open("/proc/7/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\tksoftirqd/0\nUmask:\t0022\nSt"..., 4095) = 632
+close(6)                                = 0
+open("/proc/7/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         7  0.0  0.0      0 "..., 79) = 79
+stat("/proc/8", {st_dev=makedev(0, 4), st_ino=8717, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.075069940, st_mtime=2017-03-21T21:53:12+0000.075069940, st_ctime=2017-03-21T21:53:12+0000.075069940}) = 0
+open("/proc/8/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="8 (rcu_sched) S 2 0 0 0 -1 21299"..., 4095) = 154
+close(6)                                = 0
+open("/proc/8/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\trcu_sched\nUmask:\t0022\nStat"..., 4095) = 632
+close(6)                                = 0
+open("/proc/8/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         8  0.0  0.0      0 "..., 77) = 77
+stat("/proc/9", {st_dev=makedev(0, 4), st_ino=8718, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.075069940, st_mtime=2017-03-21T21:53:12+0000.075069940, st_ctime=2017-03-21T21:53:12+0000.075069940}) = 0
+open("/proc/9/stat", O_RDONLY)          = 6
+read(6, &0x7f5592e3ed00="9 (rcu_bh) S 2 0 0 0 -1 2129984 "..., 4095) = 149
+close(6)                                = 0
+open("/proc/9/status", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="Name:\trcu_bh\nUmask:\t0022\nState:\t"..., 4095) = 624
+close(6)                                = 0
+open("/proc/9/cmdline", O_RDONLY)       = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root         9  0.0  0.0      0 "..., 74) = 74
+stat("/proc/10", {st_dev=makedev(0, 4), st_ino=8719, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/10/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="10 (migration/0) S 2 0 0 0 -1 69"..., 4095) = 160
+close(6)                                = 0
+open("/proc/10/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tmigration/0\nUmask:\t0022\nSt"..., 4095) = 632
+close(6)                                = 0
+open("/proc/10/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        10  0.0  0.0      0 "..., 79) = 79
+stat("/proc/11", {st_dev=makedev(0, 4), st_ino=8720, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/11/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="11 (lru-add-drain) S 2 0 0 0 -1 "..., 4095) = 159
+close(6)                                = 0
+open("/proc/11/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tlru-add-drain\nUmask:\t0022\n"..., 4095) = 635
+close(6)                                = 0
+open("/proc/11/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        11  0.0  0.0      0 "..., 81) = 81
+stat("/proc/12", {st_dev=makedev(0, 4), st_ino=8721, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/12/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="12 (cpuhp/0) S 2 0 0 0 -1 692388"..., 4095) = 152
+close(6)                                = 0
+open("/proc/12/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tcpuhp/0\nUmask:\t0022\nState:"..., 4095) = 628
+close(6)                                = 0
+open("/proc/12/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        12  0.0  0.0      0 "..., 75) = 75
+stat("/proc/13", {st_dev=makedev(0, 4), st_ino=8722, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/13/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="13 (cpuhp/1) S 2 0 0 0 -1 692388"..., 4095) = 152
+close(6)                                = 0
+open("/proc/13/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tcpuhp/1\nUmask:\t0022\nState:"..., 4095) = 628
+close(6)                                = 0
+open("/proc/13/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        13  0.0  0.0      0 "..., 75) = 75
+stat("/proc/14", {st_dev=makedev(0, 4), st_ino=8723, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/14/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="14 (migration/1) S 2 0 0 0 -1 69"..., 4095) = 160
+close(6)                                = 0
+open("/proc/14/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tmigration/1\nUmask:\t0022\nSt"..., 4095) = 632
+close(6)                                = 0
+open("/proc/14/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        14  0.0  0.0      0 "..., 79) = 79
+stat("/proc/15", {st_dev=makedev(0, 4), st_ino=8724, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/15/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="15 (ksoftirqd/1) S 2 0 0 0 -1 69"..., 4095) = 158
+close(6)                                = 0
+open("/proc/15/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tksoftirqd/1\nUmask:\t0022\nSt"..., 4095) = 636
+close(6)                                = 0
+open("/proc/15/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        15  0.0  0.0      0 "..., 79) = 79
+stat("/proc/17", {st_dev=makedev(0, 4), st_ino=8725, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/17/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="17 (kworker/1:0H) S 2 0 0 0 -1 6"..., 4095) = 158
+close(6)                                = 0
+open("/proc/17/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/1:0H\nUmask:\t0022\nS"..., 4095) = 632
+close(6)                                = 0
+open("/proc/17/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        17  0.0  0.0      0 "..., 80) = 80
+stat("/proc/18", {st_dev=makedev(0, 4), st_ino=8726, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/18/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="18 (cpuhp/2) S 2 0 0 0 -1 692388"..., 4095) = 152
+close(6)                                = 0
+open("/proc/18/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tcpuhp/2\nUmask:\t0022\nState:"..., 4095) = 628
+close(6)                                = 0
+open("/proc/18/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        18  0.0  0.0      0 "..., 75) = 75
+stat("/proc/19", {st_dev=makedev(0, 4), st_ino=8727, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/19/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="19 (migration/2) S 2 0 0 0 -1 69"..., 4095) = 160
+close(6)                                = 0
+open("/proc/19/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tmigration/2\nUmask:\t0022\nSt"..., 4095) = 633
+close(6)                                = 0
+open("/proc/19/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        19  0.0  0.0      0 "..., 79) = 79
+stat("/proc/20", {st_dev=makedev(0, 4), st_ino=8728, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/20/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="20 (ksoftirqd/2) S 2 0 0 0 -1 69"..., 4095) = 157
+close(6)                                = 0
+open("/proc/20/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tksoftirqd/2\nUmask:\t0022\nSt"..., 4095) = 635
+close(6)                                = 0
+open("/proc/20/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        20  0.0  0.0      0 "..., 79) = 79
+stat("/proc/22", {st_dev=makedev(0, 4), st_ino=8729, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/22/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="22 (kworker/2:0H) S 2 0 0 0 -1 6"..., 4095) = 158
+close(6)                                = 0
+open("/proc/22/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/2:0H\nUmask:\t0022\nS"..., 4095) = 632
+close(6)                                = 0
+open("/proc/22/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        22  0.0  0.0      0 "..., 80) = 80
+stat("/proc/24", {st_dev=makedev(0, 4), st_ino=8731, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/24/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="24 (cpuhp/3) S 2 0 0 0 -1 692388"..., 4095) = 152
+close(6)                                = 0
+open("/proc/24/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tcpuhp/3\nUmask:\t0022\nState:"..., 4095) = 628
+close(6)                                = 0
+open("/proc/24/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        24  0.0  0.0      0 "..., 75) = 75
+stat("/proc/25", {st_dev=makedev(0, 4), st_ino=8732, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/25/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="25 (migration/3) S 2 0 0 0 -1 69"..., 4095) = 160
+close(6)                                = 0
+open("/proc/25/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tmigration/3\nUmask:\t0022\nSt"..., 4095) = 632
+close(6)                                = 0
+open("/proc/25/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        25  0.0  0.0      0 "..., 79) = 79
+stat("/proc/26", {st_dev=makedev(0, 4), st_ino=8733, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/26/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="26 (ksoftirqd/3) S 2 0 0 0 -1 69"..., 4095) = 156
+close(6)                                = 0
+open("/proc/26/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tksoftirqd/3\nUmask:\t0022\nSt"..., 4095) = 633
+close(6)                                = 0
+open("/proc/26/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        26  0.0  0.0      0 "..., 79) = 79
+stat("/proc/28", {st_dev=makedev(0, 4), st_ino=8734, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/28/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="28 (kworker/3:0H) S 2 0 0 0 -1 6"..., 4095) = 158
+close(6)                                = 0
+open("/proc/28/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/3:0H\nUmask:\t0022\nS"..., 4095) = 632
+close(6)                                = 0
+open("/proc/28/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        28  0.0  0.0      0 "..., 80) = 80
+stat("/proc/29", {st_dev=makedev(0, 4), st_ino=8735, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/29/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="29 (kdevtmpfs) S 2 0 0 0 -1 2130"..., 4095) = 153
+close(6)                                = 0
+open("/proc/29/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tkdevtmpfs\nUmask:\t0022\nStat"..., 4095) = 633
+close(6)                                = 0
+open("/proc/29/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        29  0.0  0.0      0 "..., 77) = 77
+stat("/proc/30", {st_dev=makedev(0, 4), st_ino=8736, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/30/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="30 (netns) S 2 0 0 0 -1 69238880"..., 4095) = 151
+close(6)                                = 0
+open("/proc/30/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tnetns\nUmask:\t0022\nState:\tS"..., 4095) = 627
+close(6)                                = 0
+open("/proc/30/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        30  0.0  0.0      0 "..., 73) = 73
+stat("/proc/33", {st_dev=makedev(0, 4), st_ino=8737, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/33/stat", O_RDONLY)         = 6
+read(6, &0x7f5592e3ed00="33 (kworker/0:1) S 2 0 0 0 -1 69"..., 4095) = 158
+close(6)                                = 0
+open("/proc/33/status", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/0:1\nUmask:\t0022\nSt"..., 4095) = 636
+close(6)                                = 0
+open("/proc/33/cmdline", O_RDONLY)      = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root        33  0.0  0.0      0 "..., 79) = 79
+stat("/proc/435", {st_dev=makedev(0, 4), st_ino=8739, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/435/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="435 (oom_reaper) S 2 0 0 0 -1 21"..., 4095) = 155
+close(6)                                = 0
+open("/proc/435/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\toom_reaper\nUmask:\t0022\nSta"..., 4095) = 636
+close(6)                                = 0
+open("/proc/435/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       435  0.0  0.0      0 "..., 78) = 78
+stat("/proc/436", {st_dev=makedev(0, 4), st_ino=8740, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/436/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="436 (writeback) S 2 0 0 0 -1 692"..., 4095) = 156
+close(6)                                = 0
+open("/proc/436/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\twriteback\nUmask:\t0022\nStat"..., 4095) = 635
+close(6)                                = 0
+open("/proc/436/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       436  0.0  0.0      0 "..., 77) = 77
+stat("/proc/438", {st_dev=makedev(0, 4), st_ino=8741, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.076069940, st_mtime=2017-03-21T21:53:12+0000.076069940, st_ctime=2017-03-21T21:53:12+0000.076069940}) = 0
+open("/proc/438/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="438 (kcompactd0) S 2 0 0 0 -1 20"..., 4095) = 155
+close(6)                                = 0
+open("/proc/438/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkcompactd0\nUmask:\t0022\nSta"..., 4095) = 636
+close(6)                                = 0
+open("/proc/438/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       438  0.0  0.0      0 "..., 78) = 78
+stat("/proc/439", {st_dev=makedev(0, 4), st_ino=8742, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/439/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="439 (kcompactd1) S 2 0 0 0 -1 20"..., 4095) = 155
+close(6)                                = 0
+open("/proc/439/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkcompactd1\nUmask:\t0022\nSta"..., 4095) = 636
+close(6)                                = 0
+open("/proc/439/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       439  0.0  0.0      0 "..., 78) = 78
+stat("/proc/440", {st_dev=makedev(0, 4), st_ino=8743, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/440/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="440 (crypto) S 2 0 0 0 -1 692388"..., 4095) = 153
+close(6)                                = 0
+open("/proc/440/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tcrypto\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/440/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       440  0.0  0.0      0 "..., 74) = 74
+stat("/proc/441", {st_dev=makedev(0, 4), st_ino=8744, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/441/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="441 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 153
+close(6)                                = 0
+open("/proc/441/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/441/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       441  0.0  0.0      0 "..., 74) = 74
+stat("/proc/443", {st_dev=makedev(0, 4), st_ino=8745, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/443/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="443 (kblockd) S 2 0 0 0 -1 69238"..., 4095) = 154
+close(6)                                = 0
+open("/proc/443/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkblockd\nUmask:\t0022\nState:"..., 4095) = 633
+close(6)                                = 0
+open("/proc/443/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       443  0.0  0.0      0 "..., 75) = 75
+stat("/proc/526", {st_dev=makedev(0, 4), st_ino=8746, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/526/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="526 (ata_sff) S 2 0 0 0 -1 69238"..., 4095) = 154
+close(6)                                = 0
+open("/proc/526/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tata_sff\nUmask:\t0022\nState:"..., 4095) = 633
+close(6)                                = 0
+open("/proc/526/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       526  0.0  0.0      0 "..., 75) = 75
+stat("/proc/543", {st_dev=makedev(0, 4), st_ino=8747, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/543/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="543 (md) S 2 0 0 0 -1 69238880 0"..., 4095) = 149
+close(6)                                = 0
+open("/proc/543/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tmd\nUmask:\t0022\nState:\tS (s"..., 4095) = 628
+close(6)                                = 0
+open("/proc/543/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       543  0.0  0.0      0 "..., 70) = 70
+stat("/proc/557", {st_dev=makedev(0, 4), st_ino=8748, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/557/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="557 (kworker/2:1) S 2 0 0 0 -1 6"..., 4095) = 161
+close(6)                                = 0
+open("/proc/557/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/2:1\nUmask:\t0022\nSt"..., 4095) = 641
+close(6)                                = 0
+open("/proc/557/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       557  0.2  0.0      0 "..., 79) = 79
+stat("/proc/558", {st_dev=makedev(0, 4), st_ino=8749, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/558/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="558 (cfg80211) S 2 0 0 0 -1 6923"..., 4095) = 155
+close(6)                                = 0
+open("/proc/558/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tcfg80211\nUmask:\t0022\nState"..., 4095) = 634
+close(6)                                = 0
+open("/proc/558/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       558  0.0  0.0      0 "..., 76) = 76
+stat("/proc/562", {st_dev=makedev(0, 4), st_ino=8750, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/562/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="562 (kworker/1:1) S 2 0 0 0 -1 6"..., 4095) = 158
+close(6)                                = 0
+open("/proc/562/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/1:1\nUmask:\t0022\nSt"..., 4095) = 636
+close(6)                                = 0
+open("/proc/562/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       562  0.0  0.0      0 "..., 79) = 79
+stat("/proc/563", {st_dev=makedev(0, 4), st_ino=8751, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/563/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="563 (kworker/3:1) S 2 0 0 0 -1 6"..., 4095) = 157
+close(6)                                = 0
+open("/proc/563/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/3:1\nUmask:\t0022\nSt"..., 4095) = 636
+close(6)                                = 0
+open("/proc/563/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       563  0.0  0.0      0 "..., 79) = 79
+stat("/proc/655", {st_dev=makedev(0, 4), st_ino=8753, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/655/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="655 (rpciod) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/655/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\trpciod\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/655/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       655  0.0  0.0      0 "..., 74) = 74
+stat("/proc/656", {st_dev=makedev(0, 4), st_ino=8754, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/656/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="656 (xprtiod) S 2 0 0 0 -1 69238"..., 4095) = 155
+close(6)                                = 0
+open("/proc/656/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\txprtiod\nUmask:\t0022\nState:"..., 4095) = 633
+close(6)                                = 0
+open("/proc/656/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       656  0.0  0.0      0 "..., 75) = 75
+stat("/proc/681", {st_dev=makedev(0, 4), st_ino=8755, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/681/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="681 (kauditd) S 2 0 0 0 -1 20972"..., 4095) = 153
+close(6)                                = 0
+open("/proc/681/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkauditd\nUmask:\t0022\nState:"..., 4095) = 633
+close(6)                                = 0
+open("/proc/681/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       681  0.0  0.0      0 "..., 75) = 75
+stat("/proc/686", {st_dev=makedev(0, 4), st_ino=8756, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/686/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="686 (kswapd0) S 2 0 0 0 -1 10750"..., 4095) = 154
+close(6)                                = 0
+open("/proc/686/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkswapd0\nUmask:\t0022\nState:"..., 4095) = 633
+close(6)                                = 0
+open("/proc/686/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       686  0.0  0.0      0 "..., 75) = 75
+stat("/proc/688", {st_dev=makedev(0, 4), st_ino=8757, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/688/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="688 (kswapd1) S 2 0 0 0 -1 10750"..., 4095) = 154
+close(6)                                = 0
+open("/proc/688/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkswapd1\nUmask:\t0022\nState:"..., 4095) = 633
+close(6)                                = 0
+open("/proc/688/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       688  0.0  0.0      0 "..., 75) = 75
+stat("/proc/689", {st_dev=makedev(0, 4), st_ino=8758, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.077069940, st_mtime=2017-03-21T21:53:12+0000.077069940, st_ctime=2017-03-21T21:53:12+0000.077069940}) = 0
+open("/proc/689/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="689 (vmstat) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/689/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tvmstat\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/689/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       689  0.0  0.0      0 "..., 74) = 74
+stat("/proc/811", {st_dev=makedev(0, 4), st_ino=8759, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/811/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="811 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/811/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/811/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       811  0.0  0.0      0 "..., 74) = 74
+stat("/proc/835", {st_dev=makedev(0, 4), st_ino=8760, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/835/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="835 (nfsiod) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/835/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tnfsiod\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/835/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       835  0.0  0.0      0 "..., 74) = 74
+stat("/proc/893", {st_dev=makedev(0, 4), st_ino=8761, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/893/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="893 (acpi_thermal_pm) S 2 0 0 0 "..., 4095) = 163
+close(6)                                = 0
+open("/proc/893/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tacpi_thermal_pm\nUmask:\t002"..., 4095) = 641
+close(6)                                = 0
+open("/proc/893/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       893  0.0  0.0      0 "..., 83) = 83
+stat("/proc/918", {st_dev=makedev(0, 4), st_ino=8762, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/918/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="918 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/918/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/918/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       918  0.0  0.0      0 "..., 74) = 74
+stat("/proc/921", {st_dev=makedev(0, 4), st_ino=8763, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/921/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="921 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/921/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/921/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       921  0.0  0.0      0 "..., 74) = 74
+stat("/proc/924", {st_dev=makedev(0, 4), st_ino=8764, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/924/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="924 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/924/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/924/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       924  0.0  0.0      0 "..., 74) = 74
+stat("/proc/927", {st_dev=makedev(0, 4), st_ino=8765, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/927/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="927 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/927/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/927/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       927  0.0  0.0      0 "..., 74) = 74
+stat("/proc/930", {st_dev=makedev(0, 4), st_ino=8766, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/930/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="930 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/930/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/930/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       930  0.0  0.0      0 "..., 74) = 74
+stat("/proc/933", {st_dev=makedev(0, 4), st_ino=8767, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/933/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="933 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/933/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/933/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       933  0.0  0.0      0 "..., 74) = 74
+stat("/proc/936", {st_dev=makedev(0, 4), st_ino=8768, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/936/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="936 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/936/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/936/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       936  0.0  0.0      0 "..., 74) = 74
+stat("/proc/939", {st_dev=makedev(0, 4), st_ino=8769, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/939/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="939 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/939/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/939/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       939  0.0  0.0      0 "..., 74) = 74
+stat("/proc/959", {st_dev=makedev(0, 4), st_ino=8770, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/959/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="959 (scsi_eh_0) S 2 0 0 0 -1 212"..., 4095) = 155
+close(6)                                = 0
+open("/proc/959/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tscsi_eh_0\nUmask:\t0022\nStat"..., 4095) = 635
+close(6)                                = 0
+open("/proc/959/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       959  0.0  0.0      0 "..., 77) = 77
+stat("/proc/960", {st_dev=makedev(0, 4), st_ino=8771, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/960/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="960 (scsi_tmf_0) S 2 0 0 0 -1 69"..., 4095) = 158
+close(6)                                = 0
+open("/proc/960/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tscsi_tmf_0\nUmask:\t0022\nSta"..., 4095) = 636
+close(6)                                = 0
+open("/proc/960/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       960  0.0  0.0      0 "..., 78) = 78
+stat("/proc/965", {st_dev=makedev(0, 4), st_ino=8772, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/965/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="965 (scsi_eh_1) S 2 0 0 0 -1 212"..., 4095) = 155
+close(6)                                = 0
+open("/proc/965/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tscsi_eh_1\nUmask:\t0022\nStat"..., 4095) = 636
+close(6)                                = 0
+open("/proc/965/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       965  0.0  0.0      0 "..., 77) = 77
+stat("/proc/966", {st_dev=makedev(0, 4), st_ino=8773, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/966/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="966 (scsi_tmf_1) S 2 0 0 0 -1 69"..., 4095) = 158
+close(6)                                = 0
+open("/proc/966/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tscsi_tmf_1\nUmask:\t0022\nSta"..., 4095) = 636
+close(6)                                = 0
+open("/proc/966/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       966  0.0  0.0      0 "..., 78) = 78
+stat("/proc/978", {st_dev=makedev(0, 4), st_ino=8774, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/978/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="978 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/978/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/978/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       978  0.0  0.0      0 "..., 74) = 74
+stat("/proc/983", {st_dev=makedev(0, 4), st_ino=8775, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/983/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="983 (bioset) S 2 0 0 0 -1 692388"..., 4095) = 154
+close(6)                                = 0
+open("/proc/983/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 632
+close(6)                                = 0
+open("/proc/983/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       983  0.0  0.0      0 "..., 74) = 74
+stat("/proc/992", {st_dev=makedev(0, 4), st_ino=8776, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/992/stat", O_RDONLY)        = 6
+read(6, &0x7f5592e3ed00="992 (kworker/3:2) S 2 0 0 0 -1 6"..., 4095) = 159
+close(6)                                = 0
+open("/proc/992/status", O_RDONLY)      = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/3:2\nUmask:\t0022\nSt"..., 4095) = 638
+close(6)                                = 0
+open("/proc/992/cmdline", O_RDONLY)     = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root       992  0.0  0.0      0 "..., 79) = 79
+stat("/proc/1041", {st_dev=makedev(0, 4), st_ino=8777, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1041/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1041 (kworker/1:2) S 2 0 0 0 -1 "..., 4095) = 161
+close(6)                                = 0
+open("/proc/1041/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/1:2\nUmask:\t0022\nSt"..., 4095) = 643
+close(6)                                = 0
+open("/proc/1041/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1041  0.0  0.0      0 "..., 79) = 79
+stat("/proc/1082", {st_dev=makedev(0, 4), st_ino=8778, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1082/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1082 (kworker/3:1H) S 2 0 0 0 -1"..., 4095) = 163
+close(6)                                = 0
+open("/proc/1082/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/3:1H\nUmask:\t0022\nS"..., 4095) = 643
+close(6)                                = 0
+open("/proc/1082/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1082  0.0  0.0      0 "..., 80) = 80
+stat("/proc/1112", {st_dev=makedev(0, 4), st_ino=8779, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1112/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1112 (ipv6_addrconf) S 2 0 0 0 -"..., 4095) = 163
+close(6)                                = 0
+open("/proc/1112/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tipv6_addrconf\nUmask:\t0022\n"..., 4095) = 643
+close(6)                                = 0
+open("/proc/1112/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1112  0.0  0.0      0 "..., 81) = 81
+stat("/proc/1128", {st_dev=makedev(0, 4), st_ino=8780, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1128/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1128 (bioset) S 2 0 0 0 -1 69238"..., 4095) = 156
+close(6)                                = 0
+open("/proc/1128/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tbioset\nUmask:\t0022\nState:\t"..., 4095) = 636
+close(6)                                = 0
+open("/proc/1128/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1128  0.0  0.0      0 "..., 74) = 74
+stat("/proc/1131", {st_dev=makedev(0, 4), st_ino=8781, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1131/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1131 (kworker/2:1H) S 2 0 0 0 -1"..., 4095) = 163
+close(6)                                = 0
+open("/proc/1131/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/2:1H\nUmask:\t0022\nS"..., 4095) = 643
+close(6)                                = 0
+open("/proc/1131/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1131  0.0  0.0      0 "..., 80) = 80
+stat("/proc/1132", {st_dev=makedev(0, 4), st_ino=8782, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1132/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1132 (jbd2/sda-8) S 2 0 0 0 -1 2"..., 4095) = 162
+close(6)                                = 0
+open("/proc/1132/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tjbd2/sda-8\nUmask:\t0022\nSta"..., 4095) = 645
+close(6)                                = 0
+open("/proc/1132/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1132  0.0  0.0      0 "..., 78) = 78
+stat("/proc/1133", {st_dev=makedev(0, 4), st_ino=8783, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1133/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1133 (ext4-rsv-conver) S 2 0 0 0"..., 4095) = 165
+close(6)                                = 0
+open("/proc/1133/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\text4-rsv-conver\nUmask:\t002"..., 4095) = 645
+close(6)                                = 0
+open("/proc/1133/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1133  0.0  0.0      0 "..., 83) = 83
+stat("/proc/1140", {st_dev=makedev(0, 4), st_ino=8784, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1140/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1140 (kworker/1:1H) S 2 0 0 0 -1"..., 4095) = 163
+close(6)                                = 0
+open("/proc/1140/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/1:1H\nUmask:\t0022\nS"..., 4095) = 643
+close(6)                                = 0
+open("/proc/1140/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1140  0.0  0.0      0 "..., 80) = 80
+stat("/proc/1142", {st_dev=makedev(0, 4), st_ino=8785, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1142/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1142 (kworker/0:1H) S 2 0 0 0 -1"..., 4095) = 163
+close(6)                                = 0
+open("/proc/1142/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/0:1H\nUmask:\t0022\nS"..., 4095) = 643
+close(6)                                = 0
+open("/proc/1142/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1142  0.0  0.0      0 "..., 80) = 80
+stat("/proc/1254", {st_dev=makedev(0, 4), st_ino=8786, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1254/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1254 (udevd) S 1 1254 1254 0 -1 "..., 4095) = 280
+close(6)                                = 0
+open("/proc/1254/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tudevd\nUmask:\t0022\nState:\tS"..., 4095) = 986
+close(6)                                = 0
+open("/proc/1254/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="udevd\0--daemon\0", 131072) = 15
+read(6, &0x7f559302e01f="", 131057)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1254  0.0  0.0  21516 "..., 80) = 80
+stat("/proc/1400", {st_dev=makedev(0, 4), st_ino=8787, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1400/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1400 (kworker/2:2) S 2 0 0 0 -1 "..., 4095) = 160
+close(6)                                = 0
+open("/proc/1400/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/2:2\nUmask:\t0022\nSt"..., 4095) = 639
+close(6)                                = 0
+open("/proc/1400/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1400  0.0  0.0      0 "..., 79) = 79
+stat("/proc/1422", {st_dev=makedev(0, 4), st_ino=8788, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.078069940, st_mtime=2017-03-21T21:53:12+0000.078069940, st_ctime=2017-03-21T21:53:12+0000.078069940}) = 0
+open("/proc/1422/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="1422 (kworker/0:2) S 2 0 0 0 -1 "..., 4095) = 160
+close(6)                                = 0
+open("/proc/1422/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/0:2\nUmask:\t0022\nSt"..., 4095) = 639
+close(6)                                = 0
+open("/proc/1422/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      1422  0.0  0.0      0 "..., 79) = 79
+stat("/proc/2521", {st_dev=makedev(0, 4), st_ino=8789, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2521/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2521 (dhclient) S 1 2521 2521 0 "..., 4095) = 304
+close(6)                                = 0
+open("/proc/2521/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tdhclient\nUmask:\t0022\nState"..., 4095) = 985
+close(6)                                = 0
+open("/proc/2521/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="dhclient\0-v\0-pf\0/run/dhclient.et"..., 131072) = 83
+read(6, &0x7f559302e063="", 130989)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2521  0.0  0.1   9972 "..., 148) = 148
+stat("/proc/2652", {st_dev=makedev(0, 4), st_ino=8790, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2652/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2652 (rsyslogd) S 1 2621 2609 0 "..., 4095) = 279
+close(6)                                = 0
+open("/proc/2652/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\trsyslogd\nUmask:\t0022\nState"..., 4095) = 986
+close(6)                                = 0
+open("/proc/2652/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/usr/sbin/rsyslogd\0-c5\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2652  0.0  0.1  57060 "..., 88) = 88
+stat("/proc/2713", {st_dev=makedev(0, 4), st_ino=8570, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T14:26:51+0000.049746113, st_mtime=2017-03-21T14:26:51+0000.049746113, st_ctime=2017-03-21T14:26:51+0000.049746113}) = 0
+open("/proc/2713/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2713 (sshd) S 1 2713 2713 0 -1 4"..., 4095) = 318
+close(6)                                = 0
+open("/proc/2713/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tsshd\nUmask:\t0022\nState:\tS "..., 4095) = 982
+close(6)                                = 0
+open("/proc/2713/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/usr/sbin/sshd\0", 131072) = 15
+read(6, &0x7f559302e01f="", 131057)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2713  0.0  0.1  49960 "..., 80) = 80
+stat("/proc/2737", {st_dev=makedev(0, 4), st_ino=8791, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2737/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2737 (getty) S 1 2737 2737 1025 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2737/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 984
+close(6)                                = 0
+open("/proc/2737/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\00038400\0tty1\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+open("/proc/tty/drivers", O_RDONLY)     = 6
+read(6, &0x7fff4a263a90="/dev/tty             /dev/tty   "..., 9999) = 465
+close(6)                                = 0
+stat("/dev/tty1", {st_dev=makedev(0, 6), st_ino=1054, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 1), st_atime=2017-03-21T14:26:41+0000.627063220, st_mtime=2017-03-21T14:26:51+0000.627063220, st_ctime=2017-03-21T14:26:51+0000.176746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2737  0.0  0.0  14776 "..., 88) = 88
+stat("/proc/2738", {st_dev=makedev(0, 4), st_ino=8792, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2738/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2738 (getty) S 1 2738 2738 1026 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2738/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 983
+close(6)                                = 0
+open("/proc/2738/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\00038400\0tty2\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+stat("/dev/tty2", {st_dev=makedev(0, 6), st_ino=1055, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 2), st_atime=2017-03-21T14:26:41+0000.654746000, st_mtime=2017-03-21T14:26:51+0000.654746000, st_ctime=2017-03-21T14:26:51+0000.183746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2738  0.0  0.0  14776 "..., 88) = 88
+stat("/proc/2739", {st_dev=makedev(0, 4), st_ino=8793, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2739/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2739 (getty) S 1 2739 2739 1027 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2739/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 984
+close(6)                                = 0
+open("/proc/2739/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\00038400\0tty3\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+stat("/dev/tty3", {st_dev=makedev(0, 6), st_ino=1056, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 3), st_atime=2017-03-21T14:26:41+0000.690746000, st_mtime=2017-03-21T14:26:51+0000.690746000, st_ctime=2017-03-21T14:26:51+0000.185746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2739  0.0  0.0  14776 "..., 88) = 88
+stat("/proc/2740", {st_dev=makedev(0, 4), st_ino=8794, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2740/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2740 (getty) S 1 2740 2740 1028 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2740/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 984
+close(6)                                = 0
+open("/proc/2740/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\00038400\0tty4\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+stat("/dev/tty4", {st_dev=makedev(0, 6), st_ino=1057, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 4), st_atime=2017-03-21T14:26:41+0000.746746001, st_mtime=2017-03-21T14:26:51+0000.746746001, st_ctime=2017-03-21T14:26:51+0000.185746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2740  0.0  0.0  14776 "..., 88) = 88
+stat("/proc/2741", {st_dev=makedev(0, 4), st_ino=8795, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2741/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2741 (getty) S 1 2741 2741 1029 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2741/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 984
+close(6)                                = 0
+open("/proc/2741/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\00038400\0tty5\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+stat("/dev/tty5", {st_dev=makedev(0, 6), st_ino=1058, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 5), st_atime=2017-03-21T14:26:41+0000.760746001, st_mtime=2017-03-21T14:26:51+0000.760746001, st_ctime=2017-03-21T14:26:51+0000.189746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2741  0.0  0.0  14776 "..., 88) = 88
+stat("/proc/2742", {st_dev=makedev(0, 4), st_ino=8796, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2742/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2742 (getty) S 1 2742 2742 1030 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2742/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 984
+close(6)                                = 0
+open("/proc/2742/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\00038400\0tty6\0", 131072) = 23
+read(6, &0x7f559302e027="", 131049)     = 0
+close(6)                                = 0
+stat("/dev/tty6", {st_dev=makedev(0, 6), st_ino=1059, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 6), st_atime=2017-03-21T14:26:41+0000.741746001, st_mtime=2017-03-21T14:26:51+0000.741746001, st_ctime=2017-03-21T14:26:51+0000.194746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2742  0.0  0.0  14776 "..., 88) = 88
+stat("/proc/2743", {st_dev=makedev(0, 4), st_ino=8797, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2743/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2743 (getty) S 1 2743 2743 1088 "..., 4095) = 267
+close(6)                                = 0
+open("/proc/2743/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tgetty\nUmask:\t0022\nState:\tS"..., 4095) = 982
+close(6)                                = 0
+open("/proc/2743/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/sbin/getty\0-L\0ttyS0\000115200\0vt10"..., 131072) = 34
+read(6, &0x7f559302e032="", 131038)     = 0
+close(6)                                = 0
+stat("/dev/ttyS64", 0x7fff4a266200)     = -1 ENOENT (No such file or directory)
+stat("/dev/ttyS", 0x7fff4a266200)       = -1 ENOENT (No such file or directory)
+readlink("/proc/2743/fd/2", &0x7f5592e3d3c0="/dev/ttyS0", 127) = 10
+stat("/dev/ttyS0", {st_dev=makedev(0, 6), st_ino=8217, st_mode=S_IFCHR|0660, st_nlink=1, st_uid=0, st_gid=5, st_blksize=4096, st_blocks=0, st_rdev=makedev(4, 64), st_atime=2017-03-21T14:26:41+0000.473063219, st_mtime=2017-03-21T14:26:52+0000.473063219, st_ctime=2017-03-21T14:26:51+0000.189746115}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2743  0.0  0.0  14596 "..., 99) = 99
+stat("/proc/2744", {st_dev=makedev(0, 4), st_ino=8798, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2744/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2744 (udevd) S 1254 1254 1254 0 "..., 4095) = 275
+close(6)                                = 0
+open("/proc/2744/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tudevd\nUmask:\t0022\nState:\tS"..., 4095) = 985
+close(6)                                = 0
+open("/proc/2744/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="udevd\0--daemon\0", 131072) = 15
+read(6, &0x7f559302e01f="", 131057)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2744  0.0  0.0  21512 "..., 80) = 80
+stat("/proc/2745", {st_dev=makedev(0, 4), st_ino=8799, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:12+0000.079069940, st_mtime=2017-03-21T21:53:12+0000.079069940, st_ctime=2017-03-21T21:53:12+0000.079069940}) = 0
+open("/proc/2745/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="2745 (udevd) S 1254 1254 1254 0 "..., 4095) = 272
+close(6)                                = 0
+open("/proc/2745/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tudevd\nUmask:\t0022\nState:\tS"..., 4095) = 985
+close(6)                                = 0
+open("/proc/2745/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="udevd\0--daemon\0", 131072) = 15
+read(6, &0x7f559302e01f="", 131057)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      2745  0.0  0.0  21512 "..., 80) = 80
+stat("/proc/3092", {st_dev=makedev(0, 4), st_ino=9114, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T21:53:36+0000.692070237, st_mtime=2017-03-21T21:53:36+0000.692070237, st_ctime=2017-03-21T21:53:36+0000.692070237}) = 0
+open("/proc/3092/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="3092 (cron) S 1 3092 3092 0 -1 1"..., 4095) = 276
+close(6)                                = 0
+open("/proc/3092/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tcron\nUmask:\t0022\nState:\tS "..., 4095) = 984
+close(6)                                = 0
+open("/proc/3092/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/usr/sbin/cron\0", 131072) = 15
+read(6, &0x7f559302e01f="", 131057)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      3092  0.0  0.0  18996 "..., 80) = 80
+stat("/proc/7035", {st_dev=makedev(0, 4), st_ino=11217, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T02:43:48+0000.231952975, st_mtime=2017-03-22T02:43:48+0000.231952975, st_ctime=2017-03-22T02:43:48+0000.231952975}) = 0
+open("/proc/7035/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7035 (kworker/u10:1) S 2 0 0 0 -"..., 4095) = 166
+close(6)                                = 0
+open("/proc/7035/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/u10:1\nUmask:\t0022\n"..., 4095) = 647
+close(6)                                = 0
+open("/proc/7035/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7035  0.0  0.0      0 "..., 81) = 81
+stat("/proc/7066", {st_dev=makedev(0, 4), st_ino=13725, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T02:44:28+0000.570952975, st_mtime=2017-03-22T02:44:28+0000.570952975, st_ctime=2017-03-22T02:44:28+0000.570952975}) = 0
+open("/proc/7066/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7066 (kworker/u9:2) S 2 0 0 0 -1"..., 4095) = 166
+close(6)                                = 0
+open("/proc/7066/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/u9:2\nUmask:\t0022\nS"..., 4095) = 647
+close(6)                                = 0
+open("/proc/7066/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7066  0.0  0.0      0 "..., 80) = 80
+stat("/proc/7094", {st_dev=makedev(0, 4), st_ino=15509, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T02:53:03+0000.861952975, st_mtime=2017-03-22T02:53:03+0000.861952975, st_ctime=2017-03-22T02:53:03+0000.861952975}) = 0
+open("/proc/7094/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7094 (sshd) S 2713 7094 7094 0 -"..., 4095) = 314
+close(6)                                = 0
+open("/proc/7094/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tsshd\nUmask:\t0022\nState:\tS "..., 4095) = 989
+close(6)                                = 0
+open("/proc/7094/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="sshd: root@pts/0\0\0", 131072) = 18
+read(6, &0x7f559302e022="", 131054)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7094  0.1  0.2  71548 "..., 83) = 83
+stat("/proc/7096", {st_dev=makedev(0, 4), st_ino=14562, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T02:53:04+0000.164952975, st_mtime=2017-03-22T02:53:04+0000.164952975, st_ctime=2017-03-22T02:53:04+0000.164952975}) = 0
+open("/proc/7096/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7096 (bash) S 7094 7096 7096 348"..., 4095) = 298
+close(6)                                = 0
+open("/proc/7096/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tbash\nUmask:\t0022\nState:\tS "..., 4095) = 987
+close(6)                                = 0
+open("/proc/7096/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="-bash\0", 131072) = 6
+read(6, &0x7f559302e016="", 131066)     = 0
+close(6)                                = 0
+stat("/dev/pts0", 0x7fff4a266200)       = -1 ENOENT (No such file or directory)
+stat("/dev/pts", {st_dev=makedev(0, 20), st_ino=1, st_mode=S_IFDIR|0755, st_nlink=2, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T14:26:42+0000.442746009, st_mtime=2017-03-21T14:26:42+0000.442746009, st_ctime=2017-03-21T14:26:42+0000.442746009}) = 0
+readlink("/proc/7096/fd/2", &0x7f5592e3d3c0="/dev/pts/0", 127) = 10
+stat("/dev/pts/0", {st_dev=makedev(0, 20), st_ino=3, st_mode=S_IFCHR|0600, st_nlink=1, st_uid=0, st_gid=5, st_blksize=1024, st_blocks=0, st_rdev=makedev(136, 0), st_atime=2017-03-22T03:42:01+0000.159952975, st_mtime=2017-03-22T03:42:01+0000.159952975, st_ctime=2017-03-22T02:53:04+0000.207952975}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7096  0.0  0.1  17988 "..., 71) = 71
+stat("/proc/7102", {st_dev=makedev(0, 4), st_ino=15542, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T02:53:56+0000.840952975, st_mtime=2017-03-22T02:53:56+0000.840952975, st_ctime=2017-03-22T02:53:56+0000.840952975}) = 0
+open("/proc/7102/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7102 (kworker/u9:0) S 2 0 0 0 -1"..., 4095) = 165
+close(6)                                = 0
+open("/proc/7102/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/u9:0\nUmask:\t0022\nS"..., 4095) = 645
+close(6)                                = 0
+open("/proc/7102/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7102  0.0  0.0      0 "..., 80) = 80
+stat("/proc/7110", {st_dev=makedev(0, 4), st_ino=15544, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T02:53:56+0000.841952975, st_mtime=2017-03-22T02:53:56+0000.841952975, st_ctime=2017-03-22T02:53:56+0000.841952975}) = 0
+open("/proc/7110/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7110 (kworker/u10:2) S 2 0 0 0 -"..., 4095) = 166
+close(6)                                = 0
+open("/proc/7110/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tkworker/u10:2\nUmask:\t0022\n"..., 4095) = 647
+close(6)                                = 0
+open("/proc/7110/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="", 131072)     = 0
+close(6)                                = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7110  0.0  0.0      0 "..., 81) = 81
+stat("/proc/7123", {st_dev=makedev(0, 4), st_ino=15568, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T03:42:01+0000.353952975, st_mtime=2017-03-22T03:42:01+0000.353952975, st_ctime=2017-03-22T03:42:01+0000.353952975}) = 0
+open("/proc/7123/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7123 (strace) S 7096 7123 7096 3"..., 4095) = 281
+close(6)                                = 0
+open("/proc/7123/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tstrace\nUmask:\t0022\nState:\t"..., 4095) = 992
+close(6)                                = 0
+open("/proc/7123/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="./strace\0-o\0psaux_strace\0/bin/ps"..., 131072) = 37
+read(6, &0x7f559302e035="", 131035)     = 0
+close(6)                                = 0
+stat("/dev/pts0", 0x7fff4a266200)       = -1 ENOENT (No such file or directory)
+stat("/dev/pts", {st_dev=makedev(0, 20), st_ino=1, st_mode=S_IFDIR|0755, st_nlink=2, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T14:26:42+0000.442746009, st_mtime=2017-03-21T14:26:42+0000.442746009, st_ctime=2017-03-21T14:26:42+0000.442746009}) = 0
+readlink("/proc/7123/fd/2", &0x7f5592e3d3c0="/dev/pts/0", 127) = 10
+stat("/dev/pts/0", {st_dev=makedev(0, 20), st_ino=3, st_mode=S_IFCHR|0600, st_nlink=1, st_uid=0, st_gid=5, st_blksize=1024, st_blocks=0, st_rdev=makedev(136, 0), st_atime=2017-03-22T03:42:01+0000.159952975, st_mtime=2017-03-22T03:42:01+0000.159952975, st_ctime=2017-03-22T02:53:04+0000.207952975}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7123  0.0  0.0   4780 "..., 102) = 102
+stat("/proc/7125", {st_dev=makedev(0, 4), st_ino=15565, st_mode=S_IFDIR|0555, st_nlink=9, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-22T03:42:01+0000.331952975, st_mtime=2017-03-22T03:42:01+0000.331952975, st_ctime=2017-03-22T03:42:01+0000.331952975}) = 0
+open("/proc/7125/stat", O_RDONLY)       = 6
+read(6, &0x7f5592e3ed00="7125 (ps) R 7123 7123 7096 34816"..., 4095) = 281
+close(6)                                = 0
+open("/proc/7125/status", O_RDONLY)     = 6
+read(6, &0x7f5592e3ed00="Name:\tps\nUmask:\t0022\nState:\tR (r"..., 4095) = 989
+close(6)                                = 0
+open("/proc/7125/cmdline", O_RDONLY)    = 6
+read(6, &0x7f559302e010="/bin/ps\0aux\0", 131072) = 12
+read(6, &0x7f559302e01c="", 131060)     = 0
+close(6)                                = 0
+stat("/dev/pts0", 0x7fff4a266200)       = -1 ENOENT (No such file or directory)
+stat("/dev/pts", {st_dev=makedev(0, 20), st_ino=1, st_mode=S_IFDIR|0755, st_nlink=2, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-21T14:26:42+0000.442746009, st_mtime=2017-03-21T14:26:42+0000.442746009, st_ctime=2017-03-21T14:26:42+0000.442746009}) = 0
+readlink("/proc/7125/fd/2", &0x7f5592e3d3c0="/dev/pts/0", 127) = 10
+stat("/dev/pts/0", {st_dev=makedev(0, 20), st_ino=3, st_mode=S_IFCHR|0600, st_nlink=1, st_uid=0, st_gid=5, st_blksize=1024, st_blocks=0, st_rdev=makedev(136, 0), st_atime=2017-03-22T03:42:01+0000.159952975, st_mtime=2017-03-22T03:42:01+0000.159952975, st_ctime=2017-03-22T02:53:04+0000.207952975}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+stat("/etc/localtime", {st_dev=makedev(8, 0), st_ino=393973, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=118, st_atime=2017-03-21T14:26:44+0000.677746036, st_mtime=2017-03-04T09:32:32+0000.402398836, st_ctime=2017-03-04T09:32:49+0000.346399041}) = 0
+write(1, &0x191efb0="root      7125  0.0  0.0  15432 "..., 77) = 77
+getdents(5, [], 32768)                  = 0
+close(5)                                = 0
+close(1)                                = 0
+close(2)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++

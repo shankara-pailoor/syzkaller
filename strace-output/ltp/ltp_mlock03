@@ -1,0 +1,86 @@
+execve("/opt/ltp/testcases/bin/mlock03", [&0x7ffe78064eab="/opt/ltp/testcases/bin/mlock03"], [&0x7ffe78064eca="TERM=xterm", &0x7ffe78064ed5="SHELL=/bin/bash", &0x7ffe78064ee5="SSH_CLIENT=10.0.2.10 37306 22", &0x7ffe78064f03="SSH_TTY=/dev/pts/0", &0x7ffe78064f16="USER=root", &0x7ffe78064f20="MAIL=/var/mail/root", &0x7ffe78064f34="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", &0x7ffe78064f76="PWD=/root", &0x7ffe78064f80="LANG=en_US.UTF-8", &0x7ffe78064f91="SHLVL=1", &0x7ffe78064f99="HOME=/root", &0x7ffe78064fa4="LOGNAME=root", &0x7ffe78064fb1="SSH_CONNECTION=10.0.2.10 37306 10.0.2.15 22", &0x7ffe78064fdd="_=./syz-cover"]) = 0
+brk(NULL)                               = 0x55b87100c000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7ff410d1b000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls/x86_64", 0x7ffd6bcc9a40) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/tls/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/tls", 0x7ffd6bcc9a40) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/x86_64/libc.so.6", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+stat("/lib/x86_64-linux-gnu/x86_64", 0x7ffd6bcc9a40) = -1 ENOENT (No such file or directory)
+open("/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, &0x7ffd6bcc9ba8="\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\320\3\2\0\0\0\0\0@\0\0\0\0\0\0\0P\245\31\0\0\0\0\0\0\0\0\0@\0008\0\n\0@\0G\0F\0\6\0\0\0\5\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0000\2\0\0\0\0\0\0000\2\0\0\0\0\0\0\10\0\0\0\0\0\0\0\3\0\0\0\4\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0@\255\26\0\0\0\0\0\34\0\0\0\0\0\0\0\34\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0\1\0\0\0\5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0PG\31\0\0\0\0\0PG\31\0\0\0\0\0\0\0 \0\0\0\0\0\1\0\0\0\6\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0008O\0\0\0\0\0\0\330\221\0\0\0\0\0\0\0\0 \0\0\0\0\0\2\0\0\0\6\0\0\0\240{\31\0\0\0\0\0\240{9\0\0\0\0\0\240{9\0\0\0\0\0\340\1\0\0\0\0\0\0\340\1\0\0\0\0\0\0\10\0\0\0\0\0\0\0\4\0\0\0\4\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0p\2\0\0\0\0\0\0D\0\0\0\0\0\0\0D\0\0\0\0\0\0\0\4\0\0\0\0\0\0\0\7\0\0\0\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\0\20\0\0\0\0\0\0\0x\0\0\0\0\0\0\0\10\0\0\0\0\0\0\0P\345td\4\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\\\255\26\0\0\0\0\0\224Y\0\0\0\0\0\0\224Y\0\0\0\0\0\0\4\0\0\0\0\0\0\0Q\345td\6\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\20\0\0\0\0\0\0\0R\345td\4\0\0\0\310G\31\0\0\0\0\0\310G9\0\0\0\0\0\310G9\0\0\0\0\00088\0\0\0\0\0\00088\0\0\0\0\0\0\1\0\0\0\0\0\0\0\4\0\0\0\24\0\0\0\3\0\0\0GNU\0K\234\303\v\244\37\2z\r\312l\330w\365\237\r\263\217@%\4\0\0\0\20\0\0\0\1\0\0\0GNU\0\0\0\0\0\2\0\0\0\6\0\0\0 \0\0\0\0\0\0\0\363\3\0\0\10\0\0\0\0\1\0\0\16\0\0\0\0000\20D\240 \2\1\210\3\346\220\305E\214\0\304\0\10\0\5\204\0`\300\200\0\r\212\f\0\4\20\0\210@2\10*@\210T<, \0162H&\204\300\214\4\10\0\2\2\16\241\254\32\4f\300\0\3002\0\300\0P\1 \201\10\204\v  ($\0\4 Z\0\20X\200\312DB(\0\6\200\20\30B\0 @\200\0IP\0Q\212@\22\0\0\0\0\10\0\0\21\20", 832) = 832
+fstat(3, {st_dev=makedev(8, 0), st_ino=394423, st_mode=S_IFREG|0755, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=3296, st_size=1685264, st_atime=2017-03-23T22:17:01+0000.453952975, st_mtime=2017-01-16T17:43:37+0000, st_ctime=2017-03-21T21:53:13+0000.248069954}) = 0
+mmap(NULL, 3791264, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7ff41075d000
+mprotect(0x7ff4108f2000, 2093056, PROT_NONE) = 0
+mmap(0x7ff410af1000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x194000) = 0x7ff410af1000
+mmap(0x7ff410af7000, 14752, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7ff410af7000
+close(3)                                = 0
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7ff410d19000
+arch_prctl(ARCH_SET_FS, 0x7ff410d19700) = 0
+mprotect(0x7ff410af1000, 16384, PROT_READ) = 0
+mprotect(0x55b86f504000, 4096, PROT_READ) = 0
+mprotect(0x7ff410d1e000, 4096, PROT_READ) = 0
+brk(NULL)                               = 0x55b87100c000
+brk(0x55b87102d000)                     = 0x55b87102d000
+geteuid()                               = 0
+rt_sigaction(SIGHUP, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGINT, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGQUIT, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGILL, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTRAP, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGABRT, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGBUS, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGFPE, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGUSR1, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSEGV, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGUSR2, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPIPE, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGALRM, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTERM, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSTKFLT, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTSTP, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTTIN, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGTTOU, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGURG, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGXCPU, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGXFSZ, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGVTALRM, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPROF, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGWINCH, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGIO, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGPWR, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGSYS, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+rt_sigaction(SIGRT_16, {sa_handler=0x55b86f2f9160, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7ff410790040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+open("/proc/self/maps", O_RDONLY)       = 3
+fstat(3, {st_dev=makedev(0, 4), st_ino=88356, st_mode=S_IFREG|0444, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-24T08:33:50+0000.440952975, st_mtime=2017-03-24T08:33:50+0000.440952975, st_ctime=2017-03-24T08:33:50+0000.440952975}) = 0
+read(3, &0x55b87100c260="55b86f2ef000-55b86f304000 r-xp 00000000 08:00 6691                       /opt/ltp/testcases/bin/mlock03\n55b86f504000-55b86f505000 r--p 00015000 08:00 6691                       /opt/ltp/testcases/bin/mlock03\n55b86f505000-55b86f506000 rw-p 00016000 08:00 6691                       /opt/ltp/testcases/bin/mlock03\n55b86f506000-55b86f509000 rw-p 00000000 00:00 0 \n55b87100c000-55b87102d000 rw-p 00000000 00:00 0                          [heap]\n7ff41075d000-7ff4108f2000 r-xp 00000000 08:00 394423                     /lib/x86_64-linux-gnu/libc-2.24.so\n7ff4108f2000-7ff410af1000 ---p 00195000 08:00 394423                     /lib/x86_64-linux-gnu/libc-2.24.so\n7ff410af1000-7ff410af5000 r--p 00194000 08:00 394423                     /lib/x86_64-linux-gnu/libc-2.24.so\n7ff410af5000-7ff410af7000 rw-p 00198000 08:00 394423                     /lib/x86_64-linux-gnu/libc-2.24.so\n7ff410af7000-7ff410afb000 rw-p 00000000 00:00 0 \n7ff410afb000-7ff410b1e000 r-xp 00000000 08:00 394419                     /lib/x86_64-linux-gnu/ld-2.24", 1024) = 1024
+mlock(0x55b86f2ef000, 86016)            = 0
+ioctl(1, TCGETS, 0x7ffd6bcc83a0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=87849, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:33:50+0000.379952975, st_mtime=2017-03-24T08:33:50+0000.379952975, st_ctime=2017-03-24T08:33:50+0000.379952975}) = 0
+mlock(0x55b86f504000, 4096)             = 0
+mlock(0x55b86f505000, 4096)             = 0
+mlock(0x55b86f506000, 12288)            = 0
+mlock(0x55b87100c000, 135168)           = 0
+mlock(0x7ff41075d000, 1658880)          = 0
+mlock(0x7ff4108f2000, 2093056)          = -1 ENOMEM (Cannot allocate memory)
+mlock(0x7ff410af1000, 16384)            = 0
+mlock(0x7ff410af5000, 8192)             = 0
+mlock(0x7ff410af7000, 16384)            = 0
+read(3, &0x55b87100c260=".so\n7ff410d19000-7ff410d1e000 rw-p 00000000 00:00 0 \n7ff410d1e000-7ff410d1f000 r--p 00023000 08:00 394419                     /lib/x86_64-linux-gnu/ld-2.24.so\n7ff410d1f000-7ff410d20000 rw-p 00024000 08:00 394419                     /lib/x86_64-linux-gnu/ld-2.24.so\n7ff410d20000-7ff410d21000 rw-p 00000000 00:00 0 \n7ffd6bcab000-7ffd6bccc000 rw-p 00000000 00:00 0                          [stack]\n7ffd6bd8f000-7ffd6bd91000 r--p 00000000 00:00 0                          [vvar]\n7ffd6bd91000-7ffd6bd93000 r-xp 00000000 00:00 0                          [vdso]\nffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]\n", 1024) = 639
+mlock(0x7ff410afb000, 143360)           = 0
+mlock(0x7ff410d19000, 20480)            = 0
+mlock(0x7ff410d1e000, 4096)             = 0
+mlock(0x7ff410d1f000, 4096)             = 0
+mlock(0x7ff410d20000, 4096)             = 0
+mlock(0x7ffd6bcab000, 135168)           = 0
+mlock(0x7ffd6bd8f000, 8192)             = 0
+mlock(0x7ffd6bd91000, 8192)             = 0
+mlock(0xffffffffff600000, 4096)         = -1 ENOMEM (Cannot allocate memory)
+read(3, &0x55b87100c260="", 1024)       = 0
+close(3)                                = 0
+write(1, &0x55b87100c670="mlock03     0  TINFO  :  mlock from 55b86f2ef000 to 55b86f304000\nmlock03     0  TINFO  :  mlock from 55b86f504000 to 55b86f505000\nmlock03     0  TINFO  :  mlock from 55b86f505000 to 55b86f506000\nmlock03     0  TINFO  :  mlock from 55b86f506000 to 55b86f509000\nmlock03     0  TINFO  :  mlock from 55b87100c000 to 55b87102d000\nmlock03     0  TINFO  :  mlock from 7ff41075d000 to 7ff4108f2000\nmlock03     0  TINFO  :  mlock failed: errno=ENOMEM(12): Cannot allocate memory\nmlock03     0  TINFO  :  mlock from 7ff4108f2000 to 7ff410af1000\nmlock03     0  TINFO  :  mlock from 7ff410af1000 to 7ff410af5000\nmlock03     0  TINFO  :  mlock from 7ff410af5000 to 7ff410af7000\nmlock03     0  TINFO  :  mlock from 7ff410af7000 to 7ff410afb000\nmlock03     0  TINFO  :  mlock from 7ff410afb000 to 7ff410b1e000\nmlock03     0  TINFO  :  mlock from 7ff410d19000 to 7ff410d1e000\nmlock03     0  TINFO  :  mlock from 7ff410d1e000 to 7ff410d1f000\nmlock03     0  TINFO  :  mlock from 7ff410d1f000 to 7ff410d20000\nmlock03     0  TINFO  :  mlock from 7ff410d20000 to 7ff410d21000\nmlock03     0  TINFO  :  mlock from 7ffd6bcab000 to 7ffd6bccc000\nmlock03     0  TINFO  :  mlock from 7ffd6bd8f000 to 7ffd6bd91000\nmlock03     0  TINFO  :  mlock from 7ffd6bd91000 to 7ffd6bd93000\nmlock03     0  TINFO  :  mlock failed: errno=ENOMEM(12): Cannot allocate memory\nmlock03     0  TINFO  :  mlock from ffffffffff600000 to ffffffffff601000\nmlock03     0  TINFO  :  starting stack size is 132\nmlock03     0  TINFO  :  final stack size is 132\nmlock03     1  TPASS  :  stack size is not decreased.\n", 1558) = 1558
+exit_group(0)                           = ?
++++ exited with 0 +++

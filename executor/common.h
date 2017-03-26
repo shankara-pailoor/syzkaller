@@ -82,9 +82,9 @@ __attribute__((noreturn)) void fail(const char* msg, ...)
 	vfprintf(stderr, msg, args);
 	va_end(args);
 	fprintf(stderr, " (errno %d)\n", e);
-	// ENOMEM is frequent cause of failures in fuzzing context,
+	// ENOMEM/EAGAIN is frequent cause of failures in fuzzing context,
 	// so handle it here as non-fatal error.
-	doexit(e == ENOMEM ? kRetryStatus : kFailStatus);
+	doexit((e == ENOMEM || e == EAGAIN) ? kRetryStatus : kFailStatus);
 }
 
 #if defined(SYZ_EXECUTOR)
@@ -402,6 +402,11 @@ static uintptr_t syz_fuseblk_mount(uintptr_t a0, uintptr_t a1, uintptr_t a2, uin
 #include "common_kvm_amd64.h"
 #elif defined(__aarch64__)
 #include "common_kvm_arm64.h"
+#else
+static uintptr_t syz_kvm_setup_cpu(uintptr_t a0, uintptr_t a1, uintptr_t a2, uintptr_t a3, uintptr_t a4, uintptr_t a5, uintptr_t a6, uintptr_t a7)
+{
+	return 0;
+}
 #endif
 #endif // #ifdef __NR_syz_kvm_setup_cpu
 
@@ -628,7 +633,7 @@ static int do_sandbox_namespace(int executor_pid, bool enable_tun)
 	epid = executor_pid;
 	etun = enable_tun;
 	mprotect(sandbox_stack, 4096, PROT_NONE); // to catch stack underflows
-	return clone(namespace_sandbox_proc, &sandbox_stack[sizeof(sandbox_stack) - 8],
+	return clone(namespace_sandbox_proc, &sandbox_stack[sizeof(sandbox_stack) - 64],
 		     CLONE_NEWUSER | CLONE_NEWPID | CLONE_NEWUTS | CLONE_NEWNET, NULL);
 }
 #endif

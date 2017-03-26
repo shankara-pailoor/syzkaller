@@ -23,6 +23,7 @@ import (
 	"github.com/google/syzkaller/config"
 	"github.com/google/syzkaller/cover"
 	"github.com/google/syzkaller/csource"
+	"github.com/google/syzkaller/dashboard"
 	"github.com/google/syzkaller/db"
 	"github.com/google/syzkaller/hash"
 	. "github.com/google/syzkaller/log"
@@ -35,6 +36,7 @@ import (
 	_ "github.com/google/syzkaller/vm/gce"
 	_ "github.com/google/syzkaller/vm/kvm"
 	_ "github.com/google/syzkaller/vm/local"
+	_ "github.com/google/syzkaller/vm/odroid"
 	_ "github.com/google/syzkaller/vm/qemu"
 )
 
@@ -58,8 +60,10 @@ type Manager struct {
 	crashTypes   map[string]bool
 	vmStop       chan bool
 	vmChecked    bool
-	fresh        bool
+	fresh        bool // are we starting corpus.db from scratch?
 	numFuzzing   uint32
+
+	dash *dashboard.Dashboard
 
 	mu              sync.Mutex
 	enabledSyscalls string
@@ -140,16 +144,18 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 	Logf(0, "loading corpus...")
 	dbFilename := filepath.Join(cfg.Workdir, "corpus.db")
 	if _, err := os.Stat(dbFilename); err != nil {
+		// note: if corpus/ doesn't exist, just make from scratch.
 		if err := convertPersistentToDB(filepath.Join(cfg.Workdir, "corpus"), dbFilename); err != nil {
 			Fatalf("failed to convert old corpus: %v", err)
 		}
 	}
 	var err error
-	mgr.corpusDB, err = db.Open(dbFilename)
+	mgr.corpusDB, err = db.Open(dbFilename) // deserialize corpus.db and get db struct
 	if err != nil {
 		Fatalf("failed to open corpus database: %v", err)
 	}
 	deleted := 0
+	// disable all programs that contain disabled syscalls
 	for key, rec := range mgr.corpusDB.Records {
 		p, err := prog.Deserialize(rec.Val)
 		if err != nil {
@@ -176,12 +182,13 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 			mgr.disabledHashes[hash.String(rec.Val)] = struct{}{}
 			continue
 		}
+		// if program doesn't contain disabled syscalls, append to mgr.candidates
 		mgr.candidates = append(mgr.candidates, RpcCandidate{
-			Prog:      rec.Val,
+			Prog:      rec.Val, // note this is the serialized program, not expanded in-memory prog struct
 			Minimized: true, // don't reminimize programs from corpus, it takes lots of time on start
 		})
 	}
-	mgr.fresh = len(mgr.corpusDB.Records) == 0
+	mgr.fresh = len(mgr.corpusDB.Records) == 0 // are we starting a corpus from scratch?
 	Logf(0, "loaded %v programs (%v total, %v deleted)", len(mgr.candidates), len(mgr.corpusDB.Records), deleted)
 
 	// Now this is ugly.
@@ -201,15 +208,24 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 	mgr.initHttp()
 
 	// Create RPC server for fuzzers.
-	s, err := NewRpcServer(cfg.Rpc, mgr)
+	s, err := NewRpcServer(cfg.Rpc, mgr) //cfg.Rpc defaults to "localhost:0"
 	if err != nil {
 		Fatalf("failed to create rpc server: %v", err)
 	}
 	Logf(0, "serving rpc on tcp://%v", s.Addr())
+	// store which port the RPC server is listening no
 	mgr.port = s.Addr().(*net.TCPAddr).Port
 	go s.Serve()
 
-	go func() {
+	if cfg.Dashboard_Addr != "" {
+		mgr.dash = &dashboard.Dashboard{
+			Addr:   cfg.Dashboard_Addr,
+			Client: cfg.Name,
+			Key:    cfg.Dashboard_Key,
+		}
+	}
+
+	go func() { // terminal/dashboard logger
 		for lastTime := time.Now(); ; {
 			time.Sleep(10 * time.Second)
 			now := time.Now()
@@ -224,7 +240,7 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 		}
 	}()
 
-	if *flagBench != "" {
+	if *flagBench != "" { // benchmark stats
 		f, err := os.OpenFile(*flagBench, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0640)
 		if err != nil {
 			Fatalf("failed to open bench file: %v", err)
@@ -261,7 +277,7 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 		}()
 	}
 
-	if mgr.cfg.Hub_Addr != "" {
+	if mgr.cfg.Hub_Addr != "" { //TODO: what is hub for?
 		go func() {
 			for {
 				time.Sleep(time.Minute)
@@ -304,7 +320,7 @@ func (mgr *Manager) vmLoop() {
 	}
 	instances := make([]int, mgr.cfg.Count)
 	for i := range instances {
-		instances[i] = mgr.cfg.Count - i - 1
+		instances[i] = mgr.cfg.Count - i - 1 // populated in reverse order [n-1, ..., 0]
 	}
 	runDone := make(chan *RunResult, 1)
 	pendingRepro := make(map[*Crash]bool)
@@ -314,7 +330,7 @@ func (mgr *Manager) vmLoop() {
 	stopPending := false
 	shutdown := vm.Shutdown
 	for {
-		for crash := range pendingRepro {
+		for crash := range pendingRepro { // crash reproduction
 			if reproducing[crash.desc] {
 				continue
 			}
@@ -335,6 +351,7 @@ func (mgr *Manager) vmLoop() {
 				return
 			}
 		} else {
+			// crash reproducer
 			for len(reproQueue) != 0 && len(instances) >= reproInstances {
 				last := len(reproQueue) - 1
 				crash := reproQueue[last]
@@ -348,6 +365,7 @@ func (mgr *Manager) vmLoop() {
 					reproDone <- &ReproResult{vmIndexes, crash, res, err}
 				}()
 			}
+			// loop through indexes slice and spin up vms
 			for len(reproQueue) == 0 && len(instances) != 0 {
 				last := len(instances) - 1
 				idx := instances[last]
@@ -416,6 +434,8 @@ func (mgr *Manager) runInstance(vmCfg *vm.Config, first bool) (*Crash, error) {
 	}
 	defer inst.Close()
 
+	// forwards from vm port to host port, returns address to use in VM
+	// This is so the syz-fuzzer running in vm can RPC to syz-manager in host
 	fwdAddr, err := inst.Forward(mgr.port)
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup port forwarding: %v", err)
@@ -520,7 +540,19 @@ func (mgr *Manager) saveCrash(crash *Crash) {
 		} else {
 			crash.text = symbolized
 		}
-		ioutil.WriteFile(filepath.Join(dir, fmt.Sprintf("report%v", oldestI)), []byte(crash.text), 0660)
+		ioutil.WriteFile(filepath.Join(dir, fmt.Sprintf("report%v", oldestI)), crash.text, 0660)
+	}
+
+	if mgr.dash != nil {
+		dc := &dashboard.Crash{
+			Tag:    mgr.cfg.Tag,
+			Desc:   crash.desc,
+			Log:    crash.output,
+			Report: crash.text,
+		}
+		if err := mgr.dash.ReportCrash(dc); err != nil {
+			Logf(0, "failed to report crash to dashboard: %v", err)
+		}
 	}
 }
 
@@ -547,6 +579,18 @@ func (mgr *Manager) saveRepro(crash *Crash, res *repro.Result) {
 	sig := hash.Hash([]byte(crash.desc))
 	dir := filepath.Join(mgr.crashdir, sig.String())
 	if res == nil {
+		if mgr.dash != nil {
+			dr := &dashboard.Repro{
+				Crash: dashboard.Crash{
+					Tag:  mgr.cfg.Tag,
+					Desc: crash.desc,
+				},
+				Reproduced: false,
+			}
+			if err := mgr.dash.ReportRepro(dr); err != nil {
+				Logf(0, "failed to report repro to dashboard: %v", err)
+			}
+		}
 		for i := 0; i < maxReproAttempts; i++ {
 			name := filepath.Join(dir, fmt.Sprintf("repro%v", i))
 			if _, err := os.Stat(name); err != nil {
@@ -565,6 +609,7 @@ func (mgr *Manager) saveRepro(crash *Crash, res *repro.Result) {
 	if len(crash.text) > 0 {
 		ioutil.WriteFile(filepath.Join(dir, "repro.report"), []byte(crash.text), 0660)
 	}
+	var cprogText []byte
 	if res.CRepro {
 		cprog, err := csource.Write(res.Prog, res.Opts)
 		if err == nil {
@@ -573,22 +618,47 @@ func (mgr *Manager) saveRepro(crash *Crash, res *repro.Result) {
 				cprog = formatted
 			}
 			ioutil.WriteFile(filepath.Join(dir, "repro.cprog"), cprog, 0660)
+			cprogText = cprog
 		} else {
 			Logf(0, "failed to write C source: %v", err)
 		}
 	}
+
+	if mgr.dash != nil {
+		dr := &dashboard.Repro{
+			Crash: dashboard.Crash{
+				Tag:    mgr.cfg.Tag,
+				Desc:   crash.desc,
+				Report: crash.text,
+			},
+			Reproduced: true,
+			Opts:       fmt.Sprintf("%+v", res.Opts),
+			Prog:       res.Prog.Serialize(),
+			CProg:      cprogText,
+		}
+		if err := mgr.dash.ReportRepro(dr); err != nil {
+			Logf(0, "failed to report repro to dashboard: %v", err)
+		}
+	}
 }
 
+// set
 func (mgr *Manager) minimizeCorpus() {
 	if mgr.cfg.Cover && len(mgr.corpus) != 0 {
-		var cov []cover.Cover
+		// mgr.corpus is Map[String, RpcInput]
+		var cov []cover.Cover // array of set of PCs
 		var inputs []RpcInput
+		// store Signal and RpcInputs of last run
 		for _, inp := range mgr.corpus {
+			// inp.Signal -> []uint32
 			cov = append(cov, inp.Signal)
 			inputs = append(inputs, inp)
 		}
 		newCorpus := make(map[string]RpcInput)
+		// cover.Minimize returns a minimal set of inputs that give the same coverage as the full corpus.
 		for _, idx := range cover.Minimize(cov) {
+			// idx is the index of a RpcInput that successfully hit new PCs
+			// let's add all these "fresh" RPCs to our mgr.corpus, and discard the rest
 			inp := inputs[idx]
 			newCorpus[hash.String(inp.Prog)] = inp
 		}
@@ -609,6 +679,7 @@ func (mgr *Manager) minimizeCorpus() {
 	}
 }
 
+// Called when a vm first boots up, populates ConnectRes struct
 func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 	Logf(1, "fuzzer %v connected", a.Name)
 	mgr.mu.Lock()
@@ -623,18 +694,22 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 		name: a.Name,
 	}
 	mgr.fuzzers[a.Name] = f
-	mgr.minimizeCorpus()
+	mgr.minimizeCorpus() // reduce corpus to only those RpcInputs which got new code coverage
 
+	// recalculate syscall priorities
 	if mgr.prios == nil || time.Since(mgr.lastPrioCalc) > 30*time.Minute {
 		// Deserializing all programs is slow, so we do it episodically and without holding the mutex.
 		mgr.lastPrioCalc = time.Now()
 		inputs := make([][]byte, 0, len(mgr.corpus))
+		// collect program binaries into inputs
 		for _, inp := range mgr.corpus {
 			inputs = append(inputs, inp.Prog)
 		}
 		mgr.mu.Unlock()
 
 		corpus := make([]*prog.Prog, 0, len(inputs))
+		// deserialize each mgr.corpus.Prog into a full prog.Prog (i.e. slice of prog.Calls)
+		// put all prog.Progs into corpus
 		for _, inp := range inputs {
 			p, err := prog.Deserialize(inp)
 			if err != nil {
@@ -642,24 +717,30 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 			}
 			corpus = append(corpus, p)
 		}
-		prios := prog.CalculatePriorities(corpus)
+		// TODO: major room for improvement here, as priorities are arbitrary
+		// For example: data-mining from real workloads to create a more robust priority system
+		prios := prog.CalculatePriorities(corpus) // prioritize!
+		// prios[X][Y] represents the guess of whether the addition of call Y into a program
+		// containing acll X is likely to give new coverage.
 
 		mgr.mu.Lock()
 		mgr.prios = prios
 	}
 
 	f.inputs = nil
+	// copy rpcinputs to rpc connectres struct for syz-fuzzer to use
 	for _, inp := range mgr.corpus {
 		r.Inputs = append(r.Inputs, inp)
 	}
 	r.Prios = mgr.prios
 	r.EnabledCalls = mgr.enabledSyscalls
 	r.NeedCheck = !mgr.vmChecked
-	r.MaxSignal = make([]uint32, 0, len(mgr.maxSignal))
+	r.MaxSignal = make([]uint32, 0, len(mgr.maxSignal)) // TODO: what does maxsignal do?
 	for s := range mgr.maxSignal {
 		r.MaxSignal = append(r.MaxSignal, s)
 	}
 	f.newMaxSignal = nil
+	// TODO: what is difference between RPCcandidates and RpcInput?
 	for i := 0; i < mgr.cfg.Procs && len(mgr.candidates) > 0; i++ {
 		last := len(mgr.candidates) - 1
 		r.Candidates = append(r.Candidates, mgr.candidates[last])
