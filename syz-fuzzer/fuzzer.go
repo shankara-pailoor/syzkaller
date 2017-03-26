@@ -263,7 +263,7 @@ func main() {
 				} else {
 					triageMu.RUnlock()
 				}
-				if (!(*flagFuzzDisabled)) {
+				if !(*flagFuzzDisabled) {
 					corpusMu.RLock()
 					if len(corpus) == 0 || i%100 == 0 {
 						// Generate a new prog.
