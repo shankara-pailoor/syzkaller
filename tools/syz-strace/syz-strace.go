@@ -41,6 +41,7 @@ var (
 		"socket": true, // ltp_asapi_03 has comment in format!!
 		"sendmsg": true,
 		"recvmsg": true,
+		"gettimeofday": true,
 		"getsockname": true,
 		"connect": true,
 		"getsockopt": true,
