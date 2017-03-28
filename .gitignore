@@ -2,7 +2,7 @@
 *~
 *.cfg
 workdir*
-
+tools/create-image.sh
 bin/
 sys/sys_amd64.go
 sys/sys_arm64.go
@@ -12,6 +12,7 @@ executor/syscalls.h
 ssh/
 wheezy.img
 wheezy/
+wheezy_old/
 serialized/
 deserialized/
 *.db

@@ -22,41 +22,6 @@ import (
 	"flag"
 )
 
-var (
-	unsupported = map[string]bool{
-		"brk": true,
-		//"fstat": true,
-    		//"exit_group": true,
-		"mprotect": true,
-		"munmap": true,
-		"execve": true,
-		"access": true,
-		"mmap": true,
-		"accept": true, // need to determine accept type from the type of sockfd. Unsure how to do this cleanly.
-		"bind": true, // same issue
-		"sendto": true, // same
-		// also: problem with select, 2nd arg not correct format
-		"select": true,
-		"recvfrom": true,
-		"socket": true, // ltp_asapi_03 has comment in format!!
-		"sendmsg": true,
-		"recvmsg": true,
-		"getsockname": true,
-		"connect": true,
-		"getsockopt": true,
-		"mremap": true, // knowing vma location is difficult
-		//"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
-		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
-		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
-		//"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
-		//"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
-		//"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
-		//"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
-		/* can build the ioctl$arg from the 2nd arg */
-		//"getdents": true, // types disagree, strace gives struct, syzkaller expects buffer
-	}
-)
-
 const (
 	arch = "amd64"
 	maxLineLen = 256 << 10
@@ -148,6 +113,7 @@ func parse(filename string, consts *map[string]uint64) {
 	}
 	p := sparser.NewParser(f)
 	return_vars := make(map[returnType]*Arg)
+	return_calls := make(map[*Arg]string)
 	s := newState() /* to keep track of resources and memory */
 
 	for {
@@ -159,17 +125,17 @@ func parse(filename string, consts *map[string]uint64) {
 			break
 		}
 
-		if _, ok := unsupported[line.FuncName]; ok {
+		if _, ok := Unsupported[line.FuncName]; ok {
 			continue // don't parse unsupported syscalls
 		}
 
 		/* adjust functions to fit syzkaller standards */
-		process(line, consts)
+		process(line, consts, &return_vars)
 
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
 			fmt.Printf("unknown syscall %v\n", line.FuncName)
-			break
+			continue
 		}
 
 		fmt.Println("---------Parsing line-----------")
@@ -211,7 +177,9 @@ func parse(filename string, consts *map[string]uint64) {
 				line.Result,
 			}
 			fmt.Printf("caching %v", return_var)
-			return_vars[return_var] = c.Ret
+			if cache(&return_vars, return_var, c.Ret, true) {
+				return_calls[c.Ret] = line.FuncName
+			}
 		}
 
 		// add calls to our program
@@ -237,8 +205,80 @@ func parse(filename string, consts *map[string]uint64) {
 	fmt.Printf("serialized output to %v\n", s_name)
 }
 
-func process(line *sparser.OutputLine, consts *map[string]uint64) {
+func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, returned bool) bool {
+	/* TODO: may want to have more fine-grained type for caching to reduce collisions.
+	as of now we over-write any collision, but this may not be optimal behavior.
+	 */
+
+	if returned {
+		fmt.Printf("caching %v %v", return_var, arg.Type.Name())
+		(*return_vars)[return_var] = arg
+		 return true
+	}
+
+	if _,ok := (*return_vars)[return_var]; !ok {
+		fmt.Printf("caching %v %v", return_var, arg.Type.Name())
+		(*return_vars)[return_var] = arg
+		return true
+
+	}
+	return false
+}
+
+func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]*Arg) {
 	switch line.FuncName {
+	case "accept", "accept4":
+		return_var := returnType{
+			"ResourceType",
+			line.Args[0],
+		}
+		if arg,ok := (*return_vars)[return_var]; ok {
+			switch a := arg.Type.(type) {
+			case *sys.ResourceType:
+				fmt.Printf("return resource %v %v\n", a.TypeName, a.FldName)
+				if label,ok := Accept_labels[a.TypeName]; ok {
+					line.FuncName = line.FuncName + label
+					fmt.Printf("discovered accept type: %v\n", line.FuncName)
+				} else {
+					failf("unknown accept variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+				}
+			default:
+				failf("return_var for accept is NOT a resource type %v\n", line.Unparse())
+			}
+		}
+	case "socket":
+		if line.Args[0] == "AF_INET" {
+			line.FuncName = line.FuncName + "$inet"
+		}
+	case "getsockopt":
+		variant := Pair{line.Args[1],line.Args[2]}
+		/* key collision, need to resolve manually */
+		if line.Args[1] == "SOL_SOCKET" && line.Args[2] == "SO_PEERCRED" {
+			if line.Args[3][0] == '"' {
+				line.FuncName += "$sock_buf"
+			} else {
+				line.FuncName += "$sock_cred"
+			}
+			return
+		}
+
+		if label,ok := Getsockopt_labels[variant]; ok {
+			line.FuncName += label
+		} else if _,ok := (*consts)[variant.B]; ok {
+			line.FuncName += ("$" + variant.B)
+		} else {
+			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+		}
+	case "setsockopt":
+		variant := Pair{line.Args[1],line.Args[2]}
+
+		if label,ok := Setsockopt_labels[variant]; ok {
+			line.FuncName += label
+		} else if _,ok := (*consts)[variant.B]; ok {
+			line.FuncName += ("$" + variant.B)
+		} else {
+			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+		}
 	case "sched_setaffinity":
 		s := line.Args[2]
 		if s[0] == '[' && s[len(s)-1] == ']' {
@@ -296,7 +336,7 @@ func parseArg(typ sys.Type, strace_arg string,
 
 	switch a := typ.(type) {
 	case *sys.FlagsType:
-		fmt.Printf("Call: %v\n parsing FlagsType %v", call, strace_arg)
+		fmt.Printf("Call: %v\nparsing FlagsType %v\n", call, strace_arg)
 		if strace_arg == "nil" {
 			return constArg(a, a.Default()), nil
 		}
@@ -308,7 +348,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" || a.Dir() == sys.DirOut {
 			return constArg(a, a.Default()), nil
 		}
-		extracted_int, err := strconv.ParseUint(strace_arg, 0, 64)
+		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {
 			failf("Error converting int type for syscall: %s, %s", call, err.Error())
 		}
@@ -356,7 +396,7 @@ func parseArg(typ sys.Type, strace_arg string,
 
 		if ptr.Val[0] == '[' {
 			switch a.Type.(type) {
-			case *sys.IntType, *sys.ResourceType:
+			case *sys.IntType, *sys.LenType, *sys.CsumType, *sys.ResourceType:
 				ptr.Val = ptr.Val[1:len(ptr.Val)-1]
 			default:
 			}
@@ -374,7 +414,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				ptr.Val,
 			}
 			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
-			(*return_vars)[return_var] = inner_arg
+			cache(return_vars, return_var, inner_arg, false)
 		}
 
 		outer_arg, outer_calls := addr(s, a, inner_arg.Size(), inner_arg)
@@ -415,6 +455,9 @@ func parseArg(typ sys.Type, strace_arg string,
 		return arg, nil
 	case *sys.ConstType:
 		fmt.Printf("Parsing Const type %v\n", strace_arg)
+		if a.Dir() == sys.DirOut {
+			return constArg(a, a.Default()), nil
+		}
 		data, e := uintToVal(strace_arg)
 		if e != nil {
 			data, e = extractVal(strace_arg, consts)
@@ -489,13 +532,8 @@ func parseArg(typ sys.Type, strace_arg string,
 				switch arg_type.(type) {
 				/* check for edge null conditions */
 				case *sys.StructType:
-					//if len(val) > 2 {
-					//	fmt.Printf("wtf caching val: %v\n", val)
-					//	(*return_vars)[return_var] = inner_arg
-					//}
 				default:
-					fmt.Printf("caching arg %v\n", return_var)
-					(*return_vars)[return_var] = inner_arg
+					cache(return_vars, return_var, inner_arg, false)
 				}
 			}
 
@@ -504,6 +542,11 @@ func parseArg(typ sys.Type, strace_arg string,
 		}
 		arg = groupArg(a, args)
 		return arg, calls
+	case *sys.UnionType:
+		optType := a.Options[0]
+		opt, inner_calls := parseArg(optType, strace_arg, consts, return_vars, call, s)
+		calls = append(calls, inner_calls...)
+		arg = unionArg(a, opt, optType)
 	default:
 		fmt.Printf("Call: %s\n Arg: %v\n", call, typ)
 		fmt.Printf("Args: %v\n", reflect.TypeOf(typ))
@@ -514,12 +557,6 @@ func parseArg(typ sys.Type, strace_arg string,
 
 	return arg, calls
 }
-
-/* func parseInnerArgs(typ sys.Type, strace_arg string,
-	consts *map[string]uint64, return_vars *map[returnType]*Arg,
-	call string, s *state) (arg []*Arg, calls []*Call, tokens []string) {
-} */
-
 
 func ident(arg string) (string, string) {
 	fmt.Printf("ident parsing arg %v\n", arg)
@@ -599,6 +636,11 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 		}
 		if !free {
 			continue
+		}
+
+		/* mark memory as claimed */
+		for j := uintptr(0); j < npages; j++ {
+			s.pages[i+j] = true
 		}
 		// found a free memory section, let's mmap
 		c := createMmapCall(i, npages)
@@ -870,6 +912,10 @@ func constArg(t sys.Type, v uintptr) *Arg {
 
 func dataArg(t sys.Type, data []byte) *Arg {
 	return &Arg{Type: t, Kind: ArgData, Data: append([]byte{}, data...)}
+}
+
+func unionArg(t sys.Type, opt *Arg, typ sys.Type) *Arg {
+	return &Arg{Type: t, Kind: ArgUnion, Option: opt, OptionType: typ}
 }
 
 func resultArg(t sys.Type, r *Arg) *Arg {

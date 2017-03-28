@@ -43,6 +43,7 @@ var (
 	flagLeak     = flag.Bool("leak", false, "detect memory leaks")
 	flagOutput   = flag.String("output", "stdout", "write programs to none/stdout/dmesg/file")
 	flagPprof    = flag.String("pprof", "", "address to serve pprof profiles")
+	flagFuzzDisabled = flag.Bool("fuzz-disabled", false, "disable fuzzing and generation")
 )
 
 const (
@@ -262,21 +263,22 @@ func main() {
 				} else {
 					triageMu.RUnlock()
 				}
-
-				corpusMu.RLock()
-				if len(corpus) == 0 || i%100 == 0 { // generates new prog every 100 executions
-					// Generate a new prog.
-					corpusMu.RUnlock()
-					p := prog.Generate(rnd, programLength /* 30 */, ct)
-					Logf(1, "#%v: generated: %s", i, p)
-					execute(pid, env, p, false, false, false, &statExecGen)
-				} else {
-					// Mutate an existing prog.
-					p := corpus[rnd.Intn(len(corpus))].Clone()
-					corpusMu.RUnlock()
-					p.Mutate(rs, programLength, ct, corpus)
-					Logf(1, "#%v: mutated: %s", i, p)
-					execute(pid, env, p, false, false, false, &statExecFuzz)
+				if !(*flagFuzzDisabled) {
+					corpusMu.RLock()
+					if len(corpus) == 0 || i%100 == 0 {
+						// Generate a new prog.
+						corpusMu.RUnlock()
+						p := prog.Generate(rnd, programLength, ct)
+						Logf(1, "#%v: generated: %s", i, p)
+						execute(pid, env, p, false, false, false, &statExecGen)
+					} else {
+						// Mutate an existing prog.
+						p := corpus[rnd.Intn(len(corpus))].Clone()
+						corpusMu.RUnlock()
+						p.Mutate(rs, programLength, ct, corpus)
+						Logf(1, "#%v: mutated: %s", i, p)
+						execute(pid, env, p, false, false, false, &statExecFuzz)
+					}
 				}
 			}
 		}()

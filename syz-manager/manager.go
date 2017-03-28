@@ -18,6 +18,7 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+	"sort"
 
 	"github.com/google/syzkaller/config"
 	"github.com/google/syzkaller/cover"
@@ -43,6 +44,7 @@ var (
 	flagConfig = flag.String("config", "", "configuration file")
 	flagDebug  = flag.Bool("debug", false, "dump all VM output to console")
 	flagBench  = flag.String("bench", "", "write execution statistics into this file periodically")
+	flagFuzzDisabled = flag.Bool("fuzz-disabled", false, "disable fuzzing and generation of programs")
 )
 
 type Manager struct {
@@ -245,25 +247,26 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 		}
 		go func() {
 			for {
-				time.Sleep(time.Minute)
-				vals := make(map[string]uint64)
+				time.Sleep(10*time.Minute)
+				//vals := make(map[string]uint64)
 				mgr.mu.Lock()
 				if mgr.firstConnect.IsZero() {
 					mgr.mu.Unlock()
 					continue
 				}
+				//summary := mgr.getCallCover()
 				mgr.minimizeCorpus()
-				vals["corpus"] = uint64(len(mgr.corpus))
+				/*vals["corpus"] = uint64(len(mgr.corpus))
 				vals["uptime"] = uint64(time.Since(mgr.firstConnect)) / 1e9
 				vals["fuzzing"] = uint64(mgr.fuzzingTime) / 1e9
 				vals["signal"] = uint64(len(mgr.corpusSignal))
 				vals["coverage"] = uint64(len(mgr.corpusCover))
 				for k, v := range mgr.stats {
 					vals[k] = v
-				}
+				}*/
 				mgr.mu.Unlock()
 
-				data, err := json.MarshalIndent(vals, "", "  ")
+				data, err := json.MarshalIndent(mgr.corpus, "", "  ")
 				if err != nil {
 					Fatalf("failed to serialize bench data")
 				}
@@ -459,8 +462,8 @@ func (mgr *Manager) runInstance(vmCfg *vm.Config, first bool) (*Crash, error) {
 	start := time.Now()
 	atomic.AddUint32(&mgr.numFuzzing, 1)
 	defer atomic.AddUint32(&mgr.numFuzzing, ^uint32(0))
-	cmd := fmt.Sprintf("%v -executor=%v -name=%v -manager=%v -output=%v -procs=%v -leak=%v -cover=%v -sandbox=%v -debug=%v -v=%d",
-		fuzzerBin, executorBin, vmCfg.Name, fwdAddr, mgr.cfg.Output, procs, leak, mgr.cfg.Cover, mgr.cfg.Sandbox, *flagDebug, fuzzerV)
+	cmd := fmt.Sprintf("%v -fuzz-disabled=%v -executor=%v -name=%v -manager=%v -output=%v -procs=%v -leak=%v -cover=%v -sandbox=%v -debug=%v -v=%d",
+		fuzzerBin, *flagFuzzDisabled, executorBin, vmCfg.Name, fwdAddr, mgr.cfg.Output, procs, leak, mgr.cfg.Cover, mgr.cfg.Sandbox, *flagDebug, fuzzerV)
 	outc, errc, err := inst.Run(time.Hour, mgr.vmStop, cmd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run fuzzer: %v", err)
@@ -949,3 +952,40 @@ func (mgr *Manager) hubSync() {
 	mgr.stats["hub new"] += uint64(len(r.Inputs) - dropped)
 	Logf(0, "hub sync: add %v, del %v, drop %v, new %v", len(a.Add), len(a.Del), dropped, len(r.Inputs)-dropped)
 }
+
+func (mgr *Manager) getCallCover() *UISummaryData{
+	data := &UISummaryData{}
+	data.Stats = append(data.Stats, UIStat{Name: "uptime", Value: fmt.Sprint(time.Since(mgr.startTime) / 1e9 * 1e9)})
+	data.Stats = append(data.Stats, UIStat{Name: "fuzzing", Value: fmt.Sprint(mgr.fuzzingTime / 60e9 * 60e9)})
+	data.Stats = append(data.Stats, UIStat{Name: "corpus", Value: fmt.Sprint(len(mgr.corpus))})
+	data.Stats = append(data.Stats, UIStat{Name: "triage queue", Value: fmt.Sprint(len(mgr.candidates))})
+	data.Stats = append(data.Stats, UIStat{Name: "cover", Value: fmt.Sprint(len(mgr.corpusCover)), Link: "/cover"})
+	data.Stats = append(data.Stats, UIStat{Name: "signal", Value: fmt.Sprint(len(mgr.corpusSignal))})
+
+	type CallCov struct {
+		count int
+		cov   cover.Cover
+	}
+	calls := make(map[string]*CallCov)
+	for _, inp := range mgr.corpus {
+		if calls[inp.Call] == nil {
+			calls[inp.Call] = new(CallCov)
+		}
+		cc := calls[inp.Call]
+		cc.count++
+		cc.cov = cover.Union(cc.cov, cover.Cover(inp.Cover))
+	}
+	var cov cover.Cover
+	for c, cc := range calls {
+		cov = cover.Union(cov, cc.cov)
+		data.Calls = append(data.Calls, UICallType{
+			Name:   c,
+			Inputs: cc.count,
+			Cover:  len(cc.cov),
+		})
+	}
+	sort.Sort(UICallTypeArray(data.Calls))
+	return data
+}
+
+
