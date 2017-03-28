@@ -22,65 +22,6 @@ import (
 	"flag"
 )
 
-var (
-	unsupported = map[string]bool{
-		"brk": true,
-		//"fstat": true,
-    		//"exit_group": true,
-		"mprotect": true,
-		"munmap": true,
-		"execve": true,
-		"access": true,
-		"mmap": true,
-		//"accept": true, // need to determine accept type from the type of sockfd. Unsure how to do this cleanly.
-		"bind": true, // same issue
-		"sendto": true, // same
-		// also: problem with select, 2nd arg not correct format
-		"select": true,
-		"recvfrom": true,
-		//"socket": true, // ltp_asapi_03 has comment in format!!
-		"sendmsg": true,
-		"recvmsg": true,
-		"gettimeofday": true,
-		"getsockname": true,
-		"connect": true,
-		"getsockopt": true,
-		//"accept4": true,
-		"mremap": true, // knowing vma location is difficult
-		"getcwd": true, // unsupported
-		"setdomainname": true, // unsupported
-		"reboot": true, // unsupported
-		"getppid": true, // unsupported
-		"umask": true, // unsupported
-		"adjtimex": true, // unsupported
-		"ioctl$FIONBIO": true, // unsupported
-		"sysfs": true,
-		"chdir": true,
-		"fcntl": true,
-		//"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
-		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
-		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
-		//"getrlimit": true, // has arg 8192*1024, cannot evaluate easily
-		//"statfs": true, // types disagree, strace gives struct, syzkaller expects buffer
-		//"fstatfs": true, // types disagree, strace gives struct, syzkaller expects buffer
-		//"ioctl": true, // types disagree, strace gives struct, syzkaller expects buffer
-		/* can build the ioctl$arg from the 2nd arg */
-		//"getdents": true, // types disagree, strace gives struct, syzkaller expects buffer
-	}
-
-	network_labels = map[string]string {
-		"fd": "", // TODO: this is an illegal value. how do we interpret the uniontype?
-		"sock": "",
-		"sock_alg": "$alg",
-		"sock_in": "$inet",
-		"sock_in6": "$inet6",
-		"sock_netrom": "$netrom",
-		"sock_nfc_llcp": "$nfc_llcp",
-		"sock_sctp": "$sctp",
-		"sock_unix": "$unix",
-	}
-)
-
 const (
 	arch = "amd64"
 	maxLineLen = 256 << 10
@@ -184,7 +125,7 @@ func parse(filename string, consts *map[string]uint64) {
 			break
 		}
 
-		if _, ok := unsupported[line.FuncName]; ok {
+		if _, ok := Unsupported[line.FuncName]; ok {
 			continue // don't parse unsupported syscalls
 		}
 
@@ -287,7 +228,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			switch a := arg.Type.(type) {
 			case *sys.ResourceType:
 				fmt.Printf("return resource %v %v\n", a.TypeName, a.FldName)
-				if label,ok := network_labels[a.TypeName]; ok {
+				if label,ok := Accept_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered accept type: %v\n", line.FuncName)
 				} else {
@@ -300,6 +241,35 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "socket":
 		if line.Args[0] == "AF_INET" {
 			line.FuncName = line.FuncName + "$inet"
+		}
+	case "getsockopt":
+		variant := Pair{line.Args[1],line.Args[2]}
+		/* key collision, need to resolve manually */
+		if line.Args[1] == "SOL_SOCKET" && line.Args[2] == "SO_PEERCRED" {
+			if line.Args[3][0] == '"' {
+				line.FuncName += "$sock_buf"
+			} else {
+				line.FuncName += "$sock_cred"
+			}
+			return
+		}
+
+		if label,ok := Getsockopt_labels[variant]; ok {
+			line.FuncName += label
+		} else if _,ok := (*consts)[variant.B]; ok {
+			line.FuncName += ("$" + variant.B)
+		} else {
+			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+		}
+	case "setsockopt":
+		variant := Pair{line.Args[1],line.Args[2]}
+
+		if label,ok := Setsockopt_labels[variant]; ok {
+			line.FuncName += label
+		} else if _,ok := (*consts)[variant.B]; ok {
+			line.FuncName += ("$" + variant.B)
+		} else {
+			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
 		}
 	case "sched_setaffinity":
 		s := line.Args[2]
