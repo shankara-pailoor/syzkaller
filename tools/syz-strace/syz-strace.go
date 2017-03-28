@@ -124,7 +124,6 @@ func parse(filename string, consts *map[string]uint64) {
 			}
 			break
 		}
-
 		if _, ok := Unsupported[line.FuncName]; ok {
 			continue // don't parse unsupported syscalls
 		}
@@ -375,6 +374,9 @@ func parseArg(typ sys.Type, strace_arg string,
 		// TODO: special parsing required if struct is type timespec or timeval
 		if strace_arg == "nil" || a.Dir() == sys.DirOut {
 			return constArg(a, a.Default()), nil
+		}
+		if v, ok := (*consts)[strace_arg]; ok {
+			return constArg(a, uintptr(v)), nil
 		}
 		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {
