@@ -1,5 +1,12 @@
 package syz_structs
 
+import (
+	"strings"
+	"strconv"
+	"regexp"
+	"fmt"
+)
+
 type Stack []byte
 
 func (s Stack) Push(c byte) Stack {
@@ -42,8 +49,10 @@ var (
 		"sendmsg": true,
 		"recvmsg": true,
 		"gettimeofday": true,
+		"keyctl": true,
+		"shmctl": true,
 		"getsockname": true,
-		"connect": true,
+		//"connect": true,
 		"getsockopt": true,
 		//"accept4": true,
 		"mremap": true, // knowing vma location is difficult
@@ -76,6 +85,22 @@ var (
 		"sock_in6": "$inet6",
 		"sock_netrom": "$netrom",
 		"sock_nfc_llcp": "$nfc_llcp",
+		"sock_sctp": "$sctp",
+		"sock_unix": "$unix",
+	}
+
+	Connect_labels = map[string]string {
+		"fd": "",
+		"sock": "",
+		"sock_bt_l2cap": "$bt_l2cap",
+		"sock_bt_rfcomm": "$bt_rfcomm",
+		"sock_bt_sco": "$bt_sco",
+		"sock_in": "$inet",
+		"sock_in6": "$inet6",
+		"sock_netlink": "$netlink",
+		"sock_netrom": "$netrom",
+		"sock_nfc_llcp": "$nfc_llcp",
+		"sock_nfc_raw": "$nfc_raw",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
 	}
@@ -229,5 +254,57 @@ var (
 		"F_ADD_SEALS": "$addseals",
 	}
 
+	Macros = []string{"makedev"}
 
+	MacroExpand_map = map[string]func(string)string {
+		"makedev": MakeDev,
+	}
 )
+
+func Inet_addr(ipaddr string) uint32 {
+	var (
+		ip                 = strings.Split(ipaddr, ".")
+		ip1, ip2, ip3, ip4 uint64
+		ret                uint32
+	)
+	ip1, _ = strconv.ParseUint(ip[0], 10, 8)
+	ip2, _ = strconv.ParseUint(ip[1], 10, 8)
+	ip3, _ = strconv.ParseUint(ip[2], 10, 8)
+	ip4, _ = strconv.ParseUint(ip[3], 10, 8)
+	ret = uint32(ip4)<<24 + uint32(ip3)<<16 + uint32(ip2)<<8 + uint32(ip1)
+	return ret
+}
+
+func Htons(port uint16) uint16 {
+	var (
+		lowbyte  uint8  = uint8(port)
+		highbyte uint8  = uint8(port << 8)
+		ret      uint16 = uint16(lowbyte)<<8 + uint16(highbyte)
+	)
+	return ret
+}
+
+func MakeDev(macro string) string {
+	var major, minor, id int64
+	var err error
+	deviceIds := regexp.MustCompile("[0-9]+").FindAllString(macro, 2) //mknod should only have 2 values
+	fmt.Printf("device Ids: %v\n", deviceIds)
+	if len(deviceIds) != 2 {
+		return macro
+	}
+
+	if major, err = strconv.ParseInt(deviceIds[0], 0, 64); err != nil {
+		return macro
+	}
+
+	if minor, err = strconv.ParseInt(deviceIds[1], 0, 64); err != nil {
+		return macro
+	}
+
+	id = ((minor & 0xff) | ((major & 0xfff) << 8) |  ((minor & ^0xff) << 12) | ((major & ^0xfff) << 32))
+
+	fmt.Printf("id: %d\n", id)
+	return strconv.FormatInt(id, 10)
+}
+
+
