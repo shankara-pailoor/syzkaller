@@ -28,6 +28,7 @@ var (
 		//"exit_group": true,
 		"mprotect": true,
 		"munmap": true,
+		"": true,
 		"execve": true,
 		"access": true,
 		"mmap": true,
