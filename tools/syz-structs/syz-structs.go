@@ -122,6 +122,17 @@ var (
 		Pair{"SOL_SOCKET","SO_ATTACH_BPF"}: "$sock_attack_bpf",
 		Pair{"SOL_SOCKET","SO_TIMESTAMPING"}: "$SO_TIMESTAMPING",
 		Pair{"SOL_SOCKET","SO_ATTACH_FILTER"}: "$SO_ATTACH_FILTER",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVPKTINFO"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVHOPLIMIT"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVRTHDR"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVHOPOPTS"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVDSTOPTS"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVTCLASS"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_2292HOPOPTS"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_2292HOPLIMIT"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_2292RTHDR"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_2292DSTOPTS"}: "$ip6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_2292PKTINFO"}: "$ip6_int",
 	}
 
 	Getsockopt_labels = map[Pair]string {
@@ -168,11 +179,21 @@ var (
 		Pair{"SOL_SOCKET","SO_GET_FILTE"}: "$sock_buf",
 	}
 
+	SocketLevel_map = map[string]string {
+		"SOL_SOCKET": "SOL_SOCKET",
+		"SOL_IPV6": "IPPROTO_IPV6",
+		"SOL_ICMPV6": "IPPROTO_ICMP",
+	}
+
+	Ioctl_map = map[string]string {
+		"FIONBIO": "int_in",
+		"FIOASYNC": "int_in",
+	}
+
 	Socket_labels = map[string]string {
 		"AF_INET": "$inet",
 		"AF_INET6": "$inet6",
 		"AF_KCM": "$kcm",
-
 
 	}
 )
