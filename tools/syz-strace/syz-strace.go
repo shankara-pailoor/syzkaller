@@ -177,7 +177,7 @@ func parse(filename string, consts *map[string]uint64) {
 				line.Result,
 			}
 			fmt.Printf("caching %v", return_var)
-			if cache(&return_vars, return_var, c.Ret) {
+			if cache(&return_vars, return_var, c.Ret, true) {
 				return_calls[c.Ret] = line.FuncName
 			}
 		}
@@ -205,16 +205,24 @@ func parse(filename string, consts *map[string]uint64) {
 	fmt.Printf("serialized output to %v\n", s_name)
 }
 
-func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg) bool {
-	//if _,ok := (*return_vars)[return_var]; !ok {
+func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, returned bool) bool {
 	/* TODO: may want to have more fine-grained type for caching to reduce collisions.
 	as of now we over-write any collision, but this may not be optimal behavior.
 	 */
-	fmt.Printf("caching %v %v", return_var, arg.Type.Name())
-	(*return_vars)[return_var] = arg
-	return true
-	//}
-	//return false
+
+	if returned {
+		fmt.Printf("caching %v %v", return_var, arg.Type.Name())
+		(*return_vars)[return_var] = arg
+		 return true
+	}
+
+	if _,ok := (*return_vars)[return_var]; !ok {
+		fmt.Printf("caching %v %v", return_var, arg.Type.Name())
+		(*return_vars)[return_var] = arg
+		return true
+
+	}
+	return false
 }
 
 func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]*Arg) {
@@ -406,7 +414,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				ptr.Val,
 			}
 			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
-			cache(return_vars, return_var, inner_arg)
+			cache(return_vars, return_var, inner_arg, false)
 		}
 
 		outer_arg, outer_calls := addr(s, a, inner_arg.Size(), inner_arg)
@@ -525,7 +533,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				/* check for edge null conditions */
 				case *sys.StructType:
 				default:
-					cache(return_vars, return_var, inner_arg)
+					cache(return_vars, return_var, inner_arg, false)
 				}
 			}
 
@@ -628,6 +636,11 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 		}
 		if !free {
 			continue
+		}
+
+		/* mark memory as claimed */
+		for j := uintptr(0); j < npages; j++ {
+			s.pages[i+j] = true
 		}
 		// found a free memory section, let's mmap
 		c := createMmapCall(i, npages)
