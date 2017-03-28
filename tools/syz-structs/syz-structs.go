@@ -55,7 +55,7 @@ var (
 		"ioctl$FIONBIO": true, // unsupported
 		"sysfs": true,
 		"chdir": true,
-		"fcntl": true,
+		//"fcntl": true,
 		//"arch_prctl": true, // has two conflicting method signatures!! http://man7.org/linux/man-pages/man2/arch_prctl.2.html
 		//"rt_sigaction": true, // constants such as SIGRTMIN are not defined in syzkaller, and missing last void __user *, restorer argument
 		//"rt_sigprocmask": true, // second arg given as an array, should be pointer
@@ -194,6 +194,38 @@ var (
 		"AF_INET": "$inet",
 		"AF_INET6": "$inet6",
 		"AF_KCM": "$kcm",
-
 	}
+
+	Fcntl_labels = map[string]string {
+		"F_DUPFD": "$dupfd",
+		"F_DUPFD_CLOEXEC": "$dupfd",
+		"F_GETFD": "$getflags",
+		"F_GETFL": "$getflags",
+		"F_GETSIG": "$getflags",
+		"F_GETLEASE": "$getflags",
+		"F_GETPIPE_SZ": "$getflags",
+		"F_GET_SEALS": "$getflags",
+		"F_SETFD": "$setflags",
+		"F_SETFL": "$setstatus",
+		"F_SETLK": "$lock",
+		"F_SETLKW": "$lock",
+		"F_GETLK": "$lock",
+		"F_GETOWN": "$getown",
+		"F_SETOWN": "$setown",
+		"F_GETOWN_EX": "$getownex",
+		"F_SETOWN_EX": "$setownex",
+		"F_SETSIG": "$setsig",
+		"F_SETLEASE": "$setlease",
+		"DN_MULTISHOT": "$notify",
+		"DN_ACCESS": "$notify",
+		"DN_MODIFY": "$notify",
+		"DN_CREATE": "$notify",
+		"DN_DELETE": "$notify",
+		"DN_RENAME": "$notify",
+		"DN_ATTRIB": "$notify",
+		"F_SETPIPE_SZ": "$setpipe",
+		"F_ADD_SEALS": "$addseals",
+	}
+
+
 )

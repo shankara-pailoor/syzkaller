@@ -134,8 +134,9 @@ func parse(filename string, consts *map[string]uint64) {
 
 		meta := sys.CallMap[line.FuncName]
 		if meta == nil {
-			fmt.Printf("unknown syscall %v\n", line.FuncName)
-			continue
+			failf("unknown syscall %v\n", line.Unparse())
+			//fmt.Printf("unknown syscall %v\n", line.FuncName)
+			//continue
 		}
 
 		fmt.Println("---------Parsing line-----------")
@@ -247,8 +248,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			}
 		}
 	case "socket":
-		if line.Args[0] == "AF_INET" {
-			line.FuncName = line.FuncName + "$inet"
+		if label,ok := Socket_labels[line.Args[0]]; ok {
+			line.FuncName += label
+		} else {
+			failf("unrecognized set/getsockopt variant %v\n", line.Unparse())
 		}
 	case "getsockopt":
 		fmt.Printf("argv1: %s\n", line.Args[1])
@@ -283,6 +286,19 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			line.FuncName += ("$" + variant.B)
 		} else {
 			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+		}
+	case "fcntl":
+		if label,ok := Fcntl_labels[line.Args[1]]; ok {
+			line.FuncName += label
+			if meta,ok := sys.CallMap[line.FuncName]; ok {
+				if len(line.Args) < len(meta.Args) { /* third arg is missing, put in default */
+					line.Args = append(line.Args, strconv.FormatUint(uint64(meta.Args[2].Default()), 10))
+				}
+			} else {
+				failf("call not found: %v\n", line.FuncName)
+			}
+		} else {
+			failf("unrecognized fcntl variant %v\n", line.Unparse())
 		}
 	case "sched_setaffinity":
 		s := line.Args[2]
@@ -367,7 +383,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		// TODO: special values only
 		arg, calls = constArg(a, uintptr(extracted_int)), nil
 	case *sys.BufferType:
-		fmt.Println("Parsing Buffer Type: %v\n", strace_arg)
+		fmt.Printf("Parsing Buffer Type: %v\n", strace_arg)
 
 		if a.Dir() != sys.DirOut && strace_arg != "nil" {
 			arg = dataArg(a, []byte(strace_arg[1:len(strace_arg)-1]))
