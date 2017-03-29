@@ -89,6 +89,23 @@ var (
 		"sock_unix": "$unix",
 	}
 
+	Bind_labels = map[string]string {
+		"fd": "",
+		"sock": "",
+		"sock_alg": "$alg",
+		"sock_bt_hci": "$bt_hci",
+		"sock_bt_l2cap": "$bt_l2cap",
+		"sock_bt_rfcomm": "$bt_rfcomm",
+		"sock_bt_sco": "$bt_sco",
+		"sock_in": "$inet",
+		"sock_in6": "$inet6",
+		"sock_netlink": "$netlink",
+		"sock_netrom": "$netrom",
+		"sock_nfc_llcp": "$nfc_llcp",
+		"sock_sctp": "$sctp",
+		"sock_unix": "$unix",
+	}
+
 	Connect_labels = map[string]string {
 		"fd": "",
 		"sock": "",

@@ -199,7 +199,7 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 		return constArg(a, uintptr(a.ValuesPerProc - 1))
 	case *sys.UnionType:
 		/* I know this is horrible but there's no other way to know the union type! :( */
-		if line.FuncName == "connect$inet" && call == "inet_addr" {
+		if strings.Contains(line.FuncName, "$inet") && call == "inet_addr" {
 			var optType sys.Type
 			var inner_arg *Arg
 			args[0] = args[0][1:len(args[0])-1] // strip quotes
@@ -217,6 +217,7 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 			}
 			return unionArg(a, inner_arg, optType)
 		} else {
+			fmt.Printf("`%v`\n", args[0])
 			failf("unexpected call %v parsing arg %v\n", line.Unparse(), val)
 		}
 	default:
@@ -362,26 +363,33 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 				failf("return_var for accept is NOT a resource type %v\n", line.Unparse())
 			}
 		}
-	case "connect":
+	case "bind", "connect":
+		var m *map[string]string
+		label := ""
 		return_var := returnType{
 			"ResourceType",
 			line.Args[0],
 		}
+		if line.FuncName == "bind" {
+			m = &Bind_labels
+		} else {
+			m = &Connect_labels
+		}
 		if arg,ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type.(type) {
 			case *sys.ResourceType:
-				if label,ok := Connect_labels[a.TypeName]; ok {
+				if label,ok = (*m)[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
-					fmt.Printf("discovered connect type: %v\n", line.FuncName)
+					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
-					failf("unknown accept variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
 				}
 			default:
-				failf("first arg ofconnect is NOT a resource type %v\n", line.Unparse())
+				failf("first arg is NOT a resource type %v\n", line.Unparse())
 			}
 		}
 
-		if line.FuncName == "connect$inet" {
+		if label == "$inet" {
 			line.Args[1] = strings.Replace(line.Args[1], "}", ", pad=nil", 1)
 		}
 
