@@ -596,7 +596,6 @@ func parseArg(typ sys.Type, strace_arg string,
 			extracted_int = uint64(a.Default())
 		} else {
 			strace_arg = func () string {
-					fmt.Printf("HERE MOFUCKA\n")
 					for _, macro := range Macros {
 						if strings.Contains(strace_arg, macro) {
 							return MacroExpand_map[macro](strace_arg)
@@ -696,8 +695,12 @@ func parseArg(typ sys.Type, strace_arg string,
 		for i, arg_type := range a.Fields {
 			if !is_nil { // if nil, we need to generate nil values for entire struct
 				struct_arg := struct_args[i]
-				param := strings.SplitN(struct_arg, "=", 2)
-				name, val = param[0], param[1]
+				if strings.Contains(struct_arg, "=") {
+					param := strings.SplitN(struct_arg, "=", 2)
+					name, val = param[0], param[1]
+				} else {
+					val = struct_arg
+				}
 			}
 
 

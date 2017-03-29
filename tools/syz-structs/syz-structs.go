@@ -40,7 +40,7 @@ var (
 		"access": true,
 		"mmap": true,
 		//"accept": true, // need to determine accept type from the type of sockfd. Unsure how to do this cleanly.
-		"bind": true, // same issue
+		//"bind": true, // same issue
 		"sendto": true, // same
 		// also: problem with select, 2nd arg not correct format
 		"select": true,
