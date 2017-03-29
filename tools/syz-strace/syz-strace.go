@@ -392,6 +392,8 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			failf("unrecognized set/getsockopt variant %v\n", line.Unparse())
 		}
 	case "getsockopt":
+		fmt.Printf("argv1: %s\n", line.Args[1])
+		line.Args[1] = SocketLevel_map[line.Args[1]] /*strace uses SOL levels */
 		variant := Pair{line.Args[1],line.Args[2]}
 		/* key collision, need to resolve manually */
 		if line.Args[1] == "SOL_SOCKET" && line.Args[2] == "SO_PEERCRED" {
@@ -411,8 +413,11 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
 		}
 	case "setsockopt":
+		fmt.Printf("setsockopt argv1: %s\n", line.Args[1])
+		line.Args[1] = SocketLevel_map[line.Args[1]]
 		variant := Pair{line.Args[1],line.Args[2]}
 
+		fmt.Printf("variant: %v\n", variant)
 		if label,ok := Setsockopt_labels[variant]; ok {
 			line.FuncName += label
 		} else if _,ok := (*consts)[variant.B]; ok {
@@ -467,7 +472,14 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			failf("%v unexpected arg format for rt_sigprocmask", line.Args[1])
 		}
 	case "ioctl":
-		line.FuncName = line.FuncName + "$" + line.Args[1]
+		candidateName := line.FuncName + "$" + line.Args[1]
+		if _, ok := sys.CallMap[candidateName]; !ok {
+			if _, ok = Ioctl_map[line.Args[1]]; ok {
+			line.FuncName = line.FuncName + "$" + Ioctl_map[line.Args[1]]
+			}
+		} else {
+			line.FuncName = line.FuncName + "$" + line.Args[1]
+		}
 	default:
 	}
 }
@@ -736,7 +748,10 @@ func ident(arg string) (string, string) {
 
 		j := i
 
-		for ; ((i != len(arg) && arg[i] != ',') || len(s) != 0); i++ {
+		for ; i != len(arg) || len(s) != 0; i++ {
+			if len(s) == 0 && arg[i] == ',' {
+				break
+			}
 			if arg[i] == '[' || arg[i] == '{' {
 				s = s.Push(arg[i])
 				continue
