@@ -141,9 +141,9 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
 		} else {
-			//fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
-			//strace_arg = "nil"
-			failf("arg %v %v not present\n", i, typ.Name())
+			fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
+			strace_arg = "nil"
+			//failf("arg %v %v not present\n", i, typ.Name())
 		}
 		parsedArg, calls1 := parseArg(typ, strace_arg, consts, return_vars, line, s)
 		c.Args = append(c.Args, parsedArg)
@@ -1152,12 +1152,17 @@ func failf(msg string, args ...interface{}) {
 
 func extractVal(flags string, consts *map[string]uint64) (uint64, error) {
 	var val uint64 = 0
+	var err error
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64  = 0xFFFFFFFFFFFFFFFF
 		for _, and_op := range strings.Split(or_op, "&") {
 			c, ok := (*consts)[and_op]
 			if !ok { // const doesn't exist, just return 0
-				return 0, errors.New("constant not found: " + and_op)
+				fmt.Printf("c: %s\n", and_op)
+				c, err = strconv.ParseUint(and_op, 8, 64) //this could be an octal
+				if err != nil {
+					return 0, errors.New("constant not found: " + and_op)
+				}
 			}
 			and_val &= c
 		}
