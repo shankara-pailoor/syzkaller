@@ -141,9 +141,9 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
 		} else {
-			fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
-			strace_arg = "nil"
-			//failf("arg %v %v not present\n", i, typ.Name())
+		//	fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
+		//	strace_arg = "nil"
+			failf("arg %v %v not present for call: %s\n", i, typ.Name(), line.FuncName)
 		}
 		parsedArg, calls1 := parseArg(typ, strace_arg, consts, return_vars, line, s)
 		c.Args = append(c.Args, parsedArg)
@@ -601,6 +601,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if len(line.Args) == 2 {
 			line.Args = append(line.Args, "0")
 		}
+	case "mknod":
+		if len(line.Args) == 2 {
+			line.Args = append(line.Args, "0")
+		}
 	default:
 	}
 }
@@ -749,9 +753,14 @@ func parseArg(typ sys.Type, strace_arg string,
 		if a.RangeBegin != 0 || a.RangeEnd != 0 {
 			npages = uintptr(int(a.RangeBegin)) + 1 // + r.Intn(int(a.RangeEnd-a.RangeBegin+1)))
 		}
+		var calls []*Call = nil
 		arg := randPageAddr(s, a, npages, nil, true)
-		//arg, calls = &Arg{Type: a, Val: uintptr(1), Kind: ArgPointer}, nil
-		return arg, nil
+		if call != "mmap" {
+			//We might encounter an mlock done because of a brk
+			//But strace doesn't support brk so we need to allocate the address
+			calls = []*Call{createMmapCall(arg.AddrPage, npages),}
+		}
+		return arg, calls
 	case *sys.ConstType:
 		fmt.Printf("Parsing Const type %v\n", strace_arg)
 		if a.Dir() == sys.DirOut {

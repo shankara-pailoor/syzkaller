@@ -299,6 +299,8 @@ var (
 	Ioctl_map = map[string]string {
 		"FIONBIO": "int_in",
 		"FIOASYNC": "int_in",
+		"FS_IOC_GETFLAGS": "int_out",
+		"FS_IOC_SETFLAGS": "int_in",
 	}
 
 	Socket_labels = map[string]string {
