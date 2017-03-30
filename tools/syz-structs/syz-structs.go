@@ -42,7 +42,7 @@ var (
 		"gettimeofday": true, // unsupported
 		"keyctl": true,
 		"shmctl": true,
-		"getsockname": true,
+		//"getsockname": true,
 		"arch_prctl": true,
 		"mremap": true, // knowing vma location is difficult
 		"getcwd": true, // unsupported
@@ -256,6 +256,17 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_PATHMTU"}: "$ip6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_MATCH"}: "$ip6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_TARGET"}: "$ip6_buf",
+	}
+
+	Getsockname_labels = map[string]string {
+		"fd": "", // TODO: this is an illegal value. how do we interpret the uniontype?
+		"sock": "",
+		"sock_in": "$inet",
+		"sock_in6": "$inet6",
+		"sock_netlink": "$netlink",
+		"sock_netrom": "$netrom",
+		"sock_sctp": "$sctp",
+		"sock_unix": "$unix",
 	}
 
 	SocketLevel_map = map[string]string {

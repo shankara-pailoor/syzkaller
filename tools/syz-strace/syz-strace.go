@@ -447,6 +447,25 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		} else {
 			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
 		}
+	case "getsockname":
+		var label string
+		return_var := returnType{
+			"ResourceType",
+			line.Args[0],
+		}
+		if arg,ok := (*return_vars)[return_var]; ok {
+			switch a := arg.Type.(type) {
+			case *sys.ResourceType:
+				if label,ok = Getsockname_labels[a.TypeName]; ok {
+					line.FuncName = line.FuncName + label
+					fmt.Printf("discovered type: %v\n", line.FuncName)
+				} else {
+					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+				}
+			default:
+				failf("return_var for getsockname is NOT a resource type %v\n", line.Unparse())
+			}
+		}
 	case "select":
 		var f = func(arg string) string {
 			ret := "{"
