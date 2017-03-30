@@ -508,6 +508,24 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if label == "$inet" || label == "$inet6" {
 			line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil", 1)
 		}
+	case "sendmsg":
+		return_var := returnType{
+			"ResourceType",
+			line.Args[0],
+		}
+		if arg,ok := (*return_vars)[return_var]; ok {
+			switch a := arg.Type.(type) {
+			case *sys.ResourceType:
+				if label,ok := Sendmsg_labels[a.TypeName]; ok {
+					line.FuncName = line.FuncName + label
+					fmt.Printf("discovered type: %v\n", line.FuncName)
+				} else {
+					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+				}
+			default:
+				failf("return_var is NOT a resource type %v\n", line.Unparse())
+			}
+		}
 	case "recvfrom":
 		return_var := returnType{
 			"ResourceType",
@@ -520,7 +538,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
-					failf("unknown accept variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
 				}
 			default:
 				failf("return_var is NOT a resource type %v\n", line.Unparse())
@@ -609,8 +627,13 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" || strace_arg == "NULL" {
 			return constArg(a, a.Default()), nil
 		}
-		val, _ := extractVal(strace_arg, consts)
-		arg, calls = constArg(a, uintptr(val)), nil
+		if  val,err := uintToVal(strace_arg); err != nil {
+			arg, calls = constArg(a, uintptr(val)), nil
+		} else if val,err := extractVal(strace_arg, consts); err != nil {
+			arg, calls = constArg(a, uintptr(val)), nil
+		} else {
+			arg, calls = constArg(a, a.Default()), nil
+		}
 	case *sys.ResourceType:
 		fmt.Printf("Resource Type: %v\n", a.Desc)
 		// TODO: special parsing required if struct is type timespec or timeval
