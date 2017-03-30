@@ -141,10 +141,10 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
 		} else {
-			fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
-			strace_arg = "nil"
+			//fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
+			//strace_arg = "nil"
+			failf("arg %v %v not present\n", i, typ.Name())
 		}
-
 		parsedArg, calls1 := parseArg(typ, strace_arg, consts, return_vars, line, s)
 		c.Args = append(c.Args, parsedArg)
 		calls = append(calls, calls1...)
@@ -194,6 +194,9 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 	}
 	fmt.Printf("call %v\n", call)
 	fmt.Printf("args: %v\n", args)
+
+	fmt.Println(reflect.TypeOf(typ))
+	fmt.Println(typ)
 
 	switch a := typ.(type) {
 	/* just choose max allowed for proc args */
@@ -417,7 +420,6 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if label == "$inet" || label == "$inet6" {
 			line.Args[1] = strings.Replace(line.Args[1], "}", ", pad=nil", 1)
 		}
-
 	case "socket":
 		if label,ok := Socket_labels[line.Args[0]]; ok {
 			line.FuncName += label
@@ -445,6 +447,31 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		} else {
 			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
 		}
+	case "select":
+		var f = func(arg string) string {
+			ret := "{"
+			if arg == "NULL" {
+				return "nil"
+			}
+			arg = arg[1:len(arg)-1]
+			masks := strings.Split(arg, " ")
+			for len(masks) < 8 {
+				masks = append(masks, "nil")
+			}
+			for i,mask := range masks {
+				if i == len(masks)-1 {
+					ret += mask
+				} else {
+					ret += mask + ", "
+				}
+			}
+			ret += "}"
+			return ret
+		}
+		for i:=1; i<=3; i++ {
+			line.Args[i] = f(line.Args[i])
+		}
+		fmt.Printf("Processed select: %v\n", line.Unparse())
 	case "setsockopt":
 		fmt.Printf("setsockopt argv1: %s\n", line.Args[1])
 		line.Args[1] = SocketLevel_map[line.Args[1]]
@@ -457,6 +484,47 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			line.FuncName += ("$" + variant.B)
 		} else {
 			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+		}
+	case "sendto":
+		var label string
+		return_var := returnType{
+			"ResourceType",
+			line.Args[0],
+		}
+		if arg,ok := (*return_vars)[return_var]; ok {
+			switch a := arg.Type.(type) {
+			case *sys.ResourceType:
+				if label,ok = Sendto_labels[a.TypeName]; ok {
+					line.FuncName = line.FuncName + label
+					fmt.Printf("discovered sendto type: %v\n", line.FuncName)
+				} else {
+					failf("unknown accept variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+				}
+			default:
+				failf("return_var for accept is NOT a resource type %v\n", line.Unparse())
+			}
+		}
+
+		if label == "$inet" || label == "$inet6" {
+			line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil", 1)
+		}
+	case "recvfrom":
+		return_var := returnType{
+			"ResourceType",
+			line.Args[0],
+		}
+		if arg,ok := (*return_vars)[return_var]; ok {
+			switch a := arg.Type.(type) {
+			case *sys.ResourceType:
+				if label,ok := Recvfrom_labels[a.TypeName]; ok {
+					line.FuncName = line.FuncName + label
+					fmt.Printf("discovered type: %v\n", line.FuncName)
+				} else {
+					failf("unknown accept variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
+				}
+			default:
+				failf("return_var is NOT a resource type %v\n", line.Unparse())
+			}
 		}
 	case "fcntl":
 		if label,ok := Fcntl_labels[line.Args[1]]; ok {
@@ -478,8 +546,6 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 	case "capget":
 		line.Args[1] = "[]"
-	case "select":
-		line.Args[1] = "[]" // TODO: can we work around?
 	case "rt_sigaction":
 		if len(line.Args) < 5 {
 			line.Args = append(line.Args, "{fake=0}")
@@ -513,6 +579,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		} else {
 			line.FuncName = line.FuncName + "$" + line.Args[1]
 		}
+	case "open":
+		if len(line.Args) == 2 {
+			line.Args = append(line.Args, "0")
+		}
 	default:
 	}
 }
@@ -536,7 +606,7 @@ func parseArg(typ sys.Type, strace_arg string,
 	switch a := typ.(type) {
 	case *sys.FlagsType:
 		fmt.Printf("Call: %v\nparsing FlagsType %v\n", call, strace_arg)
-		if strace_arg == "nil" {
+		if strace_arg == "nil" || strace_arg == "NULL" {
 			return constArg(a, a.Default()), nil
 		}
 		val, _ := extractVal(strace_arg, consts)
@@ -677,6 +747,13 @@ func parseArg(typ sys.Type, strace_arg string,
 		var e error
 		if strace_arg == "nil" {
 			data = 0
+		} else if strace_arg == "NULL" {
+			switch b := a.(type) {
+			case *sys.ProcType:
+				data = b.ValuesPerProc - 1
+			default:
+				data = 0
+			}
 		} else {
 			data, e = uintToVal(strace_arg)
 		}

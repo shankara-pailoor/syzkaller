@@ -41,10 +41,10 @@ var (
 		"mmap": true,
 		//"accept": true, // need to determine accept type from the type of sockfd. Unsure how to do this cleanly.
 		//"bind": true, // same issue
-		"sendto": true, // same
+		//"sendto": true, // same
 		// also: problem with select, 2nd arg not correct format
-		"select": true,
-		"recvfrom": true,
+		//"select": true,
+		//"recvfrom": true,
 		//"socket": true, // ltp_asapi_03 has comment in format!!
 		"sendmsg": true,
 		"recvmsg": true,
@@ -226,6 +226,24 @@ var (
 		"SOL_SOCKET": "SOL_SOCKET",
 		"SOL_IPV6": "IPPROTO_IPV6",
 		"SOL_ICMPV6": "IPPROTO_ICMP",
+	}
+
+	Sendto_labels = map[string]string {
+		"fd": "",
+		"sock": "",
+		"sock_in": "$inet",
+		"sock_in6": "$inet6",
+		"sock_sctp": "$sctp",
+		"sock_unix": "$unix",
+	}
+
+	Recvfrom_labels = map[string]string {
+		"fd": "",
+		"sock": "",
+		"sock_in": "$inet",
+		"sock_in6": "$inet6",
+		"sock_sctp": "$sctp",
+		"sock_unix": "$unix",
 	}
 
 	Ioctl_map = map[string]string {
