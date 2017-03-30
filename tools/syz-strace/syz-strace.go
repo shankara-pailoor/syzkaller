@@ -424,10 +424,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if label,ok := Socket_labels[line.Args[0]]; ok {
 			line.FuncName += label
 		} else {
-			failf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+			failf("unrecognized socket variant %v\n", line.Unparse())
 		}
 	case "getsockopt":
-		fmt.Printf("argv1: %s\n", line.Args[1])
+		fmt.Printf("arg 1 and 2: %v and %v\n", line.Args[1], line.Args[2])
 		line.Args[1] = SocketLevel_map[line.Args[1]] /*strace uses SOL levels */
 		variant := Pair{line.Args[1],line.Args[2]}
 		/* key collision, need to resolve manually */
@@ -483,7 +483,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		} else if _,ok := (*consts)[variant.B]; ok {
 			line.FuncName += ("$" + variant.B)
 		} else {
-			fmt.Printf("unrecognized set/getsockopt variant %v\n", line.Unparse())
+			fmt.Printf("unrecognized set sockopt variant %v\n", line.Unparse())
 		}
 	case "sendto":
 		var label string
@@ -627,11 +627,14 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" || strace_arg == "NULL" {
 			return constArg(a, a.Default()), nil
 		}
-		if  val,err := uintToVal(strace_arg); err != nil {
+		if  val,err := uintToVal(strace_arg); err == nil {
+			fmt.Printf("1: Flags type parsing value: %v\n", val)
 			arg, calls = constArg(a, uintptr(val)), nil
-		} else if val,err := extractVal(strace_arg, consts); err != nil {
+		} else if val,err := extractVal(strace_arg, consts); err == nil {
+			fmt.Printf("2: Flags type parsing value: %v\n", val)
 			arg, calls = constArg(a, uintptr(val)), nil
 		} else {
+			fmt.Printf("3: Flags type parsing value: %v\n", a.Default())
 			arg, calls = constArg(a, a.Default()), nil
 		}
 	case *sys.ResourceType:
@@ -1143,7 +1146,7 @@ func failf(msg string, args ...interface{}) {
 func extractVal(flags string, consts *map[string]uint64) (uint64, error) {
 	var val uint64 = 0
 	for _, or_op := range strings.Split(flags, "|") {
-		var and_val uint64  = 1 << 64 - 1
+		var and_val uint64  = 0xFFFFFFFFFFFFFFFF
 		for _, and_op := range strings.Split(or_op, "&") {
 			c, ok := (*consts)[and_op]
 			if !ok { // const doesn't exist, just return 0
