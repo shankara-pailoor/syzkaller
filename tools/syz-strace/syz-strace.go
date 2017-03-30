@@ -700,14 +700,20 @@ func parseArg(typ sys.Type, strace_arg string,
 		}
 
 		args := make([]*Arg, 0)
+		fmt.Printf("%d field len\n", len(a.Fields))
 		for i, arg_type := range a.Fields {
 			if !is_nil { // if nil, we need to generate nil values for entire struct
-				struct_arg := struct_args[i]
-				if strings.Contains(struct_arg, "=") {
-					param := strings.SplitN(struct_arg, "=", 2)
-					name, val = param[0], param[1]
-				} else {
-					val = struct_arg
+				if i < len(struct_args) {
+					//For pselect6, the fd_set just returns an array with the fd mask
+					//However, syzkaller has fd_set as a struct of 8 longs. If there are more 
+					//Fields than what strace gives us then we just keep val "nil"
+					struct_arg := struct_args[i]
+					if strings.Contains(struct_arg, "=") {
+						param := strings.SplitN(struct_arg, "=", 2)
+						name, val = param[0], param[1]
+					} else {
+						val = struct_arg
+					}
 				}
 			}
 
@@ -758,6 +764,8 @@ func parseArg(typ sys.Type, strace_arg string,
 
 	return arg, calls
 }
+
+
 
 func ident(arg string) (string, string) {
 	fmt.Printf("ident parsing arg %v\n", arg)

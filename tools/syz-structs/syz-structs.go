@@ -52,6 +52,7 @@ var (
 		"keyctl": true,
 		"shmctl": true,
 		"getsockname": true,
+		"arch_prctl": true,
 		//"connect": true,
 		"getsockopt": true,
 		//"accept4": true,
@@ -62,7 +63,6 @@ var (
 		"getppid": true, // unsupported
 		"umask": true, // unsupported
 		"adjtimex": true, // unsupported
-		"ioctl$FIONBIO": true, // unsupported
 		"sysfs": true,
 		"chdir": true,
 		//"fcntl": true,
