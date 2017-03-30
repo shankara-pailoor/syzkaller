@@ -192,6 +192,8 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 		arg_str = rem
 		args = append(args, param)
 	}
+	fmt.Printf("call %v\n", call)
+	fmt.Printf("args: %v\n", args)
 
 	switch a := typ.(type) {
 	/* just choose max allowed for proc args */
@@ -216,9 +218,30 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 				failf("unsupported inet_addr %v in %v\n", args[0], val)
 			}
 			return unionArg(a, inner_arg, optType)
+		} else if strings.Contains(line.FuncName, "$inet6") && call == "inet_pton" {
+			var optType sys.Type
+			var inner_arg *Arg
+			if args[1] == "\"::1\"" {
+				optType = a.Options[1]
+			} else if args[1] == "\"::\"" {
+				optType = a.Options[0]
+			} else {
+				failf("invalid sin_addr `%v` in call to inet_pton: %v\n for call%v \n", args[1], val, line.Unparse())
+			}
+			switch b := optType.(type) {
+			case *sys.StructType:
+				a0 := b.Fields[0].(*sys.ConstType)
+				a1 := b.Fields[1].(*sys.ConstType)
+				a0_arg := constArg(a0, a0.Val)
+				a1_arg := constArg(a1, a1.Val)
+				inner_arg = groupArg(b, []*Arg{a0_arg, a1_arg})
+			default:
+				failf("inner option not a structType %v\n", line.Unparse())
+			}
+			return unionArg(a, inner_arg, optType)
 		} else {
 			fmt.Printf("`%v`\n", args[0])
-			failf("unexpected call %v parsing arg %v\n", line.Unparse(), val)
+			failf("unexpected uniontype call %v parsing arg %v\n", line.Unparse(), val)
 		}
 	default:
 	}
@@ -226,15 +249,17 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 	var arg *Arg
 	switch call {
 	case "htons":
-		//data := make([]byte, 8)
-		//binary.BigEndian.PutUint64(data, strconv.ParseUint(args[0], 0, 64))
-		//arg = constArg(typ, uintptr(binary.BigEndian.Uint64(data)))
 		if i,err := strconv.ParseUint(args[0], 0, 16); err == nil {
 			arg = constArg(typ, uintptr(Htons(uint16(i))))
 		} else {
 			failf("failed to parse inner call %v\n", val)
 		}
-
+	case "htonl":
+		if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+			arg = constArg(typ, uintptr(Htonl(uint32(i))))
+		} else {
+			failf("failed to parse inner call %v\n", val)
+		}
 	case "inet_addr":
 		args[0] = args[0][1:len(args[0])-1] // strip quotes
 		if args[0] == "0.0.0.0" {
@@ -389,7 +414,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			}
 		}
 
-		if label == "$inet" {
+		if label == "$inet" || label == "$inet6" {
 			line.Args[1] = strings.Replace(line.Args[1], "}", ", pad=nil", 1)
 		}
 
@@ -687,7 +712,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		arg = groupArg(typ, args)
 	case *sys.StructType:
 		name, val := "nil", "nil"
-		var struct_args []string
+		struct_args := make([]string, 0)
 		if strace_arg != "nil" {
 			strace_arg = strace_arg[1:len(strace_arg) - 1]
 		}
@@ -696,21 +721,28 @@ func parseArg(typ sys.Type, strace_arg string,
 
 		is_nil := (strace_arg == "nil" || len(strace_arg) == 0 || a.Dir() == sys.DirOut)
 		if !is_nil {
-			struct_args = strings.Split(strace_arg, ", ")
+			for len(strace_arg) > 0 {
+				param, rem := ident(strace_arg)
+				strace_arg = rem
+				struct_args = append(struct_args, param)
+			}
+			fmt.Printf("struct_args: %v\n", struct_args)
 		}
 
 		args := make([]*Arg, 0)
+		fmt.Println(a.TypeName, a.FldName)
+		fmt.Println(len(a.Fields))
 		for i, arg_type := range a.Fields {
+			fmt.Printf("%v: %v\n", i, a.Fields[i])
 			if !is_nil { // if nil, we need to generate nil values for entire struct
 				struct_arg := struct_args[i]
 				if strings.Contains(struct_arg, "=") {
 					param := strings.SplitN(struct_arg, "=", 2)
 					name, val = param[0], param[1]
 				} else {
-					val = struct_arg
+					name,val = "<missing>", struct_arg
 				}
 			}
-
 
 			/* If there is a function embedded in the struct
 			 See ltp_accept4_01 line 50 for example
@@ -760,7 +792,6 @@ func parseArg(typ sys.Type, strace_arg string,
 }
 
 func ident(arg string) (string, string) {
-	fmt.Printf("ident parsing arg %v\n", arg)
 	s := make(Stack, 0)
 	var r byte
 	for i := 0; i < len(arg); i++ {
@@ -775,28 +806,32 @@ func ident(arg string) (string, string) {
 			if len(s) == 0 && arg[i] == ',' {
 				break
 			}
-			if arg[i] == '[' || arg[i] == '{' {
+			if arg[i] == '[' || arg[i] == '{' || arg[i] == '(' {
 				s = s.Push(arg[i])
 				continue
 			}
 			if arg[i] == ']' {
 				s, r = s.Pop()
 				if r != '[' {
-					fmt.Println(arg)
-					panic("invalid argument syntax")
+					failf("illegal argument format %v\n", arg)
 				}
 				continue
 			}
 			if arg[i] == '}' {
 				s, r = s.Pop()
 				if r != '{' {
-					fmt.Println(arg)
-					panic("invalid argument syntax")
+					failf("illegal argument format %v\n", arg)
+				}
+				continue
+			}
+			if arg[i] == ')' {
+				s, r = s.Pop()
+				if r != '(' {
+					failf("illegal argument format %v\n", arg)
 				}
 				continue
 			}
 		}
-		fmt.Printf("ident returning %v: %v\n", arg[j:i], arg[i:])
 		return arg[j:i], arg[i:]
 	}
 	fmt.Printf("Error, invalid arg. Paranthesis do not match: %v\n", arg)

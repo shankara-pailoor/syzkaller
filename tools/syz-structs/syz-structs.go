@@ -295,11 +295,26 @@ func Inet_addr(ipaddr string) uint32 {
 func Htons(port uint16) uint16 {
 	var (
 		lowbyte  uint8  = uint8(port)
-		highbyte uint8  = uint8(port << 8)
+		highbyte uint8  = uint8(port >> 8)
 		ret      uint16 = uint16(lowbyte)<<8 + uint16(highbyte)
 	)
 	return ret
 }
+
+
+func Htonl(port uint32) uint32 {
+	var (
+		byte1  uint8  = uint8(port)
+		byte2  uint8  = uint8(port >> 8)
+		byte3  uint8  = uint8(port >> 16)
+		byte4  uint8  = uint8(port >> 24)
+		ret    uint32 = uint32(byte1)<<24 + uint32(byte2)<<16 + uint32(byte3)<<8 + uint32(byte4)
+	)
+	return ret
+}
+
+
+
 
 func MakeDev(macro string) string {
 	var major, minor, id int64
