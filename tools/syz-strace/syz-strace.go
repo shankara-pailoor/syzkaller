@@ -679,11 +679,11 @@ func parseArg(typ sys.Type, strace_arg string,
 		if strace_arg == "nil" || strace_arg == "NULL" {
 			return constArg(a, a.Default()), nil
 		}
-		if  val,err := uintToVal(strace_arg); err == nil {
-			fmt.Printf("1: Flags type parsing value: %v\n", val)
-			arg, calls = constArg(a, uintptr(val)), nil
-		} else if val,err := extractVal(strace_arg, consts); err == nil {
+		if val,err := extractVal(strace_arg, a.FldName, consts); err == nil {
 			fmt.Printf("2: Flags type parsing value: %v\n", val)
+			arg, calls = constArg(a, uintptr(val)), nil
+		} else if val,err := uintToVal(strace_arg); err == nil {
+			fmt.Printf("1: Flags type parsing value: %v\n", val)
 			arg, calls = constArg(a, uintptr(val)), nil
 		} else {
 			fmt.Printf("3: Flags type parsing value: %v\n", a.Default())
@@ -790,7 +790,7 @@ func parseArg(typ sys.Type, strace_arg string,
 			extracted_int, err = uintToVal(strace_arg)
 		}
 		if err != nil { /* const */
-			extracted_int, err = extractVal(strace_arg, consts)
+			extracted_int, err = extractVal(strace_arg, a.FldName, consts)
 		}
 		if err != nil {
 			failf("cannot parse IntType input %v\n", strace_arg)
@@ -819,7 +819,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		}
 		data, e := uintToVal(strace_arg)
 		if e != nil {
-			data, e = extractVal(strace_arg, consts)
+			data, e = extractVal(strace_arg, a.FldName, consts)
 		}
 		if strace_arg == "nil" || e != nil {
 			fmt.Printf("Creating constarg with val %v\n", a.Val)
@@ -1223,16 +1223,21 @@ func failf(msg string, args ...interface{}) {
 	os.Exit(1)
 }
 
-func extractVal(flags string, consts *map[string]uint64) (uint64, error) {
+func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, error) {
 	var val uint64 = 0
 	var err error
+	var base int = 0
+
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64  = 0xFFFFFFFFFFFFFFFF
 		for _, and_op := range strings.Split(or_op, "&") {
 			c, ok := (*consts)[and_op]
 			if !ok { // const doesn't exist, just return 0
 				fmt.Printf("c: %s\n", and_op)
-				c, err = strconv.ParseUint(and_op, 8, 64) //this could be an octal
+				if mode == "mode" {
+					base = 8
+				}
+				c, err = strconv.ParseUint(and_op, base, 64) //this could be an octal
 				if err != nil {
 					return 0, errors.New("constant not found: " + and_op)
 				}
