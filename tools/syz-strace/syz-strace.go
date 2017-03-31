@@ -141,9 +141,9 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
 		} else {
-		//	fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
-		//	strace_arg = "nil"
-			failf("arg %v %v not present for call: %s\n", i, typ.Name(), line.FuncName)
+			fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
+			strace_arg = "nil"
+			//failf("arg %v %v not present for call: %s\n", i, typ.Name(), line.FuncName)
 		}
 		parsedArg, calls1 := parseArg(typ, strace_arg, consts, return_vars, line, s)
 		c.Args = append(c.Args, parsedArg)
@@ -218,7 +218,10 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 				optType = a.Options[2]
 				inner_arg = constArg(optType, uintptr(0xffffffff))
 			} else {
-				failf("unsupported inet_addr %v in %v\n", args[0], val)
+				fmt.Printf("unsupported inet_addr %v in %v\n", args[0], val)
+				// TODO: is this right? Will syzkaller mutate later on? How do we hit these EADDRNOTAVAIL blocks
+				optType = a.Options[2]
+				inner_arg = constArg(optType, uintptr(0xffffffff))
 			}
 			return unionArg(a, inner_arg, optType)
 		} else if strings.Contains(line.FuncName, "$inet6") && call == "inet_pton" {
@@ -418,7 +421,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 
 		if label == "$inet" || label == "$inet6" {
-			line.Args[1] = strings.Replace(line.Args[1], "}", ", pad=nil", 1)
+			line.Args[1] = strings.Replace(line.Args[1], "}", ", pad=nil}", 1)
 		}
 	case "socket":
 		if label,ok := Socket_labels[line.Args[0]]; ok {
@@ -427,8 +430,11 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			failf("unrecognized socket variant %v\n", line.Unparse())
 		}
 	case "getsockopt":
+		fmt.Println(line.Unparse())
 		fmt.Printf("arg 1 and 2: %v and %v\n", line.Args[1], line.Args[2])
-		line.Args[1] = SocketLevel_map[line.Args[1]] /*strace uses SOL levels */
+		if name,ok := SocketLevel_map[line.Args[1]]; ok { /*strace uses SOL levels */
+			line.Args[1] = name
+		}
 		variant := Pair{line.Args[1],line.Args[2]}
 		/* key collision, need to resolve manually */
 		if line.Args[1] == "SOL_SOCKET" && line.Args[2] == "SO_PEERCRED" {
@@ -525,7 +531,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 
 		if label == "$inet" || label == "$inet6" {
-			line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil", 1)
+			line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil}", 1)
 		}
 	case "sendmsg":
 		return_var := returnType{
@@ -623,6 +629,19 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "mknod":
 		if len(line.Args) == 2 {
 			line.Args = append(line.Args, "0")
+		}
+	case "shmctl":
+		candidateName := line.FuncName + "$" + line.Args[1]
+		if _, ok := sys.CallMap[candidateName]; !ok {
+			fmt.Printf("unknown shmctl variant %v\n", line.Unparse())
+		} else {
+			line.FuncName = candidateName
+		}
+	case "keyctl":
+		if label,ok := Keyctl_labels[line.Args[0]]; ok {
+			line.FuncName = line.FuncName + label
+		} else {
+			fmt.Printf("unknown keyctl variant %v\n", line.Unparse())
 		}
 	default:
 	}
@@ -795,19 +814,25 @@ func parseArg(typ sys.Type, strace_arg string,
 		}
 		fmt.Printf("Creating constarg with val %v\n", data)
 		return constArg(a, uintptr(data)), nil
-	case *sys.ProcType, *sys.LenType, *sys.CsumType:
-		fmt.Println("Proc/Len/Csum Type")
+	case *sys.ProcType:
+		fmt.Println("Proc Type", strace_arg)
 		var data uint64
 		var e error
-		if strace_arg == "nil" {
-			data = 0
-		} else if strace_arg == "NULL" {
-			switch b := a.(type) {
-			case *sys.ProcType:
-				data = b.ValuesPerProc - 1
-			default:
-				data = 0
+		data, e = uintToVal(strace_arg)
+		if e == nil {
+			if a.ValuesPerProc - 1 < data {
+				data = a.ValuesPerProc - 1
 			}
+		} else {
+			data = a.ValuesPerProc - 1
+		}
+		return constArg(a, uintptr(data)), nil
+	case *sys.LenType, *sys.CsumType:
+		fmt.Println("Len/Csum Type")
+		var data uint64
+		var e error
+		if strace_arg == "nil" || strace_arg == "NULL" {
+			data = 0
 		} else {
 			data, e = uintToVal(strace_arg)
 		}

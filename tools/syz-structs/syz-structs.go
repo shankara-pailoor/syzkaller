@@ -40,8 +40,8 @@ var (
 		"sendmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"recvmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"gettimeofday": true, // unsupported
-		"keyctl": true,
-		"shmctl": true,
+		//"keyctl": true,
+		//"shmctl": true,
 		//"getsockname": true,
 		"arch_prctl": true,
 		"mremap": true, // knowing vma location is difficult
@@ -350,6 +350,32 @@ var (
 		"DN_ATTRIB": "$notify",
 		"F_SETPIPE_SZ": "$setpipe",
 		"F_ADD_SEALS": "$addseals",
+	}
+
+	Keyctl_labels = map[string]string {
+		"KEYCTL_GET_KEYRING_ID": "$get_keyring_id",
+		"KEYCTL_JOIN_SESSION_KEYRING": "$join",
+		"KEYCTL_UPDATE": "$update",
+		"KEYCTL_REVOKE": "$revoke",
+		"KEYCTL_DESCRIBE": "$describe",
+		"KEYCTL_CLEAR": "$clear",
+		"KEYCTL_LINK": "$link",
+		"KEYCTL_UNLINK": "$unlink",
+		"KEYCTL_SEARCH": "$search",
+		"KEYCTL_READ": "$read",
+		"KEYCTL_CHOWN": "$chown",
+		"KEYCTL_SETPERM": "$setperm",
+		"KEYCTL_INSTANTIATE": "$instantiate",
+		"KEYCTL_NEGATE": "$negate",
+		"KEYCTL_SET_REQKEY_KEYRING": "$set_reqkey_keyring",
+		"KEYCTL_SET_TIMEOUT": "$set_timeout",
+		"KEYCTL_ASSUME_AUTHORITY": "$assume_authority",
+		"KEYCTL_GET_SECURITY": "$get_security",
+		"KEYCTL_SESSION_TO_PARENT": "$session_to_parent",
+		"KEYCTL_REJECT": "$reject",
+		"KEYCTL_INSTANTIATE_IOV": "$instantiate_iov",
+		"KEYCTL_INVALIDATE": "$invalidate",
+		"KEYCTL_GET_PERSISTENT": "$get_persistent",
 	}
 
 	Macros = []string{"makedev"}
