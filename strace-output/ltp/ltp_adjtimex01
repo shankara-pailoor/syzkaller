@@ -1,8 +1,0 @@
-adjtimex({modes=0, offset=0, freq=0, maxerror=16000000, esterror=16000000, status=STA_UNSYNC, constant=10, precision=1, tolerance=32768000, time={tv_sec=1490344330, tv_usec=447777}, tick=10000, ppsfreq=0, jitter=0, shift=0, stabil=0, jitcnt=0, calcnt=0, errcnt=0, stbcnt=0, tai=0}) = 5 (TIME_ERROR)
-adjtimex({modes=ADJ_OFFSET|ADJ_FREQUENCY|ADJ_MAXERROR|ADJ_ESTERROR|ADJ_STATUS|ADJ_TIMECONST|ADJ_TICK, offset=0, freq=0, maxerror=16000000, esterror=16000000, status=STA_UNSYNC, constant=10, precision=1, tolerance=32768000, time={tv_sec=1490344330, tv_usec=448338}, tick=10000, ppsfreq=0, jitter=0, shift=0, stabil=0, jitcnt=0, calcnt=0, errcnt=0, stbcnt=0, tai=0}) = 5 (TIME_ERROR)
-ioctl(1, TCGETS, 0x7ffd5d5897f0)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=86812, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:32:10+0000.311952975, st_mtime=2017-03-24T08:32:10+0000.311952975, st_ctime=2017-03-24T08:32:10+0000.311952975}) = 0
-adjtimex({modes=ADJ_OFFSET|0x8000, offset=0, freq=0, maxerror=16000000, esterror=16000000, status=STA_UNSYNC, constant=10, precision=1, tolerance=32768000, time={tv_sec=1490344330, tv_usec=450072}, tick=10000, ppsfreq=0, jitter=0, shift=0, stabil=0, jitcnt=0, calcnt=0, errcnt=0, stbcnt=0, tai=0}) = 5 (TIME_ERROR)
-write(1, &0x55d992544010="adjtimex01    1  TPASS  :  adjtimex() with mode 16447 returned 5\nadjtimex01    2  TPASS  :  adjtimex() with mode 32769 returned 5\n", 130) = 130
-exit_group(0)                           = ?
-+++ exited with 0 +++

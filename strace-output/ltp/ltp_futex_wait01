@@ -1,9 +1,0 @@
-futex(0x5624da51450c, FUTEX_WAIT, 0, {tv_sec=0, tv_nsec=10000}) = -1 ETIMEDOUT (Connection timed out)
-ioctl(1, TCGETS, 0x7ffe797f66b0)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=87687, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:32:54+0000.226952975, st_mtime=2017-03-24T08:32:54+0000.226952975, st_ctime=2017-03-24T08:32:54+0000.226952975}) = 0
-futex(0x5624da51450c, FUTEX_WAIT, 1, {tv_sec=0, tv_nsec=10000}) = -1 EAGAIN (Resource temporarily unavailable)
-futex(0x5624da51450c, FUTEX_WAIT_PRIVATE, 0, {tv_sec=0, tv_nsec=10000}) = -1 ETIMEDOUT (Connection timed out)
-futex(0x5624da51450c, FUTEX_WAIT_PRIVATE, 1, {tv_sec=0, tv_nsec=10000}) = -1 EAGAIN (Resource temporarily unavailable)
-write(1, &0x5624db4cf010="futex_wait01    1  TPASS  :  futex_wait(): errno=ETIMEDOUT(110): Connection timed out\nfutex_wait01    2  TPASS  :  futex_wait(): errno=EAGAIN/EWOULDBLOCK(11): Resource temporarily unavailable\nfutex_wait01    3  TPASS  :  futex_wait(): errno=ETIMEDOUT(110): Connection timed out\nfutex_wait01    4  TPASS  :  futex_wait(): errno=EAGAIN/EWOULDBLOCK(11): Resource temporarily unavailable\n", 384) = 384
-exit_group(0)                           = ?
-+++ exited with 0 +++

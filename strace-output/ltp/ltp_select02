@@ -1,7 +1,0 @@
-pipe([3, 4])                            = 0
-select(5, [3], [4], NULL, {tv_sec=0, tv_usec=0}) = 1 (out [4], left {tv_sec=0, tv_usec=0})
-ioctl(1, TCGETS, 0x7ffcd7a90740)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=89205, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:34:59+0000.994952975, st_mtime=2017-03-24T08:34:59+0000.994952975, st_ctime=2017-03-24T08:34:59+0000.994952975}) = 0
-write(1, &0x561575e5e010="select02    1  TPASS  :  select(5, &Readfds, &Writefds, 0, &timeout) timeout = 0 usecs\n", 87) = 87
-exit_group(0)                           = ?
-+++ exited with 0 +++

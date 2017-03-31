@@ -1,8 +1,0 @@
-uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
-ioperm(0x3fd, 0x3, 1)                   = 0
-ioctl(1, TCGETS, 0x7ffc663dc500)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=87788, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:33:30+0000.827952975, st_mtime=2017-03-24T08:33:30+0000.827952975, st_ctime=2017-03-24T08:33:30+0000.827952975}) = 0
-ioperm(0x3fd, 0x3, 0)                   = 0
-write(1, &0x56125376a010="ioperm01    1  TPASS  :  ioperm() passed for port address 1021, returned 0\n", 75) = 75
-exit_group(0)                           = ?
-+++ exited with 0 +++

@@ -1,6 +1,0 @@
-getpgrp()                               = 14215
-ioctl(1, TCGETS, 0x7fff65abe050)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=87753, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:33:19+0000.910952975, st_mtime=2017-03-24T08:33:19+0000.910952975, st_ctime=2017-03-24T08:33:19+0000.910952975}) = 0
-write(1, &0x55dccf42c010="getpgrp01    1  TPASS  :  getpgrp returned 14215\n", 49) = 49
-exit_group(0)                           = ?
-+++ exited with 0 +++
