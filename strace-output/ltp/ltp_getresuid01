@@ -1,9 +1,0 @@
-getuid()                                = 0
-geteuid()                               = 0
-geteuid()                               = 0
-getresuid([0], [0], [0])                = 0
-ioctl(1, TCGETS, 0x7ffee07db350)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=86928, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:33:21+0000.915952975, st_mtime=2017-03-24T08:33:21+0000.915952975, st_ctime=2017-03-24T08:33:21+0000.915952975}) = 0
-write(1, &0x55c3c7201010="getresuid01    1  TPASS  :  Functionality of getresuid() successful\n", 68) = 68
-exit_group(0)                           = ?
-+++ exited with 0 +++

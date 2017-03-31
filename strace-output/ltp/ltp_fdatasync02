@@ -1,9 +1,0 @@
-fdatasync(-1)                           = -1 EBADF (Bad file descriptor)
-ioctl(1, TCGETS, 0x7ffc3a628420)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=86852, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-24T08:32:46+0000.392952975, st_mtime=2017-03-24T08:32:46+0000.392952975, st_ctime=2017-03-24T08:32:46+0000.392952975}) = 0
-open("/dev/null", O_RDONLY)             = 3
-fdatasync(3)                            = -1 EINVAL (Invalid argument)
-close(3)                                = 0
-write(1, &0x55f9ed3ca010="fdatasync02    1  TPASS  :  Expected failure for invalid file descriptor, errno: 9\nfdatasync02    2  TPASS  :  Expected failure for file descriptor to a special file, errno: 22\n", 177) = 177
-exit_group(0)                           = ?
-+++ exited with 0 +++
