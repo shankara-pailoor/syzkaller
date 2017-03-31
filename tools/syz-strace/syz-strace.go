@@ -358,20 +358,23 @@ func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, re
 	/* TODO: may want to have more fine-grained type for caching to reduce collisions.
 	as of now we over-write any collision, but this may not be optimal behavior.
 	 */
+	switch arg.Kind {
+	case ArgReturn, ArgConst, ArgResult:
+		if returned {
+			fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
+			(*return_vars)[return_var] = arg
+			return true
+		}
 
-	if returned {
-		fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
-		(*return_vars)[return_var] = arg
-		 return true
+		if _,ok := (*return_vars)[return_var]; !ok {
+			fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
+			(*return_vars)[return_var] = arg
+			return true
+		}
+		return false
+	default:
+		return false
 	}
-
-	if _,ok := (*return_vars)[return_var]; !ok {
-		fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
-		(*return_vars)[return_var] = arg
-		return true
-
-	}
-	return false
 }
 
 func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]*Arg) {
