@@ -818,14 +818,19 @@ func parseArg(typ sys.Type, strace_arg string,
 		fmt.Println("Proc Type", strace_arg)
 		var data uint64
 		var e error
-		data, e = uintToVal(strace_arg)
+		if a.Dir() == sys.DirOut {
+			data = uint64(a.Default())
+		} else {
+			data, e = uintToVal(strace_arg)
+		}
 		if e == nil {
-			if a.ValuesPerProc - 1 < data {
+			if data > a.ValuesPerProc - 1 {
 				data = a.ValuesPerProc - 1
 			}
 		} else {
 			data = a.ValuesPerProc - 1
 		}
+		fmt.Printf("Proc Type parsing proc value %v\n", data)
 		return constArg(a, uintptr(data)), nil
 	case *sys.LenType, *sys.CsumType:
 		fmt.Println("Len/Csum Type")
