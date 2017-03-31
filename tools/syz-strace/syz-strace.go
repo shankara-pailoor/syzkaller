@@ -593,7 +593,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if len(line.Args) < 5 {
 			line.Args = append(line.Args, "{fake=0}")
 		}
-		if line.Args[0] == "SIGRT_1" || line.Args[0] == "SIGRT_16" {
+		if strings.Contains(line.Args[0], "SIGRT_") {
 			min := int((*consts)["SIGRTMIN"])
 			max := int((*consts)["SIGRTMAX"])
 			line.Args[0] = strconv.Itoa(rand.Intn(max - min + 1) + min)
@@ -602,16 +602,24 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			new := strings.Replace(line.Args[1], "[ALRM]", "{mask=14}", 1)
 			line.Args[1] = new
 		}
+		if strings.Contains(line.Args[1], "[RT_3]") { // todo: can't find value of rt_3
+			new := strings.Replace(line.Args[1], "[RT_3]", "[]", 1)
+			line.Args[1] = new
+		}
 		line.Args[1] = strings.Replace(line.Args[1], "~[RTMIN RT_1]", "[]", 1)
-	case "rt_sigprocmask":
-		if strings.Contains(line.Args[1], "RTMIN") {
+	case "rt_sigprocmask": // TODO: look at ltp_rtsigprocmask02. how to properly handle the addr args?
+		// TODO: removed '~' from second arg orgiinally ~[RTMIN RT_1]
+		if strings.Contains(line.Args[1], "RTMIN") || strings.Contains(line.Args[1], "RT_3") {
 			line.Args[1] = "{mask=0x8001}"
 		} else if strings.Contains(line.Args[1], "RTMAX") {
 			line.Args[1] = "{mask=0xfffffffffffffffe}"
 		} else if line.Args[1] == "NULL" {
 			line.Args[1] = "[]"
-		} else {
-			failf("%v unexpected arg format for rt_sigprocmask", line.Args[1])
+		}
+
+		if strings.Contains(line.Args[2], "[RT_3]") { // todo: can't find value of rt_3
+			new := strings.Replace(line.Args[1], "[RT_3]", "[]", 1)
+			line.Args[1] = new
 		}
 	case "ioctl":
 		candidateName := line.FuncName + "$" + line.Args[1]

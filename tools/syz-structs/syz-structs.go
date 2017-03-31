@@ -40,6 +40,7 @@ var (
 		"sendmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"recvmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"gettimeofday": true, // unsupported
+		"kill": true, // unsupported
 		//"keyctl": true,
 		//"shmctl": true,
 		//"getsockname": true,
@@ -51,7 +52,7 @@ var (
 		"getppid": true, // unsupported
 		"umask": true, // unsupported
 		"adjtimex": true, // unsupported
-		"ioctl$FIONBIO": true, // unsupported
+		//"ioctl$FIONBIO": true, // unsupported
 		"sysfs": true, // unsupported
 		"chdir": true, // unsupported
 	}
