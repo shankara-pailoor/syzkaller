@@ -1,0 +1,60 @@
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22331, tv_nsec=942536517}) = 0
+timerfd_create(CLOCK_MONOTONIC, 0)      = 3
+timerfd_settime(3, 0, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=0, tv_nsec=500000000}}, NULL) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\1\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22332, tv_nsec=446830357}) = 0
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22332, tv_nsec=447898857}) = 0
+timerfd_settime(3, TFD_TIMER_ABSTIME, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=22332, tv_nsec=947898000}}, NULL) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\1\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22332, tv_nsec=955144767}) = 0
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22332, tv_nsec=956185737}) = 0
+timerfd_settime(3, TFD_TIMER_ABSTIME, {it_interval={tv_sec=0, tv_nsec=100000000}, it_value={tv_sec=22333, tv_nsec=56185000}}, NULL) = 0
+nanosleep({tv_sec=1, tv_nsec=0}, 0x7ffdf0c0ee60) = 0
+timerfd_gettime(3, {it_interval={tv_sec=0, tv_nsec=100000000}, it_value={tv_sec=0, tv_nsec=94007363}}) = 0
+nanosleep({tv_sec=1, tv_nsec=0}, 0x7ffdf0c0ee60) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\24\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22334, tv_nsec=973155597}) = 0
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22334, tv_nsec=974190327}) = 0
+timerfd_settime(3, 0, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=0, tv_nsec=100000000}}, NULL) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\1\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22335, tv_nsec=77865867}) = 0
+fcntl(3, F_GETFL)                       = 0x2 (flags O_RDWR)
+fcntl(3, F_SETFL, O_RDWR|O_NONBLOCK)    = 0
+read(3, 0x7ffdf0c0eeb8, 8)              = -1 EAGAIN (Resource temporarily unavailable)
+fcntl(3, F_GETFL)                       = 0x802 (flags O_RDWR|O_NONBLOCK)
+fcntl(3, F_SETFL, O_RDWR)               = 0
+close(3)                                = 0
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942299, tv_nsec=59857817}) = 0
+timerfd_create(CLOCK_REALTIME, 0)       = 3
+timerfd_settime(3, 0, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=0, tv_nsec=500000000}}, NULL) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\1\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942299, tv_nsec=570154407}) = 0
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942299, tv_nsec=571154447}) = 0
+timerfd_settime(3, TFD_TIMER_ABSTIME, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=1490942300, tv_nsec=71154000}}, NULL) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\1\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942300, tv_nsec=76073277}) = 0
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942300, tv_nsec=76950247}) = 0
+timerfd_settime(3, TFD_TIMER_ABSTIME, {it_interval={tv_sec=0, tv_nsec=100000000}, it_value={tv_sec=1490942300, tv_nsec=176950000}}, NULL) = 0
+nanosleep({tv_sec=1, tv_nsec=0}, 0x7ffdf0c0ee60) = 0
+timerfd_gettime(3, {it_interval={tv_sec=0, tv_nsec=100000000}, it_value={tv_sec=0, tv_nsec=84531473}}) = 0
+nanosleep({tv_sec=1, tv_nsec=0}, 0x7ffdf0c0ee60) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\24\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942302, tv_nsec=98582837}) = 0
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942302, tv_nsec=99151477}) = 0
+timerfd_settime(3, 0, {it_interval={tv_sec=0, tv_nsec=0}, it_value={tv_sec=0, tv_nsec=100000000}}, NULL) = 0
+poll([{fd=3, events=POLLIN}], 1, -1)    = 1 ([{fd=3, revents=POLLIN}])
+read(3, &0x7ffdf0c0ee78="\1\0\0\0\0\0\0\0", 8) = 8
+clock_gettime(CLOCK_REALTIME, {tv_sec=1490942302, tv_nsec=201169927}) = 0
+fcntl(3, F_GETFL)                       = 0x2 (flags O_RDWR)
+fcntl(3, F_SETFL, O_RDWR|O_NONBLOCK)    = 0
+read(3, 0x7ffdf0c0eeb8, 8)              = -1 EAGAIN (Resource temporarily unavailable)
+fcntl(3, F_GETFL)                       = 0x802 (flags O_RDWR|O_NONBLOCK)
+fcntl(3, F_SETFL, O_RDWR)               = 0
+close(3)                                = 0

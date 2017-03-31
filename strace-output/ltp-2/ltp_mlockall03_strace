@@ -1,0 +1,22 @@
+setresuid(-1, 65534, -1)                = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=7, rlim_max=10}) = 0
+mlockall(MCL_CURRENT)                   = -1 ENOMEM (Cannot allocate memory)
+ioctl(1, TCGETS, 0x7ffd95060160)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44844, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:51+0000.551899077, st_mtime=2017-03-31T06:37:51+0000.551899077, st_ctime=2017-03-31T06:37:51+0000.551899077}) = 0
+setresuid(-1, 0, -1)                    = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=RLIM64_INFINITY, rlim_max=RLIM64_INFINITY}) = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=0, rlim_max=0}) = 0
+open("/etc/passwd", O_RDONLY|O_CLOEXEC) = 3
+lseek(3, 0, SEEK_CUR)                   = 0
+fstat(3, {st_dev=makedev(8, 0), st_ino=394234, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=810, st_atime=2017-03-31T00:26:28+0000.200860300, st_mtime=2017-03-04T09:32:43+0000.834398974, st_ctime=2017-03-04T09:32:49+0000.358399041}) = 0
+mmap(NULL, 810, PROT_READ, MAP_SHARED, 3, 0) = 0x7ff32dab5000
+lseek(3, 810, SEEK_SET)                 = 810
+munmap(0x7ff32dab5000, 810)             = 0
+close(3)                                = 0
+setresuid(-1, 65534, -1)                = 0
+mlockall(MCL_CURRENT)                   = -1 EPERM (Operation not permitted)
+setresuid(-1, 0, -1)                    = 0
+mlockall(MCL_ONFAULT|0xfffffff8)        = -1 EINVAL (Invalid argument)
+write(1, &0x18e1660="mlockall03    1  TPASS  :  expected failure - errno = 12 : Cannot allocate memory\nmlockall03    2  TPASS  :  expected failure - errno = 1 : Operation not permitted\nmlockall03    3  TPASS  :  expected failure - errno = 22 : Invalid argument\n", 240) = 240
+exit_group(0)                           = ?
++++ exited with 0 +++
