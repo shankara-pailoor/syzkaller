@@ -1,0 +1,33 @@
+open("/etc/passwd", O_RDONLY|O_CLOEXEC) = 3
+lseek(3, 0, SEEK_CUR)                   = 0
+fstat(3, {st_dev=makedev(8, 0), st_ino=394234, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=810, st_atime=2017-03-31T00:26:28+0000.200860300, st_mtime=2017-03-04T09:32:43+0000.834398974, st_ctime=2017-03-04T09:32:49+0000.358399041}) = 0
+mmap(NULL, 810, PROT_READ, MAP_SHARED, 3, 0) = 0x7fa7c5c30000
+lseek(3, 810, SEEK_SET)                 = 810
+munmap(0x7fa7c5c30000, 810)             = 0
+close(3)                                = 0
+getrlimit(RLIMIT_MEMLOCK, {rlim_cur=64*1024, rlim_max=64*1024}) = 0
+uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
+mmap(NULL, 4096, PROT_READ, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0) = 0x7fa7c5c30000
+munmap(0x7fa7c5c30000, 4096)            = 0
+mlock(0x7fa7c5c30000, 4096)             = -1 ENOMEM (Cannot allocate memory)
+ioctl(1, TCGETS, 0x7ffe13311800)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43868, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:50+0000.744899077, st_mtime=2017-03-31T06:37:50+0000.744899077, st_ctime=2017-03-31T06:37:50+0000.744899077}) = 0
+uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=4095, rlim_max=4095}) = 0
+mmap(NULL, 4096, PROT_READ, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0) = 0x7fa7c5c30000
+setresuid(-1, 65534, -1)                = 0
+mlock(0x7fa7c5c30000, 4096)             = -1 ENOMEM (Cannot allocate memory)
+setresuid(-1, 0, -1)                    = 0
+munmap(0x7fa7c5c30000, 4096)            = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=64*1024, rlim_max=64*1024}) = 0
+uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=0, rlim_max=0}) = 0
+mmap(NULL, 4096, PROT_READ, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0) = 0x7fa7c5c30000
+setresuid(-1, 65534, -1)                = 0
+mlock(0x7fa7c5c30000, 4096)             = -1 EPERM (Operation not permitted)
+setresuid(-1, 0, -1)                    = 0
+munmap(0x7fa7c5c30000, 4096)            = 0
+setrlimit(RLIMIT_MEMLOCK, {rlim_cur=64*1024, rlim_max=64*1024}) = 0
+write(1, &0x24d65a0="mlock02     1  TPASS  :  mlock failed as expected: TEST_ERRNO=ENOMEM(12): Cannot allocate memory\nmlock02     2  TPASS  :  mlock failed as expected: TEST_ERRNO=ENOMEM(12): Cannot allocate memory\nmlock02     3  TPASS  :  mlock failed as expected: TEST_ERRNO=EPERM(1): Operation not permitted\n", 290) = 290
+exit_group(0)                           = ?
++++ exited with 0 +++

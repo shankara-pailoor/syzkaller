@@ -1,0 +1,8 @@
+mlockall(MCL_CURRENT)                   = 0
+ioctl(1, TCGETS, 0x7ffdfd627170)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44838, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:51+0000.151899077, st_mtime=2017-03-31T06:37:51+0000.151899077, st_ctime=2017-03-31T06:37:51+0000.151899077}) = 0
+mlockall(MCL_FUTURE)                    = 0
+mlockall(MCL_CURRENT|MCL_FUTURE)        = 0
+write(1, &0xc4c010="mlockall01    1  TPASS  :  mlockall test passed for MCL_CURRENT\nmlockall01    2  TPASS  :  mlockall test passed for MCL_FUTURE\nmlockall01    3  TPASS  :  mlockall test passed for MCL_CURRENT|MCL_FUTURE\n", 202) = 202
+exit_group(0)                           = ?
++++ exited with 0 +++

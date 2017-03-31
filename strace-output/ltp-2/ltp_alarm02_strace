@@ -1,0 +1,14 @@
+alarm(4294967295)                       = 0
+alarm(0)                                = 4294967295
+ioctl(1, TCGETS, 0x7ffe75d38aa0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=42934, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:21+0000.234899077, st_mtime=2017-03-31T06:37:21+0000.234899077, st_ctime=2017-03-31T06:37:21+0000.234899077}) = 0
+rt_sigaction(SIGALRM, {sa_handler=0x402dd0, sa_mask=[ALRM], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7184b74040}, {sa_handler=0x402dd0, sa_mask=[ALRM], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7184b74040}, 8) = 0
+alarm(4294967295)                       = 0
+alarm(0)                                = 4294967295
+rt_sigaction(SIGALRM, {sa_handler=0x402dd0, sa_mask=[ALRM], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7184b74040}, {sa_handler=0x402dd0, sa_mask=[ALRM], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f7184b74040}, 8) = 0
+alarm(0)                                = 0
+alarm(0)                                = 0
+alarm(0)                                = 0
+write(1, &0x19c5010="alarm02     1  TPASS  :  alarm(18446744073709551615) returned 0 as expected for value -1\nalarm02     2  TPASS  :  alarm(18446744073709551615) returned 0 as expected for value ULONG_MAX\nalarm02     3  TPASS  :  alarm(0) returned 0 as expected for value ULONG_MAX+1\n", 264) = 264
+exit_group(0)                           = ?
++++ exited with 0 +++

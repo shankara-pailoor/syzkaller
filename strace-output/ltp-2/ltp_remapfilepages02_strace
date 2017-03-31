@@ -1,0 +1,13 @@
+open("cache", O_RDWR|O_CREAT|O_TRUNC, 0700) = 3
+mmap(0x48000000, 131072, PROT_READ|PROT_WRITE, MAP_SHARED, 3, 0) = 0x48000000
+mmap(NULL, 131072, PROT_READ|PROT_WRITE, MAP_PRIVATE, 3, 0) = 0x7ff19c979000
+remap_file_pages(0x7ff19c979000, 4096, PROT_NONE, 2, MAP_FILE) = -1 EINVAL (Invalid argument)
+ioctl(1, TCGETS, 0x7ffc85080fc0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43911, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:07+0000.426899077, st_mtime=2017-03-31T06:38:07+0000.426899077, st_ctime=2017-03-31T06:38:07+0000.426899077}) = 0
+brk(0x810000)                           = 0x810000
+remap_file_pages(0x48020000, 4096, PROT_NONE, 2, MAP_FILE) = -1 EINVAL (Invalid argument)
+remap_file_pages(0x48000000, 135168, PROT_NONE, 0, MAP_FILE) = -1 EINVAL (Invalid argument)
+remap_file_pages(0x48000000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC|PROT_SEM|PROT_GROWSDOWN|PROT_GROWSUP|0xfcfffff0, 2, MAP_FILE) = -1 EINVAL (Invalid argument)
+close(3)                                = 0
+munmap(0x48000000, 131072)              = 0
+munmap(0x7ff19c979000, 131072)          = 0

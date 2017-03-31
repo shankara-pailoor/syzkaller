@@ -1,0 +1,21 @@
+open("dupfile", O_RDWR|O_CREAT, 0700)   = 3
+dup(3)                                  = 4
+ioctl(1, TCGETS, 0x7fffc64d26d0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44757, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:33+0000.501899077, st_mtime=2017-03-31T06:37:33+0000.501899077, st_ctime=2017-03-31T06:37:33+0000.501899077}) = 0
+close(4)                                = 0
+close(3)                                = 0
+open("/tmp/dupnUsflO", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/dupnUsflO", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401760, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:33+0000.606899077, st_mtime=2017-03-31T06:37:33+0000.613899077, st_ctime=2017-03-31T06:37:33+0000.613899077}) = 0
+getdents(3, [{d_ino=401760, d_off=2947207349819368380, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=401761, d_off=4478167799589740422, d_reclen=32, d_name="dupfile", d_type=DT_REG}, {d_ino=393678, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 80
+open("/tmp/dupnUsflO/dupfile", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/dupnUsflO/dupfile")        = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/dupnUsflO", {st_dev=makedev(8, 0), st_ino=401760, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:33+0000.627899077, st_mtime=2017-03-31T06:37:33+0000.627899077, st_ctime=2017-03-31T06:37:33+0000.627899077}) = 0
+unlink("/tmp/dupnUsflO")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/dupnUsflO")                 = 0
+write(1, &0x2615030="dup01       1  TPASS  :  dup(dupfile) returned 4\n", 49) = 49
+exit_group(0)                           = ?
++++ exited with 0 +++

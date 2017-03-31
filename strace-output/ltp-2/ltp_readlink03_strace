@@ -1,0 +1,60 @@
+mkdir("testdir_1", 0777)                = 0
+open("testdir_1/tfile_1", O_WRONLY|O_CREAT, 0666) = 3
+close(3)                                = 0
+chmod("testdir_1/tfile_1", 0666)        = 0
+utimensat(AT_FDCWD, "testdir_1/tfile_1", NULL, 0) = 0
+symlink("testdir_1/tfile_1", "testdir_1/sfile_1") = 0
+chmod("testdir_1", 0444)                = 0
+open("tfile_2", O_WRONLY|O_CREAT, 0666) = 3
+close(3)                                = 0
+chmod("tfile_2", 0666)                  = 0
+utimensat(AT_FDCWD, "tfile_2", NULL, 0) = 0
+symlink("tfile_2", "sfile_2")           = 0
+open("tfile_3", O_WRONLY|O_CREAT, 0666) = 3
+close(3)                                = 0
+chmod("tfile_3", 0666)                  = 0
+utimensat(AT_FDCWD, "tfile_3", NULL, 0) = 0
+mkdir("test_eloop", 0777)               = 0
+symlink("../test_eloop", "test_eloop/test_eloop") = 0
+readlink("testdir_1/sfile_1", 0x7ffeb39288e0, 256) = -1 EACCES (Permission denied)
+ioctl(1, TCGETS, 0x7ffeb3926dc0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44888, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:10+0000.487899077, st_mtime=2017-03-31T06:38:10+0000.487899077, st_ctime=2017-03-31T06:38:10+0000.487899077}) = 0
+readlink("sfile_2", 0x7ffeb39288e0, 0)  = -1 EINVAL (Invalid argument)
+readlink("tfile_2", 0x7ffeb39288e0, 256) = -1 EINVAL (Invalid argument)
+readlink("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"..., 0x7ffeb39288e0, 256) = -1 ENAMETOOLONG (File name too long)
+readlink("", 0x7ffeb39288e0, 256)       = -1 ENOENT (No such file or directory)
+readlink("tfile_3/sfile_3", 0x7ffeb39288e0, 256) = -1 ENOTDIR (Not a directory)
+readlink("./test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop/test_eloop", 0x7ffeb39288e0, 256) = -1 ELOOP (Too many levels of symbolic links)
+setresuid(-1, 0, -1)                    = 0
+open("/tmp/reaFFUxew", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/reaFFUxew", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401846, st_mode=S_IFDIR|0777, st_nlink=4, st_uid=65534, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:38:10+0000.664899077, st_mtime=2017-03-31T06:38:10+0000.703899077, st_ctime=2017-03-31T06:38:10+0000.703899077}) = 0
+getdents(3, [{d_ino=401850, d_off=522028611236595900, d_reclen=32, d_name="tfile_2", d_type=DT_REG}, {d_ino=401853, d_off=2071654432719151032, d_reclen=32, d_name="test_eloop", d_type=DT_DIR}, {d_ino=401846, d_off=2517117847641699386, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=401852, d_off=2828369676018693001, d_reclen=32, d_name="tfile_3", d_type=DT_REG}, {d_ino=401847, d_off=3520099300844164105, d_reclen=32, d_name="testdir_1", d_type=DT_DIR}, {d_ino=401851, d_off=4478167799589740422, d_reclen=32, d_name="sfile_2", d_type=DT_LNK}, {d_ino=393678, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 208
+open("/tmp/reaFFUxew/tfile_2", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/reaFFUxew/tfile_2")        = 0
+open("/tmp/reaFFUxew/test_eloop", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 4
+close(4)                                = 0
+open("/tmp/reaFFUxew/test_eloop", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_dev=makedev(8, 0), st_ino=401853, st_mode=S_IFDIR|0755, st_nlink=2, st_uid=65534, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:38:10+0000.702899077, st_mtime=2017-03-31T06:38:10+0000.719899077, st_ctime=2017-03-31T06:38:10+0000.719899077}) = 0
+getdents(4, [{d_ino=401854, d_off=2071654432719151032, d_reclen=32, d_name="test_eloop", d_type=DT_LNK}, {d_ino=401853, d_off=4478167799589740422, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=401846, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 80
+open("/tmp/reaFFUxew/test_eloop/test_eloop", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/reaFFUxew/test_eloop/test_eloop") = 0
+getdents(4, [], 32768)                  = 0
+close(4)                                = 0
+lstat("/tmp/reaFFUxew/test_eloop", {st_dev=makedev(8, 0), st_ino=401853, st_mode=S_IFDIR|0755, st_nlink=2, st_uid=65534, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:38:10+0000.770899077, st_mtime=2017-03-31T06:38:10+0000.768899077, st_ctime=2017-03-31T06:38:10+0000.768899077}) = 0
+unlink("/tmp/reaFFUxew/test_eloop")     = -1 EISDIR (Is a directory)
+rmdir("/tmp/reaFFUxew/test_eloop")      = 0
+open("/tmp/reaFFUxew/tfile_3", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/reaFFUxew/tfile_3")        = 0
+open("/tmp/reaFFUxew/testdir_1", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 4
+close(4)                                = 0
+open("/tmp/reaFFUxew/testdir_1", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+fstat(4, {st_dev=makedev(8, 0), st_ino=401847, st_mode=S_IFDIR|0444, st_nlink=2, st_uid=65534, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:38:10+0000.673899077, st_mtime=2017-03-31T06:38:10+0000.680899077, st_ctime=2017-03-31T06:38:10+0000.682899077}) = 0
+getdents(4, [{d_ino=401848, d_off=2071654432719151032, d_reclen=32, d_name="tfile_1", d_type=DT_REG}, {d_ino=401847, d_off=2232904354117987840, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=401849, d_off=4478167799589740422, d_reclen=32, d_name="sfile_1", d_type=DT_LNK}, {d_ino=401846, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 112
+open("/tmp/reaFFUxew/testdir_1/tfile_1", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/reaFFUxew/testdir_1/tfile_1") = 0
+open("/tmp/reaFFUxew/testdir_1/sfile_1", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/reaFFUxew/testdir_1/sfile_1") = 0
+getdents(4, [], 32768)                  = 0
+close(4)                                = 0

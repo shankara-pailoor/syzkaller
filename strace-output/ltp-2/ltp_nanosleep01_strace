@@ -1,0 +1,9 @@
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22308, tv_nsec=895313377}) = 0
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22308, tv_nsec=895802627}) = 0
+nanosleep({tv_sec=2, tv_nsec=9999}, NULL) = 0
+clock_gettime(CLOCK_MONOTONIC, {tv_sec=22310, tv_nsec=898495417}) = 0
+ioctl(1, TCGETS, 0x7ffe438afd10)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43886, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:52+0000.754899077, st_mtime=2017-03-31T06:37:52+0000.754899077, st_ctime=2017-03-31T06:37:52+0000.754899077}) = 0
+write(1, &0x1219010="nanosleep01    1  TPASS  :  nanosleep() suspended for 2002693 us\n", 65) = 65
+exit_group(0)                           = ?
++++ exited with 0 +++

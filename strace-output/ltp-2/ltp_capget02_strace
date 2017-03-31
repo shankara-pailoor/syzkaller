@@ -1,0 +1,15 @@
+capget(0xffffffffffffffff, 0x613a74)    = -1 EFAULT (Bad address)
+ioctl(1, TCGETS, 0x7fffe1911d60)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43750, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.630899077, st_mtime=2017-03-31T06:37:32+0000.630899077, st_ctime=2017-03-31T06:37:32+0000.630899077}) = 0
+getpid()                                = 3721
+capget({version=_LINUX_CAPABILITY_VERSION_1, pid=3721}, 0xffffffffffffffff) = -1 EFAULT (Bad address)
+capget({version=0 /* _LINUX_CAPABILITY_VERSION_??? */, pid=3721}, 0x613a74) = -1 EINVAL (Invalid argument)
+capget({version=_LINUX_CAPABILITY_VERSION_1, pid=-1}, 0x613a74) = -1 EINVAL (Invalid argument)
+open("/proc/sys/kernel/pid_max", O_RDONLY) = 3
+fstat(3, {st_dev=makedev(0, 4), st_ino=32979, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-31T00:59:08+0000.950963437, st_mtime=2017-03-31T00:59:08+0000.950963437, st_ctime=2017-03-31T00:59:08+0000.950963437}) = 0
+read(3, &0x10e6250="32768\n", 1024)     = 6
+close(3)                                = 0
+capget({version=_LINUX_CAPABILITY_VERSION_1, pid=32768}, 0x613a74) = -1 ESRCH (No such process)
+write(1, &0x10e5010="capget02    1  TPASS  :  capget failed as expected: TEST_ERRNO=EFAULT(14): Bad address\ncapget02    2  TPASS  :  capget failed as expected: TEST_ERRNO=EFAULT(14): Bad address\ncapget02    3  TPASS  :  capget failed as expected: TEST_ERRNO=EINVAL(22): Invalid argument\ncapget02    4  TPASS  :  capget failed as expected: TEST_ERRNO=EINVAL(22): Invalid argument\ncapget02    5  TPASS  :  capget failed as expected: TEST_ERRNO=ESRCH(3): No such process\n", 447) = 447
+exit_group(0)                           = ?
++++ exited with 0 +++

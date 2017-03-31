@@ -1,0 +1,9 @@
+listen(400, 0)                          = -1 EBADF (Bad file descriptor)
+ioctl(1, TCGETS, 0x7ffcd92491f0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44822, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:50+0000.094899077, st_mtime=2017-03-31T06:37:50+0000.094899077, st_ctime=2017-03-31T06:37:50+0000.094899077}) = 0
+open("/dev/null", O_WRONLY)             = 3
+listen(3, 0)                            = -1 ENOTSOCK (Socket operation on non-socket)
+socket(AF_INET, SOCK_DGRAM, IPPROTO_IP) = 4
+listen(4, 0)                            = -1 EOPNOTSUPP (Operation not supported)
+close(4)                                = 0
++++ exited with 0 +++
