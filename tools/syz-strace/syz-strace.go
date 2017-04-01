@@ -636,6 +636,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if len(line.Args) == 2 {
 			line.Args = append(line.Args, "0")
 		}
+
 	case "mknod":
 		if len(line.Args) == 2 {
 			line.Args = append(line.Args, "0")
@@ -802,16 +803,38 @@ func parseArg(typ sys.Type, strace_arg string,
 		npages := uintptr(1)
 		// TODO: strace doesn't give complete info, need to guess random page range
 		if a.RangeBegin != 0 || a.RangeEnd != 0 {
-			npages = uintptr(int(a.RangeBegin)) + 1 // + r.Intn(int(a.RangeEnd-a.RangeBegin+1)))
+			npages = uintptr(int(a.RangeEnd)) // + r.Intn(int(a.RangeEnd-a.RangeBegin+1)))
 		}
-		var calls []*Call = nil
-		arg := randPageAddr(s, a, npages, nil, true)
-		if call != "mmap" {
-			//We might encounter an mlock done because of a brk
-			//But strace doesn't support brk so we need to allocate the address
-			calls = []*Call{createMmapCall(arg.AddrPage, npages),}
+		if a.Dir() == sys.DirOut {
+			return pointerArg(typ, 0, 0, npages, nil), nil
 		}
-		return arg, calls
+		//We might encounter an mlock done because of a brk
+		//But strace doesn't support brk so we need to allocate the address
+		for i := uintptr(0); i < maxPages-npages; i++ {
+			free := true
+			for j := uintptr(0); j < npages; j++ {
+				if s.pages[i+j] {
+					free = false
+					break
+				}
+			}
+			if !free {
+				continue
+			}
+
+			/* mark memory as claimed */
+			for j := uintptr(0); j < npages; j++ {
+				s.pages[i+j] = true
+			}
+			// found a free memory section, let's mmap
+			c := createMmapCall(i, npages)
+			arg, calls := pointerArg(typ, i, 0, npages, nil), []*Call{c}
+			//if a.Dir() == sys.DirOut {
+			//	arg.Val = a.Default()
+			//}
+			return arg, calls
+		}
+		failf("out of memory\n")
 	case *sys.ConstType:
 		fmt.Printf("Parsing Const type %v\n", strace_arg)
 		if a.Dir() == sys.DirOut {
