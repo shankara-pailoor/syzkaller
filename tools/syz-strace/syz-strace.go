@@ -414,6 +414,9 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			case *sys.ResourceType:
 				if label,ok = (*m)[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
+					if label == "" { /* we don't know what variant, set uniontype to nil */
+						line.Args[1] = "nil"
+					}
 					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
 					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
@@ -728,6 +731,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				failf("unexpected buffer type. call %v arg %v", call, strace_arg)
 			}
 		}
+		fmt.Printf("parsed buffer type with val: %v\n", arg.Data)
 		return arg, nil
 	case *sys.PtrType:
 		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", call, a.Type.Name())
