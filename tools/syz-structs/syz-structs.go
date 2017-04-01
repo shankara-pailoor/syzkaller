@@ -55,6 +55,7 @@ var (
 		//"ioctl$FIONBIO": true, // unsupported
 		"sysfs": true, // unsupported
 		"chdir": true, // unsupported
+		"clone": true, // unsupported
 	}
 
 	Accept_labels = map[string]string {

@@ -601,15 +601,14 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			max := int((*consts)["SIGRTMAX"])
 			line.Args[0] = strconv.Itoa(rand.Intn(max - min + 1) + min)
 		}
-		if strings.Contains(line.Args[1], "[ALRM]") {
-			new := strings.Replace(line.Args[1], "[ALRM]", "{mask=14}", 1)
-			line.Args[1] = new
+		if strings.Contains(line.Args[1], "~[RTMIN RT_1]") {
+			line.Args[1] = strings.Replace(line.Args[1], "~[RTMIN RT_1]", "[SIGRTMIN]", 1)
+		} else if strings.Contains(line.Args[1], "[RT_3]") {
+			line.Args[1] = strings.Replace(line.Args[1], "[RT_3]", "[]", 1)
+		} else if !strings.Contains(line.Args[1], "sa_mask=[]") {
+			/* append 'SIG' to mask label */
+			line.Args[1] = strings.Replace(line.Args[1], "sa_mask=[", "sa_mask=[SIG", 1)
 		}
-		if strings.Contains(line.Args[1], "[RT_3]") { // todo: can't find value of rt_3
-			new := strings.Replace(line.Args[1], "[RT_3]", "[]", 1)
-			line.Args[1] = new
-		}
-		line.Args[1] = strings.Replace(line.Args[1], "~[RTMIN RT_1]", "[]", 1)
 	case "rt_sigprocmask": // TODO: look at ltp_rtsigprocmask02. how to properly handle the addr args?
 		// TODO: removed '~' from second arg orgiinally ~[RTMIN RT_1]
 		if strings.Contains(line.Args[1], "RTMIN") || strings.Contains(line.Args[1], "RT_3") {
@@ -774,7 +773,7 @@ func parseArg(typ sys.Type, strace_arg string,
 	case *sys.IntType:
 		var extracted_int uint64
 		var err error = nil
-		if strace_arg == "nil" || a.Dir() == sys.DirOut {
+		if strace_arg == "nil" || a.Dir() == sys.DirOut || strace_arg == "NULL" {
 			extracted_int = uint64(a.Default())
 		} else {
 			strace_arg = func () string {
@@ -785,6 +784,9 @@ func parseArg(typ sys.Type, strace_arg string,
 					}
 					return strace_arg
 			     }()
+			if strace_arg[0] == '[' && strace_arg[len(strace_arg)-1] == ']' {
+				strace_arg = strace_arg[1:len(strace_arg)-1]
+			}
 			extracted_int, err = uintToVal(strace_arg)
 		}
 		if err != nil { /* const */
@@ -871,7 +873,9 @@ func parseArg(typ sys.Type, strace_arg string,
 			return groupArg(typ, args), nil
 		}
 		// clip the square brackets
-		strace_arg = strace_arg[1:len(strace_arg)-1]
+		if strace_arg[0] == '[' && strace_arg[len(strace_arg)-1] == ']' {
+			strace_arg = strace_arg[1:len(strace_arg)-1]
+		}
 		fmt.Printf("ArrayType %v\n", a.TypeName)
 
 		for len(strace_arg) > 0 {
