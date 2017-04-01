@@ -60,10 +60,8 @@ alarm(300)                              = 0
 rt_sigaction(SIGINT, {sa_handler=0x408680, sa_mask=[INT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f2c9393b040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f2c942e99d0) = 4095
 wait4(4095, 0x7ffc19ee31cc, 0, NULL)    = ? ERESTARTSYS (To be restarted if SA_RESTART is set)
---- SIGUSR1 {si_signo=SIGUSR1, si_code=SI_USER, si_pid=4095, si_uid=0} ---
 alarm(300)                              = 300
 rt_sigreturn({mask=[]})                 = 61
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=4095, si_uid=0, si_status=0, si_utime=0, si_stime=3} ---
 wait4(4095, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 4095
 alarm(0)                                = 300
 rt_sigaction(SIGINT, {sa_handler=SIG_DFL, sa_mask=[INT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f2c9393b040}, {sa_handler=0x408680, sa_mask=[INT], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f2c9393b040}, 8) = 0
