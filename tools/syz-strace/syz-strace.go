@@ -369,11 +369,11 @@ func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, re
 			return true
 		}
 
-		if _,ok := (*return_vars)[return_var]; !ok {
+		/* if _,ok := (*return_vars)[return_var]; !ok {
 			fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
 			(*return_vars)[return_var] = arg
 			return true
-		}
+		} */
 		return false
 	default:
 		return false
