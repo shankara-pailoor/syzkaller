@@ -358,6 +358,9 @@ func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, re
 	/* TODO: may want to have more fine-grained type for caching to reduce collisions.
 	as of now we over-write any collision, but this may not be optimal behavior.
 	 */
+  if arg == nil {
+      return false
+  }
 	switch arg.Kind {
 	case ArgReturn, ArgConst, ArgResult:
 		if returned {
@@ -1063,8 +1066,9 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 		Val: val,
 	}
 	if arg, ok := (*return_vars)[return_var]; ok {
-		fmt.Println(return_var)
-		return resultArg(typ, arg)
+    if arg != nil {
+        return resultArg(typ, arg)
+    }
 	}
 
 	return nil
