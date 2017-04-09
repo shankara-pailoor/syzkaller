@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"github.com/Sirupsen/logrus"
 	"encoding/json"
-	"os/exec"
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
 	. "github.com/google/syzkaller/tools/syz-strace/ssh"
@@ -56,7 +55,7 @@ func GenerateCorpus(genConfig config.CorpusGenConfig) (err error) {
 	for _, wc := range wcs {
 		RunStrace(wc, client)
 		client.CopyPath(wc.StraceOutPath, "/home/w4118/src/github.com/google/syzkaller/strace-output/ls_test")
-		//DeleteOutFile(wc)
+		DeleteOutFile(wc, client)
 	}
 	return
 }
@@ -71,12 +70,12 @@ func RunStrace(wc WorkloadConfig, client *SSHClient) error{
 	return err
 }
 
-func DeleteOutFile(config WorkloadConfig) {
-	deleteCmd := exec.Cmd{}
+func DeleteOutFile(config WorkloadConfig, client *SSHClient) {
+	deleteCmd := new(SSHCommand)
 	deleteCmd.Path = "/bin/rm"
 	deleteCmd.Args = append([]string{deleteCmd.Path}, "-f")
 	deleteCmd.Args = append(deleteCmd.Args, config.StraceOutPath)
-	if err := deleteCmd.Run(); err != nil {
+	if err := client.RunCommand(deleteCmd); err != nil {
 		logrus.Fatalf("Failed to delete output file: %s", err.Error())
 	}
 	return
@@ -94,20 +93,6 @@ func readWorkload(location string) (wcs []WorkloadConfig) {
 }
 
 func buildStraceCmd(config WorkloadConfig) (sshCommand *SSHCommand) {
-	/*
-	straceCmd := exec.Cmd{}
-	straceCmd.Path = "/root/strace" //Add to config
-	straceCmd.Args = append([]string{straceCmd.Path}, "-s")
-	straceCmd.Args = append(straceCmd.Args, "65500")
-	straceCmd.Args = append(straceCmd.Args, "-o")
-	straceCmd.Args = append(straceCmd.Args, config.StraceOutPath)
-	straceCmd.Args = append(straceCmd.Args, "-k")
-	if config.FollowFork {
-		straceCmd.Args = append(straceCmd.Args, "-ff")
-	}
-	straceCmd.Args = append(straceCmd.Args, config.ExecutablePath)
-	return straceCmd
-	*/
 	sshCommand = new(SSHCommand)
 	sshCommand.Path = "/root/strace"
 	sshCommand.Args = make([]string, 0)
@@ -119,7 +104,6 @@ func buildStraceCmd(config WorkloadConfig) (sshCommand *SSHCommand) {
 	if config.FollowFork {
 		sshCommand.Args = append(sshCommand.Args, "-f")
 	}
-	logrus.Infof("BUILDING STRACE 2\n")
 	sshCommand.Args = append(sshCommand.Args, config.ExecutablePath)
 	sshCommand.Args = append(sshCommand.Args, config.Args...)
 	return
