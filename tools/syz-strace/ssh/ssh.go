@@ -91,7 +91,11 @@ func (client *SSHClient) CopyPath(srcPath, destPath string) {
 	if err != nil {
 		logrus.Fatalf("failed to open dest path: %s", err.Error())
 	}
-	sftp, err := sftp.NewClient(client)
+	conn, err := client.newConnection()
+	if err != nil {
+		logrus.Fatalf("failed to open connection in CopyPath: %s", err.Error())
+	}
+	sftp, err := sftp.NewClient(conn)
 	if err != nil {
 		logrus.Fatalf("failed to initialize sftp: %s", err.Error())
 	}
@@ -149,12 +153,12 @@ func (client *SSHClient) prepareCommand(session *ssh.Session, cmd *SSHCommand) e
 	return nil
 }
 
-func (client *SSHClient) newSession() (*ssh.Session, error) {
-	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", client.Host, client.Port), client.Config)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to dial: %s", err)
-	}
 
+func (client *SSHClient) newSession() (*ssh.Session, error) {
+	connection, err := client.newConnection()
+	if err != nil {
+		logrus.Fatalf("Failed to initialize connection: %s", err.Error())
+	}
 	session, err := connection.NewSession()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create session: %s", err)
@@ -172,6 +176,14 @@ func (client *SSHClient) newSession() (*ssh.Session, error) {
 	}
 
 	return session, nil
+}
+
+func (client *SSHClient) newConnection() (*ssh.Client, error) {
+	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", client.Host, client.Port), client.Config)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to dial: %s", err)
+	}
+	return connection, err
 }
 
 func PublicKeyFile(file string) ssh.AuthMethod {
