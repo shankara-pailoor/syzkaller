@@ -72,6 +72,7 @@ func main() {
 		usage()
 	}
 	distill := NewConfig(config)
+	fmt.Printf("Distill Config: %v\n", distill)
 	GenerateCorpus(distill.CorpusGenConf)
 	fmt.Printf("Distill Config: %v\n", distill)
 

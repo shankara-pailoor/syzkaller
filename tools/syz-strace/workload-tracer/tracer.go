@@ -55,7 +55,7 @@ func GenerateCorpus(genConfig config.CorpusGenConfig) (err error) {
 	wcs := readWorkload(genConfig.ConfigPath)
 	for _, wc := range wcs {
 		RunStrace(wc, client)
-		client.CopyPath("lele", wc.StraceOutPath)
+		client.CopyPath(wc.StraceOutPath, "/home/w4118/src/github.com/google/syzkaller/strace-output/ls_test")
 		//DeleteOutFile(wc)
 	}
 	return

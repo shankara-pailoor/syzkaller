@@ -87,7 +87,7 @@ func SSHAgent() ssh.AuthMethod {
 }
 
 func (client *SSHClient) CopyPath(srcPath, destPath string) {
-	fdest, err := os.Open(destPath)
+	fdest, err := os.OpenFile(destPath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
 	if err != nil {
 		logrus.Fatalf("failed to open dest path: %s", err.Error())
 	}
