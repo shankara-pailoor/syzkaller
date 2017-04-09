@@ -7,8 +7,11 @@ import (
 	"io/ioutil"
 	"golang.org/x/crypto/ssh"
 	"strings"
+	"net"
+	"os"
 	"github.com/Sirupsen/logrus"
 	"github.com/google/syzkaller/tools/syz-strace/config"
+	"golang.org/x/crypto/ssh/agent"
 )
 
 type SSHCommand struct {
@@ -28,10 +31,12 @@ type SSHClient struct {
 
 func NewClient(config config.CorpusGenConfig) (client *SSHClient) {
 	sshConfig := &ssh.ClientConfig{
-		User: "jsmith",
+		User: "root",
 		Auth: []ssh.AuthMethod{
 			PublicKeyFile(config.KeyFile),
+			SSHAgent(),
 		},
+		HostKeyCallback: func(string, net.Addr, ssh.PublicKey) error { return nil },
 	}
 	client = &SSHClient{
 		Config: sshConfig,
@@ -44,8 +49,6 @@ func NewClient(config config.CorpusGenConfig) (client *SSHClient) {
 func (cmd *SSHCommand) build() string {
 	var command_buffer bytes.Buffer
 
-	command_buffer.WriteString(cmd.Path)
-	command_buffer.WriteString(" ")
 	for i, arg := range cmd.Args {
 		command_buffer.WriteString(arg)
 		if i < len(cmd.Args) -1 {
@@ -73,6 +76,13 @@ func (client *SSHClient) RunCommand(cmd *SSHCommand) error{
 
 	err = session.Run(cmd.build())
 	return err
+}
+
+func SSHAgent() ssh.AuthMethod {
+	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
+		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
+	}
+	return nil
 }
 
 func (client *SSHClient) prepareCommand(session *ssh.Session, cmd *SSHCommand) error {

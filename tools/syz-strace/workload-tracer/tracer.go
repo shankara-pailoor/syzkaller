@@ -64,8 +64,9 @@ func GenerateCorpus(genConfig config.CorpusGenConfig) (err error) {
 func RunStrace(wc WorkloadConfig, client *SSHClient) error{
 	var err error
 	straceCmd := buildStraceCmd(wc)
+	logrus.Infof("cmd: %v\n", straceCmd);
 	if err = client.RunCommand(straceCmd); err != nil {
-		logrus.Fatalf("Failed to run prog: %s", wc.ExecutablePath)
+		logrus.Fatalf("Failed to run prog: %s, with error: %s", wc.ExecutablePath, err.Error())
 	}
 	return err
 }
@@ -107,8 +108,10 @@ func buildStraceCmd(config WorkloadConfig) (sshCommand *SSHCommand) {
 	straceCmd.Args = append(straceCmd.Args, config.ExecutablePath)
 	return straceCmd
 	*/
-	sshCommand.Path = config.ExecutablePath
-	sshCommand.Args = append([]string{config.ExecutablePath}, "-s")
+	sshCommand = new(SSHCommand)
+	sshCommand.Path = "/root/strace"
+	sshCommand.Args = make([]string, 0)
+	sshCommand.Args = append([]string{"/root/strace"}, "-s")
 	sshCommand.Args = append(sshCommand.Args, "65500")
 	sshCommand.Args = append(sshCommand.Args, "-o")
 	sshCommand.Args = append(sshCommand.Args, config.StraceOutPath)
@@ -116,6 +119,7 @@ func buildStraceCmd(config WorkloadConfig) (sshCommand *SSHCommand) {
 	if config.FollowFork {
 		sshCommand.Args = append(sshCommand.Args, "-f")
 	}
+	logrus.Infof("BUILDING STRACE 2\n")
 	sshCommand.Args = append(sshCommand.Args, config.ExecutablePath)
 	sshCommand.Args = append(sshCommand.Args, config.Args...)
 	return
