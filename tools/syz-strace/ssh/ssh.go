@@ -12,6 +12,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/google/syzkaller/tools/syz-strace/config"
 	"golang.org/x/crypto/ssh/agent"
+	"github.com/pkg/sftp"
 )
 
 type SSHCommand struct {
@@ -83,6 +84,30 @@ func SSHAgent() ssh.AuthMethod {
 		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
 	}
 	return nil
+}
+
+func (client *SSHClient) CopyPath(srcPath, destPath string) {
+	fdest, err := os.Open(destPath)
+	if err != nil {
+		logrus.Fatalf("failed to open dest path: %s", err.Error())
+	}
+	sftp, err := sftp.NewClient(client)
+	if err != nil {
+		logrus.Fatalf("failed to initialize sftp: %s", err.Error())
+	}
+	f, err := sftp.Open(srcPath)
+	if err != nil {
+		logrus.Fatalf("failed to open remote file: %s with error: %s", srcPath, err.Error())
+	}
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		logrus.Fatalf("failed to read remote file: %s with error: %s", srcPath, err.Error())
+	}
+	err = ioutil.WriteFile(fdest.Name(), data, 0600)
+	if err != nil {
+		logrus.Fatalf("failed to write to remote file: %s with error: %s", destPath, err.Error())
+	}
+	return
 }
 
 func (client *SSHClient) prepareCommand(session *ssh.Session, cmd *SSHCommand) error {

@@ -9,14 +9,13 @@ import (
 	"golang.org/x/net/context"
 	. "github.com/google/syzkaller/tools/syz-strace/ssh"
 	"github.com/google/syzkaller/tools/syz-strace/config"
+
 )
 
 type WorkloadConfig struct {
 	ExecutablePath string
 	Iterations int
 	FollowFork bool
-	MultiThreaded bool
-	Exec bool
 	Args []string
 	StraceOutPath string
 	KcovOutPath string
@@ -56,6 +55,7 @@ func GenerateCorpus(genConfig config.CorpusGenConfig) (err error) {
 	wcs := readWorkload(genConfig.ConfigPath)
 	for _, wc := range wcs {
 		RunStrace(wc, client)
+		client.CopyPath("lele", wc.StraceOutPath)
 		//DeleteOutFile(wc)
 	}
 	return

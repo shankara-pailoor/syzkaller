@@ -17,6 +17,7 @@ type CorpusGenConfig struct {
 	Ip string
 	Port int
 	KeyFile string `json:"ssh_key"`
+	DestinationDir string `json:"dest_dir"`
 }
 
 type InputIOConfig struct {
