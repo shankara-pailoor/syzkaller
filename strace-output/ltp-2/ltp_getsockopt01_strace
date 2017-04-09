@@ -1,0 +1,36 @@
+getsockopt(400, SOL_SOCKET, SO_OOBINLINE, 0x617460, 0x617480) = -1 EBADF (Bad file descriptor)
+ioctl(1, TCGETS, 0x7ffda54c69d0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=42890, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:18+0000.747899077, st_mtime=2017-03-31T06:37:18+0000.747899077, st_ctime=2017-03-31T06:37:18+0000.747899077}) = 0
+open("/dev/null", O_WRONLY)             = 3
+getsockopt(3, SOL_SOCKET, SO_OOBINLINE, 0x617460, 0x617480) = -1 ENOTSOCK (Socket operation on non-socket)
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, SOL_SOCKET, SO_OOBINLINE, NULL, 0x617480) = -1 EFAULT (Bad address)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, SOL_SOCKET, SO_OOBINLINE, 0x617460, NULL) = -1 EFAULT (Bad address)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, 0x1f4 /* SOL_?? */, 10, 0x617460, 0x617480) = -1 EOPNOTSUPP (Operation not supported)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, SOL_UDP, 10, 0x617460, 0x617480) = -1 EOPNOTSUPP (Operation not supported)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, SOL_UDP, 10, 0x617460, 0x617480) = -1 EOPNOTSUPP (Operation not supported)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, SOL_IP, 0xffffffff /* IP_??? */, 0x617460, 0x617480) = -1 ENOPROTOOPT (Protocol not available)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockopt(4, SOL_TCP, 0xffffffff /* TCP_??? */, 0x617460, 0x617480) = -1 ENOPROTOOPT (Protocol not available)
+close(4)                                = 0
+write(1, &0x185f010="getsockopt01    1  TPASS  :  bad file descriptor successful\ngetsockopt01    2  TPASS  :  bad file descriptor successful\ngetsockopt01    3  TPASS  :  invalid option buffer successful\ngetsockopt01    4  TPASS  :  invalid optlen successful\ngetsockopt01    5  TPASS  :  invalid level successful\ngetsockopt01    6  TPASS  :  invalid option name successful\ngetsockopt01    7  TPASS  :  invalid option name (UDP) successful\ngetsockopt01    8  TPASS  :  invalid option name (IP) successful\ngetsockopt01    9  TPASS  :  invalid option name (TCP) successful\n", 548) = 548
+exit_group(0)                           = ?
++++ exited with 0 +++

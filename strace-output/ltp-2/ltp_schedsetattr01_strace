@@ -1,0 +1,21 @@
+set_tid_address(0x7f4fd78829d0)         = 4051
+set_robust_list(0x7f4fd78829e0, 24)     = 0
+rt_sigaction(SIGRTMIN, {sa_handler=0x7f4fd744cb40, sa_mask=[], sa_flags=SA_RESTORER|SA_SIGINFO, sa_restorer=0x7f4fd74580c0}, NULL, 8) = 0
+rt_sigaction(SIGRT_1, {sa_handler=0x7f4fd744cbd0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART|SA_SIGINFO, sa_restorer=0x7f4fd74580c0}, NULL, 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+brk(NULL)                               = 0x7fd000
+brk(0x81e000)                           = 0x81e000
+open("/proc/sys/kernel/pid_max", O_RDONLY) = 3
+fstat(3, {st_dev=makedev(0, 4), st_ino=32979, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-31T00:59:08+0000.950963437, st_mtime=2017-03-31T00:59:08+0000.950963437, st_ctime=2017-03-31T00:59:08+0000.950963437}) = 0
+read(3, &0x7fd260="32768\n", 1024)      = 6
+close(3)                                = 0
+geteuid()                               = 0
+uname({sysname="Linux", nodename="w4118", release="4.10.0-rc7", version="#5 SMP Sun Mar 5 12:44:16 EST 2017", machine="x86_64", domainname="(none)"}) = 0
+mmap(NULL, 8392704, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0x7f4fd68a8000
+mprotect(0x7f4fd68a8000, 4096, PROT_NONE) = 0
+clone(child_stack=0x7f4fd70a7ff0, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID, parent_tidptr=0x7f4fd70a89d0, tls=0x7f4fd70a8700, child_tidptr=0x7f4fd70a89d0) = 4052
+futex(0x7f4fd70a89d0, FUTEX_WAIT, 4052, NULL) = 0
+write(1, &0x7f4fd00008c0="sched_setattr01    1  TPASS  :  sched_setattr() works as expected: TEST_ERRNO=SUCCESS(0): Success\nsched_setattr01    2  TPASS  :  sched_setattr() works as expected: TEST_ERRNO=ESRCH(3): No such process\nsched_setattr01    3  TPASS  :  sched_setattr() works as expected: TEST_ERRNO=EINVAL(22): Invalid argument\nsched_setattr01    4  TPASS  :  sched_setattr() works as expected: TEST_ERRNO=EINVAL(22): Invalid argument\n", 416) = 416
+exit_group(0)                           = ?
++++ exited with 0 +++

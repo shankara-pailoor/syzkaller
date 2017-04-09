@@ -1,0 +1,34 @@
+umask(000)                              = 022
+gettimeofday({tv_sec=1490942251, tv_usec=933810}, NULL) = 0
+getpid()                                = 3706
+mkdir("/tmp/clo1rNFd7", 0700)           = 0
+getgid()                                = 0
+chown("/tmp/clo1rNFd7", -1, 0)          = 0
+chmod("/tmp/clo1rNFd7", 0777)           = 0
+getcwd("/root", 4096)                   = 6
+chdir("/tmp/clo1rNFd7")                 = 0
+creat("fname.3706", 0777)               = 3
+dup(3)                                  = 4
+pipe([5, 6])                            = 0
+close(4)                                = 0
+close(4)                                = -1 EBADF (Bad file descriptor)
+ioctl(1, TCGETS, 0x7ffe497244f0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44745, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:31+0000.839899077, st_mtime=2017-03-31T06:37:31+0000.839899077, st_ctime=2017-03-31T06:37:31+0000.839899077}) = 0
+close(5)                                = 0
+close(5)                                = -1 EBADF (Bad file descriptor)
+close(3)                                = 0
+open("/tmp/clo1rNFd7", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/clo1rNFd7", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401750, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:31+0000.933899077, st_mtime=2017-03-31T06:37:31+0000.937899077, st_ctime=2017-03-31T06:37:31+0000.937899077}) = 0
+getdents(3, [{d_ino=401750, d_off=4478167799589740422, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=393678, d_off=5894159122004068059, d_reclen=24, d_name="..", d_type=DT_DIR}, {d_ino=401751, d_off=9223372036854775807, d_reclen=32, d_name="fname.3706", d_type=DT_REG}], 32768) = 80
+open("/tmp/clo1rNFd7/fname.3706", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/clo1rNFd7/fname.3706")     = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/clo1rNFd7", {st_dev=makedev(8, 0), st_ino=401750, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:31+0000.970899077, st_mtime=2017-03-31T06:37:31+0000.969899077, st_ctime=2017-03-31T06:37:31+0000.969899077}) = 0
+unlink("/tmp/clo1rNFd7")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/clo1rNFd7")                 = 0
+write(1, &0x23cf030="close01     1  TPASS  :  file appears closed\nclose01     2  TPASS  :  pipe appears closed\n", 90) = 90
+exit_group(0)                           = ?
++++ exited with 0 +++

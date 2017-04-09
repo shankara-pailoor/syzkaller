@@ -1,0 +1,26 @@
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+bind(3, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+getsockname(3, {sa_family=AF_INET, sin_port=htons(35227), sin_addr=inet_addr("0.0.0.0")}, [16]) = 0
+close(3)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+bind(3, 0xffffffffffffffff, 16)         = -1 EFAULT (Bad address)
+ioctl(1, TCGETS, 0x7ffe2b775720)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=45529, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:31+0000.028899077, st_mtime=2017-03-31T06:37:31+0000.028899077, st_ctime=2017-03-31T06:37:31+0000.028899077}) = 0
+close(3)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 3
+bind(3, {sa_family=AF_INET, sa_data="\211"}, 3) = -1 EINVAL (Invalid argument)
+close(3)                                = 0
+open("/dev/null", O_WRONLY)             = 3
+bind(3, {sa_family=AF_INET, sin_port=htons(35227), sin_addr=inet_addr("0.0.0.0")}, 16) = -1 ENOTSOCK (Socket operation on non-socket)
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+close(4)                                = 0
+socket(AF_UNIX, SOCK_STREAM, 0)         = 4
+bind(4, {sa_family=AF_UNIX, sun_path="."}, 110) = -1 EADDRINUSE (Address already in use)
+close(4)                                = 0
+socket(AF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+bind(4, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.255.254.253")}, 16) = -1 EADDRNOTAVAIL (Cannot assign requested address)
+close(4)                                = 0
+write(1, &0x2248010="bind01      1  TPASS  :  invalid sockaddr successful\nbind01      2  TPASS  :  invalid salen successful\nbind01      3  TPASS  :  invalid socket successful\nbind01      4  TPASS  :  INADDR_ANYPORT successful\nbind01      5  TPASS  :  UNIX-domain of current directory successful\nbind01      6  TPASS  :  non-local address successful\n", 328) = 328
+exit_group(0)                           = ?
++++ exited with 0 +++

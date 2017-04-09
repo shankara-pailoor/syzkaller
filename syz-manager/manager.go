@@ -19,6 +19,7 @@ import (
 	"syscall"
 	"time"
 	"sort"
+	"strconv"
 
 	"github.com/google/syzkaller/config"
 	"github.com/google/syzkaller/cover"
@@ -242,9 +243,26 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 
 	if *flagBench != "" { // benchmark stats
 		f, err := os.OpenFile(*flagBench, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0640)
+		f1, err1 := os.OpenFile(*flagBench + "_summary", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0640)
 		if err != nil {
 			Fatalf("failed to open bench file: %v", err)
 		}
+
+		if err1 != nil {
+			Fatalf("failed to open summary file: %v", err)
+		}
+
+		go func() {
+			for {
+				time.Sleep(2*time.Minute)
+				mgr.mu.Lock()
+				coverageSummary := uint64(len(mgr.corpusCover))
+				mgr.mu.Unlock()
+				if _, err := f1.WriteString(strconv.FormatUint(coverageSummary, 10) + "\n"); err != nil {
+					Fatalf("failed to write bench data")
+				}
+			}
+		}()
 		go func() {
 			for {
 				time.Sleep(10*time.Minute)
@@ -264,9 +282,9 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 				for k, v := range mgr.stats {
 					vals[k] = v
 				}*/
-				mgr.mu.Unlock()
 
 				data, err := json.MarshalIndent(mgr.corpus, "", "  ")
+				mgr.mu.Unlock()
 				if err != nil {
 					Fatalf("failed to serialize bench data")
 				}

@@ -1,0 +1,9 @@
+geteuid()                               = 0
+mlock(0x1bd8010, 1)                     = 0
+ioctl(1, TCGETS, 0x7fffd23c3150)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=45501, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:20+0000.477899077, st_mtime=2017-03-31T06:37:20+0000.477899077, st_ctime=2017-03-31T06:37:20+0000.477899077}) = 0
+mlock(0x1bd9040, 1024)                  = 0
+mmap(NULL, 1052672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f6ace097000
+mlock(0x7f6ace097010, 1048576)          = 0
+mmap(NULL, 10489856, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f6acd1db000
+mlock(0x7f6acd1db010, 10485760)         = 0

@@ -1,0 +1,25 @@
+open("tfile_3853", O_RDWR|O_CREAT, 0700) = 3
+write(3, &0x613d60="t", 1)              = 1
+close(3)                                = 0
+inotify_init()                          = 3
+inotify_add_watch(3, "tfile_3853", IN_ACCESS|IN_MODIFY|IN_ATTRIB|IN_CLOSE_WRITE|IN_CLOSE_NOWRITE|IN_OPEN|IN_MOVED_FROM|IN_MOVED_TO|IN_CREATE|IN_DELETE|IN_DELETE_SELF|IN_MOVE_SELF) = 1
+chmod("tfile_3853", 0755)               = 0
+open("tfile_3853", O_RDONLY)            = 4
+read(4, &0x614e80="t", 256)             = 1
+close(4)                                = 0
+open("tfile_3853", O_RDWR|O_CREAT, 0700) = 4
+write(4, &0x614e80="t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 256) = 256
+close(4)                                = 0
+read(3, &0x614fa0="\1\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0 \0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\1\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\20\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0 \0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\2\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\10\0\0\0\0\0\0\0\0\0\0\0", 32768) = 112
+ioctl(1, TCGETS, 0x7ffe9e7fe7c0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43841, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:48+0000.487899077, st_mtime=2017-03-31T06:37:48+0000.487899077, st_ctime=2017-03-31T06:37:48+0000.487899077}) = 0
+close(3)                                = 0
+open("/tmp/inosz0x3s", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/inosz0x3s", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401799, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:48+0000.604899077, st_mtime=2017-03-31T06:37:48+0000.612899077, st_ctime=2017-03-31T06:37:48+0000.612899077}) = 0
+getdents(3, [{d_ino=401799, d_off=2238011625104056371, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=401800, d_off=4478167799589740422, d_reclen=32, d_name="tfile_3853", d_type=DT_REG}, {d_ino=393678, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 80
+open("/tmp/inosz0x3s/tfile_3853", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/inosz0x3s/tfile_3853")     = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
