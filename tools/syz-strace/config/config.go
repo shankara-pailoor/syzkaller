@@ -8,7 +8,7 @@ import (
 
 type DistillConfig struct {
 	CorpusGenConf CorpusGenConfig `json:"corpus_gen_conf"`
-	InpIOConf InputIOConfig `json:"io"`
+	ParserConf ParserConfig `json:"parser_conf"`
 	DistillEnabled bool `json:"distill_enabled"`
 }
 
@@ -19,16 +19,15 @@ type CorpusGenConfig struct {
 	DestinationDir string `json:"dest_dir"`
 }
 
+type ParserConfig struct {
+	Type string
+	LocalConfig
+}
+
 type SSHConfig struct {
 	Ip string
 	Port int
 	KeyFile string `json:"ssh_key"`
-}
-
-type InputIOConfig struct {
-	InpType string `json:"type"`
-	LocalConfig
-	GceConf GceConfig
 }
 
 type LocalConfig struct {
