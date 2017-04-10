@@ -86,7 +86,7 @@ func main() {
 	if (file != "") {
 		strace_files = append(strace_files, file)
 	}
-
+	dir = distill.ParserConf.InputDirectory
 	if (dir != "") {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
@@ -108,6 +108,13 @@ func main() {
 		}
 		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
 		straceCalls := parseStrace(filename)
+		calls := make([]*sparser.OutputLine, 0)
+		for _, call := range straceCalls {
+			if Unsupported[call.FuncName] {
+				continue
+			}
+			calls = append(calls, call)
+		}
 		prog := parse(straceCalls, &consts)
 		if err := prog.Validate(); err != nil {
 			fmt.Printf("Error validating %v\n", "something")
