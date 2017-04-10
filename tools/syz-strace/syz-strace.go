@@ -110,7 +110,9 @@ func main() {
 		straceCalls := parseStrace(filename)
 		calls := make([]*sparser.OutputLine, 0)
 		for _, call := range straceCalls {
-			if Unsupported[call.FuncName] {
+			fmt.Printf("call: %v\n", call)
+			if _, ok := Unsupported[call.FuncName]; ok {
+				fmt.Printf("unsupported\n")
 				continue
 			}
 			calls = append(calls, call)
@@ -155,6 +157,7 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 			break
 		}
 		if line.FuncName == "" && line.Result != "" {
+			fmt.Printf("hehe\n")
 			lastParsed.Cover = parseInstructions(line.Result)
 			addedCover = true
 		} else {
@@ -181,9 +184,11 @@ func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64) *Prog{
 
 func parseInstructions(line string) (ips []uint64) {
 	uniqueIps := make(map[uint64]bool)
-	s := strings.Split(line, ",")
+	line1 := strings.TrimSpace(line)
+	fmt.Printf("%s\n", string(line1[len(line1)-2]))
+	s := strings.Split(strings.Split(line1[1:len(line1)-2], ":")[1], ",")
 	for _, ins := range s {
-		ip, err := strconv.ParseUint(ins, 16, 64)
+		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
 		if err != nil {
 			failf("failed parsing ip: %s", ins)
 		}
