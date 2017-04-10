@@ -148,6 +148,7 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 		failf(err.Error())
 	}
 	p := sparser.NewParser(f)
+	lastParsed = nil
 	for {
 		line, err := p.Parse()
 		if err != nil {
@@ -156,8 +157,13 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 			}
 			break
 		}
+		if _, ok := Unsupported[line.FuncName]; ok {
+			continue
+		}
 		if line.FuncName == "" && line.Result != "" {
-			fmt.Printf("hehe\n")
+			if lastParsed == nil {
+				continue
+			}
 			lastParsed.Cover = parseInstructions(line.Result)
 			addedCover = true
 		} else {
