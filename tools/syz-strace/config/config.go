@@ -14,10 +14,15 @@ type DistillConfig struct {
 
 type CorpusGenConfig struct {
 	ConfigPath string `json:"workload_config"`
+	Type string
+	SSHConfig
+	DestinationDir string `json:"dest_dir"`
+}
+
+type SSHConfig struct {
 	Ip string
 	Port int
 	KeyFile string `json:"ssh_key"`
-	DestinationDir string `json:"dest_dir"`
 }
 
 type InputIOConfig struct {

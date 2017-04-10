@@ -22,6 +22,8 @@ import (
 	"flag"
 	. "github.com/google/syzkaller/tools/syz-strace/config"
 	. "github.com/google/syzkaller/tools/syz-strace/workload-tracer"
+	. "github.com/google/syzkaller/tools/syz-strace/ssh"
+	domain "github.com/google/syzkaller/tools/syz-strace/domain"
 )
 
 const (
@@ -73,7 +75,11 @@ func main() {
 	}
 	distill := NewConfig(config)
 	fmt.Printf("Distill Config: %v\n", distill)
-	GenerateCorpus(distill.CorpusGenConf)
+	var executor domain.Executor
+	if distill.CorpusGenConf.Type == "ssh" {
+		executor = NewClient(distill.CorpusGenConf)
+	}
+	GenerateCorpus(distill.CorpusGenConf, executor)
 	fmt.Printf("Distill Config: %v\n", distill)
 
 	strace_files := make([]string, 0)

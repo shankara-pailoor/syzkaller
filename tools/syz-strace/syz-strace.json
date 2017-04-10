@@ -1,6 +1,7 @@
 {
 	"corpus_gen_conf": {
 		"workload_config": "/home/w4118/src/github.com/google/syzkaller/cover_config.json",
+		"Type": "ssh",
 		"Ip": "127.0.0.1",
 		"Port": 26439,
 		"ssh_key": "/home/w4118/src/github.com/google/syzkaller/ssh/id_rsa"
@@ -9,6 +10,7 @@
 		"type": "local",
 		"InputDirectory": "/home/someplace",
 		"OutputDirectory":"/home/someotherplace"
+
 	},
 	"distill_enabled" : true,
 	"workload_path": "/home/w4118/src/github.com/google/syzkaller/cover_config.json"
