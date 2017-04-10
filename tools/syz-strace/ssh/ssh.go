@@ -13,6 +13,7 @@ import (
 	"github.com/google/syzkaller/tools/syz-strace/config"
 	"golang.org/x/crypto/ssh/agent"
 	"github.com/pkg/sftp"
+	"github.com/google/syzkaller/tools/syz-strace/domain"
 )
 
 type SSHCommand struct {
@@ -60,12 +61,33 @@ func (cmd *SSHCommand) build() string {
 	return command_buffer.String()
 }
 
-func (client *SSHClient) RunCommand(cmd *SSHCommand) error{
+func (client *SSHClient) extractCommand(config domain.WorkloadConfig) (sshCommand *SSHCommand){
+	sshCommand = new(SSHCommand)
+	sshCommand.Path = "/root/strace"
+	sshCommand.Args = make([]string, 0)
+	sshCommand.Args = append([]string{"/root/strace"}, "-s")
+	sshCommand.Args = append(sshCommand.Args, "65500")
+	sshCommand.Args = append(sshCommand.Args, "-o")
+	sshCommand.Args = append(sshCommand.Args, config.StraceOutPath)
+	sshCommand.Args = append(sshCommand.Args, "-k")
+	if config.FollowFork {
+		sshCommand.Args = append(sshCommand.Args, "-f")
+	}
+	sshCommand.Args = append(sshCommand.Args, config.ExecutablePath)
+	sshCommand.Args = append(sshCommand.Args, config.Args...)
+	return sshCommand
+}
+
+func (client *SSHClient) RunCommand(config domain.WorkloadConfig) error{
+	cmd := client.extractCommand(config)
+	return client.runCommand(cmd)
+}
+
+func (client *SSHClient) runCommand(cmd *SSHCommand) error {
 	var (
 		session *ssh.Session
 		err     error
 	)
-
 	if session, err = client.newSession(); err != nil {
 		return err
 	}
@@ -151,6 +173,16 @@ func (client *SSHClient) prepareCommand(session *ssh.Session, cmd *SSHCommand) e
 	}
 
 	return nil
+}
+
+func (client *SSHClient) DeleteFile(config domain.WorkloadConfig) {
+	deleteCmd := new(SSHCommand)
+	deleteCmd.Path = "/bin/rm"
+	deleteCmd.Args = append([]string{deleteCmd.Path}, "-f")
+	deleteCmd.Args = append(deleteCmd.Args, config.StraceOutPath)
+	if err := client.runCommand(deleteCmd); err != nil {
+		logrus.Fatalf("Failed to delete output file: %s", err.Error())
+	}
 }
 
 
