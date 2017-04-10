@@ -31,6 +31,8 @@ const (
 	maxLineLen = 256 << 10
 	pageSize   = 4 << 10
 	maxPages   = 4 << 10
+	COVER_ID = "Cover:"
+	COVER_DELIM = "-"
 )
 
 var pageStartPool = sync.Pool{New: func() interface{} { return new([]uintptr) }}
@@ -58,6 +60,7 @@ var (
 	flagDir = flag.String("dir", "", "directory to parse")
 	flagSkip = flag.Int("skip", 0, "how many to skip")
 	flagConfig = flag.String("config", "/etc/strace-config.json", "config file for syz strace")
+	flagGetTraces = flag.Bool("trace", false, "gather traces")
 )
 
 func usage() {
@@ -69,24 +72,19 @@ func usage() {
 
 func main() {
 	flag.Parse()
-	file, dir, config := *flagFile, *flagDir, *flagConfig
+	file, dir, configLocation, getTraces := *flagFile, *flagDir, *flagConfig, *flagGetTraces
 	if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
 		usage()
 	}
-	distill := NewConfig(config)
-	fmt.Printf("Distill Config: %v\n", distill)
-	var executor domain.Executor
-	if distill.CorpusGenConf.Type == "ssh" {
-		executor = NewClient(distill.CorpusGenConf)
+	config := NewConfig(configLocation)
+	if (getTraces) {
+		gatherTraces(config)
 	}
-	GenerateCorpus(distill.CorpusGenConf, executor)
-	fmt.Printf("Distill Config: %v\n", distill)
-
 	strace_files := make([]string, 0)
 	if (file != "") {
 		strace_files = append(strace_files, file)
 	}
-	dir = distill.ParserConf.InputDirectory
+	dir = config.ParserConf.InputDirectory
 	if (dir != "") {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
@@ -108,15 +106,6 @@ func main() {
 		}
 		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
 		straceCalls := parseStrace(filename)
-		calls := make([]*sparser.OutputLine, 0)
-		for _, call := range straceCalls {
-			fmt.Printf("call: %v\n", call)
-			if _, ok := Unsupported[call.FuncName]; ok {
-				fmt.Printf("unsupported\n")
-				continue
-			}
-			calls = append(calls, call)
-		}
 		prog := parse(straceCalls, &consts)
 		if err := prog.Validate(); err != nil {
 			fmt.Printf("Error validating %v\n", "something")
@@ -138,41 +127,46 @@ func main() {
 	pack("serialized", "corpus.db")
 }
 
+func gatherTraces(distill *DistillConfig) {
+	fmt.Printf("Distill Config: %v\n", distill)
+	var executor domain.Executor
+	if distill.CorpusGenConf.Type == "ssh" {
+		executor = NewClient(distill.CorpusGenConf)
+	}
+	GenerateCorpus(distill.CorpusGenConf, executor)
+	fmt.Printf("Distill Config: %v\n", distill)
+}
+
 func parseStrace(filename string) (calls []*sparser.OutputLine) {
 	var lastParsed *sparser.OutputLine
-	var addedCover bool
-	calls = make([]*sparser.OutputLine, 1)
+	calls = make([]*sparser.OutputLine, 0)
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Printf("failed to open file: %v\n", filename)
 		failf(err.Error())
 	}
 	p := sparser.NewParser(f)
-	lastParsed = nil
 	for {
 		line, err := p.Parse()
 		if err != nil {
 			if err != sparser.ErrEOF {
 				fmt.Println(err.Error())
 			}
-			break
-		}
-		if _, ok := Unsupported[line.FuncName]; ok {
-			continue
+			return
 		}
 		if line.FuncName == "" && line.Result != "" {
 			if lastParsed == nil {
 				continue
 			}
 			lastParsed.Cover = parseInstructions(line.Result)
-			addedCover = true
 		} else {
+			if _, ok := Unsupported[line.FuncName]; ok {
+				lastParsed = nil
+				continue
+			}
 			lastParsed = line
-
+			calls = append(calls, line)
 		}
-	}
-	if !addedCover {
-		calls = append(calls, lastParsed)
 	}
 	return
 }
@@ -190,9 +184,15 @@ func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64) *Prog{
 
 func parseInstructions(line string) (ips []uint64) {
 	uniqueIps := make(map[uint64]bool)
-	line1 := strings.TrimSpace(line)
-	fmt.Printf("%s\n", string(line1[len(line1)-2]))
-	s := strings.Split(strings.Split(line1[1:len(line1)-2], ":")[1], ",")
+	strippedLine := strings.TrimSpace(line)
+	/*
+		Instructions for a call all appear in one line of the form
+		COVER_IDip1COVER_DELIMip2COVER_DELIMip3. Ex: If COVER_ID = "Cover:" and 
+		COVER_DELIM = "-" then it would appear as "Cover:ip1-ip2-ip3"
+		
+	*/
+	instructions := strings.Split(strippedLine[1:len(strippedLine)-1], COVER_ID)
+	s := strings.Split(instructions[1], COVER_DELIM)
 	for _, ins := range s {
 		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
 		if err != nil {
@@ -276,7 +276,7 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 }
 
 func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
- 		    return_vars *map[returnType]*Arg, s *state) *Arg {
+		    return_vars *map[returnType]*Arg, s *state) *Arg {
 
 	fmt.Println("---------Parsing Inner Call Args-----------")
 	fmt.Println(val)
