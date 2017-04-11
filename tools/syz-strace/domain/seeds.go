@@ -9,6 +9,7 @@ type Seed struct {
 	Prog *prog.Prog
 	Cover []uint64
 	CallIdx int /* Index in the Prog call array */
+	DependsOn []int
 }
 
 type Seeds []*Seed
@@ -29,11 +30,12 @@ func (s *Seeds) Add(seed *Seed) {
 	*s = append(*s, seed)
 }
 
-func NewSeed(call *prog.Call, prog *prog.Prog, idx int, cover []uint64) *Seed{
+func NewSeed(call *prog.Call, dependsOn []int, prog *prog.Prog, idx int, cover []uint64) *Seed{
 	return &Seed {
 		Call: call,
 		Prog: prog,
 		Cover: cover,
 		CallIdx: idx,
+		DependsOn: dependsOn,
 	}
 }

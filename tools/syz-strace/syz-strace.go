@@ -263,6 +263,7 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	}
 	var calls []*Call
 	var strace_arg string
+	progLen := len(prog.Calls)
 	for i, typ := range meta.Args {
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
@@ -288,14 +289,18 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	}
 
 	// add calls to our program
+
 	for _,c := range calls {
 		// TODO: sanitize c?
 		s.analyze(c)
 		prog.Calls = append(prog.Calls, c)
 	}
-
+	dependsOn := make([]int, 0)
+	for i := 0; i < len(calls)-1; i++ {
+		dependsOn = append(dependsOn, progLen+i)
+	}
 	fmt.Println("\n---------done parsing line--------\n")
-	return domain.NewSeed(c, prog, len(prog.Calls)-1, line.Cover)
+	return domain.NewSeed(c, dependsOn, prog, len(prog.Calls)-1, line.Cover)
 }
 
 func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
