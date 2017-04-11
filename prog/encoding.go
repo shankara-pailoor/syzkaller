@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-
 	"github.com/google/syzkaller/sys"
 )
 
@@ -27,11 +26,11 @@ func (p *Prog) String() string {
 }
 
 func (p *Prog) Serialize() []byte {
-	// if debug {
+	 if debug {
 		if err := p.validate(); err != nil {
-        panic("encoding:32 serializing invalid program")
+        		panic("encoding:32 serializing invalid program")
 		}
-	// }
+	 }
 	buf := new(bytes.Buffer)
 	vars := make(map[*Arg]int)
 	varSeq := 0
@@ -72,7 +71,7 @@ func (a *Arg) serialize(buf io.Writer, vars map[*Arg]int, varSeq *int) {
 	case ArgResult:
 		id, ok := vars[a.Res]
 		if !ok {
-      fmt.Printf("no result, a.Res: %v\n", a.Res)
+      			fmt.Printf("no result, a.Res: %v\n", a.Res)
 			panic("no result")
 		}
 		fmt.Fprintf(buf, "r%v", id)

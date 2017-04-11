@@ -358,9 +358,9 @@ func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, re
 	/* TODO: may want to have more fine-grained type for caching to reduce collisions.
 	as of now we over-write any collision, but this may not be optimal behavior.
 	 */
-  if arg == nil {
-      return false
-  }
+	if arg == nil {
+		return false
+	}
 	switch arg.Kind {
 	case ArgReturn, ArgConst, ArgResult:
 		if returned {
@@ -1053,6 +1053,16 @@ func ident(arg string) (string, string) {
 
 func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Arg) *Arg {
 	var val string
+
+	switch typ.(type) {
+	/* see google syzkaller issue 162. We prevent issuing a returnArg for lenType
+	 because it causes the fuzzer to crash when mutating programs with read, write, pread64, pwrite64
+	 */
+	case *sys.LenType:
+		return nil
+	default:
+	}
+
 	if len(strace_arg) == 0 || strace_arg == "nil" {
 		return nil
 	}
