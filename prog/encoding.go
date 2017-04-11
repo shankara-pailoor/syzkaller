@@ -26,11 +26,11 @@ func (p *Prog) String() string {
 }
 
 func (p *Prog) Serialize() []byte {
-	 if debug {
+	if debug {
 		if err := p.validate(); err != nil {
         		panic("encoding:32 serializing invalid program")
 		}
-	 }
+	}
 	buf := new(bytes.Buffer)
 	vars := make(map[*Arg]int)
 	varSeq := 0
@@ -48,17 +48,21 @@ func (p *Prog) Serialize() []byte {
 			if i != 0 {
 				fmt.Fprintf(buf, ", ")
 			}
-			a.serialize(buf, vars, &varSeq)
+      e := a.serialize(buf, vars, &varSeq)
+      if e != nil {
+          fmt.Printf("\n\nbuf.String(): %s\n\n", buf.String())
+          panic(e.Error())
+      }
 		}
 		fmt.Fprintf(buf, ")\n")
 	}
 	return buf.Bytes()
 }
 
-func (a *Arg) serialize(buf io.Writer, vars map[*Arg]int, varSeq *int) {
+func (a *Arg) serialize(buf io.Writer, vars map[*Arg]int, varSeq *int) error {
 	if a == nil {
 		fmt.Fprintf(buf, "nil")
-		return
+		return nil
 	}
 	if len(a.Uses) != 0 {
 		fmt.Fprintf(buf, "<r%v=>", *varSeq)
@@ -83,7 +87,10 @@ func (a *Arg) serialize(buf io.Writer, vars map[*Arg]int, varSeq *int) {
 		}
 	case ArgPointer:
 		fmt.Fprintf(buf, "&%v=", serializeAddr(a, true))
-		a.Res.serialize(buf, vars, varSeq)
+    e := a.Res.serialize(buf, vars, varSeq)
+    if e != nil {
+        return e
+    }
 	case ArgPageSize:
 		fmt.Fprintf(buf, "%v", serializeAddr(a, false))
 	case ArgData:
@@ -106,7 +113,10 @@ func (a *Arg) serialize(buf io.Writer, vars map[*Arg]int, varSeq *int) {
 			if i != 0 {
 				fmt.Fprintf(buf, ", ")
 			}
-			a1.serialize(buf, vars, varSeq)
+      e := a1.serialize(buf, vars, varSeq)
+      if e != nil {
+          return e
+      }
 		}
 		buf.Write([]byte{delims[1]})
 	case ArgUnion:
@@ -115,6 +125,7 @@ func (a *Arg) serialize(buf io.Writer, vars map[*Arg]int, varSeq *int) {
 	default:
 		panic("unknown arg kind")
 	}
+  return nil
 }
 
 func Deserialize(data []byte) (prog *Prog, err error) {
