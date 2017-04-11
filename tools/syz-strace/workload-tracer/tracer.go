@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
-	. "github.com/google/syzkaller/tools/syz-strace/ssh"
 	"github.com/google/syzkaller/tools/syz-strace/config"
 	. "github.com/google/syzkaller/tools/syz-strace/domain"
 )
@@ -68,21 +67,3 @@ func readWorkload(location string) (wcs []WorkloadConfig) {
 	}
 	return
 }
-
-func buildStraceCmd(config WorkloadConfig) (sshCommand *SSHCommand) {
-	sshCommand = new(SSHCommand)
-	sshCommand.Path = "/root/strace"
-	sshCommand.Args = make([]string, 0)
-	sshCommand.Args = append([]string{"/root/strace"}, "-s")
-	sshCommand.Args = append(sshCommand.Args, "65500")
-	sshCommand.Args = append(sshCommand.Args, "-o")
-	sshCommand.Args = append(sshCommand.Args, config.StraceOutPath)
-	sshCommand.Args = append(sshCommand.Args, "-k")
-	if config.FollowFork {
-		sshCommand.Args = append(sshCommand.Args, "-f")
-	}
-	sshCommand.Args = append(sshCommand.Args, config.ExecutablePath)
-	sshCommand.Args = append(sshCommand.Args, config.Args...)
-	return
-}
-

@@ -17,13 +17,14 @@ import (
 	. "github.com/google/syzkaller/tools/syz-structs"
 	"sync"
 	"math/rand"
+	"github.com/google/syzkaller/tools/syz-strace/distiller"
 	"errors"
 	"math"
 	"flag"
 	. "github.com/google/syzkaller/tools/syz-strace/config"
 	. "github.com/google/syzkaller/tools/syz-strace/workload-tracer"
 	. "github.com/google/syzkaller/tools/syz-strace/ssh"
-	domain "github.com/google/syzkaller/tools/syz-strace/domain"
+	"github.com/google/syzkaller/tools/syz-strace/domain"
 )
 
 const (
@@ -61,6 +62,7 @@ var (
 	flagSkip = flag.Int("skip", 0, "how many to skip")
 	flagConfig = flag.String("config", "/etc/strace-config.json", "config file for syz strace")
 	flagGetTraces = flag.Bool("trace", false, "gather traces")
+	flagDistill = flag.Bool("distill", false, "distill traces")
 )
 
 func usage() {
@@ -72,7 +74,8 @@ func usage() {
 
 func main() {
 	flag.Parse()
-	file, dir, configLocation, getTraces := *flagFile, *flagDir, *flagConfig, *flagGetTraces
+	file, dir, configLocation := *flagFile, *flagDir, *flagConfig
+	getTraces, distill := *flagGetTraces, *flagDistill
 	if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
 		usage()
 	}
@@ -96,17 +99,17 @@ func main() {
 	}
 
 	fmt.Printf("strace_files: %v\n", strace_files)
-
+	distiller := &distiller.DefaultDistiller{}
 	os.Mkdir("serialized", 0750)
 	consts := readConsts(arch)
-
+	seeds := make(domain.Seeds, 0)
 	for i,filename := range strace_files {
 		if i < *flagSkip {
 			continue
 		}
 		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
 		straceCalls := parseStrace(filename)
-		prog := parse(straceCalls, &consts)
+		prog := parse(straceCalls, &consts, seeds)
 		if err := prog.Validate(); err != nil {
 			fmt.Printf("Error validating %v\n", "something")
 			failf(err.Error())
@@ -121,8 +124,9 @@ func main() {
 		fmt.Printf("serialized output to %v\n", s_name)
 		fmt.Printf("==============================\n\n")
 	}
-
-
+	if (distill) {
+		distiller.MinCover(seeds)
+	}
 	fmt.Println("Done, now packing into corpus.db")
 	pack("serialized", "corpus.db")
 }
@@ -171,13 +175,13 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 	return
 }
 
-func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64) *Prog{
+func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds domain.Seeds) *Prog{
 	prog :=  new(Prog)
 	return_vars := make(map[returnType]*Arg)
 	s := newState() /* to keep track of resources and memory */
 
 	for _, line := range straceCalls {
-		parseCall(line, consts, &return_vars, s, prog)
+		seeds.Add(parseCall(line, consts, &return_vars, s, prog))
 	}
 	return prog
 }
@@ -208,9 +212,9 @@ func parseInstructions(line string) (ips []uint64) {
 
 
 func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
-		return_vars *map[returnType]*Arg, s *state, prog *Prog) {
+		return_vars *map[returnType]*Arg, s *state, prog *Prog) *domain.Seed{
 	if _, ok := Unsupported[line.FuncName]; ok {
-		return // don't parse unsupported syscalls
+		failf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog) // don't parse unsupported syscalls
 	}
 
 	/* adjust functions to fit syzkaller standards */
@@ -272,7 +276,7 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	}
 
 	fmt.Println("\n---------done parsing line--------\n")
-
+	return domain.NewSeed(c, prog, len(prog.Calls)-1, line.Cover)
 }
 
 func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
