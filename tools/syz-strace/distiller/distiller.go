@@ -35,6 +35,10 @@ func (d *DefaultDistiller) Add(seeds domain.Seeds) {
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
 		d.SeedDependencyGraph[seed] = make([]int, 0)
+		for call, idx := range seed.DependsOn {
+			d.SeedDependencyGraph[seed] = append(d.SeedDependencyGraph[seed], idx)
+			d.CallToIdx[call] = idx
+		}
 	}
 }
 
@@ -84,9 +88,6 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 		if seed, ok = d.CallToSeed[call]; !ok {
 			//Most likely an mmap we had to do
 			fmt.Printf("Call: %s\n", call.Meta.CallName)
-			for _, arg := range call.Args {
-				args[arg] = i
-			}
 			continue
 		}
 		for _, arg := range call.Args {
