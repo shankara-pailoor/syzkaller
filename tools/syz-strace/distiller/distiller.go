@@ -15,27 +15,39 @@ type Distiller interface {
 
 type DefaultDistiller struct {
 	DistilledProgs []*prog.Prog
-	SeedLookup map[*prog.Call]*domain.Seed
+	CallToSeed map[*prog.Call]*domain.Seed
 	CallToDistilledProg map[*prog.Call]*prog.Prog
-	SeedDependencyGraph map[*domain.Seed][]*prog.Call
+	CallToIdx map[*prog.Call]int
+	SeedDependencyGraph map[*domain.Seed][]int
 }
 
 func NewDefaultDistiller() (d *DefaultDistiller) {
 	d = &DefaultDistiller{
 		DistilledProgs: make([]*prog.Prog, 0),
-		SeedLookup: make(map[*prog.Call]*domain.Seed, 0),
-		CallToDistilledProg: make(map[*prog.Call]*prog.Prog),
-		SeedDependencyGraph: make(map[*domain.Seed][]*prog.Call, 0),
+		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
+		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
+		SeedDependencyGraph: make(map[*domain.Seed][]int, 0),
 	}
 	return
 }
 
 func (d *DefaultDistiller) Add(seeds domain.Seeds) {
 	for _, seed := range seeds {
-		d.SeedLookup[seed.Call] = seed
-		d.SeedDependencyGraph[seed] = make([]*prog.Call, 0)
+		d.CallToSeed[seed.Call] = seed
+		d.SeedDependencyGraph[seed] = make([]int, 0)
 		d.CallToDistilledProg[seed.Call] = nil
 	}
+}
+
+func (d *DefaultDistiller) Contributes(seed *domain.Seed, seenIps map[uint64]bool) int {
+	total := 0
+	for _, ip := range seed.Cover {
+		if _, ok := seenIps[ip]; !ok {
+			seenIps[ip] = true
+			total += 1
+		}
+	}
+	return total
 }
 
 func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
@@ -54,21 +66,68 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
 	return nil
 }
 
-func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog, args map[*prog.Arg]int) {
+func (d *DefaultDistiller) trackDependencies(prg *prog.Prog, args map[*prog.Arg]int) {
 	for i, call := range prg.Calls {
 		var seed *domain.Seed
 		var ok bool
-		if seed, ok = d.SeedLookup[call]; !ok {
+		if seed, ok = d.CallToSeed[call]; !ok {
 			continue
 		}
 		for _, arg := range call.Args {
 			//fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
 			upstream_maps := d.isDependent(arg, i, args)
 			for k, _ := range upstream_maps {
-				d.SeedDependencyGraph[seed] = append(d.SeedDependencyGraph[seed], prg.Calls[k])
+				d.SeedDependencyGraph[seed] = append(d.SeedDependencyGraph[seed], k)
 			}
 		}
 		args[call.Ret] = i
+	}
+}
+
+func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
+	upstream_calls := d.SeedDependencyGraph[seed]
+	/* We merge the programs of any calls we depend on */
+	progsToMerge := make([]*prog.Prog, 0)
+	for _, idx := range upstream_calls {
+		call := seed.Prog.Calls[idx]
+		if _, ok := d.CallToDistilledProg[call]; ok {
+			progsToMerge = append(progsToMerge, d.CallToDistilledProg[call])
+		}
+	}
+	if len(progsToMerge) == 0 {
+		/* If none of our upstream calls have programs, we create a new one and
+		 * add all our upstream dependencies
+		 */
+		distProg := new(prog.Prog)
+		distProg.Calls = make([]*prog.Call, 0)
+		//Add the calls in sorted order of their position in the original program
+		sort.Ints(d.SeedDependencyGraph[seed])
+		for _, idx := range d.SeedDependencyGraph[seed] {
+			distProg.Calls = append(distProg.Calls, seed.Prog.Calls[idx])
+			d.CallToDistilledProg[seed.Prog.Calls[idx]] = distProg
+		}
+		distProg.Calls = append(distProg.Calls, seed.Call)
+		d.CallToDistilledProg[seed.Call] = distProg
+	} else if len(progsToMerge) == 1 {
+		progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Call)
+	} else {
+		distProg := new(prog.Prog)
+		distProg.Calls = make([]*prog.Call, 0)
+		idxToCall := make(map[int]*prog.Call, 0)
+		callIndexes := make([]int, 0)
+		for _, p := range progsToMerge {
+			for _, call := range p.Calls {
+				idxToCall[d.CallToIdx[call]] = call
+				callIndexes = append(callIndexes, d.CallToIdx[call])
+			}
+		}
+		sort.Ints(callIndexes)
+		for _, idx := range callIndexes {
+			call := idxToCall[idx]
+			distProg.Calls = append(distProg.Calls, call)
+			d.CallToDistilledProg[call] = distProg
+		}
+		d.CallToDistilledProg[seed.Call] = distProg
 	}
 }
 
@@ -107,13 +166,3 @@ func (d *DefaultDistiller) isDependent(arg *prog.Arg, callIdx int, args map[*pro
 	return upstreamSet
 }
 
-func (d *DefaultDistiller) Contributes(seed *domain.Seed, seenIps map[uint64]bool) int {
-	total := 0
-	for _, ip := range seed.Cover {
-		if _, ok := seenIps[ip]; !ok {
-			seenIps[ip] = true
-			total += 1
-		}
-	}
-	return total
-}
