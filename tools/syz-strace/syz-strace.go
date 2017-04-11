@@ -131,7 +131,19 @@ func main() {
 		for _, prog := range progs {
 			distiller.TrackDependencies(prog)
 		}
-		distiller.MinCover(seeds)
+		distilled := distiller.MinCover(seeds)
+		for i, progd := range distilled {
+			if err := progd.Validate(); err != nil {
+				fmt.Printf("Error validating %v\n", progd)
+				failf(err.Error())
+			}
+			s_name := "serialized/" + filepath.Base("distilled" + strconv.Itoa(i))
+			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
+				failf("failed to output file: %v", err)
+			}
+			fmt.Printf("serialized output to %v\n", s_name)
+			fmt.Printf("==============================\n\n")
+		}
 	}
 	fmt.Println("Done, now packing into corpus.db")
 	pack("serialized", "corpus.db")

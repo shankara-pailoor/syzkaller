@@ -8,7 +8,7 @@ import (
 )
 
 type Distiller interface {
-	MinCover(domain.Seeds) *prog.Prog
+	MinCover(domain.Seeds) []*prog.Prog
 	Add(domain.Seeds)
 	Contributes(domain.Seed, map[uint64]bool) int
 }
@@ -49,7 +49,7 @@ func (d *DefaultDistiller) Contributes(seed *domain.Seed, seenIps map[uint64]boo
 	return total
 }
 
-func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
+func (d *DefaultDistiller) MinCover(seeds domain.Seeds) (distilled []*prog.Prog) {
 	fmt.Printf("Computing Min Cover with %d seeds\n", len(seeds))
 	seenIps := make(map[uint64]bool)
 	sort.Sort(sort.Reverse(seeds))
@@ -70,9 +70,10 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
 	}
 	for prog, _ := range distilledProgs {
 		fmt.Printf("Prog: %v\n", prog)
+		distilled = append(distilled, prog)
 	}
 	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
-	return nil
+	return
 }
 
 func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
@@ -81,16 +82,22 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 		var seed *domain.Seed
 		var ok bool
 		if seed, ok = d.CallToSeed[call]; !ok {
+			//Most likely an mmap we had to do
+			fmt.Printf("Call: %s\n", call.Meta.CallName)
+			for _, arg := range call.Args {
+				args[arg] = i
+			}
 			continue
 		}
 		for _, arg := range call.Args {
-			//fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
+			fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
 			upstream_maps := d.isDependent(arg, i, args)
 			for k, _ := range upstream_maps {
 				fmt.Printf("K: %d\n", k)
 				d.SeedDependencyGraph[seed] = append(d.SeedDependencyGraph[seed], k)
 			}
 		}
+		fmt.Printf("depends on: %v\n", d.SeedDependencyGraph[seed])
 		args[call.Ret] = i
 	}
 }
