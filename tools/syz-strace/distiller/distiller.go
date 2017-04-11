@@ -26,6 +26,7 @@ func NewDefaultDistiller() (d *DefaultDistiller) {
 		DistilledProgs: make([]*prog.Prog, 0),
 		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
 		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
+		CallToIdx: make(map[*prog.Call]int, 0),
 		SeedDependencyGraph: make(map[*domain.Seed][]int, 0),
 	}
 	return
