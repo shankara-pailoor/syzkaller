@@ -231,9 +231,9 @@ func parseInstructions(line string) (ips []uint64) {
 
 
 func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
-		return_vars *map[returnType]*Arg, s *state, prog *Prog) *domain.Seed{
+		return_vars *map[returnType]*Arg, s *state, prog_ *Prog) *domain.Seed{
 	if _, ok := Unsupported[line.FuncName]; ok {
-		failf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog) // don't parse unsupported syscalls
+		failf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
 	}
 
 	/* adjust functions to fit syzkaller standards */
@@ -263,7 +263,7 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	}
 	var calls []*Call
 	var strace_arg string
-	progLen := len(prog.Calls)
+	progLen := len(prog_.Calls)
 	for i, typ := range meta.Args {
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
@@ -293,14 +293,14 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	for _,c := range calls {
 		// TODO: sanitize c?
 		s.analyze(c)
-		prog.Calls = append(prog.Calls, c)
+		prog_.Calls = append(prog_.Calls, c)
 	}
-	dependsOn := make([]int, 0)
+	dependsOn := make(map[*prog.Call]int, 0)
 	for i := 0; i < len(calls)-1; i++ {
-		dependsOn = append(dependsOn, progLen+i)
+		dependsOn[calls[i]] = progLen+i
 	}
 	fmt.Println("\n---------done parsing line--------\n")
-	return domain.NewSeed(c, dependsOn, prog, len(prog.Calls)-1, line.Cover)
+	return domain.NewSeed(c, dependsOn, prog_, len(prog_.Calls)-1, line.Cover)
 }
 
 func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
