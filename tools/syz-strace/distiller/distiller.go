@@ -124,6 +124,7 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		distProg.Calls = make([]*prog.Call, 0)
 		//Add the calls in sorted order of their position in the original program
 		sort.Ints(d.SeedDependencyGraph[seed])
+		fmt.Printf("dependency: %v\n", d.SeedDependencyGraph[seed])
 		for _, idx := range d.SeedDependencyGraph[seed] {
 			distProg.Calls = append(distProg.Calls, seed.Prog.Calls[idx])
 			d.CallToDistilledProg[seed.Prog.Calls[idx]] = distProg
@@ -133,6 +134,7 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	} else if len(progsToMerge) == 1 {
 		progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Call)
 	} else {
+		fmt.Printf("HANDLING THIRD CASE\n")
 		distProg := new(prog.Prog)
 		distProg.Calls = make([]*prog.Call, 0)
 		idxToCall := make(map[int]*prog.Call, 0)
