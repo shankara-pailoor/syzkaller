@@ -133,6 +133,12 @@ func main() {
 		}
 		distilled := distiller.MinCover(seeds)
 		for i, progd := range distilled {
+			for _, call := range progd {
+				if _, ok := distiller.CallToSeed[call]; !ok {
+					continue
+				}
+				fmt.Printf("DEPENDS: %v\n", distiller.SeedDependencyGraph[distiller.CallToSeed[call]])
+			}
 			if err := progd.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", progd)
 				failf(err.Error())

@@ -134,7 +134,6 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	} else if len(progsToMerge) == 1 {
 		progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Call)
 	} else {
-		fmt.Printf("HANDLING THIRD CASE\n")
 		distProg := new(prog.Prog)
 		distProg.Calls = make([]*prog.Call, 0)
 		idxToCall := make(map[int]*prog.Call, 0)
