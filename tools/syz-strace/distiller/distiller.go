@@ -58,6 +58,7 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
 	for _, seed := range seeds {
 		var ips int = d.Contributes(seed, seenIps)
 		if ips > 0 {
+			d.AddToDistilledProg(seed)
 			fmt.Printf("Seed: %s contributes: %d ips out of its total of: %d\n", seed.Call.Meta.Name, ips, len(seed.Cover))
 			contributing_progs += 1
 		}
@@ -87,6 +88,9 @@ func (d *DefaultDistiller) trackDependencies(prg *prog.Prog, args map[*prog.Arg]
 func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	upstream_calls := d.SeedDependencyGraph[seed]
 	/* We merge the programs of any calls we depend on */
+	if d.CallToDistilledProg[seed.Call] != nil {
+		return
+	}
 	progsToMerge := make([]*prog.Prog, 0)
 	for _, idx := range upstream_calls {
 		call := seed.Prog.Calls[idx]
@@ -159,7 +163,6 @@ func (d *DefaultDistiller) isDependent(arg *prog.Arg, callIdx int, args map[*pro
 				upstreamSet[k] = true
 			}
 		}
-
 	}
 	args[arg] = callIdx
 	//doesn't hurt to add again if it was already added
