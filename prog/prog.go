@@ -241,11 +241,11 @@ func (p *Prog) removeArg(c *Call, arg0 *Arg) {
 		}
 		for arg1 := range arg.Uses {
 			if arg1.Kind != ArgResult {
-        fmt.Printf("arg1 kind: %v\n", arg1.Kind)
-        fmt.Printf("serialized: %s\n", p.Serialize())
-        delete(arg.Uses, arg1)
-        continue
-				// panic("use references not ArgResult")
+				//fmt.Printf("arg1 kind: %v\n", arg1.Kind)
+				//fmt.Printf("serialized: %s\n", p.Serialize())
+				//delete(arg.Uses, arg1)
+				//continue
+				panic("use references not ArgResult")
 			}
 			arg2 := constArg(arg1.Type, arg1.Type.Default())
 			p.replaceArg(c, arg1, arg2, nil)
