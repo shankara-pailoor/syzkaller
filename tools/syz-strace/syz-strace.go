@@ -127,6 +127,7 @@ func main() {
 		fmt.Printf("==============================\n\n")
 	}
 	if (distill) {
+		distiller.Add(seeds)
 		for _, prog := range progs {
 			distiller.TrackDependencies(prog)
 		}
