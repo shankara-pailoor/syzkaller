@@ -69,14 +69,15 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
 			distilledProgs[d.CallToDistilledProg[seed.Call]] = true
 		}
 	}
-	for _, prog := range distilledProgs {
+	for prog, _ := range distilledProgs {
 		fmt.Printf("Prog: %v\n", prog)
 	}
 	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
 	return nil
 }
 
-func (d *DefaultDistiller) trackDependencies(prg *prog.Prog, args map[*prog.Arg]int) {
+func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
+	args := make(map[*prog.Arg]int, 0)
 	for i, call := range prg.Calls {
 		var seed *domain.Seed
 		var ok bool
