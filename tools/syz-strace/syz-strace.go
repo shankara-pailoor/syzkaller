@@ -133,12 +133,13 @@ func main() {
 		}
 		distilled := distiller.MinCover(seeds)
 		for i, progd := range distilled {
-			for _, call := range progd {
+			for _, call := range progd.Calls {
 				if _, ok := distiller.CallToSeed[call]; !ok {
 					continue
 				}
 				fmt.Printf("DEPENDS: %v\n", distiller.SeedDependencyGraph[distiller.CallToSeed[call]])
 			}
+			distiller.Clean(progd)
 			if err := progd.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", progd)
 				failf(err.Error())
@@ -1168,9 +1169,9 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 		Val: val,
 	}
 	if arg, ok := (*return_vars)[return_var]; ok {
-    if arg != nil {
-        return resultArg(typ, arg)
-    }
+		if arg != nil {
+        		return resultArg(typ, arg)
+    		}
 	}
 
 	return nil

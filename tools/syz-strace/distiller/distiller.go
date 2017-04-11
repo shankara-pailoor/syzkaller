@@ -18,6 +18,7 @@ type DefaultDistiller struct {
 	CallToSeed map[*prog.Call]*domain.Seed
 	CallToDistilledProg map[*prog.Call]*prog.Prog
 	CallToIdx map[*prog.Call]int
+	ShouldKeepResult map[*prog.Call]bool
 	SeedDependencyGraph map[*domain.Seed][]int
 }
 
@@ -27,6 +28,7 @@ func NewDefaultDistiller() (d *DefaultDistiller) {
 		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
 		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
 		CallToIdx: make(map[*prog.Call]int, 0),
+		ShouldKeepResult: make(map[*prog.Call]bool, 0),
 		SeedDependencyGraph: make(map[*domain.Seed][]int, 0),
 	}
 	return
@@ -100,7 +102,9 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 			}
 		}
 		fmt.Printf("depends on: %v\n", d.SeedDependencyGraph[seed])
-		args[call.Ret] = i
+		if call.Ret != nil {
+			args[call.Ret] = i
+		}
 	}
 }
 
@@ -113,6 +117,7 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	progsToMerge := make([]*prog.Prog, 0)
 	for _, idx := range upstream_calls {
 		call := seed.Prog.Calls[idx]
+		d.ShouldKeepResult[call] = true
 		if _, ok := d.CallToDistilledProg[call]; ok {
 			progsToMerge = append(progsToMerge, d.CallToDistilledProg[call])
 		}
@@ -127,8 +132,10 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		sort.Ints(d.SeedDependencyGraph[seed])
 		fmt.Printf("dependency: %v\n", d.SeedDependencyGraph[seed])
 		for _, idx := range d.SeedDependencyGraph[seed] {
-			distProg.Calls = append(distProg.Calls, seed.Prog.Calls[idx])
-			d.CallToDistilledProg[seed.Prog.Calls[idx]] = distProg
+			upstreamCall := seed.Prog.Calls[idx]
+			distProg.Calls = append(distProg.Calls, upstreamCall)
+			d.ShouldKeepResult[upstreamCall] = true
+			d.CallToDistilledProg[upstreamCall] = distProg
 		}
 		distProg.Calls = append(distProg.Calls, seed.Call)
 		d.CallToDistilledProg[seed.Call] = distProg
@@ -152,6 +159,14 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 			d.CallToDistilledProg[call] = distProg
 		}
 		d.CallToDistilledProg[seed.Call] = distProg
+	}
+}
+
+func (d *DefaultDistiller) Clean(progDistilled *prog.Prog) {
+	for _, call := range progDistilled.Calls {
+		if !d.ShouldKeepResult[call] {
+			call.Ret = nil
+		}
 	}
 }
 
