@@ -199,7 +199,7 @@ func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds 
 	s := newState() /* to keep track of resources and memory */
 
 	for _, line := range straceCalls {
-		seed := parseCall(line, consts, &return_vars, s, prog))
+		seed := parseCall(line, consts, &return_vars, s, prog)
 		seeds.Add(seed)
 		fmt.Printf("seed: %v\n", seed)
 	}
