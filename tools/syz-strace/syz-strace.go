@@ -99,7 +99,7 @@ func main() {
 	}
 
 	fmt.Printf("strace_files: %v\n", strace_files)
-	distiller := &distiller.DefaultDistiller{}
+	distiller := distiller.NewDefaultDistiller()
 	os.Mkdir("serialized", 0750)
 	consts := readConsts(arch)
 	seeds := make(domain.Seeds, 0)
@@ -109,7 +109,7 @@ func main() {
 		}
 		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
 		straceCalls := parseStrace(filename)
-		prog := parse(straceCalls, &consts, seeds)
+		prog := parse(straceCalls, &consts, &seeds)
 		if err := prog.Validate(); err != nil {
 			fmt.Printf("Error validating %v\n", "something")
 			failf(err.Error())
@@ -175,13 +175,14 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 	return
 }
 
-func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds domain.Seeds) *Prog{
+func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds *domain.Seeds) *Prog{
 	prog :=  new(Prog)
 	return_vars := make(map[returnType]*Arg)
 	s := newState() /* to keep track of resources and memory */
 
 	for _, line := range straceCalls {
 		seeds.Add(parseCall(line, consts, &return_vars, s, prog))
+		fmt.Printf("seeds: %v\n", seeds)
 	}
 	return prog
 }

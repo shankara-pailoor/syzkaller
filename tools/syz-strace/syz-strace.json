@@ -9,7 +9,7 @@
 	},
 	"parser_conf" : {
 		"type": "local",
-		"InputDirectory": "/home/w4118/src/github.com/google/syzkaller/strace-output/ltp-2/",
+		"InputDirectory": "/home/w4118/src/github.com/google/syzkaller/strace-output/testing/",
 		"OutputDirectory":"/home/w4118/src/github.com/google/syzkaller/serialized/"
 
 	},
