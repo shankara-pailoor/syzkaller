@@ -165,7 +165,7 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 func (d *DefaultDistiller) Clean(progDistilled *prog.Prog) {
 	for _, call := range progDistilled.Calls {
 		if !d.ShouldKeepResult[call] {
-			call.Ret = nil
+			call.Ret.Uses = nil
 		}
 	}
 }
