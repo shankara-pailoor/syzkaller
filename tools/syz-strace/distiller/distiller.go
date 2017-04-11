@@ -63,6 +63,15 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) *prog.Prog {
 			contributing_progs += 1
 		}
 	}
+	distilledProgs := make(map[*prog.Prog]bool)
+	for _, seed := range seeds {
+		if _, ok := d.CallToDistilledProg[seed.Call]; ok {
+			distilledProgs[d.CallToDistilledProg[seed.Call]] = true
+		}
+	}
+	for _, prog := range distilledProgs {
+		fmt.Printf("Prog: %v\n", prog)
+	}
 	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
 	return nil
 }
