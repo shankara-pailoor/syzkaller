@@ -18,6 +18,7 @@ import (
 	"sync"
 	"math/rand"
 	"github.com/google/syzkaller/tools/syz-strace/distiller"
+	"github.com/google/syzkaller/prog"
 	"errors"
 	"math"
 	"flag"
@@ -103,28 +104,32 @@ func main() {
 	os.Mkdir("serialized", 0750)
 	consts := readConsts(arch)
 	seeds := make(domain.Seeds, 0)
+	progs := make([]*prog.Prog, 0)
 	for i,filename := range strace_files {
 		if i < *flagSkip {
 			continue
 		}
 		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
 		straceCalls := parseStrace(filename)
-		prog := parse(straceCalls, &consts, &seeds)
-		if err := prog.Validate(); err != nil {
+		parsedProg := parse(straceCalls, &consts, &seeds)
+		if err := parsedProg.Validate(); err != nil {
 			fmt.Printf("Error validating %v\n", "something")
 			failf(err.Error())
 		}
-
-		fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(prog.Calls))
+		progs = append(progs, parsedProg)
+		fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
 
 		s_name := "serialized/" + filepath.Base(filename)
-		if err := ioutil.WriteFile(s_name, prog.Serialize(), 0640); err != nil {
+		if err := ioutil.WriteFile(s_name, parsedProg.Serialize(), 0640); err != nil {
 			failf("failed to output file: %v", err)
 		}
 		fmt.Printf("serialized output to %v\n", s_name)
 		fmt.Printf("==============================\n\n")
 	}
 	if (distill) {
+		for _, prog := range progs {
+			distiller.TrackDependencies(prog)
+		}
 		distiller.MinCover(seeds)
 	}
 	fmt.Println("Done, now packing into corpus.db")
