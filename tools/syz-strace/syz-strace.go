@@ -142,8 +142,7 @@ func main() {
 			distiller.Clean(progd)
 			if err := progd.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", progd)
-				fmt.Printf("Error: %s\n", err.Error())
-			//	failf(err.Error())
+				failf(err.Error())
 			}
 			s_name := "serialized/" + filepath.Base("distilled" + strconv.Itoa(i))
 			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
