@@ -162,6 +162,20 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 				argK.Uses[argV] = true
 			}
 		}
+		callIdxs := make([]int, 0)
+		for idx, _ := range d.SeedDependencyGraph[seed] {
+			if _, ok := d.CallToDistilledProg[seed.Prog.Calls[idx]]; !ok {
+				callIdxs = append(callIdxs, idx)
+			}
+		}
+		for _, call := range progsToMerge[0].Calls {
+			callIdxs = append(callIdxs, d.CallToIdx[call])
+		}
+		sort.Ints(callIdxs)
+		progsToMerge[0].Calls = make([]*prog.Call, 0)
+		for _, idx := range callIdxs {
+			progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Prog.Calls[idx])
+		}
 		progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Call)
 	} else {
 		distProg := new(prog.Prog)
