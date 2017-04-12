@@ -154,11 +154,9 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		seed.Call.Ret.Uses = nil
 	} else if len(progsToMerge) == 1 {
 		for idx, _ := range d.SeedDependencyGraph[seed] {
-			upstreamCall := seed.Prog.Calls[idx]
-
 			argvMap := d.SeedDependencyGraph[seed][idx]
 			for argK, argV := range argvMap {
-				if _, ok := d.CallToDistilledProg[upstreamCall]; !ok {
+				if argK.Uses == nil {
 					argK.Uses = make(map[*prog.Arg]bool)
 				}
 				argK.Uses[argV] = true
