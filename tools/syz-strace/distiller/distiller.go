@@ -18,8 +18,7 @@ type DefaultDistiller struct {
 	CallToSeed map[*prog.Call]*domain.Seed
 	CallToDistilledProg map[*prog.Call]*prog.Prog
 	CallToIdx map[*prog.Call]int
-	ShouldKeepResult map[*prog.Call]bool
-	SeedDependencyGraph map[*domain.Seed][]int
+	SeedDependencyGraph map[*domain.Seed]map[int]map[*prog.Arg]*prog.Arg
 }
 
 func NewDefaultDistiller() (d *DefaultDistiller) {
@@ -28,8 +27,7 @@ func NewDefaultDistiller() (d *DefaultDistiller) {
 		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
 		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
 		CallToIdx: make(map[*prog.Call]int, 0),
-		ShouldKeepResult: make(map[*prog.Call]bool, 0),
-		SeedDependencyGraph: make(map[*domain.Seed][]int, 0),
+		SeedDependencyGraph: make(map[*domain.Seed]map[int]map[*prog.Arg]*prog.Arg, 0),
 	}
 	return
 }
@@ -37,9 +35,11 @@ func NewDefaultDistiller() (d *DefaultDistiller) {
 func (d *DefaultDistiller) Add(seeds domain.Seeds) {
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
-		d.SeedDependencyGraph[seed] = make([]int, 0)
+		d.SeedDependencyGraph[seed] = make(map[int]map[*prog.Arg]*prog.Arg, 0)
 		for call, idx := range seed.DependsOn {
-			d.SeedDependencyGraph[seed] = append(d.SeedDependencyGraph[seed], idx)
+			if _, ok := d.SeedDependencyGraph[seed][idx]; !ok {
+				d.SeedDependencyGraph[seed][idx] = make(map[*prog.Arg]*prog.Arg, 0)
+			}
 			d.CallToIdx[call] = idx
 		}
 	}
@@ -96,9 +96,14 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 		for _, arg := range call.Args {
 			fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
 			upstream_maps := d.isDependent(arg, i, args)
-			for k, _ := range upstream_maps {
+			for k, argMap := range upstream_maps {
 				fmt.Printf("K: %d\n", k)
-				d.SeedDependencyGraph[seed] = append(d.SeedDependencyGraph[seed], k)
+				if d.SeedDependencyGraph[seed][k] == nil {
+					d.SeedDependencyGraph[seed][k] = make(map[*prog.Arg]*prog.Arg, 0)
+				}
+				for argK, argV := range argMap {
+					d.SeedDependencyGraph[seed][k][argK] = argV
+				}
 			}
 		}
 		fmt.Printf("depends on: %v\n", d.SeedDependencyGraph[seed])
@@ -115,9 +120,8 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		return
 	}
 	progsToMerge := make([]*prog.Prog, 0)
-	for _, idx := range upstream_calls {
+	for idx, _ := range upstream_calls {
 		call := seed.Prog.Calls[idx]
-		d.ShouldKeepResult[call] = true
 		if _, ok := d.CallToDistilledProg[call]; ok {
 			progsToMerge = append(progsToMerge, d.CallToDistilledProg[call])
 		}
@@ -128,18 +132,38 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		 */
 		distProg := new(prog.Prog)
 		distProg.Calls = make([]*prog.Call, 0)
+		callIdxs := make([]int, 0)
+		for idx, _ := range d.SeedDependencyGraph[seed] {
+			callIdxs = append(callIdxs, idx)
+		}
 		//Add the calls in sorted order of their position in the original program
-		sort.Ints(d.SeedDependencyGraph[seed])
+		sort.Ints(callIdxs)
 		fmt.Printf("dependency: %v\n", d.SeedDependencyGraph[seed])
-		for _, idx := range d.SeedDependencyGraph[seed] {
+		for _, idx := range callIdxs {
 			upstreamCall := seed.Prog.Calls[idx]
+			argvMap := d.SeedDependencyGraph[seed][idx]
+			for argK, argV := range argvMap {
+				argK.Uses = make(map[*prog.Arg]bool, 0)
+				argK.Uses[argV] = true
+			}
 			distProg.Calls = append(distProg.Calls, upstreamCall)
-			d.ShouldKeepResult[upstreamCall] = true
 			d.CallToDistilledProg[upstreamCall] = distProg
 		}
 		distProg.Calls = append(distProg.Calls, seed.Call)
 		d.CallToDistilledProg[seed.Call] = distProg
+		seed.Call.Ret.Uses = nil
 	} else if len(progsToMerge) == 1 {
+		for idx, _ := range d.SeedDependencyGraph[seed] {
+			upstreamCall := seed.Prog.Calls[idx]
+
+			argvMap := d.SeedDependencyGraph[seed][idx]
+			for argK, argV := range argvMap {
+				if _, ok := d.CallToDistilledProg[upstreamCall]; !ok {
+					argK.Uses = make(map[*prog.Arg]bool)
+				}
+				argK.Uses[argV] = true
+			}
+		}
 		progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Call)
 	} else {
 		distProg := new(prog.Prog)
@@ -163,15 +187,11 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 }
 
 func (d *DefaultDistiller) Clean(progDistilled *prog.Prog) {
-	for _, call := range progDistilled.Calls {
-		if !d.ShouldKeepResult[call] {
-			call.Ret.Uses = nil
-		}
-	}
+
 }
 
-func (d *DefaultDistiller) isDependent(arg *prog.Arg, callIdx int, args map[*prog.Arg]int) map[int]bool {
-	upstreamSet := make(map[int]bool, 0)
+func (d *DefaultDistiller) isDependent(arg *prog.Arg, callIdx int, args map[*prog.Arg]int) map[int]map[*prog.Arg]*prog.Arg {
+	upstreamSet := make(map[int]map[*prog.Arg]*prog.Arg, 0)
 	if arg == nil {
 		return nil
 	}
@@ -180,22 +200,38 @@ func (d *DefaultDistiller) isDependent(arg *prog.Arg, callIdx int, args map[*pro
 	case prog.ArgResult:
 		//fmt.Printf("%v\n", args[arg.Res])
 		if _, ok := args[arg.Res]; ok {
-			upstreamSet[args[arg.Res]] = true
+			if upstreamSet[args[arg.Res]] == nil {
+				upstreamSet[args[arg.Res]] = make(map[*prog.Arg]*prog.Arg, 0)
+			}
+			upstreamSet[args[arg.Res]][arg.Res] = arg
 		}
 	case prog.ArgPointer:
 		if _, ok := args[arg.Res]; ok {
-			upstreamSet[args[arg.Res]] = true
+			upstreamSet[args[arg.Res]][arg.Res] = arg
 		} else {
-			for k, _ := range d.isDependent(arg.Res, callIdx, args) {
-				upstreamSet[k] = true
+			for k, argMap := range d.isDependent(arg.Res, callIdx, args) {
+				if upstreamSet[k] == nil {
+					upstreamSet[k] = make(map[*prog.Arg]*prog.Arg)
+					upstreamSet[k] = argMap
+				} else {
+					for argK, argV := range argMap {
+						upstreamSet[k][argK] = argV
+					}
+				}
 			}
 		}
 
 	case prog.ArgGroup:
 		for _, inner_arg := range arg.Inner {
-			innerArgMap := d.isDependent(inner_arg, callIdx, args)
-			for k, _ := range innerArgMap {
-				upstreamSet[k] = true
+			for k, argMap := range d.isDependent(inner_arg, callIdx, args) {
+				if upstreamSet[k] == nil {
+					upstreamSet[k] = make(map[*prog.Arg]*prog.Arg)
+					upstreamSet[k] = argMap
+				} else {
+					for argK, argV := range argMap {
+						upstreamSet[k][argK] = argV
+					}
+				}
 			}
 		}
 	}
