@@ -117,6 +117,7 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 
 func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.Call {
 	calls := make([]*prog.Call, 0)
+	callMap := make(map[*prog.Call]bool, 0)
 	for idx, _ := range d.SeedDependencyGraph[seed] {
 		call := seed.Prog.Calls[idx]
 		if s, ok := d.CallToSeed[call]; ok {
@@ -125,6 +126,13 @@ func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.C
 		} else {
 			calls = append(calls, call)
 		}
+	}
+	for _, call := range calls {
+		callMap[call] = true
+	}
+	calls = make([]*prog.Call, 0)
+	for k, _ := range callMap {
+		calls = append(calls, k)
 	}
 	return calls
 }
