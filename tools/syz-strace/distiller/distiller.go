@@ -184,7 +184,9 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 func (d *DefaultDistiller) getAllProgs(calls []*prog.Call) (ret []*prog.Prog) {
 	distinctProgs := make(map[*prog.Prog]bool)
 	for _, call := range calls {
-		distinctProgs[d.CallToDistilledProg[call]] = true
+		if _, ok := d.CallToDistilledProg[call]; ok {
+			distinctProgs[d.CallToDistilledProg[call]] = true
+		}
 	}
 	for k, _ := range distinctProgs {
 		ret = append(ret, k)
