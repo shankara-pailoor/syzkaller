@@ -36,6 +36,7 @@ func (d *DefaultDistiller) Add(seeds domain.Seeds) {
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
 		d.SeedDependencyGraph[seed] = make(map[int]map[*prog.Arg]*prog.Arg, 0)
+		seed.ArgMeta = make(map[*prog.Arg]bool, 0)
 		for call, idx := range seed.DependsOn {
 			if _, ok := d.SeedDependencyGraph[seed][idx]; !ok {
 				d.SeedDependencyGraph[seed][idx] = make(map[*prog.Arg]*prog.Arg, 0)
@@ -139,26 +140,35 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	for _, call := range d.GetAllUpstreamDependents(seed) {
 		callIndexes = append(callIndexes, d.CallToIdx[call])
 	}
+	callIndexes = append(callIndexes, seed.CallIdx)
 	sort.Ints(callIndexes)
+	fmt.Printf("Call IDX: %v\n", callIndexes)
 	for _, idx := range callIndexes {
 		call := seed.Prog.Calls[idx]
 		d.CallToDistilledProg[call] = distilledProg
 		distilledProg.Calls = append(distilledProg.Calls, call)
 	}
 	for _, call := range distilledProg.Calls {
-		if upstreamSeed, ok := d.CallToSeed[call]; ok {
-			dependencyMap := d.SeedDependencyGraph[upstreamSeed]
-			for _, argMap := range dependencyMap {
+		if s, ok := d.CallToSeed[call]; ok {
+			dependencyMap := d.SeedDependencyGraph[s]
+			for idx, argMap := range dependencyMap {
+				upstreamSeed := d.CallToSeed[seed.Prog.Calls[idx]]
 				for argK, argV := range argMap {
+					if _, ok := upstreamSeed.ArgMeta[argK]; !ok {
+						fmt.Printf("UpstreamedSeed: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
+						argK.Uses = nil
+						upstreamSeed.ArgMeta[argK] = true
+					}
 					if argK.Uses == nil {
+						fmt.Printf("Allocating Uses: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
 						argK.Uses = make(map[*prog.Arg]bool, 0)
 					}
+					fmt.Printf("Setting ArgV: %s, %d\n", upstreamSeed.Call.Meta.CallName, idx) 
 					argK.Uses[argV] = true
 				}
 			}
 		}
 	}
-	distilledProg.Calls = append(distilledProg, seed.Call)
 	seed.Call.Ret.Uses = nil
 }
 

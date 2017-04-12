@@ -8,6 +8,7 @@ type Seed struct {
 	Call *prog.Call
 	Prog *prog.Prog
 	Cover []uint64
+	ArgMeta map[*prog.Arg]bool
 	CallIdx int /* Index in the Prog call array */
 	DependsOn map[*prog.Call]int
 }
