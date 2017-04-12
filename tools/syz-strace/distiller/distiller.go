@@ -137,7 +137,10 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	if d.CallToDistilledProg[seed.Call] != nil {
 		return
 	}
-	for _, call := range d.GetAllUpstreamDependents(seed) {
+	upstreamCalls := d.GetAllUpstreamDependents(seed)
+	distinctProgs := d.getAllProgs(upstreamCalls)
+	totalCalls := d.getCalls(distinctProgs)
+	for _, call := range totalCalls {
 		callIndexes = append(callIndexes, d.CallToIdx[call])
 	}
 	callIndexes = append(callIndexes, seed.CallIdx)
@@ -170,6 +173,24 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		}
 	}
 	seed.Call.Ret.Uses = nil
+}
+
+func (d *DefaultDistiller) getAllProgs(calls []*prog.Call) (ret []*prog.Prog) {
+	distinctProgs := make(map[*prog.Prog]bool)
+	for _, call := range calls {
+		distinctProgs[d.CallToDistilledProg[call]] = true
+	}
+	for k, _ := range distinctProgs {
+		ret = append(ret, k)
+	}
+	return
+}
+
+func (d *DefaultDistiller) getCalls(progs []*prog.Prog) (ret []*prog.Call) {
+	for _, p := range progs {
+		ret = append(ret, p.Calls...)
+	}
+	return
 }
 
 
