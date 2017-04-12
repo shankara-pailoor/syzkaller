@@ -129,107 +129,37 @@ func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.C
 }
 
 func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
-	fmt.Printf("seed: %s, index: %d\n", seed.Call.Meta.CallName, seed.CallIdx)
-	upstream_calls := d.SeedDependencyGraph[seed]
-	/* We merge the programs of any calls we depend on */
+	distilledProg := new(prog.Prog)
+	distilledProg.Calls = make([]*prog.Call, 0)
+	callIndexes := make([]int, 0)
+
 	if d.CallToDistilledProg[seed.Call] != nil {
 		return
 	}
-	progsToMerge := make([]*prog.Prog, 0)
-	for idx, _ := range upstream_calls {
-		fmt.Printf("Upstream Call: %d\n", idx)
-		call := seed.Prog.Calls[idx]
-		if _, ok := d.CallToDistilledProg[call]; ok {
-			progsToMerge = append(progsToMerge, d.CallToDistilledProg[call])
-		}
+	for _, call := range d.GetAllUpstreamDependents(seed) {
+		callIndexes = append(callIndexes, d.CallToIdx[call])
 	}
-	if len(progsToMerge) == 0 {
-		/* If none of our upstream calls have programs, we create a new one and
-		 * add all our upstream dependencies
-		 */
-		distProg := new(prog.Prog)
-		distProg.Calls = make([]*prog.Call, 0)
-		callIdxs := make([]int, 0)
-		for _, call := range d.GetAllUpstreamDependents(seed) {
-			idx := d.CallToIdx[call]
-			callIdxs = append(callIdxs, idx)
-		}
-		//Add the calls in sorted order of their position in the original program
-		sort.Ints(callIdxs)
-		fmt.Printf("dependency: %v\n", d.SeedDependencyGraph[seed])
-		for _, idx := range callIdxs {
-			upstreamCall := seed.Prog.Calls[idx]
-			fmt.Printf("Upstream Call: %s, index: %d\n", upstreamCall.Meta.CallName, idx)
-			if argvMap, ok := d.SeedDependencyGraph[seed][idx]; ok {
-				for argK, argV := range argvMap {
-					fmt.Printf("Call: %s, index: %d, argK: %v, argV: %v\n", upstreamCall.Meta.CallName, idx, argK, argV)
-					argK.Uses = make(map[*prog.Arg]bool, 0)
+	sort.Ints(callIndexes)
+	for _, idx := range callIndexes {
+		call := seed.Prog.Calls[idx]
+		d.CallToDistilledProg[call] = distilledProg
+		distilledProg.Calls = append(distilledProg.Calls, call)
+	}
+	for _, call := range distilledProg.Calls {
+		if upstreamSeed, ok := d.CallToSeed[call]; ok {
+			dependencyMap := d.SeedDependencyGraph[upstreamSeed]
+			for _, argMap := range dependencyMap {
+				for argK, argV := range argMap {
+					if argK.Uses == nil {
+						argK.Uses = make(map[*prog.Arg]bool, 0)
+					}
 					argK.Uses[argV] = true
 				}
 			}
-			distProg.Calls = append(distProg.Calls, upstreamCall)
-			d.CallToDistilledProg[upstreamCall] = distProg
 		}
-		distProg.Calls = append(distProg.Calls, seed.Call)
-		d.CallToDistilledProg[seed.Call] = distProg
-		seed.Call.Ret.Uses = nil
-	} else if len(progsToMerge) == 1 {
-		for idx, _ := range d.SeedDependencyGraph[seed] {
-			fmt.Printf("Progs To Merge == 1, Call: %s, Idx: %d\n", seed.Prog.Calls[idx].Meta.CallName, idx)
-			argvMap := d.SeedDependencyGraph[seed][idx]
-			for argK, argV := range argvMap {
-				fmt.Printf("Call: %s, index: %d, argK: %v, argV: %v\n", seed.Prog.Calls[idx].Meta.CallName, idx, argK, argV)
-				if argK.Uses == nil {
-					argK.Uses = make(map[*prog.Arg]bool)
-				}
-				argK.Uses[argV] = true
-			}
-		}
-		callIdxs := make([]int, 0)
-		fmt.Printf("All upstream Dependents: %v\n", d.GetAllUpstreamDependents(seed))
-		for _, call := range d.GetAllUpstreamDependents(seed) {
-			fmt.Printf("Upstream dependents: Call: %s, Idx: %d\n", call.Meta.CallName, d.CallToIdx[call])
-			if _, ok := d.CallToDistilledProg[call]; !ok {
-				d.CallToDistilledProg[call] = progsToMerge[0]
-				callIdxs = append(callIdxs, d.CallToIdx[call])
-			}
-		}
-		fmt.Printf("CALL IDX: %v\n", callIdxs)
-		for _, call := range progsToMerge[0].Calls {
-			fmt.Printf("CallID: %d, %s\n", d.CallToIdx[call], call.Meta.CallName)
-			callIdxs = append(callIdxs, d.CallToIdx[call])
-		}
-		fmt.Printf("CALL IDXS: %v\n", callIdxs)
-		sort.Ints(callIdxs)
-		progsToMerge[0].Calls = make([]*prog.Call, 0)
-		for _, idx := range callIdxs {
-			progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Prog.Calls[idx])
-		}
-
-		progsToMerge[0].Calls = append(progsToMerge[0].Calls, seed.Call)
-		d.CallToDistilledProg[seed.Call] = progsToMerge[0]
-		seed.Call.Ret.Uses = nil
-	} else {
-		fmt.Printf("DEPENDENCY 2\n")
-		distProg := new(prog.Prog)
-		distProg.Calls = make([]*prog.Call, 0)
-		idxToCall := make(map[int]*prog.Call, 0)
-		callIndexes := make([]int, 0)
-		for _, p := range progsToMerge {
-			for _, call := range p.Calls {
-				idxToCall[d.CallToIdx[call]] = call
-				callIndexes = append(callIndexes, d.CallToIdx[call])
-			}
-		}
-		sort.Ints(callIndexes)
-		for _, idx := range callIndexes {
-			call := idxToCall[idx]
-			distProg.Calls = append(distProg.Calls, call)
-			d.CallToDistilledProg[call] = distProg
-		}
-		d.CallToDistilledProg[seed.Call] = distProg
 	}
 }
+
 
 func (d *DefaultDistiller) Clean(progDistilled *prog.Prog) {
 
