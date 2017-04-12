@@ -158,6 +158,8 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 			}
 		}
 	}
+	distilledProg.Calls = append(distilledProg, seed.Call)
+	seed.Call.Ret.Uses = nil
 }
 
 
