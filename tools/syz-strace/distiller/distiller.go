@@ -119,6 +119,7 @@ func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.C
 	for idx, _ := range d.SeedDependencyGraph[seed] {
 		call := seed.Prog.Calls[idx]
 		if s, ok := d.CallToSeed[call]; ok {
+			calls = append(calls, call)
 			calls = append(calls, d.GetAllUpstreamDependents(s)...)
 		} else {
 			calls = append(calls, call)
@@ -128,6 +129,7 @@ func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.C
 }
 
 func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
+	fmt.Printf("seed: %s, index: %d\n", seed.Call.Meta.CallName, seed.CallIdx)
 	upstream_calls := d.SeedDependencyGraph[seed]
 	/* We merge the programs of any calls we depend on */
 	if d.CallToDistilledProg[seed.Call] != nil {
@@ -135,6 +137,7 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	}
 	progsToMerge := make([]*prog.Prog, 0)
 	for idx, _ := range upstream_calls {
+		fmt.Printf("Upstream Call: %d\n", idx)
 		call := seed.Prog.Calls[idx]
 		if _, ok := d.CallToDistilledProg[call]; ok {
 			progsToMerge = append(progsToMerge, d.CallToDistilledProg[call])
@@ -156,8 +159,10 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		fmt.Printf("dependency: %v\n", d.SeedDependencyGraph[seed])
 		for _, idx := range callIdxs {
 			upstreamCall := seed.Prog.Calls[idx]
+			fmt.Printf("Upstream Call: %s, index: %d\n", upstreamCall.Meta.CallName, idx)
 			if argvMap, ok := d.SeedDependencyGraph[seed][idx]; ok {
 				for argK, argV := range argvMap {
+					fmt.Printf("Call: %s, index: %d, argK: %v, argV: %v\n", upstreamCall.Meta.CallName, idx, argK, argV)
 					argK.Uses = make(map[*prog.Arg]bool, 0)
 					argK.Uses[argV] = true
 				}
@@ -170,8 +175,10 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		seed.Call.Ret.Uses = nil
 	} else if len(progsToMerge) == 1 {
 		for idx, _ := range d.SeedDependencyGraph[seed] {
+			fmt.Printf("Progs To Merge == 1, Call: %s, Idx: %d\n", seed.Prog.Calls[idx].Meta.CallName, idx)
 			argvMap := d.SeedDependencyGraph[seed][idx]
 			for argK, argV := range argvMap {
+				fmt.Printf("Call: %s, index: %d, argK: %v, argV: %v\n", seed.Prog.Calls[idx].Meta.CallName, idx, argK, argV)
 				if argK.Uses == nil {
 					argK.Uses = make(map[*prog.Arg]bool)
 				}
@@ -179,7 +186,9 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 			}
 		}
 		callIdxs := make([]int, 0)
+		fmt.Printf("All upstream Dependents: %v\n", d.GetAllUpstreamDependents(seed))
 		for _, call := range d.GetAllUpstreamDependents(seed) {
+			fmt.Printf("Upstream dependents: Call: %s, Idx: %d\n", call.Meta.CallName, d.CallToIdx[call])
 			if _, ok := d.CallToDistilledProg[call]; !ok {
 				d.CallToDistilledProg[call] = progsToMerge[0]
 				callIdxs = append(callIdxs, d.CallToIdx[call])
