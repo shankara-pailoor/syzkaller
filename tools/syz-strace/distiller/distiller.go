@@ -133,13 +133,19 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	distilledProg := new(prog.Prog)
 	distilledProg.Calls = make([]*prog.Call, 0)
 	callIndexes := make([]int, 0)
+	totalCalls := make([]*prog.Call, 0)
 
 	if d.CallToDistilledProg[seed.Call] != nil {
 		return
 	}
 	upstreamCalls := d.GetAllUpstreamDependents(seed)
 	distinctProgs := d.getAllProgs(upstreamCalls)
-	totalCalls := d.getCalls(distinctProgs)
+	if len(distinctProgs) > 0 {
+		totalCalls = d.getCalls(distinctProgs)
+	} else {
+		totalCalls = upstreamCalls
+	}
+	
 	for _, call := range totalCalls {
 		callIndexes = append(callIndexes, d.CallToIdx[call])
 	}
