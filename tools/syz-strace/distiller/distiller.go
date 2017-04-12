@@ -114,6 +114,19 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 	}
 }
 
+func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.Call {
+	calls := make([]*prog.Call, 0)
+	for idx, _ := range d.SeedDependencyGraph[seed] {
+		call := seed.Prog.Calls[idx]
+		if s, ok := d.CallToSeed[call]; ok {
+			calls = append(calls, d.GetAllUpstreamDependents(s)...)
+		} else {
+			calls = append(calls, call)
+		}
+	}
+	return calls
+}
+
 func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	upstream_calls := d.SeedDependencyGraph[seed]
 	/* We merge the programs of any calls we depend on */
@@ -134,7 +147,8 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		distProg := new(prog.Prog)
 		distProg.Calls = make([]*prog.Call, 0)
 		callIdxs := make([]int, 0)
-		for idx, _ := range d.SeedDependencyGraph[seed] {
+		for _, call := range d.GetAllUpstreamDependents(seed) {
+			idx := d.CallToIdx[call]
 			callIdxs = append(callIdxs, idx)
 		}
 		//Add the calls in sorted order of their position in the original program
@@ -142,10 +156,11 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 		fmt.Printf("dependency: %v\n", d.SeedDependencyGraph[seed])
 		for _, idx := range callIdxs {
 			upstreamCall := seed.Prog.Calls[idx]
-			argvMap := d.SeedDependencyGraph[seed][idx]
-			for argK, argV := range argvMap {
-				argK.Uses = make(map[*prog.Arg]bool, 0)
-				argK.Uses[argV] = true
+			if argvMap, ok := d.SeedDependencyGraph[seed][idx]; ok {
+				for argK, argV := range argvMap {
+					argK.Uses = make(map[*prog.Arg]bool, 0)
+					argK.Uses[argV] = true
+				}
 			}
 			distProg.Calls = append(distProg.Calls, upstreamCall)
 			d.CallToDistilledProg[upstreamCall] = distProg
@@ -164,10 +179,10 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 			}
 		}
 		callIdxs := make([]int, 0)
-		for idx, _ := range d.SeedDependencyGraph[seed] {
-			if _, ok := d.CallToDistilledProg[seed.Prog.Calls[idx]]; !ok {
-				d.CallToDistilledProg[seed.Prog.Calls[idx]] = progsToMerge[0]
-				callIdxs = append(callIdxs, idx)
+		for _, call := range d.GetAllUpstreamDependents(seed) {
+			if _, ok := d.CallToDistilledProg[call]; !ok {
+				d.CallToDistilledProg[call] = progsToMerge[0]
+				callIdxs = append(callIdxs, d.CallToIdx[call])
 			}
 		}
 		fmt.Printf("CALL IDX: %v\n", callIdxs)
