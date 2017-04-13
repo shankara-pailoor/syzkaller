@@ -139,6 +139,8 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 		corpusSignal:    make(map[uint32]struct{}),
 		maxSignal:       make(map[uint32]struct{}),
 		corpusCover:     make(map[uint32]struct{}),
+    lineageCover:    make(map[uint32]struct{}),
+	  lineage:         make(map[string]struct{}),
 		fuzzers:         make(map[string]*Fuzzer),
 		fresh:           true,
 		vmStop:          make(chan bool),
