@@ -17,9 +17,15 @@ import (
 	. "github.com/google/syzkaller/tools/syz-structs"
 	"sync"
 	"math/rand"
+	"github.com/google/syzkaller/tools/syz-strace/distiller"
+	"github.com/google/syzkaller/prog"
 	"errors"
 	"math"
 	"flag"
+	. "github.com/google/syzkaller/tools/syz-strace/config"
+	. "github.com/google/syzkaller/tools/syz-strace/workload-tracer"
+	. "github.com/google/syzkaller/tools/syz-strace/ssh"
+	"github.com/google/syzkaller/tools/syz-strace/domain"
 )
 
 const (
@@ -27,6 +33,8 @@ const (
 	maxLineLen = 256 << 10
 	pageSize   = 4 << 10
 	maxPages   = 4 << 10
+	COVER_ID = "Cover:"
+	COVER_DELIM = "-"
 )
 
 var pageStartPool = sync.Pool{New: func() interface{} { return new([]uintptr) }}
@@ -53,6 +61,9 @@ var (
 	flagFile = flag.String("file", "", "file to parse")
 	flagDir = flag.String("dir", "", "directory to parse")
 	flagSkip = flag.Int("skip", 0, "how many to skip")
+	flagConfig = flag.String("config", "/etc/strace-config.json", "config file for syz strace")
+	flagGetTraces = flag.Bool("trace", false, "gather traces")
+	flagDistill = flag.Bool("distill", false, "distill traces")
 )
 
 func usage() {
@@ -64,17 +75,20 @@ func usage() {
 
 func main() {
 	flag.Parse()
-	file, dir := *flagFile, *flagDir
+	file, dir, configLocation := *flagFile, *flagDir, *flagConfig
+	getTraces, distill := *flagGetTraces, *flagDistill
 	if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
 		usage()
 	}
-
+	config := NewConfig(configLocation)
+	if (getTraces) {
+		gatherTraces(config)
+	}
 	strace_files := make([]string, 0)
-
 	if (file != "") {
 		strace_files = append(strace_files, file)
 	}
-
+	dir = config.ParserConf.InputDirectory
 	if (dir != "") {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
@@ -86,28 +100,141 @@ func main() {
 	}
 
 	fmt.Printf("strace_files: %v\n", strace_files)
-
+	distiller_ := distiller.NewDistiller(config.DistillConf)
 	os.Mkdir("serialized", 0750)
 	consts := readConsts(arch)
-
+	seeds := make(domain.Seeds, 0)
+	progs := make([]*prog.Prog, 0)
 	for i,filename := range strace_files {
 		if i < *flagSkip {
 			continue
 		}
 		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
-		parse(filename, &consts)
-		fmt.Printf("==============================\n\n")
+		straceCalls := parseStrace(filename)
+		parsedProg := parse(straceCalls, &consts, &seeds)
+		if err := parsedProg.Validate(); err != nil {
+			fmt.Printf("Error validating %v\n", "something")
+			failf(err.Error())
+		}
+		progs = append(progs, parsedProg)
+		fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
+
+		if !distill {
+			s_name := "serialized/" + filepath.Base(filename)
+			if err := ioutil.WriteFile(s_name, parsedProg.Serialize(), 0640); err != nil {
+				failf("failed to output file: %v", err)
+			}
+			fmt.Printf("serialized output to %v\n", s_name)
+			fmt.Printf("==============================\n\n")
+		}
 	}
+	if distill {
+		distiller_.Add(seeds)
+		distilled := distiller_.Distill(progs)
 
-
+		for i, progd := range distilled {
+			if err := progd.Validate(); err != nil {
+				fmt.Printf("Error validating %v\n", progd)
+				failf(err.Error())
+				break
+			}
+			s_name := "serialized/" + filepath.Base("distilled" + strconv.Itoa(i))
+			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
+				failf("failed to output file: %v", err)
+			}
+			fmt.Printf("serialized output to %v\n", s_name)
+			fmt.Printf("==============================\n\n")
+		}
+	}
 	fmt.Println("Done, now packing into corpus.db")
 	pack("serialized", "corpus.db")
 }
 
+func gatherTraces(conf *SyzStraceConfig) {
+	fmt.Printf("Syz Strace Config: %v\n", conf)
+	var executor domain.Executor
+	if conf.CorpusGenConf.Type == "ssh" {
+		executor = NewClient(conf.CorpusGenConf)
+	}
+	GenerateCorpus(conf.CorpusGenConf, executor)
+	fmt.Printf("Distill Config: %v\n", conf)
+}
+
+func parseStrace(filename string) (calls []*sparser.OutputLine) {
+	var lastParsed *sparser.OutputLine
+	calls = make([]*sparser.OutputLine, 0)
+	f, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("failed to open file: %v\n", filename)
+		failf(err.Error())
+	}
+	p := sparser.NewParser(f)
+	for {
+		line, err := p.Parse()
+		if err != nil {
+			if err != sparser.ErrEOF {
+				fmt.Println(err.Error())
+			}
+			return
+		}
+		if line.FuncName == "" && line.Result != "" {
+			if lastParsed == nil {
+				continue
+			}
+			lastParsed.Cover = parseInstructions(line.Result)
+		} else {
+			if _, ok := Unsupported[line.FuncName]; ok {
+				lastParsed = nil
+				continue
+			}
+			lastParsed = line
+			calls = append(calls, line)
+		}
+	}
+	return
+}
+
+func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds *domain.Seeds) *Prog{
+	prog :=  new(Prog)
+	return_vars := make(map[returnType]*Arg)
+	s := newState() /* to keep track of resources and memory */
+
+	for _, line := range straceCalls {
+		seed := parseCall(line, consts, &return_vars, s, prog)
+		seeds.Add(seed)
+	}
+	return prog
+}
+
+func parseInstructions(line string) (ips []uint64) {
+	uniqueIps := make(map[uint64]bool)
+	strippedLine := strings.TrimSpace(line)
+	/*
+		Instructions for a call all appear in one line of the form
+		COVER_IDip1COVER_DELIMip2COVER_DELIMip3. Ex: If COVER_ID = "Cover:" and 
+		COVER_DELIM = "-" then it would appear as "Cover:ip1-ip2-ip3"
+		
+	*/
+	instructions := strings.Split(strippedLine[1:len(strippedLine)-1], COVER_ID)
+	s := strings.Split(instructions[1], COVER_DELIM)
+	for _, ins := range s {
+		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
+		if err != nil {
+			failf("failed parsing ip: %s", ins)
+		}
+		if _, ok := uniqueIps[ip]; !ok {
+			uniqueIps[ip] = true
+			ips = append(ips, ip)
+		}
+	}
+	return
+}
+
+
 func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
-		return_vars *map[returnType]*Arg, s *state, prog *Prog) {
+		return_vars *map[returnType]*Arg, s *state, prog_ *Prog) *domain.Seed{
 	if _, ok := Unsupported[line.FuncName]; ok {
-		return // don't parse unsupported syscalls
+		failf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
 	}
 
 	/* adjust functions to fit syzkaller standards */
@@ -137,6 +264,7 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	}
 	var calls []*Call
 	var strace_arg string
+	progLen := len(prog_.Calls)
 	for i, typ := range meta.Args {
 		if (i < len(line.Args)) {
 			strace_arg = line.Args[i]
@@ -162,18 +290,22 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	}
 
 	// add calls to our program
+
 	for _,c := range calls {
 		// TODO: sanitize c?
 		s.analyze(c)
-		prog.Calls = append(prog.Calls, c)
+		prog_.Calls = append(prog_.Calls, c)
 	}
-
+	dependsOn := make(map[*prog.Call]int, 0)
+	for i := 0; i < len(calls)-1; i++ {
+		dependsOn[calls[i]] = progLen+i
+	}
 	fmt.Println("\n---------done parsing line--------\n")
-
+	return domain.NewSeed(c, dependsOn, prog_, len(prog_.Calls)-1, line.Cover)
 }
 
 func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
- 		    return_vars *map[returnType]*Arg, s *state) *Arg {
+		    return_vars *map[returnType]*Arg, s *state) *Arg {
 
 	fmt.Println("---------Parsing Inner Call Args-----------")
 	fmt.Println(val)
@@ -316,42 +448,6 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 
 	return calls
 	*/
-}
-
-func parse(filename string, consts *map[string]uint64) {
-	prog :=  new(Prog)
-	f, err := os.Open(filename)
-	if err != nil {
-		fmt.Printf("failed to open file: %v\n", filename)
-		failf(err.Error())
-	}
-	p := sparser.NewParser(f)
-	return_vars := make(map[returnType]*Arg)
-	s := newState() /* to keep track of resources and memory */
-
-	for {
-		line, err := p.Parse()
-		if err != nil {
-			if err != sparser.ErrEOF {
-				fmt.Println(err.Error())
-			}
-			break
-		}
-
-		parseCall(line, consts, &return_vars, s, prog)
-	}
-	if err := prog.Validate(); err != nil {
-		fmt.Printf("Error validating %v\n", filename)
-		failf(err.Error())
-	}
-
-	fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(prog.Calls))
-
-	s_name := "serialized/" + filepath.Base(filename)
-	if err := ioutil.WriteFile(s_name, prog.Serialize(), 0640); err != nil {
-		failf("failed to output file: %v", err)
-	}
-	fmt.Printf("serialized output to %v\n", s_name)
 }
 
 func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, returned bool) bool {
@@ -772,6 +868,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				ptr.Val,
 			}
 			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
+			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
 			cache(return_vars, return_var, inner_arg, false)
 		}
 
@@ -1066,9 +1163,9 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 		Val: val,
 	}
 	if arg, ok := (*return_vars)[return_var]; ok {
-    if arg != nil {
-        return resultArg(typ, arg)
-    }
+		if arg != nil {
+        		return resultArg(typ, arg)
+    		}
 	}
 
 	return nil
