@@ -13,6 +13,9 @@
 		"OutputDirectory":"/home/w4118/src/github.com/google/syzkaller/serialized/"
 
 	},
-	"distill_enabled" : true,
+	"distill_conf" : {
+		"type": "default",
+		"stats": "distillStats"
+	},
 	"workload_path": "/home/w4118/src/github.com/google/syzkaller/cover_config.json"
 }

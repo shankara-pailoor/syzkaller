@@ -100,7 +100,7 @@ func main() {
 	}
 
 	fmt.Printf("strace_files: %v\n", strace_files)
-	distiller := distiller.NewDefaultDistiller()
+	distiller_ := distiller.NewDistiller(config.DistillConf)
 	os.Mkdir("serialized", 0750)
 	consts := readConsts(arch)
 	seeds := make(domain.Seeds, 0)
@@ -129,19 +129,10 @@ func main() {
 		}
 	}
 	if distill {
-		distiller.Add(seeds)
-		for _, prog := range progs {
-			distiller.TrackDependencies(prog)
-		}
-		distilled := distiller.MinCover(seeds)
+		distiller_.Add(seeds)
+		distilled := distiller_.Distill(progs)
+
 		for i, progd := range distilled {
-			for _, call := range progd.Calls {
-				if _, ok := distiller.CallToSeed[call]; !ok {
-					continue
-				}
-				fmt.Printf("DEPENDS: %v\n", distiller.SeedDependencyGraph[distiller.CallToSeed[call]])
-			}
-			distiller.Clean(progd)
 			if err := progd.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", progd)
 				failf(err.Error())
@@ -159,14 +150,14 @@ func main() {
 	pack("serialized", "corpus.db")
 }
 
-func gatherTraces(distill *DistillConfig) {
-	fmt.Printf("Distill Config: %v\n", distill)
+func gatherTraces(conf *SyzStraceConfig) {
+	fmt.Printf("Syz Strace Config: %v\n", conf)
 	var executor domain.Executor
-	if distill.CorpusGenConf.Type == "ssh" {
-		executor = NewClient(distill.CorpusGenConf)
+	if conf.CorpusGenConf.Type == "ssh" {
+		executor = NewClient(conf.CorpusGenConf)
 	}
-	GenerateCorpus(distill.CorpusGenConf, executor)
-	fmt.Printf("Distill Config: %v\n", distill)
+	GenerateCorpus(conf.CorpusGenConf, executor)
+	fmt.Printf("Distill Config: %v\n", conf)
 }
 
 func parseStrace(filename string) (calls []*sparser.OutputLine) {
@@ -876,6 +867,7 @@ func parseArg(typ sys.Type, strace_arg string,
 				getType(a.Type),
 				ptr.Val,
 			}
+			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
 			fmt.Printf("caching %v result for %v %v\n", return_var, call, a.Type.Name())
 			cache(return_vars, return_var, inner_arg, false)
 		}

@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 )
 
-type DistillConfig struct {
+type SyzStraceConfig struct {
 	CorpusGenConf CorpusGenConfig `json:"corpus_gen_conf"`
 	ParserConf ParserConfig `json:"parser_conf"`
-	DistillEnabled bool `json:"distill_enabled"`
+	DistillConf DistillConfig `json:"distill_conf"`
 }
 
 type CorpusGenConfig struct {
@@ -17,6 +17,11 @@ type CorpusGenConfig struct {
 	Type string
 	SSHConfig
 	DestinationDir string `json:"dest_dir"`
+}
+
+type DistillConfig struct {
+	Type string
+	Stats string `json:"stats"`
 }
 
 type ParserConfig struct {
@@ -41,7 +46,7 @@ type GceConfig struct {
 
 }
 
-func NewConfig(location string) (config *DistillConfig) {
+func NewConfig(location string) (config *SyzStraceConfig) {
 	dat, fileErr := ioutil.ReadFile(location)
 	if fileErr != nil {
 		logrus.Fatalf("Unable to read config, exiting")

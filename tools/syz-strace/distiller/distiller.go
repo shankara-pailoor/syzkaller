@@ -5,15 +5,20 @@ import (
 	"github.com/google/syzkaller/prog"
 	"sort"
 	"fmt"
+	"github.com/google/syzkaller/tools/syz-strace/config"
+	"io/ioutil"
 )
 
 type Distiller interface {
-	MinCover(domain.Seeds) []*prog.Prog
+	Distill([]*prog.Prog) []*prog.Prog
 	Add(domain.Seeds)
-	Contributes(domain.Seed, map[uint64]bool) int
+	Contributes(*domain.Seed, map[uint64]bool) int
+	Stats(domain.Seeds)
 }
 
 type DefaultDistiller struct {
+	StatFile string
+	Seeds domain.Seeds
 	DistilledProgs []*prog.Prog
 	CallToSeed map[*prog.Call]*domain.Seed
 	CallToDistilledProg map[*prog.Call]*prog.Prog
@@ -21,8 +26,19 @@ type DefaultDistiller struct {
 	SeedDependencyGraph map[*domain.Seed]map[int]map[*prog.Arg][]*prog.Arg
 }
 
-func NewDefaultDistiller() (d *DefaultDistiller) {
+func NewDistiller(conf config.DistillConfig) (d Distiller){
+	switch (conf.Type) {
+	case "default":
+		d = NewDefaultDistiller(conf)
+	default:
+		d = NewDefaultDistiller(conf)
+	}
+	return
+}
+
+func NewDefaultDistiller(conf config.DistillConfig) (d *DefaultDistiller) {
 	d = &DefaultDistiller{
+		StatFile: conf.Stats,
 		DistilledProgs: make([]*prog.Prog, 0),
 		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
 		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
@@ -33,6 +49,7 @@ func NewDefaultDistiller() (d *DefaultDistiller) {
 }
 
 func (d *DefaultDistiller) Add(seeds domain.Seeds) {
+	d.Seeds = seeds
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
 		d.SeedDependencyGraph[seed] = make(map[int]map[*prog.Arg][]*prog.Arg, 0)
@@ -47,6 +64,17 @@ func (d *DefaultDistiller) Add(seeds domain.Seeds) {
 	}
 }
 
+func (d *DefaultDistiller) Stats(distilledSeeds domain.Seeds) {
+	totalCalls := d.Seeds.Len()
+	distilledCalls := distilledSeeds.Len()
+	if d.StatFile == "" {
+		fmt.Printf("Total Calls: %d, Distilled: %d", totalCalls, distilledCalls)
+	} else {
+		data := fmt.Sprintf("Total Calls: %d, Distilled: %d", totalCalls, distilledCalls)
+		ioutil.WriteFile(d.StatFile, []byte(data), 0600)
+	}
+}
+
 func (d *DefaultDistiller) Contributes(seed *domain.Seed, seenIps map[uint64]bool) int {
 	total := 0
 	for _, ip := range seed.Cover {
@@ -58,23 +86,25 @@ func (d *DefaultDistiller) Contributes(seed *domain.Seed, seenIps map[uint64]boo
 	return total
 }
 
-func (d *DefaultDistiller) MinCover(seeds domain.Seeds) (distilled []*prog.Prog) {
-	fmt.Printf("Computing Min Cover with %d seeds\n", len(seeds))
+func (d *DefaultDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 	seenIps := make(map[uint64]bool)
+	seeds := d.Seeds
+	fmt.Printf("Computing Min Cover with %d seeds\n", len(seeds))
 	sort.Sort(sort.Reverse(seeds))
 	contributing_progs := 0
-	heavyHitters := make([]*domain.Seed, 0)
+	heavyHitters := make(domain.Seeds, 0)
+	for _, prog := range progs {
+		d.TrackDependencies(prog)
+	}
 	for _, seed := range seeds {
 		var ips int = d.Contributes(seed, seenIps)
 		if ips > 0 {
-			d.AddToDistilledProg(seed)
+			heavyHitters.Add(seed)
 			fmt.Printf("Seed: %s contributes: %d ips out of its total of: %d\n", seed.Call.Meta.Name, ips, len(seed.Cover))
 			contributing_progs += 1
-			heavyHitters = append(heavyHitters, seed)
 		}
 	}
-	fmt.Printf("Num Heavy Hitters: %d\n", len(heavyHitters))
-	fmt.Printf("Total Calls: %d\n", seeds.Len())
+	d.Stats(heavyHitters)
 	for _, seed := range heavyHitters {
 		d.AddToDistilledProg(seed)
 	}
