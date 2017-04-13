@@ -104,8 +104,8 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 					d.SeedDependencyGraph[seed][k] = make(map[*prog.Arg][]*prog.Arg, 0)
 				}
 				for argK, argVs := range argMap {
-					dep := d.SeedDependencyGraph[seed][k][argK]
-					dep = append(dep, argVs...)
+					fmt.Printf("ARGVs: %v\n", argVs)
+					d.SeedDependencyGraph[seed][k][argK] = append(d.SeedDependencyGraph[seed][k][argK], argVs...)
 				}
 			}
 		}
@@ -167,10 +167,12 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	}
 	for _, call := range distilledProg.Calls {
 		if s, ok := d.CallToSeed[call]; ok {
+			fmt.Printf("HERE\n")
 			dependencyMap := d.SeedDependencyGraph[s]
 			for idx, argMap := range dependencyMap {
 				upstreamSeed := d.CallToSeed[seed.Prog.Calls[idx]]
 				for argK, argVs := range argMap {
+					fmt.Printf("dealing with argMap\n")
 					for _, argV := range argVs {
 						if _, ok := upstreamSeed.ArgMeta[argK]; !ok {
 							fmt.Printf("UpstreamedSeed: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
@@ -245,8 +247,7 @@ func (d *DefaultDistiller) isDependent(arg *prog.Arg, callIdx int, args map[*pro
 				upstreamSet[args[arg.Res]] = make(map[*prog.Arg][]*prog.Arg, 0)
 				upstreamSet[args[arg.Res]][arg.Res] = make([]*prog.Arg, 0)
 			}
-			a := upstreamSet[args[arg.Res]][arg.Res]
-			a = append(a, arg)
+			upstreamSet[args[arg.Res]][arg.Res] = append(upstreamSet[args[arg.Res]][arg.Res], arg)
 		}
 	case prog.ArgPointer:
 		if _, ok := args[arg.Res]; ok {

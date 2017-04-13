@@ -119,12 +119,14 @@ func main() {
 		progs = append(progs, parsedProg)
 		fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
 
-		s_name := "serialized/" + filepath.Base(filename)
-		if err := ioutil.WriteFile(s_name, parsedProg.Serialize(), 0640); err != nil {
-			failf("failed to output file: %v", err)
+		if (distill) {
+			s_name := "serialized/" + filepath.Base(filename)
+			if err := ioutil.WriteFile(s_name, parsedProg.Serialize(), 0640); err != nil {
+				failf("failed to output file: %v", err)
+			}
+			fmt.Printf("serialized output to %v\n", s_name)
+			fmt.Printf("==============================\n\n")
 		}
-		fmt.Printf("serialized output to %v\n", s_name)
-		fmt.Printf("==============================\n\n")
 	}
 	if (distill) {
 		distiller.Add(seeds)
@@ -143,6 +145,7 @@ func main() {
 			if err := progd.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", progd)
 				failf(err.Error())
+				break
 			}
 			s_name := "serialized/" + filepath.Base("distilled" + strconv.Itoa(i))
 			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
@@ -208,7 +211,6 @@ func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds 
 	for _, line := range straceCalls {
 		seed := parseCall(line, consts, &return_vars, s, prog)
 		seeds.Add(seed)
-		fmt.Printf("seed: %v\n", seed)
 	}
 	return prog
 }
