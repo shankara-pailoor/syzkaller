@@ -15,4 +15,4 @@ wheezy/
 wheezy_old/
 serialized/
 deserialized/
-*.db
+corpus.db
