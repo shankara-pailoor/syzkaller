@@ -119,7 +119,7 @@ func main() {
 		progs = append(progs, parsedProg)
 		fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
 
-		if (distill) {
+		if !distill {
 			s_name := "serialized/" + filepath.Base(filename)
 			if err := ioutil.WriteFile(s_name, parsedProg.Serialize(), 0640); err != nil {
 				failf("failed to output file: %v", err)
@@ -128,7 +128,7 @@ func main() {
 			fmt.Printf("==============================\n\n")
 		}
 	}
-	if (distill) {
+	if distill {
 		distiller.Add(seeds)
 		for _, prog := range progs {
 			distiller.TrackDependencies(prog)

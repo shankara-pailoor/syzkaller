@@ -73,8 +73,8 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) (distilled []*prog.Prog)
 			heavyHitters = append(heavyHitters, seed)
 		}
 	}
-	fmt.Printf("Num Heavy Hitters: %d\n", seeds.Len())
-	fmt.Printf("Total Calls: %d\n", len(heavyHitters))
+	fmt.Printf("Num Heavy Hitters: %d\n", len(heavyHitters))
+	fmt.Printf("Total Calls: %d\n", seeds.Len())
 	for _, seed := range heavyHitters {
 		d.AddToDistilledProg(seed)
 	}
