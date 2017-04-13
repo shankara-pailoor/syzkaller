@@ -63,13 +63,20 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) (distilled []*prog.Prog)
 	seenIps := make(map[uint64]bool)
 	sort.Sort(sort.Reverse(seeds))
 	contributing_progs := 0
+	heavyHitters := make([]*domain.Seed, 0)
 	for _, seed := range seeds {
 		var ips int = d.Contributes(seed, seenIps)
 		if ips > 0 {
 			d.AddToDistilledProg(seed)
 			fmt.Printf("Seed: %s contributes: %d ips out of its total of: %d\n", seed.Call.Meta.Name, ips, len(seed.Cover))
 			contributing_progs += 1
+			heavyHitters = append(heavyHitters, seed)
 		}
+	}
+	fmt.Printf("Num Heavy Hitters: %d\n", seeds.Len())
+	fmt.Printf("Total Calls: %d\n", len(heavyHitters))
+	for _, seed := range heavyHitters {
+		d.AddToDistilledProg(seed)
 	}
 	distilledProgs := make(map[*prog.Prog]bool)
 	for _, seed := range seeds {
@@ -78,7 +85,7 @@ func (d *DefaultDistiller) MinCover(seeds domain.Seeds) (distilled []*prog.Prog)
 		}
 	}
 	for prog, _ := range distilledProgs {
-		fmt.Printf("Prog: %v\n", prog)
+		//fmt.Printf("Prog: %v\n", prog)
 		distilled = append(distilled, prog)
 	}
 	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
@@ -92,24 +99,24 @@ func (d *DefaultDistiller) TrackDependencies(prg *prog.Prog) {
 		var ok bool
 		if seed, ok = d.CallToSeed[call]; !ok {
 			//Most likely an mmap we had to do
-			fmt.Printf("Call: %s\n", call.Meta.CallName)
+			//fmt.Printf("Call: %s\n", call.Meta.CallName)
 			continue
 		}
 		for _, arg := range call.Args {
-			fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
+			//fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
 			upstream_maps := d.isDependent(arg, i, args)
 			for k, argMap := range upstream_maps {
-				fmt.Printf("K: %d\n", k)
+				//fmt.Printf("K: %d\n", k)
 				if d.SeedDependencyGraph[seed][k] == nil {
 					d.SeedDependencyGraph[seed][k] = make(map[*prog.Arg][]*prog.Arg, 0)
 				}
 				for argK, argVs := range argMap {
-					fmt.Printf("ARGVs: %v\n", argVs)
+					//fmt.Printf("ARGVs: %v\n", argVs)
 					d.SeedDependencyGraph[seed][k][argK] = append(d.SeedDependencyGraph[seed][k][argK], argVs...)
 				}
 			}
 		}
-		fmt.Printf("depends on: %v\n", d.SeedDependencyGraph[seed])
+		//fmt.Printf("depends on: %v\n", d.SeedDependencyGraph[seed])
 		if call.Ret != nil {
 			args[call.Ret] = i
 		}
@@ -159,7 +166,7 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 
 	callIndexes = append(callIndexes, seed.CallIdx)
 
-	fmt.Printf("Call IDX: %v\n", callIndexes)
+	//fmt.Printf("Call IDX: %v\n", callIndexes)
 	for _, idx := range callIndexes {
 		call := seed.Prog.Calls[idx]
 		d.CallToDistilledProg[call] = distilledProg
@@ -167,23 +174,23 @@ func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	}
 	for _, call := range distilledProg.Calls {
 		if s, ok := d.CallToSeed[call]; ok {
-			fmt.Printf("HERE\n")
+			//fmt.Printf("HERE\n")
 			dependencyMap := d.SeedDependencyGraph[s]
 			for idx, argMap := range dependencyMap {
 				upstreamSeed := d.CallToSeed[seed.Prog.Calls[idx]]
 				for argK, argVs := range argMap {
-					fmt.Printf("dealing with argMap\n")
+					//fmt.Printf("dealing with argMap\n")
 					for _, argV := range argVs {
 						if _, ok := upstreamSeed.ArgMeta[argK]; !ok {
-							fmt.Printf("UpstreamedSeed: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
+							//fmt.Printf("UpstreamedSeed: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
 							argK.Uses = nil
 							upstreamSeed.ArgMeta[argK] = true
 						}
 						if argK.Uses == nil {
-							fmt.Printf("Allocating Uses: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
+							//fmt.Printf("Allocating Uses: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
 							argK.Uses = make(map[*prog.Arg]bool, 0)
 						}
-						fmt.Printf("Setting ArgV: %s, %d\n", upstreamSeed.Call.Meta.CallName, idx)
+						//fmt.Printf("Setting ArgV: %s, %d\n", upstreamSeed.Call.Meta.CallName, idx)
 						argK.Uses[argV] = true
 					}
 
@@ -227,7 +234,6 @@ func (d *DefaultDistiller) getCalls(progs []*prog.Prog) (ret []*prog.Call) {
 	}
 	return
 }
-
 
 func (d *DefaultDistiller) Clean(progDistilled *prog.Prog) {
 
