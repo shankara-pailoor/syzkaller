@@ -50,7 +50,7 @@ func GenerateCorpus(genConfig config.CorpusGenConfig, executor Executor) (err er
 func RunStrace(wc WorkloadConfig, client Executor, destDir string) error{
 	var err error
 	if err = client.RunCommand(wc); err != nil {
-		logrus.Fatalf("Failed to run prog: %s, with error: %s", wc.ExecutablePath, err.Error())
+		logrus.Errorf("Failed to run prog: %s, with error: %s", wc.ExecutablePath, err.Error())
 	}
 	client.CopyPath(wc.StraceOutPath, destDir + "/" + wc.Name)
 	client.DeleteFile(wc)
