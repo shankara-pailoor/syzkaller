@@ -78,6 +78,8 @@ var (
 	triage          []Input
 	triageCandidate []Input
 	candidates      []Candidate
+	lineageMu	sync.RWMutex
+	lineage 	map[string]struct{}
 
 	gate *ipc.Gate
 
@@ -133,6 +135,9 @@ func main() {
 	if err := RpcCall(*flagManager, "Manager.Connect", a, r); err != nil {
 		panic(err)
 	}
+  lineageMu.Lock()
+	lineage = r.Lineage // set lineage
+  lineageMu.Unlock()
 	calls := buildCallList(r.EnabledCalls) // get map of enabled syscalls map[*sys.Call, bool]
 	ct := prog.BuildChoiceTable(r.Prios, calls) // get ChoiceTable which weights syscalls by priority
 	for _, inp := range r.Inputs {
@@ -273,9 +278,22 @@ func main() {
 						execute(pid, env, p, false, false, false, &statExecGen)
 					} else {
 						// Mutate an existing prog.
+						related := false
 						p := corpus[rnd.Intn(len(corpus))].Clone()
 						corpusMu.RUnlock()
+						sig := hash.String(p.Serialize())
+						lineageMu.Lock()
+						if _,ok := lineage[sig]; ok {
+							related = true
+						}
+						lineageMu.Unlock()
 						p.Mutate(rs, programLength, ct, corpus)
+						sig = hash.String(p.Serialize())
+						if related {
+							lineageMu.Lock()
+							lineage[sig] = struct{}{}
+							lineageMu.Unlock()
+						}
 						Logf(1, "#%v: mutated: %s", i, p)
 						execute(pid, env, p, false, false, false, &statExecFuzz)
 					}
@@ -343,6 +361,10 @@ func main() {
 			if err := manager.Call("Manager.Poll", a, r); err != nil {
 				panic(err)
 			}
+			lineageMu.Lock()
+			lineage = r.Lineage
+			lineageMu.Unlock()
+
 			if len(r.MaxSignal) != 0 {
 				signalMu.Lock()
 				for _, s := range r.MaxSignal {
@@ -517,6 +539,12 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 
 	atomic.AddUint64(&statNewInput, 1)
 	Logf(2, "added new input for %v to corpus:\n%s", call.CallName, data)
+	lineage_sig := "nil"
+	lineageMu.Lock()
+	if _,ok := lineage[sig.String()]; ok {
+		lineage_sig = sig.String()
+	}
+	lineageMu.Unlock()
 	a := &NewInputArgs{
 		Name: *flagName,
 		RpcInput: RpcInput{
@@ -526,6 +554,7 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 			Signal:    []uint32(cover.Canonicalize(inp.signal)),
 			Cover:     []uint32(inputCover),
 		},
+		Sig: lineage_sig,
 	}
 	if err := manager.Call("Manager.NewInput", a, nil); err != nil {
 		panic(err)
@@ -563,11 +592,12 @@ func execute(pid int, env *ipc.Env, p *prog.Prog, needCover, minimized, candidat
 
 		inp := Input{
 			p:         p.Clone(),
-			call:      i,
+			call:      i, // syscall number of call in program p
 			signal:    append([]uint32{}, inf.Signal...),
 			minimized: minimized,
 		}
 		triageMu.Lock()
+		/* Programs move from candidate --> triageCandidate --> triage */
 		if candidate {
 			triageCandidate = append(triageCandidate, inp)
 		} else {
