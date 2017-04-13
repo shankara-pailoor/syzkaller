@@ -264,8 +264,10 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 				time.Sleep(2*time.Minute)
 				mgr.mu.Lock()
 				coverageSummary := uint64(len(mgr.corpusCover))
+        lineageSummary := uint64(len(mgr.lineageCover))
+        summary := strconv.FormatUint(lineageSummary, 10) + "," + strconv.FormatUint(coverageSummary, 10)
 				mgr.mu.Unlock()
-				if _, err := f1.WriteString(strconv.FormatUint(coverageSummary, 10) + "\n"); err != nil {
+				if _, err := f1.WriteString(summary + "\n"); err != nil {
 					Fatalf("failed to write bench data")
 				}
 			}
