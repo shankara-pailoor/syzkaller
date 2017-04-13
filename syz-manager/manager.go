@@ -76,6 +76,8 @@ type Manager struct {
 	corpusSignal   map[uint32]struct{}
 	maxSignal      map[uint32]struct{}
 	corpusCover    map[uint32]struct{}
+	lineageCover   map[uint32]struct{}
+	lineage        map[string]struct{}
 	prios          [][]float32
 
 	fuzzers   map[string]*Fuzzer
@@ -188,6 +190,9 @@ func RunManager(cfg *config.Config, syscalls map[int]bool) {
 			Prog:      rec.Val, // note this is the serialized program, not expanded in-memory prog struct
 			Minimized: true, // don't reminimize programs from corpus, it takes lots of time on start
 		})
+
+		// Add all seed programs to lineage
+		mgr.lineage[hash.String(rec.Val)] = struct{}{}
 	}
 	mgr.fresh = len(mgr.corpusDB.Records) == 0 // are we starting a corpus from scratch?
 	Logf(0, "loaded %v programs (%v total, %v deleted)", len(mgr.candidates), len(mgr.corpusDB.Records), deleted)
@@ -750,6 +755,7 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 	for _, inp := range mgr.corpus {
 		r.Inputs = append(r.Inputs, inp)
 	}
+	r.Lineage = mgr.lineage // copy lineage
 	r.Prios = mgr.prios
 	r.EnabledCalls = mgr.enabledSyscalls
 	r.NeedCheck = !mgr.vmChecked
@@ -794,6 +800,11 @@ func (mgr *Manager) NewInput(a *NewInputArgs, r *int) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
 
+	// add related program, if in lineage
+	if a.Sig != "nil" {
+		mgr.lineage[a.Sig] = struct{}{}
+	}
+
 	f := mgr.fuzzers[a.Name]
 	if f == nil {
 		Fatalf("fuzzer %v is not connected", a.Name)
@@ -806,6 +817,9 @@ func (mgr *Manager) NewInput(a *NewInputArgs, r *int) error {
 	cover.SignalAdd(mgr.corpusSignal, a.Signal)
 	cover.SignalAdd(mgr.corpusCover, a.Cover)
 	sig := hash.String(a.RpcInput.Prog)
+	if a.Sig != "nil" {
+		cover.SignalAdd(mgr.lineageCover, a.Cover)
+	}
 	if inp, ok := mgr.corpus[sig]; ok {
 		// The input is already present, but possibly with diffent signal/coverage/call.
 		inp.Signal = cover.Union(inp.Signal, a.RpcInput.Signal)
@@ -826,6 +840,7 @@ func (mgr *Manager) NewInput(a *NewInputArgs, r *int) error {
 			f1.inputs = append(f1.inputs, inp)
 		}
 	}
+
 	return nil
 }
 
@@ -859,7 +874,9 @@ func (mgr *Manager) Poll(a *PollArgs, r *PollRes) error {
 	f.newMaxSignal = nil
 	for i := 0; i < 100 && len(f.inputs) > 0; i++ {
 		last := len(f.inputs) - 1
-		r.NewInputs = append(r.NewInputs, f.inputs[last])
+		l := f.inputs[last]
+		//mgr.lineage[hash.String(l.Prog)] = struct{}{}
+		r.NewInputs = append(r.NewInputs, l)
 		f.inputs = f.inputs[:last]
 	}
 	if len(f.inputs) == 0 {
@@ -868,12 +885,20 @@ func (mgr *Manager) Poll(a *PollArgs, r *PollRes) error {
 
 	for i := 0; i < mgr.cfg.Procs && len(mgr.candidates) > 0; i++ {
 		last := len(mgr.candidates) - 1
-		r.Candidates = append(r.Candidates, mgr.candidates[last])
+		l := mgr.candidates[last]
+		//mgr.lineage[hash.String(l.Prog)] = struct{}{}
+		r.Candidates = append(r.Candidates, l)
 		mgr.candidates = mgr.candidates[:last]
 	}
 	if len(mgr.candidates) == 0 {
 		mgr.candidates = nil
 	}
+
+	/* update the lineage */
+	r.Lineage = mgr.lineage
+	// TODO: do we need to actually copy the entire thing?
+	// Maybe only what's in
+
 	Logf(2, "poll from %v: recv maxsignal=%v, send maxsignal=%v candidates=%v inputs=%v",
 		a.Name, len(a.MaxSignal), len(r.MaxSignal), len(r.Candidates), len(r.NewInputs))
 	return nil
