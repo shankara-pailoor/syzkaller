@@ -28,13 +28,14 @@ import (
 
 func CalculatePriorities(corpus []*Prog) [][]float32 {
 	static := calcStaticPriorities()
-	dynamic := calcDynamicPrio(corpus)
+	/* dynamic := calcDynamicPrio(corpus)
 	for i, prios := range static {
 		for j, p := range prios {
 			dynamic[i][j] *= p
 		}
 	}
-	return dynamic
+	return dynamic */
+  return static
 }
 
 func calcStaticPriorities() [][]float32 {

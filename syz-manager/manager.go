@@ -759,7 +759,11 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 	for _, inp := range mgr.corpus {
 		r.Inputs = append(r.Inputs, inp)
 	}
-	r.Lineage = mgr.lineage // copy lineage
+	// r.Lineage = mgr.lineage // copy lineage
+  r.Lineage = make(map[string]struct{})
+  for l,_ := range mgr.lineage {
+      r.Lineage[l] = struct{}{}
+  }
 	r.Prios = mgr.prios
 	r.EnabledCalls = mgr.enabledSyscalls
 	r.NeedCheck = !mgr.vmChecked
@@ -899,7 +903,11 @@ func (mgr *Manager) Poll(a *PollArgs, r *PollRes) error {
 	}
 
 	/* update the lineage */
-	r.Lineage = mgr.lineage
+	// r.Lineage = mgr.lineage
+  r.Lineage = make(map[string]struct{})
+  for l,_ := range mgr.lineage {
+      r.Lineage[l] = struct{}{}
+  }
 	// TODO: do we need to actually copy the entire thing?
 	// Maybe only what's in
 
