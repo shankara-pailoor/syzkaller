@@ -50,8 +50,17 @@ func (c *Call) validate(ctx *validCtx) error {
 		if ctx.args[arg] {
 			return fmt.Errorf("syscall %v: arg is referenced several times in the tree", c.Meta.Name)
 		}
+		for arg1 := range arg.Uses {
+			if arg1.Kind != ArgResult {
+				panic("use references not ArgResult")
+			}
+		}
 		ctx.args[arg] = true
 		for u := range arg.Uses {
+			if _,ok := ctx.uses[u]; ok {
+				fmt.Printf("%v claims to use multiple parent args", u)
+				panic("duplicate use!")
+			}
 			ctx.uses[u] = arg
 		}
 		if arg.Type == nil {

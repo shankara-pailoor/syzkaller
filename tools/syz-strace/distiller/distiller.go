@@ -221,6 +221,11 @@ func GetAllUpstreamDependents(seed *domain.Seed) []*prog.Call {
 =======
 	fmt.Printf("Upstream dependency: %s, index: %d\n", seed.Call.Meta.CallName, seed.CallIdx)
 >>>>>>> Stashed changes
+=======
+func (d *DefaultDistiller) GetAllUpstreamDependents(seed *domain.Seed) []*prog.Call {
+	calls := make([]*prog.Call, 0)
+	callMap := make(map[*prog.Call]bool, 0)
+>>>>>>> b08f22c1319f028c870fd79bc0ad8de3d04f2459
 	for idx, _ := range d.SeedDependencyGraph[seed] {
 		call := seed.Prog.Calls[idx]
 		if s, ok := d.CallToSeed[call]; ok {
@@ -239,8 +244,8 @@ func GetAllUpstreamDependents(seed *domain.Seed) []*prog.Call {
 	}
 	return calls
 }
+<<<<<<< HEAD
 */
-
 func (d *DefaultDistiller) AddToDistilledProg(seed *domain.Seed) {
 	distilledProg := new(prog.Prog)
 	distilledProg.Calls = make([]*prog.Call, 0)
