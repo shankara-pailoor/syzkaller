@@ -81,7 +81,9 @@ func main() {
 	if (file != "") {
 		strace_files = append(strace_files, file)
 	}
-	dir = config.ParserConf.InputDirectory
+  if dir == "" {
+      dir = config.ParserConf.InputDirectory
+  }
 	if (dir != "") {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
@@ -828,8 +830,8 @@ func parseArg(typ sys.Type, strace_arg string,
 	case *sys.PtrType:
 		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", call, a.Type.Name())
 		if strace_arg == "NULL" && a.IsOptional {
-			arg, _ = addr(s, a, a.Type.Size(), nil)
-			return arg, nil
+			arg, calls = addr(s, a, a.Type.Size(), nil)
+			return arg, calls
 		}
 
 		if strace_arg == "NULL" && !a.IsOptional {
