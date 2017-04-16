@@ -70,9 +70,9 @@ func main() {
 	flag.Parse()
 	file, dir, configLocation := *flagFile, *flagDir, *flagConfig
 	getTraces, distill := *flagGetTraces, *flagDistill
-	if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
+	/* if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
 		usage()
-	}
+} */
 	config := NewConfig(configLocation)
 	if (getTraces) {
 		gatherTraces(config)
@@ -475,7 +475,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	switch line.FuncName {
 	case "accept", "accept4":
 		return_var := returnType{
-			"ResourceType",
+			"ResourceType" + "fd",
 			line.Args[0],
 		}
 		if arg,ok := (*return_vars)[return_var]; ok {
@@ -495,7 +495,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		var m *map[string]string
 		label := ""
 		return_var := returnType{
-			"ResourceType",
+			"ResourceType" + "fd",
 			line.Args[0],
 		}
 		if line.FuncName == "bind" {
@@ -556,7 +556,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "getsockname":
 		var label string
 		return_var := returnType{
-			"ResourceType",
+			"ResourceType" + "fd",
 			line.Args[0],
 		}
 		if arg,ok := (*return_vars)[return_var]; ok {
@@ -613,7 +613,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "sendto":
 		var label string
 		return_var := returnType{
-			"ResourceType",
+			"ResourceType" + "fd",
 			line.Args[0],
 		}
 		if arg,ok := (*return_vars)[return_var]; ok {
@@ -635,7 +635,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 	case "sendmsg":
 		return_var := returnType{
-			"ResourceType",
+			"ResourceType" + "fd",
 			line.Args[0],
 		}
 		if arg,ok := (*return_vars)[return_var]; ok {
@@ -653,7 +653,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 	case "recvfrom":
 		return_var := returnType{
-			"ResourceType",
+			"ResourceType" + "fd",
 			line.Args[0],
 		}
 		if arg,ok := (*return_vars)[return_var]; ok {
