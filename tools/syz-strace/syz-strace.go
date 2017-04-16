@@ -42,13 +42,6 @@ type returnType struct {
 	Val  	string
 }
 
-type state struct {
-	files     map[string]bool
-	resources map[string][]*Arg
-	strings   map[string]bool
-	pages     [maxPages]bool
-}
-
 var (
 	flagFile = flag.String("file", "", "file to parse")
 	flagDir = flag.String("dir", "", "directory to parse")
@@ -99,13 +92,75 @@ func main() {
 		fmt.Printf("==============================\n\n")
 	}
 
+<<<<<<< Updated upstream
+=======
+func gatherTraces(conf *SyzStraceConfig) {
+	fmt.Printf("Syz Strace Config: %v\n", conf)
+	var executor domain.Executor
+	if conf.CorpusGenConf.Type == "ssh" {
+		executor = NewClient(conf.CorpusGenConf)
+	}
+	GenerateCorpus(conf.CorpusGenConf, executor)
+	fmt.Printf("Distill Config: %v\n", conf)
+}
+
+func parseStrace(filename string) (calls []*sparser.OutputLine) {
+	var lastParsed *sparser.OutputLine
+	calls = make([]*sparser.OutputLine, 0)
+	f, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("failed to open file: %v\n", filename)
+		failf(err.Error())
+	}
+	p := sparser.NewParser(f)
+	for {
+		line, err := p.Parse()
+		if err != nil {
+			if err != sparser.ErrEOF {
+				fmt.Println(err.Error())
+			}
+			return
+		}
+		if line.FuncName == "" && line.Result != "" {
+			if lastParsed == nil {
+				continue
+			}
+			lastParsed.Cover = parseInstructions(line.Result)
+		} else {
+			if _, ok := Unsupported[line.FuncName]; ok {
+				lastParsed = nil
+				continue
+			}
+			lastParsed = line
+			calls = append(calls, line)
+		}
+	}
+	return
+}
+
+func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds *domain.Seeds) *Prog{
+	prog :=  new(Prog)
+	return_vars := make(map[returnType]*Arg)
+	s := domain.NewState() /* to keep track of resources and memory */
+
+	for _, line := range straceCalls {
+		seed := parseCall(line, consts, &return_vars, s, prog)
+		seeds.Add(seed)
+	}
+	return prog
+}
+>>>>>>> Stashed changes
 
 	fmt.Println("Done, now packing into corpus.db")
 	pack("serialized", "corpus.db")
 }
 
 func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
+<<<<<<< Updated upstream
 		return_vars *map[returnType]*Arg, s *state, prog *Prog) {
+=======
+		return_vars *map[returnType]*Arg, s *domain.State, prog_ *Prog) *domain.Seed{
+>>>>>>> Stashed changes
 	if _, ok := Unsupported[line.FuncName]; ok {
 		return // don't parse unsupported syscalls
 	}
@@ -164,16 +219,33 @@ func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
 	// add calls to our program
 	for _,c := range calls {
 		// TODO: sanitize c?
+<<<<<<< Updated upstream
 		s.analyze(c)
 		prog.Calls = append(prog.Calls, c)
+=======
+		s.Analyze(c)
+		prog_.Calls = append(prog_.Calls, c)
+	}
+	dependsOn := make(map[*prog.Call]int, 0)
+	for i := 0; i < len(calls)-1; i++ {
+		dependsOn[calls[i]] = progLen+i
+>>>>>>> Stashed changes
 	}
 
 	fmt.Println("\n---------done parsing line--------\n")
+<<<<<<< Updated upstream
 
 }
 
 func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
  		    return_vars *map[returnType]*Arg, s *state) *Arg {
+=======
+	return domain.NewSeed(c, s, dependsOn, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
+		    return_vars *map[returnType]*Arg, s *domain.State) *Arg {
+>>>>>>> Stashed changes
 
 	fmt.Println("---------Parsing Inner Call Args-----------")
 	fmt.Println(val)
@@ -668,7 +740,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 
 func parseArg(typ sys.Type, strace_arg string,
 	      consts *map[string]uint64, return_vars *map[returnType]*Arg,
-              line *sparser.OutputLine, s *state) (arg *Arg, calls []*Call) {
+              line *sparser.OutputLine, s *domain.State) (arg *Arg, calls []*Call) {
 	call := line.FuncName
 	fmt.Printf("-----Entering parseArg-------" +
 		"\nparsing arg: %v" +
@@ -820,7 +892,7 @@ func parseArg(typ sys.Type, strace_arg string,
 		for i := uintptr(0); i < maxPages-npages; i++ {
 			free := true
 			for j := uintptr(0); j < npages; j++ {
-				if s.pages[i+j] {
+				if s.Pages[i+j] {
 					free = false
 					break
 				}
@@ -831,7 +903,7 @@ func parseArg(typ sys.Type, strace_arg string,
 
 			/* mark memory as claimed */
 			for j := uintptr(0); j < npages; j++ {
-				s.pages[i+j] = true
+				s.Pages[i+j] = true
 			}
 			// found a free memory section, let's mmap
 			c := createMmapCall(i, npages)
@@ -1074,7 +1146,7 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]*Ar
 	return nil
 }
 
-func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
+func addr(s *domain.State, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 	npages := (size + pageSize - 1) / pageSize
 	if npages == 0 {
 		npages = 1
@@ -1082,7 +1154,7 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 	for i := uintptr(0); i < maxPages-npages; i++ {
 		free := true
 		for j := uintptr(0); j < npages; j++ {
-			if s.pages[i+j] {
+			if s.Pages[i+j] {
 				free = false
 				break
 			}
@@ -1093,7 +1165,7 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 
 		/* mark memory as claimed */
 		for j := uintptr(0); j < npages; j++ {
-			s.pages[i+j] = true
+			s.Pages[i+j] = true
 		}
 		// found a free memory section, let's mmap
 		c := createMmapCall(i, npages)
@@ -1104,13 +1176,13 @@ func addr(s *state, typ sys.Type, size uintptr, data *Arg) (*Arg, []*Call) {
 	//return r.randPageAddr(s, typ, npages, data, false), nil
 }
 
-func randPageAddr(s *state, typ sys.Type, npages uintptr, data *Arg, vma bool) *Arg {
+func randPageAddr(s *domain.State, typ sys.Type, npages uintptr, data *Arg, vma bool) *Arg {
 	poolPtr := pageStartPool.Get().(*[]uintptr)
 	starts := (*poolPtr)[:0]
 	for i := uintptr(0); i < maxPages-npages; i++ {
 		busy := true
 		for j := uintptr(0); j < npages; j++ {
-			if !s.pages[i+j] {
+			if !s.Pages[i+j] {
 				busy = false
 				break
 			}
@@ -1158,7 +1230,8 @@ func createMmapCall(start, npages uintptr) *Call {
 func getType(typ sys.Type) string {
 	switch typ.(type) {
 	case *sys.ResourceType:
-		return "ResourceType"
+		a := typ.(*sys.ResourceType)
+		return "ResourceType" + a.Desc.Kind[0]
 	case *sys.BufferType:
 		return "BufferType"
 	case *sys.VmaType:
@@ -1279,81 +1352,6 @@ func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, e
 	}
 	return val, nil
 }
-
-/* State functions */
-func newState() *state {
-	s := &state{
-		files:     make(map[string]bool),
-		resources: make(map[string][]*Arg),
-		strings:   make(map[string]bool),
-	}
-	return s
-}
-
-func (s *state) analyze(c *Call) {
-	ForeachArgArray(&c.Args, c.Ret, func(arg, base *Arg, _ *[]*Arg) {
-		switch typ := arg.Type.(type) {
-		case *sys.ResourceType:
-			if arg.Type.Dir() != sys.DirIn {
-				s.resources[typ.Desc.Name] = append(s.resources[typ.Desc.Name], arg)
-				// TODO: negative PIDs and add them as well (that's process groups).
-			}
-		case *sys.BufferType:
-			if arg.Type.Dir() != sys.DirOut && arg.Kind == ArgData && len(arg.Data) != 0 {
-				switch typ.Kind {
-				case sys.BufferString:
-					s.strings[string(arg.Data)] = true
-				case sys.BufferFilename:
-					s.files[string(arg.Data)] = true
-				}
-			}
-		}
-	})
-	switch c.Meta.Name {
-	case "mmap":
-		// Filter out only very wrong arguments.
-		length := c.Args[1]
-		if length.AddrPage == 0 && length.AddrOffset == 0 {
-			break
-		}
-		if flags, fd := c.Args[4], c.Args[3]; flags.Val&sys.MAP_ANONYMOUS == 0 && fd.Kind == ArgConst && fd.Val == sys.InvalidFD {
-			break
-		}
-		s.addressable(c.Args[0], length, true)
-	case "munmap":
-		s.addressable(c.Args[0], c.Args[1], false)
-	case "mremap":
-		s.addressable(c.Args[4], c.Args[2], true)
-	case "io_submit":
-		if arr := c.Args[2].Res; arr != nil {
-			for _, ptr := range arr.Inner {
-				if ptr.Kind == ArgPointer {
-					if ptr.Res != nil && ptr.Res.Type.Name() == "iocb" {
-						s.resources["iocbptr"] = append(s.resources["iocbptr"], ptr)
-					}
-				}
-			}
-		}
-	}
-}
-
-func (s *state) addressable(addr, size *Arg, ok bool) {
-	if addr.Kind != ArgPointer || size.Kind != ArgPageSize {
-		panic("mmap/munmap/mremap args are not pages")
-	}
-	n := size.AddrPage
-	if size.AddrOffset != 0 {
-		n++
-	}
-	if addr.AddrPage+n > uintptr(len(s.pages)) {
-		panic(fmt.Sprintf("address is out of bounds: page=%v len=%v (%v, %v) bound=%v, addr: %+v, size: %+v",
-			addr.AddrPage, n, size.AddrPage, size.AddrOffset, len(s.pages), addr, size))
-	}
-	for i := uintptr(0); i < n; i++ {
-		s.pages[addr.AddrPage+i] = ok
-	}
-}
-
 
 /* Arg helper functions */
 
