@@ -135,9 +135,10 @@ func main() {
 	if err := RpcCall(*flagManager, "Manager.Connect", a, r); err != nil {
 		panic(err)
 	}
-  lineageMu.Lock()
+	lineageMu.Lock()
 	lineage = r.Lineage // set lineage
-  lineageMu.Unlock()
+	lineageMu.Unlock()
+
 	calls := buildCallList(r.EnabledCalls) // get map of enabled syscalls map[*sys.Call, bool]
 	ct := prog.BuildChoiceTable(r.Prios, calls) // get ChoiceTable which weights syscalls by priority
 	for _, inp := range r.Inputs {

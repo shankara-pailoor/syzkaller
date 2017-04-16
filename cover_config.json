@@ -1,0 +1,123 @@
+[
+        {
+		"Name": "ltp_tee01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/tee01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_tee01_strace",
+                "KcovOutPath": "/root/corpus-distilled/ltp_tee01_kcov"
+        },
+        {
+		"Name": "ltp_tee02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/tee02",
+                "StraceOutPath": "/root/corpus-distilled/ltp_tee02_strace"	
+        },
+        {
+		"Name": "ltp_timer_getoverrun01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/timer_getoverrun01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_timergetoverrun01_strace"
+        },
+        {
+		"Name": "ltp_timer_gettime01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/timer_gettime01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_timergettime01_strace"
+        },
+        {
+		"Name": "ltp_timerfd01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/timerfd01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_timerfd01_strace"
+        },
+        {
+		"Name": "ltp_timerfd02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/timerfd02",
+                "StraceOutPath": "/root/corpus-distilled/ltp_timerfd02_strace"
+        },
+        {
+		"Name": "ltp_timerfd03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/timerfd03",
+                "StraceOutPath": "/root/corpus-distilled/ltp_timerfd03_strace"
+        },
+        {
+		"Name": "ltp_times01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/times01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_times01_strace"
+        },
+        {
+		"Name": "ltp_ulimit01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/ulimit01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_ulimit01_strace"
+        },
+	{
+		"Name": "ltp_uname01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/uname01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_uname01_strace"
+        },
+        {
+		"Name": "ltp_uname02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/uname02",
+                "StraceOutPath": "/root/corpus-distilled/ltp_uname02_strace"
+        },
+        {
+		"Name": "ltp_uname03",
+                "ExecutablePath": "/opt/ltp/testcases/bin/uname03",
+                "StraceOutPath": "/root/corpus-distilled/ltp_uname03_strace"
+        },
+        {
+		"Name": "ltp_unlink05",
+                "ExecutablePath": "/opt/ltp/testcases/bin/unlink05",
+                "StraceOutPath": "/root/corpus-distilled/ltp_unlink05_strace"
+        },
+        {
+		"Name": "ltp_unlink06",
+                "ExecutablePath": "/opt/ltp/testcases/bin/unlink06",
+                "StraceOutPath": "/root/corpus-distilled/ltp_unlink06_strace"
+        },
+        {
+		"Name": "ltp_unlink07",
+                "ExecutablePath": "/opt/ltp/testcases/bin/unlink07",
+                "StraceOutPath": "/root/corpus-distilled/ltp_unlink07_strace"
+        },
+ 	{
+		"Name": "ltp_unlink08",
+                "ExecutablePath": "/opt/ltp/testcases/bin/unlink08",
+                "StraceOutPath": "/root/corpus-distilled/ltp_unlink08_strace"
+        },
+        {
+		"Name": "ltp_unlinkat01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/unlinkat01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_unlinkat01_strace"
+        },
+        {
+		"Name": "ltp_ustat01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/ustat01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_ustat01_strace"
+        },
+        {
+		"Name": "ltp_ustat02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/ustat02",
+                "StraceOutPath": "/root/corpus-distilled/ltp_ustat02_strace"
+        },
+        {
+		"Name": "ltp_utime01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/utime01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_utime01_strace"
+        },
+        {
+		"Name": "ltp_utime02",
+                "ExecutablePath": "/opt/ltp/testcases/bin/utime02",
+                "StraceOutPath": "/root/corpus-distilled/ltp_utime02_strace"
+        },
+        {
+		"Name": "ltp_utimensat01",
+                "ExecutablePath": "/opt/ltp/testcases/bin/utimensat01",
+                "StraceOutPath": "/root/corpus-distilled/ltp_utimensat01_strace"
+        },
+	{
+		"Name": "ltp_writev05",
+                "ExecutablePath": "/opt/ltp/testcases/bin/writev05",
+                "StraceOutPath": "/root/corpus-distilled/ltp_writev05_strace"
+        },
+        {
+		"Name": "ltp_writev06",
+                "ExecutablePath": "/opt/ltp/testcases/bin/writev06",
+                "StraceOutPath": "/root/corpus-distilled/ltp_writev06_strace"
+        }
+]
