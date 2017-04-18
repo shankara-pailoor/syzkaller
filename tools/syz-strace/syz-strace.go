@@ -81,9 +81,9 @@ func main() {
 	if (file != "") {
 		strace_files = append(strace_files, file)
 	}
-  if dir == "" {
-      dir = config.ParserConf.InputDirectory
-  }
+	if dir == "" {
+		dir = config.ParserConf.InputDirectory
+	}
 	if (dir != "") {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
