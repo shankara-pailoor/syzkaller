@@ -6,28 +6,36 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Sirupsen/logrus"
-	"github.com/google/syzkaller/prog"
 	"github.com/google/syzkaller/rpctype"
+	"github.com/google/syzkaller/symbolizer"
+	"github.com/google/syzkaller/cover"
 	"os"
-
-	"sort"
+	"os/exec"
+	"strings"
 	"strconv"
+	"bytes"
 )
 
 var (
 	corpuses = flag.String("corpuses", "", "Path to file containing corpuses")
 )
 
-type ThresholdSummary struct {
-	NumHitters           int
-	CoverageContribution int
-	AvgProgramLen        float32
+const (
+	callLen = 5
+)
+
+type CorpusStats struct {
+	SyscallCover map[string][]uint64
+	FileCover map[string][]uint64
+	SubsystemCover map[string][]uint64
 }
 
-type CallGraph struct {
-	Name      string
-	Neighbors map[string]*CallGraph
+type ParsedFile struct {
+	File string
+	Subsystem string
+	DirectoryBreakdown []string
 }
+
 
 func main() {
 	flag.Parse()
@@ -35,9 +43,37 @@ func main() {
 		logrus.Infof("")
 	}
 	corpii := readCorpus(*corpuses)
+	corpusStats := &CorpusStats {
+		SyscallCover: make(map[string][]uint64, 0),
+		FileCover: make(map[string][]uint64, 0),
+		SubsystemCover: make(map[string][]uint64, 0),
+	}
 	newestCorpus := corpii[len(corpii)-1]
-	countHeavyHitters(newestCorpus, []int{100, 200, 300, 400, 500, 600, 700, 800, 900, 1000})
-
+	frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", newestCorpus)
+	if frames != nil {
+		for _, frame := range frames {
+			if _, ok := corpusStats.FileCover[frame.File]; !ok {
+				corpusStats.FileCover[frame.File] = make([]uint64, 0)
+			}
+			corpusStats.FileCover[frame.File] = append(corpusStats.FileCover[frame.File], frame.PC)
+			parsedFile := rebuildPath(frame.File)
+			if _, ok := corpusStats.SubsystemCover[parsedFile.Subsystem]; !ok {
+				corpusStats.SubsystemCover[parsedFile.Subsystem] = make([]uint64, 0)
+			}
+			corpusStats.SubsystemCover[parsedFile.Subsystem] = append(corpusStats.SubsystemCover[parsedFile.Subsystem], frame.PC)
+			if _, ok := corpusStats.SyscallCover[frame.Func]; !ok {
+				corpusStats.SyscallCover[frame.Func] = make([]uint64, 0)
+			}
+			corpusStats.SyscallCover[frame.Func] = append(corpusStats.SyscallCover[frame.Func], frame.PC)
+		}
+	}
+	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
+	for subsystem, cov := range corpusStats.SubsystemCover {
+		fmt.Printf("Subsystem: %s, CoverageLen: %d\n", subsystem, len(cov))
+	}
+	for file, cov := range corpusStats.FileCover {
+		fmt.Printf("File: %s, CoverageLen: %d\n", file, len(cov))
+	}
 	/*
 	for _, input := range newestCorpus {
 
@@ -50,82 +86,131 @@ func main() {
 	}*/
 }
 
-func trackProgDependencies(prg *prog.Prog, args map[*prog.Arg]string) {
-	callGraph := make(map[string]*CallGraph)
-	for i, call := range prg.Calls {
-		callId := call.Meta.Name + "-" + strconv.FormatInt(int64(i), 10)
-		if _, ok := callGraph[callId]; !ok {
-			callGraph[callId] = new(CallGraph)
-			callGraph[callId].Name = callId
-			callGraph[callId].Neighbors = make(map[string]*CallGraph)
+func rebuildPath(path string) *ParsedFile {
+	parsedFile := new(ParsedFile)
+	splitPath := strings.Split(path, "/")
+	if len(splitPath) > 3 {
+		splitPath = splitPath[4:]
+	}
+	parsedFile.File = path
+	if splitPath[0] == "kernel" {
+		if strings.Contains(splitPath[1], ".c") {
+			parsedFile.Subsystem = "kernel"
+		} else {
+			parsedFile.Subsystem = splitPath[1]
 		}
-		for _, arg := range call.Args {
-			//fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
-			upstream_maps := isDependent(arg, callId, args)
-			for k, _ := range upstream_maps {
-				callGraph[k].Neighbors[callId] = callGraph[callId]
-				callGraph[callId].Neighbors[callGraph[k].Name] = callGraph[k]
+	} else {
+		if splitPath[0] == "." {
+			parsedFile.Subsystem = splitPath[1]
+		} else {
+			parsedFile.Subsystem = splitPath[0]
+		}
+	}
+	return parsedFile
+}
+
+func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolizer.Frame {
+	coverMap := make(map[uint32]bool, 0)
+	coverArray := make([]uint32, 0)
+
+	for _, inp := range data {
+		for _, cov := range inp.Cover {
+			if _, ok := coverMap[cov]; !ok {
+				coverMap[cov] = true
 			}
 		}
-		args[call.Ret] = callId
 	}
-	seen := make(map[string]bool)
-	for id, gr := range callGraph {
-		if _, ok := seen[id]; !ok {
-			printGraph(gr, seen)
-		}
-
-		fmt.Printf("\n\n\n\n###################\n")
+	var totalCover int = 0
+	for cov, _ := range coverMap {
+		totalCover += 1
+		coverArray = append(coverArray, cov)
 	}
-	fmt.Printf("%s\n", string(prg.Serialize()))
-}
-
-func printGraph(graph *CallGraph, seen map[string]bool) {
-	fmt.Printf("%s-", graph.Name)
-	for name, node := range graph.Neighbors {
-		if _, ok := seen[name]; !ok {
-			seen[name] = true
-			printGraph(node, seen)
-		}
+	fmt.Printf("TOTAL COVERAGE: %d\n", totalCover)
+	base, err := getVmOffset(vmlinux)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		panic("Failure")
 	}
-	seen[graph.Name] = true
-}
+	pcs := make([]uint64, len(coverArray))
+	for i, pc := range coverArray {
+		pcs[i] = cover.RestorePC(pc, base) - callLen
+	}
 
-func isDependent(arg *prog.Arg, callId string, args map[*prog.Arg]string) map[string]bool {
-	upstreamSet := make(map[string]bool, 0)
-	if arg == nil {
+	coveredFrames, _, err := symbolize(vmlinux, pcs)
+	if err != nil {
+		fmt.Printf("Covered Frames: %s\n", err.Error())
 		return nil
 	}
-	//May need to support more kinds
-	switch arg.Kind {
-	case prog.ArgResult:
-		//fmt.Printf("%v\n", args[arg.Res])
-		if _, ok := args[arg.Res]; ok {
-			fmt.Printf("%s\n", callId)
-			upstreamSet[args[arg.Res]] = true
-		}
-	case prog.ArgPointer:
-		if _, ok := args[arg.Res]; ok {
-			upstreamSet[args[arg.Res]] = true
-		} else {
-			for k, _ := range isDependent(arg.Res, callId, args) {
-				upstreamSet[k] = true
-			}
-		}
+	if len(coveredFrames) == 0 {
+		fmt.Errorf("'%s' does not have debug info (set CONFIG_DEBUG_INFO=y)", vmlinux)
+		return nil
+	}
+	return coveredFrames
+}
 
-	case prog.ArgGroup:
-		for _, inner_arg := range arg.Inner {
-			innerArgMap := isDependent(inner_arg, callId, args)
-			for k, _ := range innerArgMap {
-				upstreamSet[k] = true
+func symbolize(vmlinux string, pcs []uint64) ([]symbolizer.Frame, string, error) {
+	symb := symbolizer.NewSymbolizer()
+	defer symb.Close()
+
+	frames, err := symb.SymbolizeArray(vmlinux, pcs)
+	if err != nil {
+		return nil, "", err
+	}
+
+	prefix := ""
+	for i := range frames {
+		frame := &frames[i]
+		frame.PC--
+		if prefix == "" {
+			prefix = frame.File
+		} else {
+			i := 0
+			for ; i < len(prefix) && i < len(frame.File); i++ {
+				if prefix[i] != frame.File[i] {
+					break
+				}
 			}
+			prefix = prefix[:i]
 		}
 
 	}
-	args[arg] = callId
-	//doesn't hurt to add again if it was already added
-	return upstreamSet
+	return frames, prefix, nil
 }
+
+func getVmOffset(vmlinux string) (uint32, error) {
+	out, err := exec.Command("readelf", "-SW", vmlinux).CombinedOutput()
+	if err != nil {
+		return 0, fmt.Errorf("readelf failed: %v\n%s", err, out)
+	}
+	s := bufio.NewScanner(bytes.NewReader(out))
+	var addr uint32
+	for s.Scan() {
+		ln := s.Text()
+		pieces := strings.Fields(ln)
+		for i := 0; i < len(pieces); i++ {
+			if pieces[i] != "PROGBITS" {
+				continue
+			}
+			v, err := strconv.ParseUint("0x"+pieces[i+1], 0, 64)
+			if err != nil {
+				return 0, fmt.Errorf("failed to parse addr in readelf output: %v", err)
+			}
+			if v == 0 {
+				continue
+			}
+			v32 := (uint32)(v >> 32)
+			if addr == 0 {
+				addr = v32
+			}
+			if addr != v32 {
+				return 0, fmt.Errorf("different section offsets in a single binary")
+			}
+		}
+	}
+	return addr, nil
+}
+
+
 
 func readCorpus(fname string) (data []map[string]rpctype.RpcInput) {
 	f, err := os.Open(fname)
@@ -142,57 +227,4 @@ func readCorpus(fname string) (data []map[string]rpctype.RpcInput) {
 		data = append(data, v)
 	}
 	return
-}
-
-func countHeavyHitters(corpus map[string]rpctype.RpcInput, thresholds []int) {
-	seenPCs := make(map[uint32]bool)
-	seenPrograms := make(map[string]bool)
-	coverMap := make(map[int][]string)
-	coverArray := make([]int, 0)
-	numPrograms := 0
-	thresholdStats := make([]ThresholdSummary, len(thresholds))
-	coverageTotal := 0
-
-	sort.Ints(thresholds)
-	for k, v := range corpus {
-		if _, ok := seenPrograms[k]; !ok {
-			coverArray = append(coverArray, len(v.Cover))
-			if _, kk := coverMap[len(v.Cover)]; !kk {
-				coverMap[len(v.Cover)] = make([]string, 0)
-				coverMap[len(v.Cover)] = append(coverMap[len(v.Cover)], k)
-			}
-
-		}
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(coverArray)))
-
-	for _, k := range coverArray {
-		for _, program := range coverMap[k] {
-			unique_pc := 0
-			rpcinput := corpus[program]
-			prg, err := prog.Deserialize(rpcinput.Prog)
-			if err != nil {
-				logrus.Errorf("Error: %s\n", err.Error())
-			}
-			for _, pc := range rpcinput.Cover {
-				if _, ok := seenPCs[pc]; !ok {
-					unique_pc += 1
-					seenPCs[pc] = true
-				}
-			}
-			for i, t := range thresholds {
-				if unique_pc >= t {
-					thresholdStats[i].CoverageContribution += unique_pc
-					thresholdStats[i].NumHitters += 1
-					thresholdStats[i].AvgProgramLen += (float32(len(prg.Calls)) - float32(thresholdStats[i].AvgProgramLen)) / float32(thresholdStats[i].NumHitters)
-				}
-			}
-			coverageTotal += unique_pc
-			numPrograms += 1
-		}
-	}
-	fmt.Printf("Total programs: %d, Total Covered: %d\n", numPrograms, coverageTotal)
-	for i := 0; i < len(thresholds); i++ {
-		fmt.Printf("Threshold: %d, Num Programs: %d, Coverage: %d, Average Len: %f\n", thresholds[i], thresholdStats[i].NumHitters, thresholdStats[i].CoverageContribution, thresholdStats[i].AvgProgramLen)
-	}
 }
