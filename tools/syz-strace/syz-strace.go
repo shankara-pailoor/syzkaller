@@ -751,6 +751,12 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		} else {
 			fmt.Printf("unknown keyctl variant %v\n", line.Unparse())
 		}
+	case "prctl":
+		if label,ok := Prctl_labels[line.Args[0]]; ok {
+			line.FuncName = line.FuncName + label
+		} else {
+			failf("unknown prctl variant %v\n", line.Unparse())
+		}
 	default:
 	}
 }
@@ -830,7 +836,16 @@ func parseArg(typ sys.Type, strace_arg string,
 	case *sys.PtrType:
 		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", call, a.Type.Name())
 		if strace_arg == "NULL" && a.IsOptional {
-			arg, calls = addr(s, a, a.Type.Size(), nil)
+        var size uintptr = 0
+        switch b := a.Type.(type) {
+        case *sys.BufferType:
+            if !b.Varlen() {
+               size = b.Size()
+            }
+        default:
+            size = a.Type.Size()
+        }
+      arg, calls = addr(s, a, size, nil)
 			return arg, calls
 		}
 
