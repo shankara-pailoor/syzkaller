@@ -1,0 +1,100 @@
+[ 
+        {
+		"Name": "ls_strace",
+                "ExecutablePath": "/bin/ls", 
+                "StraceOutPath": "/root/corpus-distilled/ls_strace",
+                "Args": ["-al"]
+        },
+        {
+		"Name": "cat_strace",
+                "ExecutablePath": "/bin/cat", 
+                "StraceOutPath": "/root/corpus-distilled/cat__strace",
+                "Args": ["/dev/null"]
+        },
+        {
+		"Name": "cat1_strace",
+                "ExecutablePath": "/bin/cat", 
+                "StraceOutPath": "/root/corpus-distilled/cat1_strace",
+                "Args": ["/root/dummy_dir/dummy_file"]
+        },
+        {
+		"Name": "chgrp_strace",
+                "ExecutablePath": "/bin/chgrp", 
+                "StraceOutPath": "/root/corpus-distilled/chgrp_strace",
+                "Args": ["-R", "root", "/root/dummy_dir/dummy_file"]
+        },
+        {
+		"Name": "chmod_strace",
+                "ExecutablePath": "/bin/chmod", 
+                "StraceOutPath": "/root/corpus-distilled/chmod_strace",
+                "Args": ["777", "/root/dummy_dir/dummy_file"]
+        },
+        {
+		"Name": "chmod1_strace",
+                "ExecutablePath": "/bin/chmod", 
+                "StraceOutPath": "/root/corpus-distilled/chmod1_strace",
+                "Args": ["644", "/root/dummy_dir/dummy_file"]
+        },
+        {
+		"Name": "cp_strace",
+                "ExecutablePath": "/bin/cp", 
+                "StraceOutPath": "/root/corpus-distilled/cp_strace",
+                "Args": ["/root/dummy_dir/dummy_file", "/root/dummy_dir/dummy_file1"]
+        },
+        {
+		"Name": "rm_strace",
+                "ExecutablePath": "/bin/rm", 
+                "StraceOutPath": "/root/corpus-distilled/rm_strace",
+                "Args": ["-f", "/root/dummy_dir/dummy_file1"]
+        },
+        {
+		"Name": "rm1_strace",
+                "ExecutablePath": "/bin/rm", 
+                "StraceOutPath": "/root/corpus-distilled/rm_strace",
+                "Args": ["-f", "/root/dummy_dir"]
+        },
+        {
+		"Name": "date_strace",
+                "ExecutablePath": "/bin/date", 
+                "StraceOutPath": "/root/corpus-distilled/date_strace",
+                "Args": []
+        },
+        {
+		"Name": "df_strace",
+                "ExecutablePath": "/bin/df", 
+                "StraceOutPath": "/root/corpus-distilled/df_strace",
+                "Args": [">", "/dev/null"]
+        },
+        {
+		"Name": "dmesg_strace",
+                "ExecutablePath": "/bin/dmesg", 
+                "StraceOutPath": "/root/corpus-distilled/dmesg_strace",
+                "Args": [">", "/dev/null"]
+        },
+        {
+		"Name": "domainname_strace",
+                "ExecutablePath": "/bin/domainname", 
+                "StraceOutPath": "/root/corpus-distilled/domainname_strace",
+                "Args": [">", "/dev/null"]
+        },
+        {
+		"Name": "findmnt_strace",
+                "ExecutablePath": "/bin/findmnt", 
+                "StraceOutPath": "/root/corpus-distilled/findmnt_strace",
+                "Args": ["-m"]
+        },
+        {
+		"Name": "fuser_strace",
+                "ExecutablePath": "/bin/fuser", 
+                "StraceOutPath": "/root/corpus-distilled/fuser_strace",
+                "Args": ["/"]
+        },
+        {
+		"Name": "hostname_strace",
+                "ExecutablePath": "/bin/hostname", 
+                "StraceOutPath": "/root/corpus-distilled/hostname_strace",
+                "Args": []
+        }
+
+
+]

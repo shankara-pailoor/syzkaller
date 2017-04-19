@@ -21,4 +21,5 @@ test_results/
 corpuses/
 crashes/
 tools/syz-strace/syz-strace.json
-
+distillStats
+strace-output/*
