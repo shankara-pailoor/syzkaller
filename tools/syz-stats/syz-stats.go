@@ -82,7 +82,7 @@ func main() {
 
 	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
 	for i, corpusStat := range corpusStats {
-		for _, corpusStat2 := range corpusStats[i:] {
+		for _, corpusStat2 := range corpusStats[i+1:] {
 			computeSubsystemDifference(corpusStat, corpusStat2)
 		}
 	}
