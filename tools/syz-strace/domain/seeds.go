@@ -7,6 +7,8 @@ import (
 type Seed struct {
 	Call *prog.Call
 	Prog *prog.Prog
+	ProgName string
+	State *State
 	Cover []uint64
 	ArgMeta map[*prog.Arg]bool
 	CallIdx int /* Index in the Prog call array */
@@ -31,11 +33,12 @@ func (s *Seeds) Add(seed *Seed) {
 	*s = append(*s, seed)
 }
 
-func NewSeed(call *prog.Call, dependsOn map[*prog.Call]int, prog *prog.Prog, idx int, cover []uint64) *Seed{
+func NewSeed(call *prog.Call, state *State, dependsOn map[*prog.Call]int, prog *prog.Prog, idx int, cover []uint64) *Seed{
 	return &Seed {
 		Call: call,
 		Prog: prog,
 		Cover: cover,
+		State: state,
 		CallIdx: idx,
 		DependsOn: dependsOn,
 	}

@@ -18,3 +18,7 @@ deserialized/
 *.db
 tmp*
 test_results/
+tools/syz-strace/syz-strace.json
+corpuses/
+crashes/
+
