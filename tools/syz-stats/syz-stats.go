@@ -13,8 +13,8 @@ import (
 	"os/exec"
 	"strings"
 	"strconv"
-	"path"
 	"bytes"
+	"path"
 	"io/ioutil"
 )
 
@@ -26,7 +26,13 @@ const (
 	callLen = 5
 )
 
+type Corpus struct {
+	Name string
+	Data map[string]rpctype.RpcInput
+}
+
 type CorpusStats struct {
+	CorpusName string
 	SyscallCover map[string][]uint64
 	FileCover map[string][]uint64
 	SubsystemCover map[string][]uint64
@@ -44,16 +50,16 @@ func main() {
 	if corpuses == nil {
 		logrus.Infof("")
 	}
-	fmt.Printf("Corpuses: %s\n", *corpuses)
 	corpii := readCorpus(*corpuses)
 	corpusStats := make([]*CorpusStats, 0)
 	for _, corpus := range corpii {
 		corpusStat := &CorpusStats {
+			CorpusName: corpus.Name,
 			SyscallCover: make(map[string][]uint64, 0),
 			FileCover: make(map[string][]uint64, 0),
 			SubsystemCover: make(map[string][]uint64, 0),
 		}
-		frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", corpus)
+		frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", corpus.Data)
 		if frames != nil {
 			for _, frame := range frames {
 				if _, ok := corpusStat.FileCover[frame.File]; !ok {
@@ -75,9 +81,9 @@ func main() {
 	}
 
 	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
-	for _, corpusStat := range corpusStats {
-		for subsystem, cov := range corpusStat.SubsystemCover {
-			fmt.Printf("Subsystem: %s, CoverageLen: %d\n", subsystem, len(cov))
+	for i, corpusStat := range corpusStats {
+		for _, corpusStat2 := range corpusStats[i:] {
+			computeSubsystemDifference(corpusStat, corpusStat2)
 		}
 	}
 
@@ -92,6 +98,76 @@ func main() {
 		trackProgDependencies(prg, args)
 	}*/
 }
+
+func computeSubsystemDifference(stat1, stat2 *CorpusStats) {
+	for stat1Subsystem, cov := range stat1.SubsystemCover {
+		if cov1, ok := stat2.SubsystemCover[stat1Subsystem]; ok {
+			seen1 := make(map[uint64]bool, 0)
+			seen2 := make(map[uint64]bool, 0)
+			seenIn2Not1 := make(map[uint64]bool, 0)
+			seenIn1Not2 := make(map[uint64]bool, 0)
+			seenInBoth := make(map[uint64]bool, 0)
+			for _, ip := range cov {
+				seen1[ip] = true
+			}
+			for _, ip := range cov1 {
+				if _, ok := seen1[ip]; !ok {
+					seenIn2Not1[ip] = true
+				} else {
+					seenInBoth[ip] = true
+				}
+				seen2[ip] = true
+			}
+			for _, ip := range cov {
+				if _, ok := seen2[ip]; !ok {
+					seenIn1Not2[ip] = true
+				} else {
+					seenInBoth[ip] = true
+				}
+			}
+			if len(seenIn1Not2) == 0 && len(seenIn2Not1) == 0 {
+				if len(seenInBoth) > 0 {
+					fmt.Printf("Subsystem: %s, SeenInBoth: %d\n", stat1Subsystem, len(seenInBoth))
+				}
+				continue
+			}
+			fmt.Printf("Subsystem: %s, Num Blocks Seen Only In %s: %d, Num Seen Only In %s: %d, Num Seen In Both: %d\n", stat1Subsystem, stat1.CorpusName, len(seenIn1Not2), stat2.CorpusName, len(seenIn2Not1), len(seenInBoth))
+		}
+	}
+	for stat1File, cov := range stat1.FileCover {
+		if cov1, ok := stat2.FileCover[stat1File]; ok {
+			seen1 := make(map[uint64]bool, 0)
+			seen2 := make(map[uint64]bool, 0)
+			seenIn2Not1 := make(map[uint64]bool, 0)
+			seenIn1Not2 := make(map[uint64]bool, 0)
+			seenInBoth := make(map[uint64]bool, 0)
+			for _, ip := range cov {
+				seen1[ip] = true
+			}
+			for _, ip := range cov1 {
+				if _, ok := seen1[ip]; !ok {
+					seenIn2Not1[ip] = true
+				} else {
+					seenInBoth[ip] = true
+				}
+				seen2[ip] = true
+			}
+			for _, ip := range cov {
+				if _, ok := seen2[ip]; !ok {
+					seenIn1Not2[ip] = true
+				} else {
+					seenInBoth[ip] = true
+				}
+			}
+			if len(seenIn1Not2) == 0 && len(seenIn2Not1) == 0 {
+				if len(seenInBoth) > 0 {
+					fmt.Printf("File: %s, SeenInBoth: %d\n", stat1File, len(seenInBoth))
+				}
+				continue
+			}
+			fmt.Printf("File: %s, SeenInOnly %s: %d, SeenInOnly %s: %d, SeenInBoth: %d\n", stat1File, stat1.CorpusName, len(seenIn1Not2), stat2.CorpusName, len(seenIn2Not1), len(seenInBoth))
+		}
+	}}
 
 func rebuildPath(path string) *ParsedFile {
 	parsedFile := new(ParsedFile)
@@ -217,11 +293,9 @@ func getVmOffset(vmlinux string) (uint32, error) {
 
 
 
-func readCorpus(directory string) []map[string]rpctype.RpcInput {
-	fmt.Printf("DIRECTORY: %s\n", directory)
-	corpii := make([]map[string]rpctype.RpcInput, 0)
+func readCorpus(directory string) ([]*Corpus) {
+	corpii := make([]*Corpus, 0)
 	fileInfos, err := ioutil.ReadDir(directory)
-	fmt.Printf("FILE INFOS: %v\n", fileInfos)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 	}
@@ -240,7 +314,11 @@ func readCorpus(directory string) []map[string]rpctype.RpcInput {
 			}
 			data = append(data, v)
 		}
-		corpii = append(corpii, data[len(data)-1])
+		corpus := &Corpus {
+			Name: fileInfo.Name(),
+			Data: data[len(data)-1],
+		}
+		corpii = append(corpii, corpus)
 	}
 	return corpii
 }
