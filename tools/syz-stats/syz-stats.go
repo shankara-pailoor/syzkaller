@@ -13,7 +13,9 @@ import (
 	"os/exec"
 	"strings"
 	"strconv"
+	"path"
 	"bytes"
+	"io/ioutil"
 )
 
 var (
@@ -42,38 +44,43 @@ func main() {
 	if corpuses == nil {
 		logrus.Infof("")
 	}
+	fmt.Printf("Corpuses: %s\n", *corpuses)
 	corpii := readCorpus(*corpuses)
-	corpusStats := &CorpusStats {
-		SyscallCover: make(map[string][]uint64, 0),
-		FileCover: make(map[string][]uint64, 0),
-		SubsystemCover: make(map[string][]uint64, 0),
+	corpusStats := make([]*CorpusStats, 0)
+	for _, corpus := range corpii {
+		corpusStat := &CorpusStats {
+			SyscallCover: make(map[string][]uint64, 0),
+			FileCover: make(map[string][]uint64, 0),
+			SubsystemCover: make(map[string][]uint64, 0),
+		}
+		frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", corpus)
+		if frames != nil {
+			for _, frame := range frames {
+				if _, ok := corpusStat.FileCover[frame.File]; !ok {
+					corpusStat.FileCover[frame.File] = make([]uint64, 0)
+				}
+				corpusStat.FileCover[frame.File] = append(corpusStat.FileCover[frame.File], frame.PC)
+				parsedFile := rebuildPath(frame.File)
+				if _, ok := corpusStat.SubsystemCover[parsedFile.Subsystem]; !ok {
+					corpusStat.SubsystemCover[parsedFile.Subsystem] = make([]uint64, 0)
+				}
+				corpusStat.SubsystemCover[parsedFile.Subsystem] = append(corpusStat.SubsystemCover[parsedFile.Subsystem], frame.PC)
+				if _, ok := corpusStat.SyscallCover[frame.Func]; !ok {
+					corpusStat.SyscallCover[frame.Func] = make([]uint64, 0)
+				}
+				corpusStat.SyscallCover[frame.Func] = append(corpusStat.SyscallCover[frame.Func], frame.PC)
+			}
+		}
+		corpusStats = append(corpusStats, corpusStat)
 	}
-	newestCorpus := corpii[len(corpii)-1]
-	frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", newestCorpus)
-	if frames != nil {
-		for _, frame := range frames {
-			if _, ok := corpusStats.FileCover[frame.File]; !ok {
-				corpusStats.FileCover[frame.File] = make([]uint64, 0)
-			}
-			corpusStats.FileCover[frame.File] = append(corpusStats.FileCover[frame.File], frame.PC)
-			parsedFile := rebuildPath(frame.File)
-			if _, ok := corpusStats.SubsystemCover[parsedFile.Subsystem]; !ok {
-				corpusStats.SubsystemCover[parsedFile.Subsystem] = make([]uint64, 0)
-			}
-			corpusStats.SubsystemCover[parsedFile.Subsystem] = append(corpusStats.SubsystemCover[parsedFile.Subsystem], frame.PC)
-			if _, ok := corpusStats.SyscallCover[frame.Func]; !ok {
-				corpusStats.SyscallCover[frame.Func] = make([]uint64, 0)
-			}
-			corpusStats.SyscallCover[frame.Func] = append(corpusStats.SyscallCover[frame.Func], frame.PC)
+
+	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
+	for _, corpusStat := range corpusStats {
+		for subsystem, cov := range corpusStat.SubsystemCover {
+			fmt.Printf("Subsystem: %s, CoverageLen: %d\n", subsystem, len(cov))
 		}
 	}
-	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
-	for subsystem, cov := range corpusStats.SubsystemCover {
-		fmt.Printf("Subsystem: %s, CoverageLen: %d\n", subsystem, len(cov))
-	}
-	for file, cov := range corpusStats.FileCover {
-		fmt.Printf("File: %s, CoverageLen: %d\n", file, len(cov))
-	}
+
 	/*
 	for _, input := range newestCorpus {
 
@@ -120,12 +127,10 @@ func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolize
 			}
 		}
 	}
-	var totalCover int = 0
+
 	for cov, _ := range coverMap {
-		totalCover += 1
 		coverArray = append(coverArray, cov)
 	}
-	fmt.Printf("TOTAL COVERAGE: %d\n", totalCover)
 	base, err := getVmOffset(vmlinux)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
@@ -212,19 +217,30 @@ func getVmOffset(vmlinux string) (uint32, error) {
 
 
 
-func readCorpus(fname string) (data []map[string]rpctype.RpcInput) {
-	f, err := os.Open(fname)
+func readCorpus(directory string) []map[string]rpctype.RpcInput {
+	fmt.Printf("DIRECTORY: %s\n", directory)
+	corpii := make([]map[string]rpctype.RpcInput, 0)
+	fileInfos, err := ioutil.ReadDir(directory)
+	fmt.Printf("FILE INFOS: %v\n", fileInfos)
 	if err != nil {
-		logrus.Fatalf("failed to open input file: %v", err)
+		fmt.Printf("Error: %s\n", err.Error())
 	}
-	defer f.Close()
-	dec := json.NewDecoder(bufio.NewReader(f))
-	for dec.More() {
-		v := make(map[string]rpctype.RpcInput)
-		if err := dec.Decode(&v); err != nil {
-			logrus.Fatalf("failed to decode input file %v: %v", fname, err)
+	for _, fileInfo := range fileInfos {
+		data := make([]map[string]rpctype.RpcInput, 0)
+		f, err := os.Open(path.Join(directory, fileInfo.Name()))
+		if err != nil {
+			logrus.Fatalf("failed to open input file: %v", err)
 		}
-		data = append(data, v)
+		defer f.Close()
+		dec := json.NewDecoder(bufio.NewReader(f))
+		for dec.More() {
+			v := make(map[string]rpctype.RpcInput)
+			if err := dec.Decode(&v); err != nil {
+				logrus.Fatalf("failed to decode input file %v: %v", fileInfo.Name(), err)
+			}
+			data = append(data, v)
+		}
+		corpii = append(corpii, data[len(data)-1])
 	}
-	return
+	return corpii
 }
