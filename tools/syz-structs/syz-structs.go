@@ -381,6 +381,46 @@ var (
 		"KEYCTL_GET_PERSISTENT": "$get_persistent",
 	}
 
+	Prctl_labels = map[string]string {
+		"PR_GET_DUMPABLE": "$void",
+		"PR_GET_KEEPCAPS": "$void",
+		"PR_GET_NO_NEW_PRIVS": "$void",
+		"PR_GET_SECCOMP": "$void",
+		"PR_GET_SECUREBITS": "$void",
+		"PR_GET_TIMERSLACK": "$void",
+		"PR_GET_TIMING": "$void",
+		"PR_TASK_PERF_EVENTS_DISABLE": "$void",
+		"PR_TASK_PERF_EVENTS_ENABLE": "$void",
+		"PR_MCE_KILL_GE": "$void",
+		"PR_CAPBSET_READ": "$intptr",
+		"PR_CAPBSET_DROP": "$intptr",
+		"PR_SET_CHILD_SUBREAPER": "$intptr",
+		"PR_SET_DUMPABLE": "$intptr",
+		"PR_SET_FPEMU": "$intptr",
+		"PR_SET_KEEPCAPS": "$intptr",
+		"PR_SET_NO_NEW_PRIVS": "$intptr",
+		"PR_SET_PDEATHSIG": "$intptr",
+		"PR_SET_SECUREBITS": "$intptr",
+		"PR_SET_TIMERSLACK": "$intptr",
+		"PR_SET_TIMING": "$intptr",
+		"PR_SET_TSC": "$intptr",
+		"PR_SET_UNALIGN": "$intptr",
+		"PR_MCE_KILL": "$intptr",
+		"PR_GET_CHILD_SUBREAPER": "$getreaper",
+		"PR_GET_ENDIAN": "$getreaper",
+		"PR_GET_FPEMU": "$getreaper",
+		"PR_GET_FPEXC": "$getreaper",
+		"PR_GET_PDEATHSIG": "$getreaper",
+		"PR_GET_TID_ADDRESS": "$getreaper",
+		"PR_GET_TSC": "$getreaper",
+		"PR_GET_UNALIGN": "$getreaper",
+		"PR_SET_ENDIAN": "$setendian",
+		"PR_SET_FPEXC": "$setfpexc",
+		"PR_SET_NAME": "$setname",
+		"PR_GET_NAME": "$getname",
+		"PR_SET_PTRACER": "$setptracer",
+	}
+
 	Macros = []string{"makedev"}
 
 	MacroExpand_map = map[string]func(string)string {

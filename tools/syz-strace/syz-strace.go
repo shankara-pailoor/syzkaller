@@ -81,9 +81,9 @@ func main() {
 	if (file != "") {
 		strace_files = append(strace_files, file)
 	}
-  if dir == "" {
-      dir = config.ParserConf.InputDirectory
-  }
+	if dir == "" {
+		dir = config.ParserConf.InputDirectory
+	}
 	if (dir != "") {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
@@ -750,6 +750,12 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			line.FuncName = line.FuncName + label
 		} else {
 			fmt.Printf("unknown keyctl variant %v\n", line.Unparse())
+		}
+	case "prctl":
+		if label,ok := Prctl_labels[line.Args[0]]; ok {
+			line.FuncName = line.FuncName + label
+		} else {
+			failf("unknown prctl variant %v\n", line.Unparse())
 		}
 	default:
 	}
