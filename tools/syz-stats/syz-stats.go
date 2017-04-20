@@ -33,6 +33,7 @@ type Corpus struct {
 
 type CorpusStats struct {
 	CorpusName string
+	TotalCoverage int
 	SyscallCover map[string][]uint64
 	FileCover map[string][]uint64
 	SubsystemCover map[string][]uint64
@@ -60,6 +61,19 @@ func main() {
 			SubsystemCover: make(map[string][]uint64, 0),
 		}
 		frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", corpus.Data)
+		framePc := make(map[uint64][]symbolizer.Frame, 0)
+		for _, frame := range frames {
+			if _, ok := framePc[frame.PC]; !ok {
+				framePc[frame.PC] = make([]symbolizer.Frame, 0)
+			}
+			framePc[frame.PC] = append(framePc[frame.PC], frame)
+		}
+		frames = make([]symbolizer.Frame, 0)
+		for _, frames_ := range framePc {
+			frames = append(frames, frames_[len(frames_)-1])
+		}
+		fmt.Printf("FRAME LENGTH: %d\n", len(framePc))
+		fmt.Printf("Frame Length: %d\n", len(frames))
 		if frames != nil {
 			for _, frame := range frames {
 				if _, ok := corpusStat.FileCover[frame.File]; !ok {
