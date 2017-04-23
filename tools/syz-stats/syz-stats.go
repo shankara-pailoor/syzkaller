@@ -33,7 +33,6 @@ type Corpus struct {
 
 type CorpusStats struct {
 	CorpusName string
-	TotalCoverage int
 	SyscallCover map[string][]uint64
 	FileCover map[string][]uint64
 	SubsystemCover map[string][]uint64
@@ -61,6 +60,7 @@ func main() {
 			SubsystemCover: make(map[string][]uint64, 0),
 		}
 		frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", corpus.Data)
+		fmt.Printf("FRAME LEN: %d\n", len(frames))
 		framePc := make(map[uint64][]symbolizer.Frame, 0)
 		for _, frame := range frames {
 			if _, ok := framePc[frame.PC]; !ok {
@@ -74,6 +74,7 @@ func main() {
 		}
 		fmt.Printf("FRAME LENGTH: %d\n", len(framePc))
 		fmt.Printf("Frame Length: %d\n", len(frames))
+
 		if frames != nil {
 			for _, frame := range frames {
 				if _, ok := corpusStat.FileCover[frame.File]; !ok {
@@ -94,10 +95,13 @@ func main() {
 		corpusStats = append(corpusStats, corpusStat)
 	}
 
+	if len(corpusStats) == 1 {
+		computeCoverageBreakdown(corpusStats[0])
+	}
 	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
 	for i, corpusStat := range corpusStats {
 		for _, corpusStat2 := range corpusStats[i+1:] {
-			computeSubsystemDifference(corpusStat, corpusStat2)
+			computeCoverageDifference(corpusStat, corpusStat2)
 		}
 	}
 
@@ -113,7 +117,24 @@ func main() {
 	}*/
 }
 
-func computeSubsystemDifference(stat1, stat2 *CorpusStats) {
+func computeCoverageBreakdown(stat *CorpusStats) {
+	for subsystem, cov := range stat.SubsystemCover {
+		seen := make(map[uint64]bool, 0)
+		for _, ip := range cov {
+			seen[ip] = true
+		}
+		fmt.Printf("Subsystem: %s, Seen: %d\n", subsystem, len(seen))
+	}
+	for file, cov := range stat.FileCover {
+		seen := make(map[uint64]bool, 0)
+		for _, ip := range cov {
+			seen[ip] = true
+		}
+		fmt.Printf("Subsystem: %s, Seen: %d\n", file, len(seen))
+	}
+}
+
+func computeCoverageDifference(stat1, stat2 *CorpusStats) {
 	for stat1Subsystem, cov := range stat1.SubsystemCover {
 		if cov1, ok := stat2.SubsystemCover[stat1Subsystem]; ok {
 			seen1 := make(map[uint64]bool, 0)
@@ -146,6 +167,12 @@ func computeSubsystemDifference(stat1, stat2 *CorpusStats) {
 				continue
 			}
 			fmt.Printf("Subsystem: %s, Num Blocks Seen Only In %s: %d, Num Seen Only In %s: %d, Num Seen In Both: %d\n", stat1Subsystem, stat1.CorpusName, len(seenIn1Not2), stat2.CorpusName, len(seenIn2Not1), len(seenInBoth))
+		} else {
+			seen1 := make(map[uint64]bool, 0)
+			for _, ip := range cov {
+				seen1[ip] = true
+			}
+			fmt.Printf("Subsystem: %s, Num Blocks Seen Only In %s: %d\n", stat1Subsystem, stat1.CorpusName, len(seen1))
 		}
 	}
 	for stat1File, cov := range stat1.FileCover {
@@ -336,3 +363,4 @@ func readCorpus(directory string) ([]*Corpus) {
 	}
 	return corpii
 }
+
