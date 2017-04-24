@@ -100,6 +100,8 @@ func main() {
 	consts := readConsts(arch)
 	seeds := make(domain.Seeds, 0)
 	progs := make([]*prog.Prog, 0)
+	totalCalls := 0
+	diffCalls := make(map[string]bool, 0)
 	for i,filename := range strace_files {
 		if i < *flagSkip {
 			continue
@@ -111,6 +113,12 @@ func main() {
 			fmt.Printf("Error validating %v\n", "something")
 			failf(err.Error())
 		}
+		for _, call := range parsedProg.Calls {
+			if _, ok := diffCalls[call.Meta.Name]; !ok {
+				diffCalls[call.Meta.Name] = true
+			}
+		}
+		totalCalls += len(parsedProg.Calls)
 		progs = append(progs, parsedProg)
 		fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
 
@@ -123,7 +131,9 @@ func main() {
 			fmt.Printf("==============================\n\n")
 		}
 	}
+	fmt.Printf("Number of distinct system calls: %d\n", len(diffCalls))
 	if distill {
+		numCalls := 0
 		distiller_.Add(seeds)
 		distilled := distiller_.Distill(progs)
 
@@ -133,6 +143,8 @@ func main() {
 				failf(err.Error())
 				break
 			}
+			fmt.Printf("Distilled Length: %d\n", len(progd.Calls))
+			numCalls += len(progd.Calls)
 			s_name := "serialized/" + filepath.Base("distilled" + strconv.Itoa(i))
 			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
 				failf("failed to output file: %v", err)
@@ -140,6 +152,7 @@ func main() {
 			fmt.Printf("serialized output to %v\n", s_name)
 			fmt.Printf("==============================\n\n")
 		}
+		fmt.Printf("Total Calls before distillation: %d Total Calls after distillation: %d, Distinct System Calls: %d\n", totalCalls, numCalls, len(diffCalls))
 	}
 	fmt.Println("Done, now packing into corpus.db")
 	pack("serialized", "corpus.db")
@@ -459,12 +472,12 @@ func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, re
 			(*return_vars)[return_var] = arg
 			return true
 		}
-
-		/* if _,ok := (*return_vars)[return_var]; !ok {
+		/*
+		if _,ok := (*return_vars)[return_var]; !ok {
 			fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
 			(*return_vars)[return_var] = arg
 			return true
-		} */
+		}*/
 		return false
 	default:
 		return false
