@@ -322,6 +322,7 @@ var (
 		"AF_INET6": "$inet6",
 		"AF_KCM": "$kcm",
 		"AF_UNIX": "$unix",
+    "AF_NETLINK": "$netlink",
 	}
 
 	Fcntl_labels = map[string]string {

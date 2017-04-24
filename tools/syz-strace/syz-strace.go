@@ -402,7 +402,8 @@ func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *
 		} else if args[0] == "255.255.255.255" {
 			arg = constArg(typ, uintptr(0xffffffff))
 		} else {
-			failf("unsupported inet_addr %v in %v\n", args[0], val)
+			arg = constArg(typ, uintptr(0x7f000001))
+			// failf("unsupported inet_addr %v in %v\n", args[0], val)
 		}
 	default:
 		failf("unrecognized inner call %v\n", val)
@@ -460,11 +461,11 @@ func cache(return_vars *map[returnType]*Arg, return_var returnType, arg *Arg, re
 			return true
 		}
 
-		/* if _,ok := (*return_vars)[return_var]; !ok {
+		if _,ok := (*return_vars)[return_var]; !ok {
 			fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
 			(*return_vars)[return_var] = arg
 			return true
-		} */
+		}
 		return false
 	default:
 		return false
@@ -661,6 +662,9 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			case *sys.ResourceType:
 				if label,ok := Recvfrom_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
+            if label == "$inet" || label == "$inet6" {
+              line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil}", 1)
+            }
 					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
 					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
