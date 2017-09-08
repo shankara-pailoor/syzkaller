@@ -1,0 +1,30 @@
+set_tid_address(0x7f0e999849d0)         = 3913
+set_robust_list(0x7f0e999849e0, 24)     = 0
+rt_sigaction(SIGRTMIN, {sa_handler=0x7f0e9954eb40, sa_mask=[], sa_flags=SA_RESTORER|SA_SIGINFO, sa_restorer=0x7f0e9955a0c0}, NULL, 8) = 0
+rt_sigaction(SIGRT_1, {sa_handler=0x7f0e9954ebd0, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART|SA_SIGINFO, sa_restorer=0x7f0e9955a0c0}, NULL, 8) = 0
+rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0
+getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+brk(NULL)                               = 0x1486000
+brk(0x14a7000)                          = 0x14a7000
+geteuid()                               = 0
+gettimeofday({tv_sec=1490942271, tv_usec=882180}, NULL) = 0
+mkdir("/tmp/mmaOPYXNT", 0700)           = 0
+getgid()                                = 0
+chown("/tmp/mmaOPYXNT", -1, 0)          = 0
+chmod("/tmp/mmaOPYXNT", 0777)           = 0
+getcwd("/root", 4096)                   = 6
+chdir("/tmp/mmaOPYXNT")                 = 0
+open("testfile", O_RDWR|O_CREAT, 0666)  = 3
+mmap(0x20000000000000, 4096, PROT_READ, MAP_SHARED|MAP_FIXED, 3, 0) = -1 ENOMEM (Cannot allocate memory)
+ioctl(1, TCGETS, 0x7fff9ecffa80)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44847, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:51+0000.798899077, st_mtime=2017-03-31T06:37:51+0000.798899077, st_ctime=2017-03-31T06:37:51+0000.798899077}) = 0
+close(3)                                = 0
+open("/tmp/mmaOPYXNT", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/mmaOPYXNT", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401819, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:51+0000.881899077, st_mtime=2017-03-31T06:37:51+0000.888899077, st_ctime=2017-03-31T06:37:51+0000.888899077}) = 0
+getdents(3, [{d_ino=401820, d_off=2071654432719151032, d_reclen=32, d_name="testfile", d_type=DT_REG}, {d_ino=401819, d_off=4478167799589740422, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=393678, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 80
+open("/tmp/mmaOPYXNT/testfile", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/mmaOPYXNT/testfile")       = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0

@@ -1,0 +1,77 @@
+getrlimit(RLIMIT_NOFILE, {rlim_cur=1024, rlim_max=4*1024}) = 0
+mq_open("init_mqueue", O_RDWR|O_CREAT|O_EXCL, 0700, NULL) = 3
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/test_mqueue\"\n", 49) = 49
+mq_open("test_mqueue", O_RDONLY|O_CREAT, 0700, {mq_flags=0, mq_maxmsg=20, mq_msgsize=16384, mq_curmsgs=0}) = 4
+mq_getsetattr(4, NULL, {mq_flags=0, mq_maxmsg=20, mq_msgsize=16384, mq_curmsgs=0}) = 0
+write(2, &0x7ffc19ee2be0="mq_open01.c:272: PASS: NORMAL returned: 4: SUCCESS\n", 51) = 51
+close(4)                                = 0
+mq_unlink("test_mqueue")                = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/test_mqueue\"\n", 49) = 49
+mq_open("test_mqueue", O_RDONLY|O_CREAT, 0700, NULL) = 4
+write(2, &0x7ffc19ee2be0="mq_open01.c:272: PASS: NORMAL returned: 4: SUCCESS\n", 51) = 51
+close(4)                                = 0
+mq_unlink("test_mqueue")                = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n", 293) = 293
+mq_open("caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", O_RDONLY|O_CREAT, 0700, NULL) = 4
+write(2, &0x7ffc19ee2be0="mq_open01.c:272: PASS: NORMAL returned: 4: SUCCESS\n", 51) = 51
+close(4)                                = 0
+mq_unlink("caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n", 294) = 294
+mq_open("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", O_RDONLY|O_CREAT, 0700, NULL) = -1 ENAMETOOLONG (File name too long)
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NORMAL returned: -1: ENAMETOOLONG\n", 57) = 57
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"\"\n", 37) = 37
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NORMAL returned: -1: EINVAL\n", 51) = 51
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/test_mqueue\"\n", 49) = 49
+mq_open("test_mqueue", O_RDWR|O_CREAT|O_EXCL, 0700, NULL) = 4
+setresuid(-1, 65534, -1)                = 0
+mq_open("test_mqueue", O_RDONLY)        = -1 EACCES (Permission denied)
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NORMAL returned: -1: EACCES\n", 51) = 51
+setresuid(-1, 0, -1)                    = 0
+close(4)                                = 0
+mq_unlink("test_mqueue")                = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/test_mqueue\"\n", 49) = 49
+mq_open("test_mqueue", O_RDWR|O_CREAT|O_EXCL, 0700, NULL) = 4
+setresuid(-1, 65534, -1)                = 0
+mq_open("test_mqueue", O_RDONLY|O_CREAT|O_EXCL, 0700, NULL) = -1 EEXIST (File exists)
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NORMAL returned: -1: EEXIST\n", 51) = 51
+setresuid(-1, 0, -1)                    = 0
+close(4)                                = 0
+mq_unlink("test_mqueue")                = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/test_mqueue\"\n", 49) = 49
+setrlimit(RLIMIT_NOFILE, {rlim_cur=0, rlim_max=4*1024}) = 0
+mq_open("test_mqueue", O_RDONLY|O_CREAT, 0700, NULL) = -1 EMFILE (Too many open files)
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NO_FILE returned: -1: EMFILE\n", 52) = 52
+setrlimit(RLIMIT_NOFILE, {rlim_cur=1024, rlim_max=4*1024}) = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/notexist\"\n", 46) = 46
+mq_open("notexist", O_RDONLY)           = -1 ENOENT (No such file or directory)
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NORMAL returned: -1: ENOENT\n", 51) = 51
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+write(2, &0x7ffc19ee2be0="mq_open01.c:242: INFO: queue name \"/test_mqueue\"\n", 49) = 49
+open("/proc/sys/fs/mqueue/queues_max", O_RDONLY) = 4
+fstat(4, {st_dev=makedev(0, 4), st_ino=30439, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-31T01:23:01+0000.517038791, st_mtime=2017-03-31T06:09:51+0000.768080191, st_ctime=2017-03-31T06:09:51+0000.768080191}) = 0
+read(4, &0xa2e7d0="256\n", 1024)        = 4
+close(4)                                = 0
+open("/proc/sys/fs/mqueue/queues_max", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
+fstat(4, {st_dev=makedev(0, 4), st_ino=30439, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-31T01:23:01+0000.517038791, st_mtime=2017-03-31T06:38:22+0000.832899077, st_ctime=2017-03-31T06:38:22+0000.832899077}) = 0
+write(4, &0xa2e7d0="1", 1)              = 1
+close(4)                                = 0
+setresuid(-1, 65534, -1)                = 0
+mq_open("test_mqueue", O_RDONLY|O_CREAT, 0700, NULL) = -1 ENOSPC (No space left on device)
+write(2, &0x7ffc19ee2be0="mq_open01.c:289: PASS: NO_SPACE returned: -1: ENOSPC\n", 53) = 53
+setresuid(-1, 0, -1)                    = 0
+open("/proc/sys/fs/mqueue/queues_max", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
+fstat(4, {st_dev=makedev(0, 4), st_ino=30439, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=1024, st_blocks=0, st_size=0, st_atime=2017-03-31T01:23:01+0000.517038791, st_mtime=2017-03-31T06:38:22+0000.834899077, st_ctime=2017-03-31T06:38:22+0000.834899077}) = 0
+write(4, &0xa2e7d0="256", 3)            = 3
+close(4)                                = 0
+wait4(-1, 0x7ffc19ee314c, 0, NULL)      = -1 ECHILD (No child processes)
+close(3)                                = 0
+mq_unlink("init_mqueue")                = 0
+mq_unlink("test_mqueue")                = -1 ENOENT (No such file or directory)

@@ -1,0 +1,10 @@
+rt_sigaction(SIGUSR1, {sa_handler=0x402d80, sa_mask=[USR1], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f246444d040}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=0}, 8) = 0
+gettid()                                = 4079
+tkill(4079, SIGUSR1)                    = 0
+rt_sigreturn({mask=[]})                 = 0
+ioctl(1, TCGETS, 0x7ffc744e8590)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43989, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:15+0000.448899077, st_mtime=2017-03-31T06:38:15+0000.448899077, st_ctime=2017-03-31T06:38:15+0000.448899077}) = 0
+rt_sigaction(SIGUSR1, {sa_handler=0x402d80, sa_mask=[USR1], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f246444d040}, {sa_handler=0x402d80, sa_mask=[USR1], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f246444d040}, 8) = 0
+gettid()                                = 4079
+tkill(4079, SIGUSR1)                    = 0
+rt_sigreturn({mask=[]})                 = 0

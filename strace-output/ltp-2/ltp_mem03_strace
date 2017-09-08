@@ -1,0 +1,44 @@
+getpid()                                = 3895
+mkdir("/tmp/memQ6tVuD", 0700)           = 0
+brk(NULL)                               = 0x2196000
+brk(0x21b7000)                          = 0x21b7000
+getgid()                                = 0
+chown("/tmp/memQ6tVuD", -1, 0)          = 0
+chmod("/tmp/memQ6tVuD", 0777)           = 0
+getcwd("/root", 4096)                   = 6
+chdir("/tmp/memQ6tVuD")                 = 0
+open("./tmp.file.1", O_RDWR|O_CREAT, 0600) = 3
+open("./tmp.file.2", O_RDWR|O_CREAT, 0600) = 4
+write(3, &0x7ffe8622b3d0="testing 123", 11) = 11
+write(4, &0x7ffe8622b3e0="my test mem", 11) = 11
+mmap(NULL, 64, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fd0f3888000
+mmap(NULL, 64, PROT_READ, MAP_PRIVATE, 4, 0) = 0x7fd0f3887000
+munmap(0x7fd0f3888000, 64)              = 0
+munmap(0x7fd0f3887000, 64)              = 0
+mmap(0x7fd0f3887000, 64, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fd0f3887000
+mmap(0x7fd0f3888000, 64, PROT_READ, MAP_PRIVATE, 4, 0) = 0x7fd0f3888000
+munmap(0x7fd0f3887000, 64)              = 0
+munmap(0x7fd0f3888000, 64)              = 0
+ioctl(1, TCGETS, 0x7ffe862298b0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=44831, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:50+0000.580899077, st_mtime=2017-03-31T06:37:50+0000.580899077, st_ctime=2017-03-31T06:37:50+0000.580899077}) = 0
+munmap(0x7fd0f3887000, 64)              = 0
+munmap(0x7fd0f3888000, 64)              = 0
+close(3)                                = 0
+close(4)                                = 0
+open("/tmp/memQ6tVuD", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/memQ6tVuD", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401813, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:50+0000.668899077, st_mtime=2017-03-31T06:37:50+0000.678899077, st_ctime=2017-03-31T06:37:50+0000.678899077}) = 0
+getdents(3, [{d_ino=401813, d_off=2309336349253682292, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=401814, d_off=4478167799589740422, d_reclen=32, d_name="tmp.file.1", d_type=DT_REG}, {d_ino=393678, d_off=5653299065284864871, d_reclen=24, d_name="..", d_type=DT_DIR}, {d_ino=401815, d_off=9223372036854775807, d_reclen=32, d_name="tmp.file.2", d_type=DT_REG}], 32768) = 112
+open("/tmp/memQ6tVuD/tmp.file.1", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/memQ6tVuD/tmp.file.1")     = 0
+open("/tmp/memQ6tVuD/tmp.file.2", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/memQ6tVuD/tmp.file.2")     = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/memQ6tVuD", {st_dev=makedev(8, 0), st_ino=401813, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:50+0000.710899077, st_mtime=2017-03-31T06:37:50+0000.708899077, st_ctime=2017-03-31T06:37:50+0000.708899077}) = 0
+unlink("/tmp/memQ6tVuD")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/memQ6tVuD")                 = 0
+write(1, &0x2196030="mem03       1  TPASS  :  mem03 memory test succeeded\n", 53) = 53
+exit_group(0)                           = ?
++++ exited with 0 +++

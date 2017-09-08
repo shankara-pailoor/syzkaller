@@ -1,0 +1,21 @@
+{
+	"corpus_gen_conf": {
+		"workload_config": "/home/w4118/go-projects/src/github.com/google/syzkaller/cover_config.json",
+		"Type": "ssh",
+		"Ip": "127.0.0.1",
+		"Port": 26439,
+		"ssh_key": "/home/w4118/go-projects/src/github.com/google/syzkaller/ssh/id_rsa",
+		"dest_dir": "/home/w4118/go-projects/src/github.com/google/syzkaller/strace-output/testing"
+	},
+	"parser_conf" : {
+		"type": "local",
+		"InputDirectory": "/home/spailoor/go/src/github.com/google/syzkaller/strace-output/ltp-2/",
+		"OutputDirectory":"/home/spailoor/go/src/github.com/google/syzkaller/serialized/"
+
+	},
+	"distill_conf" : {
+		"type": "default",
+		"stats": "distillStats"
+	},
+	"workload_path": "/home/w4118/go-projects/src/github.com/google/syzkaller/cover_config.json"
+}

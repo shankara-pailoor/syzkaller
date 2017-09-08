@@ -27,6 +27,7 @@ type ConnectRes struct {
 	Inputs       []RpcInput
 	MaxSignal    []uint32
 	Candidates   []RpcCandidate
+	Lineage	     map[string]struct{}
 	EnabledCalls string
 	NeedCheck    bool
 }
@@ -44,6 +45,7 @@ type CheckArgs struct {
 type NewInputArgs struct {
 	Name string
 	RpcInput
+	Sig string
 }
 
 type PollArgs struct {
@@ -56,6 +58,7 @@ type PollRes struct {
 	Candidates []RpcCandidate
 	NewInputs  []RpcInput
 	MaxSignal  []uint32
+	Lineage    map[string]struct{}
 }
 
 type HubConnectArgs struct {

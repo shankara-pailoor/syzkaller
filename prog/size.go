@@ -38,6 +38,7 @@ func generateSize(arg Arg, lenType *sys.LenType) Arg {
 func assignSizes(args []Arg, parentsMap map[Arg]Arg) {
 	// Create a map from field names to args.
 	argsMap := make(map[string]Arg)
+
 	for _, arg := range args {
 		if sys.IsPad(arg.Type()) {
 			continue
@@ -94,9 +95,11 @@ func assignSizesArray(args []Arg) {
 		if _, ok := arg.Type().(*sys.StructType); ok {
 			for _, field := range arg.(*GroupArg).Inner {
 				parentsMap[InnerArg(field)] = arg
+
 			}
 		}
 	})
+	// now we have all the args and all the parents of each arg.
 	assignSizes(args, parentsMap)
 	foreachArgArray(&args, nil, func(arg, base Arg, _ *[]Arg) {
 		if _, ok := arg.Type().(*sys.StructType); ok {

@@ -1,6 +1,8 @@
 // Copyright 2016 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
+// Called directly by extract.sh on EACH *.txt file in sys/
+
 package main
 
 import (

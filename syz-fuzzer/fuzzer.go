@@ -40,6 +40,7 @@ var (
 	flagLeak     = flag.Bool("leak", false, "detect memory leaks")
 	flagOutput   = flag.String("output", "stdout", "write programs to none/stdout/dmesg/file")
 	flagPprof    = flag.String("pprof", "", "address to serve pprof profiles")
+	flagFuzzDisabled = flag.Bool("fuzz-disabled", false, "disable fuzzing and generation")
 )
 
 const (
@@ -74,7 +75,12 @@ var (
 	triage          []Input
 	triageCandidate []Input
 	candidates      []Candidate
+
 	smashQueue      []Input
+
+	lineageMu	sync.RWMutex
+	lineage 	map[string]struct{}
+
 
 	gate *ipc.Gate
 
@@ -129,19 +135,25 @@ func main() {
 	corpusHashes = make(map[hash.Sig]struct{})
 
 	Logf(0, "dialing manager at %v", *flagManager)
-	a := &ConnectArgs{*flagName}
-	r := &ConnectRes{}
+	a := &ConnectArgs{*flagName} // -> rpctype.ConnectArgs
+	r := &ConnectRes{}	     // -> rpctype.ConnectRes
+	// populate r, the ConnectRes struct with RpcInput, RpcCandidate, Prios
 	if err := RpcCall(*flagManager, "Manager.Connect", a, r); err != nil {
 		panic(err)
 	}
-	calls := buildCallList(r.EnabledCalls)
-	ct := prog.BuildChoiceTable(r.Prios, calls)
+	lineageMu.Lock()
+	lineage = r.Lineage // set lineage
+	lineageMu.Unlock()
+
+	calls := buildCallList(r.EnabledCalls) // get map of enabled syscalls map[*sys.Call, bool]
+	ct := prog.BuildChoiceTable(r.Prios, calls) // get ChoiceTable which weights syscalls by priority
 	for _, inp := range r.Inputs {
-		addInput(inp)
+		addInput(inp) // deserialize RpcInputs and put programs in the syz-fuzzer corpus
 	}
 	for _, s := range r.MaxSignal {
 		maxSignal[s] = struct{}{}
 	}
+	// deserialize all RpcCandidates and put into var candidates
 	for _, candidate := range r.Candidates {
 		p, err := prog.Deserialize(candidate.Prog)
 		if err != nil {
@@ -158,6 +170,7 @@ func main() {
 		}
 	}
 
+
 	// This requires "fault-inject: support systematic fault injection" kernel commit.
 	if fd, err := syscall.Open("/proc/self/fail-nth", syscall.O_RDWR, 0); err == nil {
 		syscall.Close(fd)
@@ -166,19 +179,21 @@ func main() {
 
 	kcov, compsSupported := checkCompsSupported()
 	Logf(1, "KCOV_CHECK: compsSupported=%v", compsSupported)
-	if r.NeedCheck {
+	if r.NeedCheck { //check if kcov exists? seems to be basic setup checking.
 		a := &CheckArgs{
 			Name:           *flagName,
 			UserNamespaces: osutil.IsExist("/proc/self/ns/user"),
 		}
 		a.Kcov = kcov
 		if fd, err := syscall.Open("/sys/kernel/debug/kmemleak", syscall.O_RDWR, 0); err == nil {
+
 			syscall.Close(fd)
 			a.Leak = true
 		}
+
 		a.Fault = faultInjectionEnabled
 		a.CompsSupported = compsSupported
-		for c := range calls {
+		for c := range calls { //add all enabled syscalls to
 			a.Calls = append(a.Calls, c.Name)
 		}
 		if err := RpcCall(*flagManager, "Manager.Check", a, nil); err != nil {
@@ -186,7 +201,7 @@ func main() {
 		}
 	}
 
-	// Manager.Connect reply can ve very large and that memory will be permanently cached in the connection.
+	// Manager.Connect reply can be very large and that memory will be permanently cached in the connection.
 	// So we do the call on a transient connection, free all memory and reconnect.
 	// The rest of rpc requests have bounded size.
 	debug.FreeOSMemory()
@@ -222,18 +237,23 @@ func main() {
 		leakCallback = nil
 	}
 	gate = ipc.NewGate(2**flagProcs, leakCallback)
+	// create needPoll channel and fill the buffer
 	needPoll := make(chan struct{}, 1)
-	needPoll <- struct{}{}
+	needPoll <- struct{}{} // this will NOT block, because needPoll has cap 1
+	// a;; subsequent sends to needPoll will block.
 	envs := make([]*ipc.Env, *flagProcs)
-	for pid := 0; pid < *flagProcs; pid++ {
+
+	for pid := 0; pid < *flagProcs; pid++ { // create as many syz-executor threads as specificed in cfg.procs
+		// does mmapings for inmem and outmem, symlinks syz-executor binary
 		env, err := ipc.MakeEnv(*flagExecutor, pid, config)
+
 		if err != nil {
 			panic(err)
 		}
 		envs[pid] = env
 
 		pid := pid
-		go func() {
+		go func() { // run executor thread
 			rs := rand.NewSource(time.Now().UnixNano() + int64(pid)*1e12)
 			rnd := rand.New(rs)
 
@@ -253,10 +273,11 @@ func main() {
 					} else if len(candidates) != 0 {
 						last := len(candidates) - 1
 						candidate := candidates[last]
-						candidates = candidates[:last]
-						wakePoll := len(candidates) < *flagProcs
+						candidates = candidates[:last] // get last element from candidates global
+						// flagProcs = cfg.procs = number of parallel test processes in each VM
+						wakePoll := len(candidates) < *flagProcs // are there less candidates than we can run in parallel?
 						triageMu.Unlock()
-						if wakePoll {
+						if wakePoll { // note: default selection does not block
 							select {
 							case needPoll <- struct{}{}:
 							default:
@@ -264,6 +285,7 @@ func main() {
 						}
 						Logf(1, "executing candidate: %s", candidate.p)
 						execute(pid, env, candidate.p, false, false, candidate.minimized, true, &statExecCandidate)
+
 						continue
 					} else if len(triage) != 0 {
 						last := len(triage) - 1
@@ -288,20 +310,35 @@ func main() {
 					triageMu.RUnlock()
 				}
 
-				corpusMu.RLock()
-				if len(corpus) == 0 || i%100 == 0 {
-					// Generate a new prog.
-					corpusMu.RUnlock()
-					p := prog.Generate(rnd, programLength, ct)
-					Logf(1, "#%v: generated: %s", i, p)
-					execute(pid, env, p, false, false, false, false, &statExecGen)
-				} else {
-					// Mutate an existing prog.
-					p := corpus[rnd.Intn(len(corpus))].Clone()
-					corpusMu.RUnlock()
-					p.Mutate(rs, programLength, ct, corpus)
-					Logf(1, "#%v: mutated: %s", i, p)
-					execute(pid, env, p, false, false, false, false, &statExecFuzz)
+				if !(*flagFuzzDisabled) {
+					corpusMu.RLock()
+					if len(corpus) == 0 || i%100 == 0 {
+						// Generate a new prog.
+						corpusMu.RUnlock()
+						p := prog.Generate(rnd, programLength, ct)
+						Logf(1, "#%v: generated: %s", i, p)
+						execute(pid, env, p, false, false, false, false, &statExecGen)
+					} else {
+						// Mutate an existing prog.
+						related := false
+						p := corpus[rnd.Intn(len(corpus))].Clone()
+						corpusMu.RUnlock()
+						sig := hash.String(p.Serialize())
+						lineageMu.Lock()
+						if _,ok := lineage[sig]; ok {
+							related = true
+						}
+						lineageMu.Unlock()
+						p.Mutate(rs, programLength, ct, corpus)
+						sig = hash.String(p.Serialize())
+						if related {
+							lineageMu.Lock()
+							lineage[sig] = struct{}{}
+							lineageMu.Unlock()
+						}
+						Logf(1, "#%v: mutated: %s", i, p)
+						execute(pid, env, p, false, false, false, false, &statExecFuzz)
+					}
 				}
 			}
 		}()
@@ -369,6 +406,10 @@ func main() {
 			if err := manager.Call("Manager.Poll", a, r); err != nil {
 				panic(err)
 			}
+			lineageMu.Lock()
+			lineage = r.Lineage
+			lineageMu.Unlock()
+
 			if len(r.MaxSignal) != 0 {
 				signalMu.Lock()
 				for _, s := range r.MaxSignal {
@@ -576,6 +617,12 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 
 	atomic.AddUint64(&statNewInput, 1)
 	Logf(2, "added new input for %v to corpus:\n%s", call.CallName, data)
+	lineage_sig := "nil"
+	lineageMu.Lock()
+	if _,ok := lineage[sig.String()]; ok {
+		lineage_sig = sig.String()
+	}
+	lineageMu.Unlock()
 	a := &NewInputArgs{
 		Name: *flagName,
 		RpcInput: RpcInput{
@@ -585,6 +632,7 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 			Signal:    []uint32(cover.Canonicalize(inp.signal)),
 			Cover:     []uint32(inputCover),
 		},
+		Sig: lineage_sig,
 	}
 	if err := manager.Call("Manager.NewInput", a, nil); err != nil {
 		panic(err)
@@ -661,11 +709,12 @@ func execute(pid int, env *ipc.Env, p *prog.Prog, needCover, needComps, minimize
 
 		inp := Input{
 			p:         p.Clone(),
-			call:      i,
+			call:      i, // syscall number of call in program p
 			signal:    append([]uint32{}, inf.Signal...),
 			minimized: minimized,
 		}
 		triageMu.Lock()
+		/* Programs move from candidate --> triageCandidate --> triage */
 		if candidate {
 			triageCandidate = append(triageCandidate, inp)
 		} else {

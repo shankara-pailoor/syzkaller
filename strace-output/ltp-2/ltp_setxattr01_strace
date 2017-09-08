@@ -1,0 +1,15 @@
+creat("testfile", 0644)                 = 3
+close(3)                                = 0
+setxattr("testfile", &0x40d591="user.test", &0x40d596="test", 4, XATTR_CREATE) = 0
+creat("setxattr01testfile", 0644)       = 3
+close(3)                                = 0
+setxattr("setxattr01testfile", &0x40d5d7="user.testkey", &0x40d5e4="this is a test value", 20, XATTR_CREATE|XATTR_REPLACE|0xfffffffc) = -1 EINVAL (Invalid argument)
+ioctl(1, TCGETS, 0x7ffcbd3bb2a0)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43938, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:12+0000.858899077, st_mtime=2017-03-31T06:38:12+0000.858899077, st_ctime=2017-03-31T06:38:12+0000.858899077}) = 0
+setxattr("setxattr01testfile", &0x40d5d7="user.testkey", &0x40d5e4="this is a test value", 20, XATTR_REPLACE) = -1 ENODATA (No data available)
+setxattr("setxattr01testfile", &0x617220="user.kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", &0x40d5e4="this is a test value", 20, XATTR_CREATE) = -1 ERANGE (Numerical result out of range)
+setxattr("setxattr01testfile", &0x40d5d7="user.testkey", 0x2479030, 65537, XATTR_CREATE) = -1 E2BIG (Argument list too long)
+setxattr("setxattr01testfile", &0x40d5d7="user.testkey", &0x40d5e4="", 0, XATTR_CREATE) = 0
+setxattr("setxattr01testfile", &0x40d5d7="user.testkey", &0x40d5e4="this is a test value", 20, XATTR_CREATE) = -1 EEXIST (File exists)
+setxattr("setxattr01testfile", &0x40d5d7="user.testkey", &0x40d5e4="this is a test value", 20, XATTR_REPLACE) = 0
+open("/tmp/setsa9e6T", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3

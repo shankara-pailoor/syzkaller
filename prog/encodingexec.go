@@ -192,7 +192,10 @@ func (p *Prog) SerializeForExec(buffer []byte, pid int) error {
 				w.write(info.Addr)
 				w.write(arg.Size())
 			default:
-				panic("bad arg kind in copyout")
+				fmt.Printf("foreachArg on call: %v\n", c.Meta.CallName)
+				fmt.Printf("arg: %v\n", arg)
+				fmt.Printf("base: %v\n", base)
+				fmt.Println("bad arg kind in copyout")
 			}
 		})
 	}

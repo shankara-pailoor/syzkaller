@@ -28,6 +28,10 @@ type ArgCommon struct {
 	typ sys.Type
 }
 
+func (arg *ArgCommon) AddType(typ sys.Type) {
+	arg.typ = typ
+}
+
 func (arg *ArgCommon) Type() sys.Type {
 	return arg.typ
 }
@@ -173,14 +177,23 @@ func (arg *ReturnArg) Size() uint64 {
 
 type ArgUsed interface {
 	Used() *map[Arg]bool
+	Set(map[Arg]bool)
 }
 
 func (arg *ResultArg) Used() *map[Arg]bool {
 	return &arg.uses
 }
 
+func (arg *ResultArg) Set(uses map[Arg]bool) {
+	arg.uses = uses
+}
+
 func (arg *ReturnArg) Used() *map[Arg]bool {
 	return &arg.uses
+}
+
+func (arg *ReturnArg) Set(uses map[Arg]bool) {
+	arg.uses = uses
 }
 
 type ArgUser interface {
@@ -367,6 +380,7 @@ func (p *Prog) removeArg(c *Call, arg0 Arg) {
 				}
 				arg2 := resultArg(arg1.Type(), nil, arg1.Type().Default())
 				p.replaceArg(c, arg1, arg2, nil)
+
 			}
 		}
 	})

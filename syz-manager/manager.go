@@ -17,6 +17,8 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+	"sort"
+	"strconv"
 
 	"github.com/google/syzkaller/dashboard/dashapi"
 	"github.com/google/syzkaller/pkg/cover"
@@ -37,6 +39,7 @@ var (
 	flagConfig = flag.String("config", "", "configuration file")
 	flagDebug  = flag.Bool("debug", false, "dump all VM output to console")
 	flagBench  = flag.String("bench", "", "write execution statistics into this file periodically")
+	flagFuzzDisabled = flag.Bool("fuzz-disabled", false, "disable fuzzing and generation of programs")
 )
 
 type Manager struct {
@@ -53,7 +56,7 @@ type Manager struct {
 	crashTypes   map[string]bool
 	vmStop       chan bool
 	vmChecked    bool
-	fresh        bool
+	fresh        bool // are we starting corpus.db from scratch?
 	numFuzzing   uint32
 
 	dash *dashapi.Dashboard
@@ -69,6 +72,8 @@ type Manager struct {
 	corpusSignal   map[uint32]struct{}
 	maxSignal      map[uint32]struct{}
 	corpusCover    map[uint32]struct{}
+	lineageCover   map[uint32]struct{}
+	lineage        map[string]struct{}
 	prios          [][]float32
 	newRepros      [][]byte
 
@@ -150,6 +155,8 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 		corpusSignal:    make(map[uint32]struct{}),
 		maxSignal:       make(map[uint32]struct{}),
 		corpusCover:     make(map[uint32]struct{}),
+    lineageCover:    make(map[uint32]struct{}),
+	  lineage:         make(map[string]struct{}),
 		fuzzers:         make(map[string]*Fuzzer),
 		fresh:           true,
 		vmStop:          make(chan bool),
@@ -163,6 +170,7 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 		Fatalf("failed to open corpus database: %v", err)
 	}
 	deleted := 0
+	// disable all programs that contain disabled syscalls
 	for key, rec := range mgr.corpusDB.Records {
 		p, err := prog.Deserialize(rec.Val)
 		if err != nil {
@@ -189,12 +197,16 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 			mgr.disabledHashes[hash.String(rec.Val)] = struct{}{}
 			continue
 		}
+		// if program doesn't contain disabled syscalls, append to mgr.candidates
 		mgr.candidates = append(mgr.candidates, RpcCandidate{
-			Prog:      rec.Val,
+			Prog:      rec.Val, // note this is the serialized program, not expanded in-memory prog struct
 			Minimized: true, // don't reminimize programs from corpus, it takes lots of time on start
 		})
+
+		// Add all seed programs to lineage
+		mgr.lineage[hash.String(rec.Val)] = struct{}{}
 	}
-	mgr.fresh = len(mgr.corpusDB.Records) == 0
+	mgr.fresh = len(mgr.corpusDB.Records) == 0 // are we starting a corpus from scratch?
 	Logf(0, "loaded %v programs (%v total, %v deleted)", len(mgr.candidates), len(mgr.corpusDB.Records), deleted)
 
 	// Now this is ugly.
@@ -214,11 +226,12 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 	mgr.initHttp()
 
 	// Create RPC server for fuzzers.
-	s, err := NewRpcServer(cfg.Rpc, mgr)
+	s, err := NewRpcServer(cfg.Rpc, mgr) //cfg.Rpc defaults to "localhost:0"
 	if err != nil {
 		Fatalf("failed to create rpc server: %v", err)
 	}
 	Logf(0, "serving rpc on tcp://%v", s.Addr())
+	// store which port the RPC server is listening no
 	mgr.port = s.Addr().(*net.TCPAddr).Port
 	go s.Serve()
 
@@ -226,7 +239,7 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 		mgr.dash = dashapi.New(cfg.Dashboard_Client, cfg.Dashboard_Addr, cfg.Dashboard_Key)
 	}
 
-	go func() {
+	go func() { // terminal/dashboard logger
 		for lastTime := time.Now(); ; {
 			time.Sleep(10 * time.Second)
 			now := time.Now()
@@ -246,31 +259,52 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 	}()
 
 	if *flagBench != "" {
-		f, err := os.OpenFile(*flagBench, os.O_WRONLY|os.O_CREATE|os.O_EXCL, osutil.DefaultFilePerm)
+		// benchmark stats
+		f, err := os.OpenFile(*flagBench, os.O_WRONLY | os.O_CREATE | os.O_EXCL, osutil.DefaultFilePerm)
+		f1, err1 := os.OpenFile(*flagBench + "_summary", os.O_WRONLY | os.O_CREATE | os.O_APPEND, osutil.DefaultFilePerm)
 		if err != nil {
 			Fatalf("failed to open bench file: %v", err)
 		}
+
+		if err1 != nil {
+			Fatalf("failed to open summary file: %v", err)
+		}
+
 		go func() {
 			for {
-				time.Sleep(time.Minute)
-				vals := make(map[string]uint64)
+				time.Sleep(2 * time.Minute)
+				mgr.mu.Lock()
+				coverageSummary := uint64(len(mgr.corpusCover))
+				lineageSummary := uint64(len(mgr.lineageCover))
+				summary := strconv.FormatUint(lineageSummary, 10) + "," + strconv.FormatUint(coverageSummary, 10)
+				mgr.mu.Unlock()
+				if _, err := f1.WriteString(summary + "\n"); err != nil {
+					Fatalf("failed to write bench data")
+				}
+			}
+		}()
+		go func() {
+			for {
+				time.Sleep(10 * time.Minute)
+				//vals := make(map[string]uint64)
 				mgr.mu.Lock()
 				if mgr.firstConnect.IsZero() {
 					mgr.mu.Unlock()
 					continue
 				}
+				//summary := mgr.getCallCover()
 				mgr.minimizeCorpus()
-				vals["corpus"] = uint64(len(mgr.corpus))
+				/*vals["corpus"] = uint64(len(mgr.corpus))
 				vals["uptime"] = uint64(time.Since(mgr.firstConnect)) / 1e9
 				vals["fuzzing"] = uint64(mgr.fuzzingTime) / 1e9
 				vals["signal"] = uint64(len(mgr.corpusSignal))
 				vals["coverage"] = uint64(len(mgr.corpusCover))
 				for k, v := range mgr.stats {
 					vals[k] = v
-				}
-				mgr.mu.Unlock()
+				}*/
 
-				data, err := json.MarshalIndent(vals, "", "  ")
+				data, err := json.MarshalIndent(mgr.corpus, "", "  ")
+				mgr.mu.Unlock()
 				if err != nil {
 					Fatalf("failed to serialize bench data")
 				}
@@ -328,6 +362,7 @@ func (mgr *Manager) vmLoop() {
 	instances := make([]int, vmCount)
 	for i := range instances {
 		instances[i] = vmCount - i - 1
+
 	}
 	runDone := make(chan *RunResult, 1)
 	pendingRepro := make(map[*Crash]bool)
@@ -342,7 +377,8 @@ func (mgr *Manager) vmLoop() {
 		phase := mgr.phase
 		mgr.mu.Unlock()
 
-		for crash := range pendingRepro {
+		for crash := range pendingRepro { //crash reproduction
+
 			if reproducing[crash.desc] {
 				continue
 			}
@@ -386,6 +422,7 @@ func (mgr *Manager) vmLoop() {
 			}
 		} else {
 			for canRepro() && len(instances) >= instancesPerRepro {
+
 				last := len(reproQueue) - 1
 				crash := reproQueue[last]
 				reproQueue[last] = nil
@@ -400,6 +437,7 @@ func (mgr *Manager) vmLoop() {
 				}()
 			}
 			for !canRepro() && len(instances) != 0 {
+
 				last := len(instances) - 1
 				idx := instances[last]
 				instances = instances[:last]
@@ -478,6 +516,8 @@ func (mgr *Manager) runInstance(index int) (*Crash, error) {
 	}
 	defer inst.Close()
 
+	// forwards from vm port to host port, returns address to use in VM
+	// This is so the syz-fuzzer running in vm can RPC to syz-manager in host
 	fwdAddr, err := inst.Forward(mgr.port)
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup port forwarding: %v", err)
@@ -504,8 +544,10 @@ func (mgr *Manager) runInstance(index int) (*Crash, error) {
 	start := time.Now()
 	atomic.AddUint32(&mgr.numFuzzing, 1)
 	defer atomic.AddUint32(&mgr.numFuzzing, ^uint32(0))
-	cmd := fmt.Sprintf("%v -executor=%v -name=vm-%v -manager=%v -procs=%v -leak=%v -cover=%v -sandbox=%v -debug=%v -v=%d",
-		fuzzerBin, executorBin, index, fwdAddr, procs, leak, mgr.cfg.Cover, mgr.cfg.Sandbox, *flagDebug, fuzzerV)
+
+	cmd := fmt.Sprintf("%v -fuzz-disabled=%v -executor=%v -name=vm-%v -manager=%v  -procs=%v -leak=%v -cover=%v -sandbox=%v -debug=%v -v=%d",
+		fuzzerBin, *flagFuzzDisabled, executorBin, index, fwdAddr,  procs, leak, mgr.cfg.Cover, mgr.cfg.Sandbox, *flagDebug, fuzzerV)
+
 	outc, errc, err := inst.Run(time.Hour, mgr.vmStop, cmd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to run fuzzer: %v", err)
@@ -731,6 +773,7 @@ func (mgr *Manager) saveRepro(res *repro.Result, hub bool) {
 	}
 }
 
+
 func (mgr *Manager) symbolizeReport(text []byte) []byte {
 	if len(text) == 0 {
 		return nil
@@ -744,16 +787,23 @@ func (mgr *Manager) symbolizeReport(text []byte) []byte {
 	return symbolized
 }
 
+
 func (mgr *Manager) minimizeCorpus() {
 	if mgr.cfg.Cover && len(mgr.corpus) != 0 {
-		var cov []cover.Cover
+		// mgr.corpus is Map[String, RpcInput]
+		var cov []cover.Cover // array of set of PCs
 		var inputs []RpcInput
+		// store Signal and RpcInputs of last run
 		for _, inp := range mgr.corpus {
+			// inp.Signal -> []uint32
 			cov = append(cov, inp.Signal)
 			inputs = append(inputs, inp)
 		}
 		newCorpus := make(map[string]RpcInput)
+		// cover.Minimize returns a minimal set of inputs that give the same coverage as the full corpus.
 		for _, idx := range cover.Minimize(cov) {
+			// idx is the index of a RpcInput that successfully hit new PCs
+			// let's add all these "fresh" RPCs to our mgr.corpus, and discard the rest
 			inp := inputs[idx]
 			newCorpus[hash.String(inp.Prog)] = inp
 		}
@@ -774,6 +824,7 @@ func (mgr *Manager) minimizeCorpus() {
 	}
 }
 
+// Called when a vm first boots up, populates ConnectRes struct
 func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 	Logf(1, "fuzzer %v connected", a.Name)
 	mgr.mu.Lock()
@@ -789,18 +840,22 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 		name: a.Name,
 	}
 	mgr.fuzzers[a.Name] = f
-	mgr.minimizeCorpus()
+	mgr.minimizeCorpus() // reduce corpus to only those RpcInputs which got new code coverage
 
+	// recalculate syscall priorities
 	if mgr.prios == nil || time.Since(mgr.lastPrioCalc) > 30*time.Minute {
 		// Deserializing all programs is slow, so we do it episodically and without holding the mutex.
 		mgr.lastPrioCalc = time.Now()
 		inputs := make([][]byte, 0, len(mgr.corpus))
+		// collect program binaries into inputs
 		for _, inp := range mgr.corpus {
 			inputs = append(inputs, inp.Prog)
 		}
 		mgr.mu.Unlock()
 
 		corpus := make([]*prog.Prog, 0, len(inputs))
+		// deserialize each mgr.corpus.Prog into a full prog.Prog (i.e. slice of prog.Calls)
+		// put all prog.Progs into corpus
 		for _, inp := range inputs {
 			p, err := prog.Deserialize(inp)
 			if err != nil {
@@ -808,24 +863,35 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 			}
 			corpus = append(corpus, p)
 		}
-		prios := prog.CalculatePriorities(corpus)
+		// TODO: major room for improvement here, as priorities are arbitrary
+		// For example: data-mining from real workloads to create a more robust priority system
+		prios := prog.CalculatePriorities(corpus) // prioritize!
+		// prios[X][Y] represents the guess of whether the addition of call Y into a program
+		// containing acll X is likely to give new coverage.
 
 		mgr.mu.Lock()
 		mgr.prios = prios
 	}
 
 	f.inputs = nil
+	// copy rpcinputs to rpc connectres struct for syz-fuzzer to use
 	for _, inp := range mgr.corpus {
 		r.Inputs = append(r.Inputs, inp)
 	}
+	// r.Lineage = mgr.lineage // copy lineage
+  r.Lineage = make(map[string]struct{})
+  for l,_ := range mgr.lineage {
+      r.Lineage[l] = struct{}{}
+  }
 	r.Prios = mgr.prios
 	r.EnabledCalls = mgr.enabledSyscalls
 	r.NeedCheck = !mgr.vmChecked
-	r.MaxSignal = make([]uint32, 0, len(mgr.maxSignal))
+	r.MaxSignal = make([]uint32, 0, len(mgr.maxSignal)) // TODO: what does maxsignal do?
 	for s := range mgr.maxSignal {
 		r.MaxSignal = append(r.MaxSignal, s)
 	}
 	f.newMaxSignal = nil
+	// TODO: what is difference between RPCcandidates and RpcInput?
 	for i := 0; i < mgr.cfg.Procs && len(mgr.candidates) > 0; i++ {
 		last := len(mgr.candidates) - 1
 		r.Candidates = append(r.Candidates, mgr.candidates[last])
@@ -865,6 +931,11 @@ func (mgr *Manager) NewInput(a *NewInputArgs, r *int) error {
 	mgr.mu.Lock()
 	defer mgr.mu.Unlock()
 
+	// add related program, if in lineage
+	if a.Sig != "nil" {
+		mgr.lineage[a.Sig] = struct{}{}
+	}
+
 	f := mgr.fuzzers[a.Name]
 	if f == nil {
 		Fatalf("fuzzer %v is not connected", a.Name)
@@ -877,6 +948,9 @@ func (mgr *Manager) NewInput(a *NewInputArgs, r *int) error {
 	cover.SignalAdd(mgr.corpusSignal, a.Signal)
 	cover.SignalAdd(mgr.corpusCover, a.Cover)
 	sig := hash.String(a.RpcInput.Prog)
+	if a.Sig != "nil" {
+		cover.SignalAdd(mgr.lineageCover, a.Cover)
+	}
 	if inp, ok := mgr.corpus[sig]; ok {
 		// The input is already present, but possibly with diffent signal/coverage/call.
 		inp.Signal = cover.Union(inp.Signal, a.RpcInput.Signal)
@@ -897,6 +971,7 @@ func (mgr *Manager) NewInput(a *NewInputArgs, r *int) error {
 			f1.inputs = append(f1.inputs, inp)
 		}
 	}
+
 	return nil
 }
 
@@ -930,7 +1005,9 @@ func (mgr *Manager) Poll(a *PollArgs, r *PollRes) error {
 	f.newMaxSignal = nil
 	for i := 0; i < 100 && len(f.inputs) > 0; i++ {
 		last := len(f.inputs) - 1
-		r.NewInputs = append(r.NewInputs, f.inputs[last])
+		l := f.inputs[last]
+		//mgr.lineage[hash.String(l.Prog)] = struct{}{}
+		r.NewInputs = append(r.NewInputs, l)
 		f.inputs = f.inputs[:last]
 	}
 	if len(f.inputs) == 0 {
@@ -939,7 +1016,9 @@ func (mgr *Manager) Poll(a *PollArgs, r *PollRes) error {
 
 	for i := 0; i < mgr.cfg.Procs && len(mgr.candidates) > 0; i++ {
 		last := len(mgr.candidates) - 1
-		r.Candidates = append(r.Candidates, mgr.candidates[last])
+		l := mgr.candidates[last]
+		//mgr.lineage[hash.String(l.Prog)] = struct{}{}
+		r.Candidates = append(r.Candidates, l)
 		mgr.candidates = mgr.candidates[:last]
 	}
 	if len(mgr.candidates) == 0 {
@@ -952,6 +1031,17 @@ func (mgr *Manager) Poll(a *PollArgs, r *PollRes) error {
 			}
 		}
 	}
+
+
+	/* update the lineage */
+	// r.Lineage = mgr.lineage
+	r.Lineage = make(map[string]struct{})
+  	for l,_ := range mgr.lineage {
+      		r.Lineage[l] = struct{}{}
+	}
+	// TODO: do we need to actually copy the entire thing?
+	// Maybe only what's in
+
 	Logf(4, "poll from %v: recv maxsignal=%v, send maxsignal=%v candidates=%v inputs=%v",
 		a.Name, len(a.MaxSignal), len(r.MaxSignal), len(r.Candidates), len(r.NewInputs))
 	return nil
@@ -1098,3 +1188,40 @@ func (mgr *Manager) hubSync() {
 		a.Del = nil
 	}
 }
+
+func (mgr *Manager) getCallCover() *UISummaryData{
+	data := &UISummaryData{}
+	data.Stats = append(data.Stats, UIStat{Name: "uptime", Value: fmt.Sprint(time.Since(mgr.startTime) / 1e9 * 1e9)})
+	data.Stats = append(data.Stats, UIStat{Name: "fuzzing", Value: fmt.Sprint(mgr.fuzzingTime / 60e9 * 60e9)})
+	data.Stats = append(data.Stats, UIStat{Name: "corpus", Value: fmt.Sprint(len(mgr.corpus))})
+	data.Stats = append(data.Stats, UIStat{Name: "triage queue", Value: fmt.Sprint(len(mgr.candidates))})
+	data.Stats = append(data.Stats, UIStat{Name: "cover", Value: fmt.Sprint(len(mgr.corpusCover)), Link: "/cover"})
+	data.Stats = append(data.Stats, UIStat{Name: "signal", Value: fmt.Sprint(len(mgr.corpusSignal))})
+
+	type CallCov struct {
+		count int
+		cov   cover.Cover
+	}
+	calls := make(map[string]*CallCov)
+	for _, inp := range mgr.corpus {
+		if calls[inp.Call] == nil {
+			calls[inp.Call] = new(CallCov)
+		}
+		cc := calls[inp.Call]
+		cc.count++
+		cc.cov = cover.Union(cc.cov, cover.Cover(inp.Cover))
+	}
+	var cov cover.Cover
+	for c, cc := range calls {
+		cov = cover.Union(cov, cc.cov)
+		data.Calls = append(data.Calls, UICallType{
+			Name:   c,
+			Inputs: cc.count,
+			Cover:  len(cc.cov),
+		})
+	}
+	sort.Sort(UICallTypeArray(data.Calls))
+	return data
+}
+
+

@@ -58,6 +58,7 @@ func Create(typ string, env *Env) (*Pool, error) {
 
 func (pool *Pool) Count() int {
 	return pool.impl.Count()
+
 }
 
 func (pool *Pool) Create(index int) (*Instance, error) {

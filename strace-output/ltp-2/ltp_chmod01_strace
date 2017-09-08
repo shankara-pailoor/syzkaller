@@ -1,0 +1,35 @@
+open("testfile", O_RDWR|O_CREAT, 0644)  = 3
+close(3)                                = 0
+chmod("testfile", 000)                  = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|000, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.936899077}) = 0
+ioctl(1, TCGETS, 0x7ffc80c6b790)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43756, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.877899077, st_mtime=2017-03-31T06:37:32+0000.877899077, st_ctime=2017-03-31T06:37:32+0000.877899077}) = 0
+chmod("testfile", 007)                  = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|007, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.941899077}) = 0
+chmod("testfile", 070)                  = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|070, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.943899077}) = 0
+chmod("testfile", 0700)                 = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|0700, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.946899077}) = 0
+chmod("testfile", 0777)                 = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|0777, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.959899077}) = 0
+chmod("testfile", 02777)                = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|S_ISGID|0777, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.961899077}) = 0
+chmod("testfile", 04777)                = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|S_ISUID|0777, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.963899077}) = 0
+chmod("testfile", 06777)                = 0
+stat("testfile", {st_dev=makedev(8, 0), st_ino=401758, st_mode=S_IFREG|S_ISUID|S_ISGID|0777, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:32+0000.930899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.967899077}) = 0
+open("/tmp/chm6vw069", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = 3
+close(3)                                = 0
+open("/tmp/chm6vw069", O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 3
+fstat(3, {st_dev=makedev(8, 0), st_ino=401757, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:32+0000.927899077, st_mtime=2017-03-31T06:37:32+0000.930899077, st_ctime=2017-03-31T06:37:32+0000.930899077}) = 0
+getdents(3, [{d_ino=401758, d_off=2071654432719151032, d_reclen=32, d_name="testfile", d_type=DT_REG}, {d_ino=401757, d_off=4478167799589740422, d_reclen=24, d_name=".", d_type=DT_DIR}, {d_ino=393678, d_off=9223372036854775807, d_reclen=24, d_name="..", d_type=DT_DIR}], 32768) = 80
+open("/tmp/chm6vw069/testfile", O_RDONLY|O_DIRECTORY|O_NOFOLLOW) = -1 ENOTDIR (Not a directory)
+unlink("/tmp/chm6vw069/testfile")       = 0
+getdents(3, [], 32768)                  = 0
+close(3)                                = 0
+lstat("/tmp/chm6vw069", {st_dev=makedev(8, 0), st_ino=401757, st_mode=S_IFDIR|0777, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:37:32+0000.977899077, st_mtime=2017-03-31T06:37:32+0000.976899077, st_ctime=2017-03-31T06:37:32+0000.976899077}) = 0
+unlink("/tmp/chm6vw069")                = -1 EISDIR (Is a directory)
+rmdir("/tmp/chm6vw069")                 = 0
+write(1, &0xf31030="chmod01     1  TPASS  :  Functionality of chmod(testfile, 0) successful\nchmod01     2  TPASS  :  Functionality of chmod(testfile, 07) successful\nchmod01     3  TPASS  :  Functionality of chmod(testfile, 070) successful\nchmod01     4  TPASS  :  Functionality of chmod(testfile, 0700) successful\nchmod01     5  TPASS  :  Functionality of chmod(testfile, 0777) successful\nchmod01     6  TPASS  :  Functionality of chmod(testfile, 02777) successful\nchmod01     7  TPASS  :  Functionality of chmod(testfile, 04777) successful\nchmod01     8  TPASS  :  Functionality of chmod(testfile, 06777) successful\n", 597) = 597
+exit_group(0)                           = ?
++++ exited with 0 +++

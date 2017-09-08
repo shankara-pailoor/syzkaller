@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-
 	"github.com/google/syzkaller/sys"
 )
 
@@ -29,7 +28,7 @@ func (p *Prog) String() string {
 func (p *Prog) Serialize() []byte {
 	if debug {
 		if err := p.validate(); err != nil {
-			panic("serializing invalid program")
+        		panic("encoding:32 serializing invalid program")
 		}
 	}
 	buf := new(bytes.Buffer)
@@ -50,6 +49,7 @@ func (p *Prog) Serialize() []byte {
 				fmt.Fprintf(buf, ", ")
 			}
 			serialize(a, buf, vars, &varSeq)
+
 		}
 		fmt.Fprintf(buf, ")\n")
 	}
@@ -77,6 +77,7 @@ func serialize(arg Arg, buf io.Writer, vars map[Arg]int, varSeq *int) {
 		fmt.Fprintf(buf, "&%v=", serializeAddr(arg))
 		serialize(a.Res, buf, vars, varSeq)
 	case *DataArg:
+
 		fmt.Fprintf(buf, "\"%v\"", hex.EncodeToString(a.Data))
 	case *GroupArg:
 		var delims []byte
@@ -97,6 +98,7 @@ func serialize(arg Arg, buf io.Writer, vars map[Arg]int, varSeq *int) {
 				fmt.Fprintf(buf, ", ")
 			}
 			serialize(arg1, buf, vars, varSeq)
+
 		}
 		buf.Write([]byte{delims[1]})
 	case *UnionArg:
@@ -119,7 +121,8 @@ func serialize(arg Arg, buf io.Writer, vars map[Arg]int, varSeq *int) {
 			fmt.Fprintf(buf, "+%v", a.OpAdd)
 		}
 	default:
-		panic("unknown arg kind")
+		fmt.Printf("Unknown Arg Kind: %v", a)
+		panic("unknown arg kind:")
 	}
 }
 
@@ -128,13 +131,14 @@ func Deserialize(data []byte) (prog *Prog, err error) {
 	p := &parser{r: bufio.NewScanner(bytes.NewReader(data))}
 	p.r.Buffer(nil, maxLineLen)
 	vars := make(map[string]Arg)
+
 	for p.Scan() {
 		if p.EOF() || p.Char() == '#' {
 			continue
 		}
 		name := p.Ident()
 		r := ""
-		if p.Char() == '=' {
+		if p.Char() == '=' { // encountered a variable rN
 			r = name
 			p.Parse('=')
 			name = p.Ident()
@@ -146,11 +150,11 @@ func Deserialize(data []byte) (prog *Prog, err error) {
 		}
 		c := &Call{
 			Meta: meta,
-			Ret:  returnArg(meta.Ret),
+			Ret:  returnArg(meta.Ret), //&Arg{Type: t, Kind: ArgReturn, Val: t.Default()}
 		}
 		prog.Calls = append(prog.Calls, c)
 		p.Parse('(')
-		for i := 0; p.Char() != ')'; i++ {
+		for i := 0; p.Char() != ')'; i++ { // construct prog.Args
 			if i >= len(meta.Args) {
 				return nil, fmt.Errorf("wrong call arg count: %v, want %v", i+1, len(meta.Args))
 			}
@@ -200,12 +204,12 @@ func parseArg(typ sys.Type, p *parser, vars map[string]Arg) (Arg, error) {
 	if p.Char() == '<' {
 		p.Parse('<')
 		r = p.Ident()
-		p.Parse('=')
+		p.Parse('=') //TODO: what does rN=> mean in the prog file?
 		p.Parse('>')
 	}
 	var arg Arg
 	switch p.Char() {
-	case '0':
+	case '0': // const address
 		val := p.Ident()
 		v, err := strconv.ParseUint(val, 0, 64)
 		if err != nil {
@@ -248,7 +252,7 @@ func parseArg(typ sys.Type, p *parser, vars map[string]Arg) (Arg, error) {
 			}
 			arg.(*ResultArg).OpAdd = v
 		}
-	case '&':
+	case '&': // memory address
 		var typ1 sys.Type
 		switch t1 := typ.(type) {
 		case *sys.PtrType:

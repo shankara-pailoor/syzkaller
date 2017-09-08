@@ -150,6 +150,10 @@ func MakeEnv(bin string, pid int, config Config) (*Env, error) {
 	if config.Timeout < 7*time.Second {
 		config.Timeout = 7 * time.Second
 	}
+
+	// creates a temp shm file of size 1 MB and mmaps the file.
+	// it passes the MAP_SHARED flag to mmap so updates to mapping are visible to other
+	// processes mapping in same region, and are carried through to underlying file
 	inf, inmem, err := createMapping(prog.ExecBufferSize)
 	if err != nil {
 		return nil, err
@@ -159,6 +163,7 @@ func MakeEnv(bin string, pid int, config Config) (*Env, error) {
 			closeMapping(inf, inmem)
 		}
 	}()
+	// same thing, this time 16MB
 	outf, outmem, err := createMapping(outputSize)
 	if err != nil {
 		return nil, err
@@ -170,7 +175,10 @@ func MakeEnv(bin string, pid int, config Config) (*Env, error) {
 	}()
 	serializeUint64(inmem[0:], config.Flags)
 	serializeUint64(inmem[8:], uint64(pid))
+
 	inmem = inmem[16:]
+
+
 	env := &Env{
 		In:      inmem,
 		Out:     outmem,
@@ -200,7 +208,7 @@ func MakeEnv(bin string, pid int, config Config) (*Env, error) {
 	}
 	binCopy := filepath.Join(filepath.Dir(env.bin[0]), base+pidStr)
 	if err := os.Link(env.bin[0], binCopy); err == nil {
-		env.bin[0] = binCopy
+		env.bin[0] = binCopy // rename base with symlink for crash recovery
 	}
 	inf = nil
 	outf = nil
@@ -433,6 +441,7 @@ func createMapping(size int) (f *os.File, mem []byte, err error) {
 		err = fmt.Errorf("failed to create temp file: %v", err)
 		return
 	}
+	// truncate file to size
 	if err = f.Truncate(int64(size)); err != nil {
 		err = fmt.Errorf("failed to truncate shm file: %v", err)
 		f.Close()

@@ -16,6 +16,10 @@ type validCtx struct {
 	uses map[Arg]Arg
 }
 
+func (p *Prog) Validate() error {
+	return p.validate()
+}
+
 func (p *Prog) validate() error {
 	ctx := &validCtx{make(map[Arg]bool), make(map[Arg]Arg)}
 	for _, c := range p.Calls {
@@ -46,7 +50,9 @@ func (c *Call) validate(ctx *validCtx) error {
 		if ctx.args[arg] {
 			return fmt.Errorf("syscall %v: arg is referenced several times in the tree", c.Meta.Name)
 		}
+
 		ctx.args[arg] = true
+
 		if used, ok := arg.(ArgUsed); ok {
 			for u := range *used.Used() {
 				if u == nil {
@@ -54,6 +60,7 @@ func (c *Call) validate(ctx *validCtx) error {
 				}
 				ctx.uses[u] = arg
 			}
+
 		}
 		if arg.Type() == nil {
 			return fmt.Errorf("syscall %v: no type", c.Meta.Name)
@@ -95,6 +102,8 @@ func (c *Call) validate(ctx *validCtx) error {
 					return fmt.Errorf("syscall %v: out resource arg '%v' has bad const value %v", c.Meta.Name, a.Type().Name(), a.Val)
 				}
 			case *ReturnArg:
+			case *ConstArg:
+				return fmt.Errorf("syscall %v: fd arg '%v' has bad kind ConstantArg %v", c.Meta.Name, arg.Type().Name(), arg)
 			default:
 				return fmt.Errorf("syscall %v: fd arg '%v' has bad kind %v", c.Meta.Name, arg.Type().Name(), arg)
 			}

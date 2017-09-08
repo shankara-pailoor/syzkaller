@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"checksumSHA1": "Zwfya1NbHFbZTID+IPyOyz1q8Fk=",
+			"path": "github.com/mattrco/difftrace",
+			"revision": "3de8b62791b297d82f82a7333b0830507525e242",
+			"revisionTime": "2015-01-05T23:34:14Z"
+		}
+	],
+	"rootPath": "github.com/google/syzkaller"
+}

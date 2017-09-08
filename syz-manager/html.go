@@ -68,6 +68,7 @@ func (mgr *Manager) httpSummary(w http.ResponseWriter, r *http.Request) {
 	data.Stats = append(data.Stats, UIStat{Name: "corpus", Value: fmt.Sprint(len(mgr.corpus))})
 	data.Stats = append(data.Stats, UIStat{Name: "triage queue", Value: fmt.Sprint(len(mgr.candidates))})
 	data.Stats = append(data.Stats, UIStat{Name: "cover", Value: fmt.Sprint(len(mgr.corpusCover)), Link: "/cover"})
+	data.Stats = append(data.Stats, UIStat{Name: "lineage cover", Value: fmt.Sprint(len(mgr.lineageCover))})
 	data.Stats = append(data.Stats, UIStat{Name: "signal", Value: fmt.Sprint(len(mgr.corpusSignal))})
 
 	type CallCov struct {

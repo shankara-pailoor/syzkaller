@@ -1,0 +1,11 @@
+open("testfile", O_RDWR|O_CREAT, 040)   = 3
+pipe([4, 5])                            = 0
+write(5, &0x40d7b1="abcdefghigklmnopqrstuvwxyz", 26) = 26
+tee(3, 5, 10, 0)                        = -1 EINVAL (Invalid argument)
+ioctl(1, TCGETS, 0x7ffeb8efa610)        = -1 ENOTTY (Inappropriate ioctl for device)
+fstat(1, {st_dev=makedev(0, 10), st_ino=43985, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:15+0000.235899077, st_mtime=2017-03-31T06:38:15+0000.235899077, st_ctime=2017-03-31T06:38:15+0000.235899077}) = 0
+tee(4, 3, 10, 0)                        = -1 EINVAL (Invalid argument)
+tee(4, 5, 10, 0)                        = -1 EINVAL (Invalid argument)
+close(3)                                = 0
+close(4)                                = 0
+close(5)                                = 0
