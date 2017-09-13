@@ -104,6 +104,10 @@ var (
 		"sock_unix": "$unix",
 	}
 
+	Bpf_labels = map[string]string {
+		"BPF_PROG_LOAD": "$PROG_LOAD",
+	}
+
 	Setsockopt_labels = map[Pair]string {
 		Pair{"SOL_SOCKET","SO_DETACH_FILTER"}: "$sock_void",
 		Pair{"SOL_SOCKET","SO_MARK"}: "$sock_void",
@@ -181,6 +185,7 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_PATHMTU"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_MATCH"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_TARGET"}: "$inet6_buf",
+		Pair{"IPPROTO_TCP", "TCP_FASTOPEN"}: "$inet_tcp_int",
 	}
 
 	Getsockopt_labels = map[Pair]string {
@@ -272,10 +277,11 @@ var (
 		"sock_unix": "$unix",
 	}
 
-	SocketLevel_map = map[string]string {
+	SocketLevel_map = map[string]string{
 		"SOL_SOCKET": "SOL_SOCKET",
 		"SOL_IPV6": "IPPROTO_IPV6",
 		"SOL_ICMPV6": "IPPROTO_ICMP",
+		"SOL_TCP": "IPPROTO_TCP",
 	}
 
 	Sendto_labels = map[string]string {

@@ -250,7 +250,7 @@ return_vars *map[returnType]Arg, s *domain.State, prog_ *Prog) *domain.Seed{
 
 	meta := sys.CallMap[line.FuncName]
 	if meta == nil {
-		failf("aaaaaaaaaaaaaaaaaaDunknown syscall %v\n", line.Unparse())
+		failf("unknown syscall %v\n", line.Unparse())
 	}
 	//fmt.Printf("unknown syscall %v\n", line.FuncName)
 	//continue
@@ -344,6 +344,16 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 		return constArg(a, uint64(a.ValuesPerProc - 1))
 	case *sys.UnionType:
 		/* I know this is horrible but there's no other way to know the union type! :( */
+		if strings.Contains(line.FuncName, "$inet6") && call == "htonl" {
+			var inner_arg Arg
+			var optType sys.Type = new(sys.IntType)
+			if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+				inner_arg = constArg(typ, uint64(Htonl(uint32(i))))
+			} else {
+				failf("failed to parse inner call %v\n", val)
+			}
+			return unionArg(a, inner_arg, optType)
+		}
 		if strings.Contains(line.FuncName, "$inet") && call == "inet_addr" {
 			var optType sys.Type
 			var inner_arg Arg
@@ -417,6 +427,14 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 		} else {
 			failf("unsupported inet_addr %v in %v\n", args[0], val)
 		}
+	case "inet_pton":
+		if args[1] == "\"::1\"" {
+			arg = constArg(typ, uint64(0x7f000001))
+		} else if args[1] == "\"::\"" {
+			arg = constArg(typ, uint64(0xffffffff))
+		} else {
+			failf("invalid sin_addr `%v` in call to inet_pton: %v\n for call%v \n", args[1], val, line.Unparse())
+		}
 	default:
 		failf("unrecognized inner call %v\n", val)
 	}
@@ -466,18 +484,17 @@ func cache(return_vars *map[returnType]Arg, return_var returnType, arg Arg, retu
 		return false
 	}
 	switch arg.(type) {
-	case *ResultArg, *ConstArg, *ReturnArg:
+	case *ResultArg, *ReturnArg:
 		if returned {
 			fmt.Printf("caching %v %v\n", return_var, arg.Type().Name())
 			(*return_vars)[return_var] = arg
 			return true
 		}
-		/*
 		if _,ok := (*return_vars)[return_var]; !ok {
-			fmt.Printf("caching %v %v\n", return_var, arg.Type.Name())
+			fmt.Printf("caching %v %v\n", return_var, arg.Type().Name())
 			(*return_vars)[return_var] = arg
 			return true
-		}*/
+		}
 		return false
 	default:
 		return false
@@ -504,6 +521,8 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 				failf("return_var for accept is NOT a resource type %v\n", line.Unparse())
 			}
 		}
+	case "bpf":
+		line.FuncName = line.FuncName + Bpf_labels[line.Args[0]]
 	case "bind", "connect":
 		var m *map[string]string
 		label := ""
@@ -536,6 +555,8 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if label == "$inet" || label == "$inet6" {
 			line.Args[1] = strings.Replace(line.Args[1], "}", ", pad=nil}", 1)
 		}
+	case "epoll_ctl":
+		line.FuncName = line.FuncName + "$" + line.Args[1]
 	case "socket":
 		if label,ok := Socket_labels[line.Args[0]]; ok {
 			line.FuncName += label
@@ -613,7 +634,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "setsockopt":
 		fmt.Printf("setsockopt argv1: %s\n", line.Args[1])
 		line.Args[1] = SocketLevel_map[line.Args[1]]
-		variant := Pair{line.Args[1],line.Args[2]}
+		variant := Pair{line.Args[1], line.Args[2]}
 
 		fmt.Printf("variant: %v\n", variant)
 		if label,ok := Setsockopt_labels[variant]; ok {
@@ -809,7 +830,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call) {
 	case *sys.ResourceType:
 		fmt.Printf("Resource Type: %v\n", a.Desc)
 		// TODO: special parsing required if struct is type timespec or timeval
-		if strace_arg == "nil" || a.Dir() == sys.DirOut {
+		if strace_arg == "nil"  || a.Dir() == sys.DirOut{
 			return resultArg(a, nil, a.Default()), nil
 		}
 		if v, ok := (*consts)[strace_arg]; ok {
@@ -1045,7 +1066,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call) {
 		fmt.Printf("StructType %v\n", a.TypeName)
 
 
-		is_nil := (strace_arg == "nil" || len(strace_arg) == 0 || a.Dir() == sys.DirOut)
+		is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
 		if !is_nil {
 			for len(strace_arg) > 0 {
 				param, rem := ident(strace_arg)
@@ -1065,15 +1086,27 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call) {
 					//For pselect6, the fd_set just returns an array with the fd mask
 					//However, syzkaller has fd_set as a struct of 8 longs. If there are more
 					//Fields than what strace gives us then we just keep val "nil"
-					struct_arg := struct_args[i]
-					if strings.Contains(struct_arg, "=") {
-						param := strings.SplitN(struct_arg, "=", 2)
-						name, val = param[0], param[1]
-					} else {
-						name, val = "<missing>", struct_arg
+					var should_parse bool = true
+					if a.Dir() == sys.DirOut {
+						switch arg_type.(type) {
+						case *sys.ResourceType:
+						default:
+							should_parse = false
+						}
 					}
+					if should_parse {
+						struct_arg := struct_args[i]
+						if strings.Contains(struct_arg, "=") {
+							param := strings.SplitN(struct_arg, "=", 2)
+							name, val = param[0], param[1]
+						} else {
+							name, val = "<missing>", struct_arg
+						}
+					}
+
 				}
 			}
+
 
 			/* If there is a function embedded in the struct
 			 See ltp_accept4_01 line 50 for example
@@ -1089,16 +1122,27 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call) {
 
 			/* cache value */
 			if !is_nil {
-				return_var := returnType{
-					getType(arg_type),
-					val,
+				should_cache := true
+				if a.Dir() == sys.DirOut {
+					switch arg_type.(type) {
+					case *sys.ResourceType:
+					default:
+						should_cache = false
+					}
 				}
-				switch arg_type.(type) {
-				/* check for edge null conditions */
-				case *sys.StructType, *sys.ArrayType, *sys.BufferType, *sys.UnionType:
-				default:
-					cache(return_vars, return_var, inner_arg, false)
+				if should_cache {
+					return_var := returnType{
+						getType(arg_type),
+						val,
+					}
+					switch arg_type.(type) {
+					/* check for edge null conditions */
+					case *sys.StructType, *sys.ArrayType, *sys.BufferType, *sys.UnionType:
+					default:
+						cache(return_vars, return_var, inner_arg, false)
+					}
 				}
+
 			}
 			args = append(args, inner_arg)
 			calls = append(calls, inner_calls...)
@@ -1204,7 +1248,9 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]Arg
 }
 
 func addr(s *domain.State, typ sys.Type, size uint64, data Arg) (Arg, []*Call) {
+	/*
 	npages := (size + pageSize - 1) / pageSize
+	fmt.Println("NPAGES: %d, %s", npages, typ.Name())
 	if npages == 0 {
 		npages = 1
 	}
@@ -1220,7 +1266,7 @@ func addr(s *domain.State, typ sys.Type, size uint64, data Arg) (Arg, []*Call) {
 			continue
 		}
 
-		/* mark memory as claimed */
+
 		for j := uint64(0); j < npages; j++ {
 			s.Pages[i+j] = true
 		}
@@ -1229,7 +1275,21 @@ func addr(s *domain.State, typ sys.Type, size uint64, data Arg) (Arg, []*Call) {
 		arg, calls := pointerArg(typ, i, 0, 0, data), []*Call{c}
 		return arg, calls
 	}
-	panic("out of memory")
+	*/
+
+	pages, offset, should_allocate := s.AllocateMemory(int(size))
+	if len(pages) == 1 {
+		var c []*Call = nil
+		if should_allocate {
+			c = []*Call{createMmapCall(uint64(pages[0]), uint64(1))}
+		}
+		arg, calls := pointerArg(typ, uint64(pages[0]), offset, 0, data), c
+		return arg, calls
+	} else {
+		c := createMmapCall(uint64(pages[0]), uint64(len(pages)))
+		args, calls := pointerArg(typ, uint64(pages[0]), 0, 0, data), []*Call{c}
+		return args, calls
+	}
 	//return r.randPageAddr(s, typ, npages, data, false), nil
 }
 
@@ -1393,6 +1453,7 @@ func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, e
 		var and_val uint64  = 0xFFFFFFFFFFFFFFFF
 		for _, and_op := range strings.Split(or_op, "&") {
 			c, ok := (*consts)[and_op]
+			fmt.Printf("c: %v\n", c)
 			if !ok { // const doesn't exist, just return 0
 				fmt.Printf("c: %s\n", and_op)
 				if mode == "mode" {
