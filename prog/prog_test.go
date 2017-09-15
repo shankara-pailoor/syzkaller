@@ -5,6 +5,7 @@ package prog
 
 import (
 	"bytes"
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -32,6 +33,30 @@ func TestGeneration(t *testing.T) {
 	rs, iters := initTest(t)
 	for i := 0; i < iters; i++ {
 		Generate(rs, 20, nil)
+	}
+}
+
+func TestDefault(t *testing.T) {
+	initTest(t)
+	for _, meta := range sys.CallMap {
+		for _, t := range meta.Args {
+			defaultArg(t)
+		}
+	}
+}
+
+func TestDefaultCallArgs(t *testing.T) {
+	initTest(t)
+	for _, meta := range sys.CallMap {
+		// Ensure that we can restore all arguments of all calls.
+		prog := fmt.Sprintf("%v()", meta.Name)
+		p, err := Deserialize([]byte(prog))
+		if err != nil {
+			t.Fatalf("failed to restore default args in prog %q: %v", prog, err)
+		}
+		if len(p.Calls) != 1 || p.Calls[0].Meta.Name != meta.Name {
+			t.Fatalf("restored bad program from prog %q: %q", prog, p.Serialize())
+		}
 	}
 }
 
@@ -71,18 +96,20 @@ func TestVmaType(t *testing.T) {
 		if len(c.Args) != 6 {
 			t.Fatalf("generated wrong number of args %v", len(c.Args))
 		}
-		check := func(v, l *Arg, min, max uintptr) {
-			if v.Kind != ArgPointer {
-				t.Fatalf("vma has bad type: %v, want %v", v.Kind, ArgPointer)
+		check := func(v, l Arg, min, max uint64) {
+			va, ok := v.(*PointerArg)
+			if !ok {
+				t.Fatalf("vma has bad type: %v", v)
 			}
-			if l.Kind != ArgPageSize {
-				t.Fatalf("len has bad type: %v, want %v", l.Kind, ArgPageSize)
+			la, ok := l.(*ConstArg)
+			if !ok {
+				t.Fatalf("len has bad type: %v", l)
 			}
-			if v.AddrPagesNum < min || v.AddrPagesNum > max {
-				t.Fatalf("vma has bad number of pages: %v, want [%v-%v]", v.AddrPagesNum, min, max)
+			if va.PagesNum < min || va.PagesNum > max {
+				t.Fatalf("vma has bad number of pages: %v, want [%v-%v]", va.PagesNum, min, max)
 			}
-			if l.AddrPage < min || l.AddrPage > max {
-				t.Fatalf("len has bad number of pages: %v, want [%v-%v]", l.AddrPage, min, max)
+			if la.Val/pageSize < min || la.Val/pageSize > max {
+				t.Fatalf("len has bad number of pages: %v, want [%v-%v]", la.Val/pageSize, min, max)
 			}
 		}
 		check(c.Args[0], c.Args[1], 1, 1e5)

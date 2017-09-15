@@ -36,7 +36,7 @@ func NewStrongDistiller(conf config.DistillConfig) (d *StrongDistiller) {
 		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
 		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
 		CallToIdx: make(map[*prog.Call]int, 0),
-		UpstreamDependencyGraph: make(map[*domain.Seed]map[int]map[*prog.Arg][]*prog.Arg, 0),
+		UpstreamDependencyGraph: make(map[*domain.Seed]map[int]map[prog.Arg][]prog.Arg, 0),
 		DownstreamDependents: make(map[*domain.Seed]map[int]bool, 0),
 	}
 	d.DistillerMetadata = dm
@@ -51,7 +51,7 @@ func NewWeakDistiller(conf config.DistillConfig) (d *WeakDistiller) {
 		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
 		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
 		CallToIdx: make(map[*prog.Call]int, 0),
-		UpstreamDependencyGraph: make(map[*domain.Seed]map[int]map[*prog.Arg][]*prog.Arg, 0),
+		UpstreamDependencyGraph: make(map[*domain.Seed]map[int]map[prog.Arg][]prog.Arg, 0),
 		DownstreamDependents: make(map[*domain.Seed]map[int]bool, 0),
 	}
 	d.DistillerMetadata = dm

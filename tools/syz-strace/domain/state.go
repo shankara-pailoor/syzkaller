@@ -8,44 +8,52 @@ import (
 
 const (
 	maxPages = 4 << 10
+	PageSize = 4 << 10
+	dataOffset = 512 << 20
 )
+
+
 
 type State struct {
 	Files     map[string][]*Call
-	Resources map[string][]*Arg
+	Resources map[string][]Arg
 	Strings   map[string]*Call
 	Pages     [maxPages]bool
+	Pages_    [maxPages]int
 }
 
 func NewState() *State {
 	s := &State{
 		Files:     make(map[string][]*Call),
-		Resources: make(map[string][]*Arg),
+		Resources: make(map[string][]Arg),
 		Strings:   make(map[string]*Call),
 	}
 	return s
 }
 
 func (s *State) Analyze(c *Call) {
-	ForeachArgArray(&c.Args, c.Ret, func(arg, base *Arg, _ *[]*Arg) {
-		switch typ := arg.Type.(type) {
+	ForeachArgArray(&c.Args, c.Ret, func(arg, base Arg, _ *[]Arg) {
+		switch a := arg.Type().(type) {
 		case *sys.ResourceType:
-			if arg.Type.Dir() != sys.DirIn {
-				s.Resources[typ.Desc.Name] = append(s.Resources[typ.Desc.Name], arg)
+			if a.Dir() != sys.DirIn {
+				s.Resources[a.Name()] = append(s.Resources[a.Name()], arg)
 				// TODO: negative PIDs and add them as well (that's process groups).
 			}
 		case *sys.BufferType:
-			if arg.Type.Dir() != sys.DirOut && arg.Kind == ArgData && len(arg.Data) != 0 {
-				switch typ.Kind {
+			data_arg := arg.(*DataArg)
+			if a.Dir() != sys.DirOut {
+				switch a.Kind {
 				case sys.BufferString:
 					fmt.Printf("ADDING STRING\n")
-					s.Strings[string(arg.Data)] = c
+					if len(a.Values) > 0 {
+						s.Strings[string(a.Values[0])] = c
+					}
 				case sys.BufferFilename:
 					fmt.Printf("ADDING FILENAME\n")
-					if _, ok := s.Files[string(arg.Data)]; !ok {
-						s.Files[string(arg.Data)] = make([]*Call, 0)
+					if _, ok := s.Files[string(data_arg.Data)]; !ok {
+						s.Files[string(data_arg.Data)] = make([]*Call, 0)
 					}
-					s.Files[string(arg.Data)] = append(s.Files[string(arg.Data)], c)
+					s.Files[string(data_arg.Data)] = append(s.Files[string(data_arg.Data)], c)
 				}
 			}
 		}
@@ -53,44 +61,93 @@ func (s *State) Analyze(c *Call) {
 	switch c.Meta.Name {
 	case "mmap":
 		// Filter out only very wrong arguments.
-		length := c.Args[1]
-		if length.AddrPage == 0 && length.AddrOffset == 0 {
+		length := c.Args[1].(*ConstArg)
+		if length.Val == 0 {
 			break
 		}
-		if flags, fd := c.Args[4], c.Args[3]; flags.Val&sys.MAP_ANONYMOUS == 0 && fd.Kind == ArgConst && fd.Val == sys.InvalidFD {
+		flags := c.Args[3].(*ConstArg)
+		fd := c.Args[4].(*ResultArg)
+		if flags.Val&sys.MAP_ANONYMOUS == 0 && fd.Val == sys.InvalidFD {
 			break
 		}
-		s.Addressable(c.Args[0], length, true)
+		s.Addressable(c.Args[0].(*PointerArg), length, true)
 	case "munmap":
-		s.Addressable(c.Args[0], c.Args[1], false)
+		s.Addressable(c.Args[0].(*PointerArg), c.Args[1].(*ConstArg), false)
 	case "mremap":
-		s.Addressable(c.Args[4], c.Args[2], true)
+		s.Addressable(c.Args[4].(*PointerArg), c.Args[2].(*ConstArg), true)
 	case "io_submit":
-		if arr := c.Args[2].Res; arr != nil {
-			for _, ptr := range arr.Inner {
-				if ptr.Kind == ArgPointer {
-					if ptr.Res != nil && ptr.Res.Type.Name() == "iocb" {
-						s.Resources["iocbptr"] = append(s.Resources["iocbptr"], ptr)
-					}
+		if arr := c.Args[2].(*PointerArg).Res; arr != nil {
+			for _, ptr := range arr.(*GroupArg).Inner {
+				p := ptr.(*PointerArg)
+				if p.Res != nil && p.Res.Type().Name() == "iocb" {
+					s.Resources["iocbptr"] = append(s.Resources["iocbptr"], ptr)
 				}
 			}
 		}
 	}
 }
 
-func (s *State) Addressable(addr, size *Arg, ok bool) {
-	if addr.Kind != ArgPointer || size.Kind != ArgPageSize {
-		panic("mmap/munmap/mremap args are not pages")
+func (s *State) Addressable(addr *PointerArg, size *ConstArg, ok bool) {
+	sizePages := size.Val / PageSize
+	if addr.PageIndex+sizePages > uint64(len(s.Pages)) {
+		panic(fmt.Sprintf("address is out of bounds: page=%v len=%v bound=%v\naddr: %+v\nsize: %+v",
+			addr.PageIndex, sizePages, len(s.Pages), addr, size))
 	}
-	n := size.AddrPage
-	if size.AddrOffset != 0 {
-		n++
+	for i := uint64(0); i < sizePages; i++ {
+		s.Pages[addr.PageIndex+i] = ok
 	}
-	if addr.AddrPage+n > uintptr(len(s.Pages)) {
-		panic(fmt.Sprintf("address is out of bounds: page=%v len=%v (%v, %v) bound=%v, addr: %+v, size: %+v",
-			addr.AddrPage, n, size.AddrPage, size.AddrOffset, len(s.Pages), addr, size))
+}
+
+
+func (s *State) AllocateMemory(size int) (page_nums []int, offset int, should_allocate bool) {
+	needed_pages, remainder_size := int(size / PageSize), int(size % PageSize)
+	fmt.Printf("Needed Pages: %d, remainder_size: %d\n", needed_pages, remainder_size)
+	if needed_pages < 1 {
+		for i := 0; i < maxPages; i++ {
+			if PageSize - s.Pages_[i] > remainder_size {
+				page_nums, offset = []int{i}, s.Pages_[i]
+				if s.Pages_[i] > 0 {
+					should_allocate = false
+				} else {
+					should_allocate = true
+				}
+				s.Pages_[i] = offset + remainder_size
+				fmt.Printf("Found Page: %d, old_offset: %d, new_offset: %d, size: %d, allocating: %b", i, offset, s.Pages_[i], size, should_allocate)
+				return
+			}
+		}
+	} else {
+		should_allocate = true
+		if remainder_size > 0 {
+			needed_pages += 1
+		}
+		for i := 0; i < maxPages-needed_pages; i++ {
+			free := true
+			fmt.Printf("HERE: %d\n", i)
+			for j := 0; j < needed_pages; j++ {
+				if s.Pages_[i + j] < 0 || s.Pages_[i + j] > 0 {
+					fmt.Printf("Finding pages: %d has offset %d", i+j, s.Pages_[i+j])
+					free = false
+					break
+				}
+			}
+			if !free {
+				continue
+			}
+
+			for j := 0; j < needed_pages; j++ {
+				page_nums = append(page_nums, i+j)
+				if j == needed_pages - 1  && remainder_size > 0{
+					s.Pages_[i+j] = remainder_size
+					offset = remainder_size
+				} else {
+					offset = 0
+					s.Pages_[i + j] = -1 //marking memory as fully occupied
+				}
+			}
+			return
+		}
+
 	}
-	for i := uintptr(0); i < n; i++ {
-		s.Pages[addr.AddrPage+i] = ok
-	}
+	panic("Out of memory")
 }

@@ -10,7 +10,7 @@ type Seed struct {
 	ProgName string
 	State *State
 	Cover []uint64
-	ArgMeta map[*prog.Arg]bool
+	ArgMeta map[prog.Arg]bool
 	CallIdx int /* Index in the Prog call array */
 	DependsOn map[*prog.Call]int
 }

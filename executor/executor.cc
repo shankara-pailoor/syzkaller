@@ -34,9 +34,12 @@
 #include "common.h"
 
 #define KCOV_INIT_TRACE _IOR('c', 1, unsigned long long)
-#define KCOV_INIT_TABLE _IOR('c', 2, unsigned long long)
+#define KCOV_INIT_CMP _IOR('c', 2, unsigned long long)
 #define KCOV_ENABLE _IO('c', 100)
 #define KCOV_DISABLE _IO('c', 101)
+
+const unsigned long KCOV_TRACE_PC = 0;
+const unsigned long KCOV_TRACE_CMP = 1;
 
 const int kInFd = 3;
 const int kOutFd = 4;
@@ -57,6 +60,7 @@ const uint64_t instr_copyout = -3;
 const uint64_t arg_const = 0;
 const uint64_t arg_result = 1;
 const uint64_t arg_data = 2;
+const uint64_t arg_csum = 3;
 
 // We use the default value instead of results of failed syscalls.
 // -1 is an invalid fd and an invalid address and deterministic,
@@ -75,9 +79,18 @@ bool flag_collide;
 bool flag_sandbox_privs;
 sandbox_type flag_sandbox;
 bool flag_enable_tun;
+bool flag_enable_fault_injection;
 
 bool flag_collect_cover;
 bool flag_dedup_cover;
+
+// If true, then executor should write the comparisons data to fuzzer.
+bool flag_collect_comps;
+
+// Inject fault into flag_fault_nth-th operation in flag_fault_call-th syscall.
+bool flag_inject_fault;
+int flag_fault_call;
+int flag_fault_nth;
 
 __attribute__((aligned(64 << 10))) char input_data[kMaxInput];
 uint32_t* output_data;
@@ -93,11 +106,84 @@ struct res_t {
 
 res_t results[kMaxCommands];
 
+enum {
+	KCOV_CMP_CONST = 1,
+	KCOV_CMP_SIZE1 = 0,
+	KCOV_CMP_SIZE2 = 2,
+	KCOV_CMP_SIZE4 = 4,
+	KCOV_CMP_SIZE8 = 6,
+	KCOV_CMP_SIZE_MASK = 6,
+};
+
+struct kcov_comparison_t {
+	uint64_t type;
+	uint64_t arg1;
+	uint64_t arg2;
+
+	bool operator==(const struct kcov_comparison_t& other) const
+	{
+		return type == other.type && arg1 == other.arg1 && arg2 == other.arg2;
+	}
+
+	bool operator<(const struct kcov_comparison_t& other) const
+	{
+		if (type != other.type)
+			return type < other.type;
+		if (arg1 != other.arg1)
+			return arg1 < other.arg1;
+		return arg2 < other.arg2;
+	}
+
+	// Writes the structure using the write_one function for each field.
+	// Inspired by write_output() function.
+	void write(uint32_t* (*write_one)(uint32_t))
+	{
+		// Write order: type arg1 arg2.
+		write_one((uint32_t)type);
+
+		// KCOV converts all arguments of size x first to uintx_t and then to
+		// uint64_t. We want to properly extend signed values, e.g we want
+		// int8_t c = 0xfe to be represented as 0xfffffffffffffffe.
+		// Note that uint8_t c = 0xfe will be represented the same way.
+		// This is ok because during hints processing we will anyways try
+		// the value 0x00000000000000fe.
+		switch (type & KCOV_CMP_SIZE_MASK) {
+		case KCOV_CMP_SIZE1:
+			arg1 = (uint64_t)(int64_t)(int8_t)arg1;
+			arg2 = (uint64_t)(int64_t)(int8_t)arg2;
+			break;
+		case KCOV_CMP_SIZE2:
+			arg1 = (uint64_t)(int64_t)(int16_t)arg1;
+			arg2 = (uint64_t)(int64_t)(int16_t)arg2;
+			break;
+		case KCOV_CMP_SIZE4:
+			arg1 = (uint64_t)(int64_t)(int32_t)arg1;
+			arg2 = (uint64_t)(int64_t)(int32_t)arg2;
+			break;
+		}
+		bool is_size_8 = (type & KCOV_CMP_SIZE_MASK) == KCOV_CMP_SIZE8;
+		if (!is_size_8) {
+			write_one((uint32_t)arg1);
+			write_one((uint32_t)arg2);
+			return;
+		}
+		// If we have 64 bits arguments then write them in Little-endian.
+		write_one((uint32_t)(arg1 & 0xFFFFFFFF));
+		write_one((uint32_t)(arg1 >> 32));
+		write_one((uint32_t)(arg2 & 0xFFFFFFFF));
+		write_one((uint32_t)(arg2 >> 32));
+	}
+};
+
 struct thread_t {
 	bool created;
 	int id;
 	pthread_t th;
+	// TODO(dvyukov): this assumes 64-bit kernel. This must be "kernel long" somehow.
 	uint64_t* cover_data;
+	// Pointer to the size of coverage (stored as first word of memory).
+	uint64_t* cover_size_ptr;
+
 	uint64_t* copyout_pos;
 	int ready;
 	int done;
@@ -107,13 +193,21 @@ struct thread_t {
 	int call_num;
 	int num_args;
 	uintptr_t args[kMaxArgs];
-	uint64_t res;
-	uint64_t reserrno;
+	uintptr_t res;
+	uint32_t reserrno;
 	uint64_t cover_size;
+	bool fault_injected;
 	int cover_fd;
 };
 
 thread_t threads[kMaxThreads];
+
+// Checksum kinds.
+const uint64_t arg_csum_inet = 0;
+
+// Checksum chunk kinds.
+const uint64_t arg_csum_chunk_data = 0;
+const uint64_t arg_csum_chunk_const = 1;
 
 void execute_one();
 uint64_t read_input(uint64_t** input_posp, bool peek = false);
@@ -127,11 +221,10 @@ void execute_call(thread_t* th);
 void handle_completion(thread_t* th);
 void thread_create(thread_t* th, int id);
 void* worker_thread(void* arg);
-bool write_file(const char* file, const char* what, ...);
 void cover_open();
 void cover_enable(thread_t* th);
 void cover_reset(thread_t* th);
-uint64_t cover_read(thread_t* th);
+uint64_t read_cover_size(thread_t* th);
 static uint32_t hash(uint32_t a);
 static bool dedup(uint32_t sig);
 
@@ -168,10 +261,21 @@ int main(int argc, char** argv)
 	if (!flag_threaded)
 		flag_collide = false;
 	flag_enable_tun = flags & (1 << 6);
-	uint64_t executor_pid = *((uint64_t*)input_data + 1);
+	flag_enable_fault_injection = flags & (1 << 7);
 
+	uint64_t executor_pid = *((uint64_t*)input_data + 1);
 	cover_open();
-	setup_main_process();
+	install_segv_handler();
+	use_temporary_dir();
+
+#ifdef __i386__
+	// mmap syscall on i386 is translated to old_mmap and has different signature.
+	// As a workaround fix it up to mmap2, which has signature that we expect.
+	for (size_t i = 0; i < sizeof(syscalls) / sizeof(syscalls[0]); i++) {
+		if (syscalls[i].sys_nr == __NR_mmap)
+			syscalls[i].sys_nr = __NR_mmap2;
+	}
+#endif
 
 	int pid = -1;
 	switch (flag_sandbox) {
@@ -212,7 +316,8 @@ int main(int argc, char** argv)
 	// ptrace(PTRACE_SEIZE, 1, 0, 0x100040)
 	// This is unfortunate, but I don't have a better solution than ignoring it for now.
 	exitf("loop exited with status %d", status);
-	return 0;
+	// Unreachable.
+	return 1;
 }
 
 void loop()
@@ -232,11 +337,18 @@ void loop()
 		// TODO: consider moving the read into the child.
 		// Potentially it can speed up things a bit -- when the read finishes
 		// we already have a forked worker process.
-		char flags = 0;
-		if (read(kInPipeFd, &flags, 1) != 1)
+		uint64_t in_cmd[3] = {};
+		if (read(kInPipeFd, &in_cmd[0], sizeof(in_cmd)) != (ssize_t)sizeof(in_cmd))
 			fail("control pipe read failed");
-		flag_collect_cover = flags & (1 << 0);
-		flag_dedup_cover = flags & (1 << 1);
+		flag_collect_cover = in_cmd[0] & (1 << 0);
+		flag_dedup_cover = in_cmd[0] & (1 << 1);
+		flag_inject_fault = in_cmd[0] & (1 << 2);
+		flag_collect_comps = in_cmd[0] & (1 << 3);
+		flag_fault_call = in_cmd[1];
+		flag_fault_nth = in_cmd[2];
+		debug("exec opts: cover=%d comps=%d dedup=%d fault=%d/%d/%d\n", flag_collect_cover,
+		      flag_collect_comps, flag_dedup_cover,
+		      flag_inject_fault, flag_fault_call, flag_fault_nth);
 
 		int pid = fork();
 		if (pid < 0)
@@ -248,6 +360,11 @@ void loop()
 				fail("failed to chdir");
 			close(kInPipeFd);
 			close(kOutPipeFd);
+			if (flag_enable_tun) {
+				// Read all remaining packets from tun to better
+				// isolate consequently executing programs.
+				flush_tun();
+			}
 			execute_one();
 			debug("worker exiting\n");
 			doexit(0);
@@ -287,7 +404,7 @@ void loop()
 				executed_calls = now_executed;
 				last_executed = now;
 			}
-			if ((now - start < 3 * 1000) && (now - last_executed < 200))
+			if ((now - start < 3 * 1000) && (now - last_executed < 500))
 				continue;
 			debug("waitpid(%d)=%d (%d)\n", pid, res, errno0);
 			debug("killing\n");
@@ -354,6 +471,52 @@ retry:
 					read_input(&input_pos);
 				break;
 			}
+			case arg_csum: {
+				debug("checksum found at %llx\n", addr);
+				char* csum_addr = addr;
+				uint64_t csum_size = size;
+				uint64_t csum_kind = read_input(&input_pos);
+				switch (csum_kind) {
+				case arg_csum_inet: {
+					if (csum_size != 2) {
+						fail("inet checksum must be 2 bytes, not %lu", size);
+					}
+					debug("calculating checksum for %llx\n", csum_addr);
+					struct csum_inet csum;
+					csum_inet_init(&csum);
+					uint64_t chunks_num = read_input(&input_pos);
+					uint64_t chunk;
+					for (chunk = 0; chunk < chunks_num; chunk++) {
+						uint64_t chunk_kind = read_input(&input_pos);
+						uint64_t chunk_value = read_input(&input_pos);
+						uint64_t chunk_size = read_input(&input_pos);
+						switch (chunk_kind) {
+						case arg_csum_chunk_data:
+							debug("#%d: data chunk, addr: %llx, size: %llu\n", chunk, chunk_value, chunk_size);
+							NONFAILING(csum_inet_update(&csum, (const uint8_t*)chunk_value, chunk_size));
+							break;
+						case arg_csum_chunk_const:
+							if (chunk_size != 2 && chunk_size != 4 && chunk_size != 8) {
+								fail("bad checksum const chunk size %lld\n", chunk_size);
+							}
+							// Here we assume that const values come to us big endian.
+							debug("#%d: const chunk, value: %llx, size: %llu\n", chunk, chunk_value, chunk_size);
+							csum_inet_update(&csum, (const uint8_t*)&chunk_value, chunk_size);
+							break;
+						default:
+							fail("bad checksum chunk kind %lu", chunk_kind);
+						}
+					}
+					int16_t csum_value = csum_inet_digest(&csum);
+					debug("writing inet checksum %hx to %llx\n", csum_value, csum_addr);
+					NONFAILING(copyin(csum_addr, csum_value, 2, 0, 0));
+					break;
+				}
+				default:
+					fail("bad checksum kind %lu", csum_kind);
+				}
+				break;
+			}
 			default:
 				fail("bad argument type %lu", typ);
 			}
@@ -386,10 +549,11 @@ retry:
 			// Wait for call completion.
 			uint64_t start = current_time_ms();
 			uint64_t now = start;
+			const uint64_t timeout_ms = flag_debug ? 500 : 20;
 			for (;;) {
 				timespec ts = {};
 				ts.tv_sec = 0;
-				ts.tv_nsec = (20 - (now - start)) * 1000 * 1000;
+				ts.tv_nsec = (timeout_ms - (now - start)) * 1000 * 1000;
 				syscall(SYS_futex, &th->done, FUTEX_WAIT, 0, &ts);
 				if (__atomic_load_n(&th->done, __ATOMIC_RELAXED))
 					break;
@@ -422,7 +586,7 @@ retry:
 		}
 	}
 
-	if (flag_collide && !collide) {
+	if (flag_collide && !flag_inject_fault && !collide) {
 		debug("enabling collider\n");
 		collide = true;
 		goto retry;
@@ -470,7 +634,7 @@ void handle_completion(thread_t* th)
 	if (th->ready || !th->done || th->handled)
 		fail("bad thread state in completion: ready=%d done=%d handled=%d",
 		     th->ready, th->done, th->handled);
-	if (th->res != (uint64_t)-1) {
+	if (th->res != (uintptr_t)-1) {
 		if (th->call_n >= kMaxCommands)
 			fail("result idx %ld overflows kMaxCommands", th->call_n);
 		results[th->call_n].executed = true;
@@ -499,50 +663,61 @@ void handle_completion(thread_t* th)
 	if (!collide) {
 		write_output(th->call_index);
 		write_output(th->call_num);
-		uint32_t reserrno = th->res != (uint64_t)-1 ? 0 : th->reserrno;
+		uint32_t reserrno = th->res != (uint32_t)-1 ? 0 : th->reserrno;
 		write_output(reserrno);
+		write_output(th->fault_injected);
 		uint32_t* signal_count_pos = write_output(0); // filled in later
-		uint32_t* cover_count_pos = write_output(0);  // filled in later
+		uint32_t* cover_count_pos = write_output(0); // filled in later
+		uint32_t* comps_count_pos = write_output(0); // filled in later
+		uint32_t nsig = 0, cover_size = 0, comps_size = 0;
 
-		// Write out feedback signals.
-		// Currently it is code edges computed as xor of two subsequent basic block PCs.
-		uint64_t* cover_data = th->cover_data + 1;
-		uint32_t cover_size = th->cover_size;
-		uint32_t prev = 0;
-		uint32_t nsig = 0;
-		for (uint32_t i = 0; i < cover_size; i++) {
-			uint32_t pc = cover_data[i];
-			uint32_t sig = pc ^ prev;
-			prev = hash(pc);
-			if (dedup(sig))
-				continue;
-			write_output(sig);
-			nsig++;
-		}
-		*signal_count_pos = nsig;
-		if (flag_collect_cover) {
-			// Write out real coverage (basic block PCs).
-			if (flag_dedup_cover) {
-				std::sort(cover_data, cover_data + cover_size);
-				uint64_t w = 0;
-				uint64_t last = 0;
-				for (uint32_t i = 0; i < cover_size; i++) {
-					uint64_t pc = cover_data[i];
-					if (pc == last)
-						continue;
-					cover_data[w++] = last = pc;
-				}
-				cover_size = w;
+		if (flag_collect_comps) {
+			// Collect only the comparisons
+			comps_size = th->cover_size;
+			kcov_comparison_t* start = (kcov_comparison_t*)th->cover_data;
+			kcov_comparison_t* end = start + comps_size;
+			std::sort(start, end);
+			comps_size = std::unique(start, end) - start;
+			for (uint32_t i = 0; i < comps_size; ++i)
+				start[i].write(write_output);
+		} else {
+			// Write out feedback signals.
+			// Currently it is code edges computed as xor of
+			// two subsequent basic block PCs.
+			uint32_t prev = 0;
+			for (uint32_t i = 0; i < th->cover_size; i++) {
+				uint32_t pc = (uint32_t)th->cover_data[i];
+				uint32_t sig = pc ^ prev;
+				prev = hash(pc);
+				if (dedup(sig))
+					continue;
+				write_output(sig);
+				nsig++;
 			}
-			// Truncate PCs to uint32_t assuming that they fit into 32-bits.
-			// True for x86_64 and arm64 without KASLR.
-			for (uint32_t i = 0; i < cover_size; i++)
-				write_output((uint32_t)cover_data[i]);
-			*cover_count_pos = cover_size;
+			if (flag_collect_cover) {
+				// Write out real coverage (basic block PCs).
+				cover_size = th->cover_size;
+				if (flag_dedup_cover) {
+					uint64_t* start = (uint64_t*)th->cover_data;
+					uint64_t* end = start + cover_size;
+					std::sort(start, end);
+					cover_size = std::unique(start, end) - start;
+				}
+				// Truncate PCs to uint32_t assuming that they fit into 32-bits.
+				// True for x86_64 and arm64 without KASLR.
+				for (uint32_t i = 0; i < cover_size; i++)
+					write_output((uint32_t)th->cover_data[i]);
+			}
 		}
-		debug("out #%u: index=%u num=%u errno=%d sig=%u cover=%u\n",
-		      completed, th->call_index, th->call_num, reserrno, nsig, cover_size);
-
+		// Write out real coverage (basic block PCs).
+		*cover_count_pos = cover_size;
+		// Write out number of comparisons
+		*comps_count_pos = comps_size;
+		// Write out number of signals
+		*signal_count_pos = nsig;
+		debug("out #%u: index=%u num=%u errno=%d sig=%u cover=%u comps=%u\n",
+		      completed, th->call_index, th->call_num, reserrno, nsig,
+		      cover_size, comps_size);
 		completed++;
 		__atomic_store_n(output_data, completed, __ATOMIC_RELEASE);
 	}
@@ -591,13 +766,37 @@ void execute_call(thread_t* th)
 	}
 	debug(")\n");
 
-	cover_reset(th);
-	th->res = execute_syscall(call->sys_nr, th->args[0], th->args[1], th->args[2], th->args[3], th->args[4], th->args[5], th->args[6], th->args[7], th->args[8]);
-	th->reserrno = errno;
-	th->cover_size = cover_read(th);
+	int fail_fd = -1;
+	if (flag_inject_fault && th->call_index == flag_fault_call) {
+		if (collide)
+			fail("both collide and fault injection are enabled");
+		debug("injecting fault into %d-th operation\n", flag_fault_nth);
+		fail_fd = inject_fault(flag_fault_nth);
+	}
 
-	if (th->res == (uint64_t)-1)
-		debug("#%d: %s = errno(%ld)\n", th->id, call->name, th->reserrno);
+	cover_reset(th);
+	th->res = execute_syscall(call->sys_nr, th->args[0], th->args[1],
+				  th->args[2], th->args[3], th->args[4], th->args[5],
+				  th->args[6], th->args[7], th->args[8]);
+	th->reserrno = errno;
+	th->cover_size = read_cover_size(th);
+	th->fault_injected = false;
+
+	if (flag_inject_fault && th->call_index == flag_fault_call) {
+		char buf[16];
+		int n = read(fail_fd, buf, sizeof(buf) - 1);
+		if (n <= 0)
+			fail("failed to read /proc/self/task/tid/fail-nth");
+		th->fault_injected = n == 2 && buf[0] == '0' && buf[1] == '\n';
+		buf[0] = '0';
+		if (write(fail_fd, buf, 1) != 1)
+			fail("failed to write /proc/self/task/tid/fail-nth");
+		close(fail_fd);
+		debug("fault injected: %d\n", th->fault_injected);
+	}
+
+	if (th->res == (uint32_t)-1)
+		debug("#%d: %s = errno(%d)\n", th->id, call->name, th->reserrno);
 	else
 		debug("#%d: %s = 0x%lx\n", th->id, call->name, th->res);
 	__atomic_store_n(&th->done, 1, __ATOMIC_RELEASE);
@@ -613,11 +812,19 @@ void cover_open()
 		th->cover_fd = open("/sys/kernel/debug/kcov", O_RDWR);
 		if (th->cover_fd == -1)
 			fail("open of /sys/kernel/debug/kcov failed");
+
 		if (ioctl(th->cover_fd, KCOV_INIT_TRACE, kCoverSize))
-			fail("cover init write failed");
-		th->cover_data = (uint64_t*)mmap(NULL, kCoverSize * sizeof(th->cover_data[0]), PROT_READ | PROT_WRITE, MAP_SHARED, th->cover_fd, 0);
-		if ((void*)th->cover_data == MAP_FAILED)
+			fail("cover init trace write failed");
+
+		size_t mmap_alloc_size = kCoverSize * sizeof(unsigned long);
+		uint64_t* mmap_ptr = (uint64_t*)mmap(NULL, mmap_alloc_size,
+						     PROT_READ | PROT_WRITE, MAP_SHARED, th->cover_fd, 0);
+
+		if (mmap_ptr == MAP_FAILED)
 			fail("cover mmap failed");
+
+		th->cover_size_ptr = mmap_ptr;
+		th->cover_data = &mmap_ptr[1];
 	}
 }
 
@@ -626,12 +833,12 @@ void cover_enable(thread_t* th)
 	if (!flag_cover)
 		return;
 	debug("#%d: enabling /sys/kernel/debug/kcov\n", th->id);
-	if (ioctl(th->cover_fd, KCOV_ENABLE, 0)) {
-		// This should be fatal,
-		// but in practice ioctl fails with assorted errors (9, 14, 25),
-		// so we use exitf.
-		exitf("cover enable write failed");
-	}
+	int kcov_mode = flag_collect_comps ? KCOV_TRACE_CMP : KCOV_TRACE_PC;
+	// This should be fatal,
+	// but in practice ioctl fails with assorted errors (9, 14, 25),
+	// so we use exitf.
+	if (ioctl(th->cover_fd, KCOV_ENABLE, kcov_mode))
+		exitf("cover enable write trace failed, mode=%d", kcov_mode);
 	debug("#%d: enabled /sys/kernel/debug/kcov\n", th->id);
 }
 
@@ -639,17 +846,17 @@ void cover_reset(thread_t* th)
 {
 	if (!flag_cover)
 		return;
-	__atomic_store_n(&th->cover_data[0], 0, __ATOMIC_RELAXED);
+	__atomic_store_n(th->cover_size_ptr, 0, __ATOMIC_RELAXED);
 }
 
-uint64_t cover_read(thread_t* th)
+uint64_t read_cover_size(thread_t* th)
 {
 	if (!flag_cover)
 		return 0;
-	uint64_t n = __atomic_load_n(&th->cover_data[0], __ATOMIC_RELAXED);
-	debug("#%d: read cover = %d\n", th->id, n);
+	uint64_t n = __atomic_load_n(th->cover_size_ptr, __ATOMIC_RELAXED);
+	debug("#%d: read cover size = %u\n", th->id, n);
 	if (n >= kCoverSize)
-		fail("#%d: too much cover %d", th->id, n);
+		fail("#%d: too much cover %u", th->id, n);
 	return n;
 }
 

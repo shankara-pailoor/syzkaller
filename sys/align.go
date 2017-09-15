@@ -32,12 +32,17 @@ func initAlign() {
 		}
 	}
 
-	for _, s := range Structs {
-		rec(s)
+	for _, c := range Calls {
+		for _, a := range c.Args {
+			rec(a)
+		}
+		if c.Ret != nil {
+			rec(c.Ret)
+		}
 	}
 }
 
-func setBitfieldOffset(t Type, offset uintptr, last bool) {
+func setBitfieldOffset(t Type, offset uint64, last bool) {
 	switch t1 := t.(type) {
 	case *IntType:
 		t1.BitfieldOff = offset
@@ -60,7 +65,7 @@ func setBitfieldOffset(t Type, offset uintptr, last bool) {
 }
 
 func markBitfields(t *StructType) {
-	var bfOffset uintptr
+	var bfOffset uint64
 	for i, f := range t.Fields {
 		if f.BitfieldLength() == 0 {
 			continue
@@ -78,17 +83,17 @@ func markBitfields(t *StructType) {
 }
 
 func addAlignment(t *StructType) {
-	if t.packed {
+	if t.IsPacked {
 		// If a struct is packed, statically sized and has explicitly set alignment, add a padding.
-		if !t.Varlen() && t.align != 0 && t.Size()%t.align != 0 {
-			pad := t.align - t.Size()%t.align
+		if !t.Varlen() && t.AlignAttr != 0 && t.Size()%t.AlignAttr != 0 {
+			pad := t.AlignAttr - t.Size()%t.AlignAttr
 			t.Fields = append(t.Fields, makePad(pad))
 		}
 		return
 	}
 	var fields []Type
-	var off uintptr
-	align := t.align
+	var off uint64
+	align := t.AlignAttr
 	for i, f := range t.Fields {
 		a := f.Align()
 		if align < a {
@@ -120,7 +125,7 @@ func addAlignment(t *StructType) {
 	t.Fields = fields
 }
 
-func makePad(sz uintptr) Type {
+func makePad(sz uint64) Type {
 	return &ConstType{
 		IntTypeCommon: IntTypeCommon{
 			TypeCommon: TypeCommon{TypeName: "pad", IsOptional: false},

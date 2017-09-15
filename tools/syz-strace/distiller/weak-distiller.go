@@ -20,11 +20,11 @@ func (d *WeakDistiller) Add(seeds domain.Seeds) {
 	d.Seeds = seeds
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
-		d.UpstreamDependencyGraph[seed] = make(map[int]map[*prog.Arg][]*prog.Arg, 0)
-		seed.ArgMeta = make(map[*prog.Arg]bool, 0)
+		d.UpstreamDependencyGraph[seed] = make(map[int]map[prog.Arg][]prog.Arg, 0)
+		seed.ArgMeta = make(map[prog.Arg]bool, 0)
 		for call, idx := range seed.DependsOn {
 			if _, ok := d.UpstreamDependencyGraph[seed][idx]; !ok {
-				d.UpstreamDependencyGraph[seed][idx] = make(map[*prog.Arg][]*prog.Arg, 0)
+				d.UpstreamDependencyGraph[seed][idx] = make(map[prog.Arg][]prog.Arg, 0)
 			}
 			d.CallToIdx[call] = idx
 		}

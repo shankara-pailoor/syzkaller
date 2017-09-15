@@ -5,7 +5,6 @@ package prog
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"unsafe"
 
@@ -29,8 +28,8 @@ func (p *Prog) Mutate(rs rand.Source, ncalls int, ct *ChoiceTable, corpus []*Pro
 			p0c := p0.Clone()
 			idx := r.Intn(len(p.Calls))
 			p.Calls = append(p.Calls[:idx], append(p0c.Calls, p.Calls[idx:]...)...)
-			if len(p.Calls) > ncalls {
-				p.Calls = p.Calls[:ncalls]
+			for i := len(p.Calls) - 1; i >= ncalls; i-- {
+				p.removeCall(i)
 			}
 		case r.nOutOf(20, 31):
 			// Insert a new call.
@@ -57,6 +56,11 @@ func (p *Prog) Mutate(rs rand.Source, ncalls int, ct *ChoiceTable, corpus []*Pro
 				retry = true
 				continue
 			}
+			// Mutating mmap() arguments almost certainly doesn't give us new coverage.
+			if c.Meta.Name == "mmap" && r.nOutOf(99, 100) {
+				retry = true
+				continue
+			}
 			s := analyze(ct, p, c)
 			for stop := false; !stop; stop = r.oneOf(3) {
 				args, bases := mutationArgs(c)
@@ -66,92 +70,86 @@ func (p *Prog) Mutate(rs rand.Source, ncalls int, ct *ChoiceTable, corpus []*Pro
 				}
 				idx := r.Intn(len(args))
 				arg, base := args[idx], bases[idx]
-				var baseSize uintptr
+				var baseSize uint64
 				if base != nil {
-					if base.Kind != ArgPointer || base.Res == nil {
+					b, ok := base.(*PointerArg)
+					if !ok || b.Res == nil {
 						panic("bad base arg")
 					}
-					baseSize = base.Res.Size()
+					baseSize = b.Res.Size()
 				}
-				switch a := arg.Type.(type) {
+				switch t := arg.Type().(type) {
 				case *sys.IntType, *sys.FlagsType:
+					a := arg.(*ConstArg)
 					if r.bin() {
-						arg1, calls1 := r.generateArg(s, arg.Type)
+						arg1, calls1 := r.generateArg(s, arg.Type())
 						p.replaceArg(c, arg, arg1, calls1)
 					} else {
 						switch {
 						case r.nOutOf(1, 3):
-							arg.Val += uintptr(r.Intn(4)) + 1
+							a.Val += uint64(r.Intn(4)) + 1
 						case r.nOutOf(1, 2):
-							arg.Val -= uintptr(r.Intn(4)) + 1
+							a.Val -= uint64(r.Intn(4)) + 1
 						default:
-							arg.Val ^= 1 << uintptr(r.Intn(64))
+							a.Val ^= 1 << uint64(r.Intn(64))
 						}
 					}
 				case *sys.ResourceType, *sys.VmaType, *sys.ProcType:
-					arg1, calls1 := r.generateArg(s, arg.Type)
+					arg1, calls1 := r.generateArg(s, arg.Type())
 					p.replaceArg(c, arg, arg1, calls1)
 				case *sys.BufferType:
-					switch a.Kind {
+					a := arg.(*DataArg)
+					switch t.Kind {
 					case sys.BufferBlobRand, sys.BufferBlobRange:
 						var data []byte
-						switch arg.Kind {
-						case ArgData:
-							data = append([]byte{}, arg.Data...)
-						case ArgConst:
-							// 0 is OK for optional args.
-							if arg.Val != 0 {
-								panic(fmt.Sprintf("BufferType has non-zero const value: %v", arg.Val))
-							}
-						default:
-							panic(fmt.Sprintf("bad arg kind for BufferType: %v", arg.Kind))
+						data = append([]byte{}, a.Data...)
+						var minLen uint64
+						maxLen := ^uint64(0)
+						if t.Kind == sys.BufferBlobRange {
+							minLen = t.RangeBegin
+							maxLen = t.RangeEnd
 						}
-						minLen := int(0)
-						maxLen := math.MaxInt32
-						if a.Kind == sys.BufferBlobRange {
-							minLen = int(a.RangeBegin)
-							maxLen = int(a.RangeEnd)
-						}
-						arg.Data = mutateData(r, data, minLen, maxLen)
+						a.Data = mutateData(r, data, minLen, maxLen)
 					case sys.BufferString:
 						if r.bin() {
-							minLen := int(0)
-							maxLen := math.MaxInt32
-							if a.Length != 0 {
-								minLen = int(a.Length)
-								maxLen = int(a.Length)
+							var minLen uint64
+							maxLen := ^uint64(0)
+							if t.Length != 0 {
+								minLen = t.Length
+								maxLen = t.Length
 							}
-							arg.Data = mutateData(r, append([]byte{}, arg.Data...), minLen, maxLen)
+							a.Data = mutateData(r, append([]byte{}, a.Data...), minLen, maxLen)
 						} else {
-							arg.Data = r.randString(s, a.Values, a.Dir())
+							a.Data = r.randString(s, t.Values, t.Dir())
 						}
 					case sys.BufferFilename:
-						arg.Data = []byte(r.filename(s))
+						a.Data = []byte(r.filename(s))
 					case sys.BufferText:
-						arg.Data = r.mutateText(a.Text, arg.Data)
+						a.Data = r.mutateText(t.Text, a.Data)
 					default:
 						panic("unknown buffer kind")
 					}
 				case *sys.ArrayType:
-					count := uintptr(0)
-					switch a.Kind {
+					a := arg.(*GroupArg)
+					count := uint64(0)
+					switch t.Kind {
 					case sys.ArrayRandLen:
-						for count == uintptr(len(arg.Inner)) {
+						for count == uint64(len(a.Inner)) {
 							count = r.randArrayLen()
 						}
 					case sys.ArrayRangeLen:
-						if a.RangeBegin == a.RangeEnd {
+						if t.RangeBegin == t.RangeEnd {
 							panic("trying to mutate fixed length array")
 						}
-						for count == uintptr(len(arg.Inner)) {
-							count = r.randRange(int(a.RangeBegin), int(a.RangeEnd))
+						for count == uint64(len(a.Inner)) {
+							count = r.randRange(t.RangeBegin, t.RangeEnd)
 						}
 					}
-					if count > uintptr(len(arg.Inner)) {
+					if count > uint64(len(a.Inner)) {
 						var calls []*Call
-						for count > uintptr(len(arg.Inner)) {
-							arg1, calls1 := r.generateArg(s, a.Type)
-							arg.Inner = append(arg.Inner, arg1)
+						for count > uint64(len(a.Inner)) {
+							arg1, calls1 := r.generateArg(s, t.Type)
+							a.Inner = append(a.Inner, arg1)
 							for _, c1 := range calls1 {
 								calls = append(calls, c1)
 								s.analyze(c1)
@@ -162,43 +160,48 @@ func (p *Prog) Mutate(rs rand.Source, ncalls int, ct *ChoiceTable, corpus []*Pro
 						}
 						sanitizeCall(c)
 						p.insertBefore(c, calls)
-					} else if count < uintptr(len(arg.Inner)) {
-						for _, arg := range arg.Inner[count:] {
+					} else if count < uint64(len(a.Inner)) {
+						for _, arg := range a.Inner[count:] {
 							p.removeArg(c, arg)
 						}
-						arg.Inner = arg.Inner[:count]
+						a.Inner = a.Inner[:count]
 					}
 					// TODO: swap elements of the array
 				case *sys.PtrType:
-					// TODO: we don't know size for out args
-					size := uintptr(1)
-					if arg.Res != nil {
-						size = arg.Res.Size()
+					a, ok := arg.(*PointerArg)
+					if !ok {
+						break
 					}
-					arg1, calls1 := r.addr(s, a, size, arg.Res)
+					// TODO: we don't know size for out args
+					size := uint64(1)
+					if a.Res != nil {
+						size = a.Res.Size()
+					}
+					arg1, calls1 := r.addr(s, t, size, a.Res)
 					p.replaceArg(c, arg, arg1, calls1)
 				case *sys.StructType:
-					ctor := isSpecialStruct(a)
+					ctor := isSpecialStruct(t)
 					if ctor == nil {
 						panic("bad arg returned by mutationArgs: StructType")
 					}
 					arg1, calls1 := ctor(r, s)
-					for i, f := range arg1.Inner {
-						p.replaceArg(c, arg.Inner[i], f, calls1)
+					for i, f := range arg1.(*GroupArg).Inner {
+						p.replaceArg(c, arg.(*GroupArg).Inner[i], f, calls1)
 						calls1 = nil
 					}
 				case *sys.UnionType:
-					optType := a.Options[r.Intn(len(a.Options))]
+					a := arg.(*UnionArg)
+					optType := t.Options[r.Intn(len(t.Options))]
 					maxIters := 1000
-					for i := 0; optType.FieldName() == arg.OptionType.FieldName(); i++ {
-						optType = a.Options[r.Intn(len(a.Options))]
+					for i := 0; optType.FieldName() == a.OptionType.FieldName(); i++ {
+						optType = t.Options[r.Intn(len(t.Options))]
 						if i >= maxIters {
-							panic(fmt.Sprintf("couldn't generate a different union option after %v iterations, type: %+v", maxIters, a))
+							panic(fmt.Sprintf("couldn't generate a different union option after %v iterations, type: %+v", maxIters, t))
 						}
 					}
-					p.removeArg(c, arg.Option)
+					p.removeArg(c, a.Option)
 					opt, calls := r.generateArg(s, optType)
-					arg1 := unionArg(a, opt, optType)
+					arg1 := unionArg(t, opt, optType)
 					p.replaceArg(c, arg, arg1, calls)
 				case *sys.LenType:
 					panic("bad arg returned by mutationArgs: LenType")
@@ -207,19 +210,23 @@ func (p *Prog) Mutate(rs rand.Source, ncalls int, ct *ChoiceTable, corpus []*Pro
 				case *sys.ConstType:
 					panic("bad arg returned by mutationArgs: ConstType")
 				default:
-					panic(fmt.Sprintf("bad arg returned by mutationArgs: %#v, type=%#v", *arg, arg.Type))
+					panic(fmt.Sprintf("bad arg returned by mutationArgs: %#v, type=%#v", arg, arg.Type()))
 				}
 
 				// Update base pointer if size has increased.
-				if base != nil && baseSize < base.Res.Size() {
-					arg1, calls1 := r.addr(s, base.Type, base.Res.Size(), base.Res)
-					for _, c1 := range calls1 {
-						sanitizeCall(c1)
+				if base != nil {
+					b := base.(*PointerArg)
+					if baseSize < b.Res.Size() {
+						arg1, calls1 := r.addr(s, b.Type(), b.Res.Size(), b.Res)
+						for _, c1 := range calls1 {
+							sanitizeCall(c1)
+						}
+						p.insertBefore(c, calls1)
+						a1 := arg1.(*PointerArg)
+						b.PageIndex = a1.PageIndex
+						b.PageOffset = a1.PageOffset
+						b.PagesNum = a1.PagesNum
 					}
-					p.insertBefore(c, calls1)
-					arg.AddrPage = arg1.AddrPage
-					arg.AddrOffset = arg1.AddrOffset
-					arg.AddrPagesNum = arg1.AddrPagesNum
 				}
 
 				// Update all len fields.
@@ -262,9 +269,13 @@ func Minimize(p0 *Prog, callIndex0 int, pred func(*Prog, int) bool, crash bool) 
 	// Try to glue all mmap's together.
 	s := analyze(nil, p0, nil)
 	hi := -1
+	lo := -1
 	for i := 0; i < maxPages; i++ {
 		if s.pages[i] {
 			hi = i
+			if lo == -1 {
+				lo = i
+			}
 		}
 	}
 	if hi != -1 {
@@ -282,7 +293,7 @@ func Minimize(p0 *Prog, callIndex0 int, pred func(*Prog, int) bool, crash bool) 
 			}
 		}
 		// Prepend uber-mmap.
-		mmap := createMmapCall(0, uintptr(hi)+1)
+		mmap := createMmapCall(uint64(lo), uint64(hi-lo)+1)
 		p.Calls = append([]*Call{mmap}, p.Calls...)
 		if callIndex != -1 {
 			callIndex++
@@ -313,33 +324,41 @@ func Minimize(p0 *Prog, callIndex0 int, pred func(*Prog, int) bool, crash bool) 
 
 	var triedPaths map[string]bool
 
-	var rec func(p *Prog, call *Call, arg *Arg, path string) bool
-	rec = func(p *Prog, call *Call, arg *Arg, path string) bool {
-		path += fmt.Sprintf("-%v", arg.Type.FieldName())
-		switch typ := arg.Type.(type) {
+	var rec func(p *Prog, call *Call, arg Arg, path string) bool
+	rec = func(p *Prog, call *Call, arg Arg, path string) bool {
+		path += fmt.Sprintf("-%v", arg.Type().FieldName())
+		switch typ := arg.Type().(type) {
 		case *sys.StructType:
-			for _, innerArg := range arg.Inner {
+			a := arg.(*GroupArg)
+			for _, innerArg := range a.Inner {
 				if rec(p, call, innerArg, path) {
 					return true
 				}
 			}
 		case *sys.UnionType:
-			if rec(p, call, arg.Option, path) {
+			a := arg.(*UnionArg)
+			if rec(p, call, a.Option, path) {
 				return true
 			}
 		case *sys.PtrType:
 			// TODO: try to remove optional ptrs
-			if arg.Res != nil {
-				return rec(p, call, arg.Res, path)
+			a, ok := arg.(*PointerArg)
+			if !ok {
+				// Can also be *ConstArg.
+				return false
+			}
+			if a.Res != nil {
+				return rec(p, call, a.Res, path)
 			}
 		case *sys.ArrayType:
-			for i, innerArg := range arg.Inner {
+			a := arg.(*GroupArg)
+			for i, innerArg := range a.Inner {
 				innerPath := fmt.Sprintf("%v-%v", path, i)
 				if !triedPaths[innerPath] && !crash {
-					if (typ.Kind == sys.ArrayRangeLen && len(arg.Inner) > int(typ.RangeBegin)) ||
+					if (typ.Kind == sys.ArrayRangeLen && len(a.Inner) > int(typ.RangeBegin)) ||
 						(typ.Kind == sys.ArrayRandLen) {
-						copy(arg.Inner[i:], arg.Inner[i+1:])
-						arg.Inner = arg.Inner[:len(arg.Inner)-1]
+						copy(a.Inner[i:], a.Inner[i+1:])
+						a.Inner = a.Inner[:len(a.Inner)-1]
 						p.removeArg(call, innerArg)
 						assignSizesCall(call)
 
@@ -356,7 +375,7 @@ func Minimize(p0 *Prog, callIndex0 int, pred func(*Prog, int) bool, crash bool) 
 					return true
 				}
 			}
-		case *sys.IntType, *sys.FlagsType, *sys.ResourceType, *sys.ProcType:
+		case *sys.IntType, *sys.FlagsType, *sys.ProcType:
 			// TODO: try to reset bits in ints
 			// TODO: try to set separate flags
 			if crash {
@@ -366,16 +385,39 @@ func Minimize(p0 *Prog, callIndex0 int, pred func(*Prog, int) bool, crash bool) 
 				return false
 			}
 			triedPaths[path] = true
-			if arg.Val == typ.Default() {
+			a := arg.(*ConstArg)
+			if a.Val == typ.Default() {
 				return false
 			}
-			v0 := arg.Val
-			arg.Val = typ.Default()
+			v0 := a.Val
+			a.Val = typ.Default()
 			if pred(p, callIndex0) {
 				p0 = p
 				return true
 			} else {
-				arg.Val = v0
+				a.Val = v0
+			}
+		case *sys.ResourceType:
+			if crash {
+				return false
+			}
+			if triedPaths[path] {
+				return false
+			}
+			triedPaths[path] = true
+			a := arg.(*ResultArg)
+			if a.Res == nil {
+				return false
+			}
+			r0 := a.Res
+			a.Res = nil
+			a.Val = typ.Default()
+			if pred(p, callIndex0) {
+				p0 = p
+				return true
+			} else {
+				a.Res = r0
+				a.Val = 0
 			}
 		case *sys.BufferType:
 			// TODO: try to set individual bytes to 0
@@ -386,15 +428,16 @@ func Minimize(p0 *Prog, callIndex0 int, pred func(*Prog, int) bool, crash bool) 
 			if typ.Kind != sys.BufferBlobRand && typ.Kind != sys.BufferBlobRange {
 				return false
 			}
+			a := arg.(*DataArg)
 			minLen := int(typ.RangeBegin)
-			for step := len(arg.Data) - minLen; len(arg.Data) > minLen && step > 0; {
-				if len(arg.Data)-step >= minLen {
-					arg.Data = arg.Data[:len(arg.Data)-step]
+			for step := len(a.Data) - minLen; len(a.Data) > minLen && step > 0; {
+				if len(a.Data)-step >= minLen {
+					a.Data = a.Data[:len(a.Data)-step]
 					assignSizesCall(call)
 					if pred(p, callIndex0) {
 						continue
 					}
-					arg.Data = arg.Data[:len(arg.Data)+step]
+					a.Data = a.Data[:len(a.Data)+step]
 					assignSizesCall(call)
 				}
 				step /= 2
@@ -440,18 +483,20 @@ func (p *Prog) TrimAfter(idx int) {
 	}
 	for i := len(p.Calls) - 1; i > idx; i-- {
 		c := p.Calls[i]
-		foreachArg(c, func(arg, _ *Arg, _ *[]*Arg) {
-			if arg.Kind == ArgResult {
-				delete(arg.Res.Uses, arg)
+		foreachArg(c, func(arg, _ Arg, _ *[]Arg) {
+			if a, ok := arg.(*ResultArg); ok && a.Res != nil {
+				if used, ok := a.Res.(ArgUsed); ok {
+					delete(*used.Used(), arg)
+				}
 			}
 		})
 	}
 	p.Calls = p.Calls[:idx+1]
 }
 
-func mutationArgs(c *Call) (args, bases []*Arg) {
-	foreachArg(c, func(arg, base *Arg, _ *[]*Arg) {
-		switch typ := arg.Type.(type) {
+func mutationArgs(c *Call) (args, bases []Arg) {
+	foreachArg(c, func(arg, base Arg, _ *[]Arg) {
+		switch typ := arg.Type().(type) {
 		case *sys.StructType:
 			if isSpecialStruct(typ) == nil {
 				// For structs only individual fields are updated.
@@ -477,11 +522,11 @@ func mutationArgs(c *Call) (args, bases []*Arg) {
 				return // string const
 			}
 		}
-		if arg.Type.Dir() == sys.DirOut {
+		if arg.Type().Dir() == sys.DirOut {
 			return
 		}
 		if base != nil {
-			if _, ok := base.Type.(*sys.StructType); ok && isSpecialStruct(base.Type) != nil {
+			if _, ok := base.Type().(*sys.StructType); ok && isSpecialStruct(base.Type()) != nil {
 				// These special structs are mutated as a whole.
 				return
 			}
@@ -535,7 +580,7 @@ func swap64(v uint64) uint64 {
 	return v
 }
 
-func mutateData(r *randGen, data []byte, minLen, maxLen int) []byte {
+func mutateData(r *randGen, data []byte, minLen, maxLen uint64) []byte {
 	const maxInc = 35
 	retry := false
 loop:
@@ -544,14 +589,14 @@ loop:
 		switch r.Intn(13) {
 		case 0:
 			// Append byte.
-			if len(data) >= maxLen {
+			if uint64(len(data)) >= maxLen {
 				retry = true
 				continue loop
 			}
 			data = append(data, byte(r.rand(256)))
 		case 1:
 			// Remove byte.
-			if len(data) == 0 || len(data) <= minLen {
+			if len(data) == 0 || uint64(len(data)) <= minLen {
 				retry = true
 				continue loop
 			}
@@ -637,7 +682,7 @@ loop:
 			}
 			i := r.Intn(len(data) - 7)
 			p := (*uint64)(unsafe.Pointer(&data[i]))
-			delta := uint64(r.rand(2*maxInc+1) - maxInc)
+			delta := r.rand(2*maxInc+1) - maxInc
 			if delta == 0 {
 				delta = 1
 			}
@@ -684,7 +729,7 @@ loop:
 				continue loop
 			}
 			i := r.Intn(len(data) - 7)
-			value := uint64(r.randInt())
+			value := r.randInt()
 			if r.bin() {
 				value = swap64(value)
 			}

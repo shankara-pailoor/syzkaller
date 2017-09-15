@@ -16,7 +16,7 @@ type DistillerMetadata struct {
 	CallToSeed map[*prog.Call]*domain.Seed
 	CallToDistilledProg map[*prog.Call]*prog.Prog
 	CallToIdx map[*prog.Call]int
-	UpstreamDependencyGraph map[*domain.Seed]map[int]map[*prog.Arg][]*prog.Arg
+	UpstreamDependencyGraph map[*domain.Seed]map[int]map[prog.Arg][]prog.Arg
 	DownstreamDependents map[*domain.Seed]map[int]bool
 }
 
@@ -74,7 +74,7 @@ func (d *DistillerMetadata) GetAllUpstreamDependents(seed *domain.Seed, seen map
 }
 
 func (d *DistillerMetadata) TrackDependencies(prg *prog.Prog) {
-	args := make(map[*prog.Arg]int, 0)
+	args := make(map[prog.Arg]int, 0)
 	for i, call := range prg.Calls {
 		var seed *domain.Seed
 		var ok bool
@@ -89,7 +89,7 @@ func (d *DistillerMetadata) TrackDependencies(prg *prog.Prog) {
 			for k, argMap := range upstream_maps {
 				fmt.Printf("K: %d\n", k)
 				if d.UpstreamDependencyGraph[seed][k] == nil {
-					d.UpstreamDependencyGraph[seed][k] = make(map[*prog.Arg][]*prog.Arg, 0)
+					d.UpstreamDependencyGraph[seed][k] = make(map[prog.Arg][]prog.Arg, 0)
 				}
 				for argK, argVs := range argMap {
 					//fmt.Printf("ARGVs: %v\n", argVs)
@@ -108,7 +108,7 @@ func (d *DistillerMetadata) TrackDependencies(prg *prog.Prog) {
 		fmt.Printf("depends on: %v\n", d.UpstreamDependencyGraph[seed])
 		if call.Ret != nil {
 			args[call.Ret] = i
-			call.Ret.Uses = nil
+			call.Ret.(prog.ArgUsed).Set(nil)
 		}
 	}
 }
@@ -125,15 +125,15 @@ func (d *DistillerMetadata) BuildDependency(seed *domain.Seed, distilledProg *pr
 					for _, argV := range argVs {
 						if _, ok := upstreamSeed.ArgMeta[argK]; !ok {
 							fmt.Printf("UpstreamedSeed: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
-							argK.Uses = nil
+							argK.(prog.ArgUsed).Set(nil)
 							upstreamSeed.ArgMeta[argK] = true
 						}
-						if argK.Uses == nil {
+						if argK.(prog.ArgUsed).Used() == nil {
 							//fmt.Printf("Allocating Uses: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
-							argK.Uses = make(map[*prog.Arg]bool, 0)
+							argK.(prog.ArgUsed).Set(make(map[prog.Arg]bool, 0))
 						}
 						//fmt.Printf("Setting ArgV: %s, %d\n", upstreamSeed.Call.Meta.CallName, idx)
-						argK.Uses[argV] = true
+						(*argK.(prog.ArgUsed).Used())[argV] = true
 					}
 				}
 			}
@@ -204,30 +204,30 @@ func (d *DistillerMetadata) Contributes(seed *domain.Seed, seenIps map[uint64]bo
 	return total
 }
 
-func (d *DistillerMetadata) isDependent(arg *prog.Arg, seed *domain.Seed, state *domain.State, callIdx int, args map[*prog.Arg]int) map[int]map[*prog.Arg][]*prog.Arg {
-	upstreamSet := make(map[int]map[*prog.Arg][]*prog.Arg, 0)
+func (d *DistillerMetadata) isDependent(arg prog.Arg, seed *domain.Seed, state *domain.State, callIdx int, args map[prog.Arg]int) map[int]map[prog.Arg][]prog.Arg {
+	upstreamSet := make(map[int]map[prog.Arg][]prog.Arg, 0)
 	if arg == nil {
 		return nil
 	}
 	//May need to support more kinds
-	switch arg.Kind {
-	case prog.ArgResult:
+	switch a := arg.(type){
+	case *prog.ResultArg:
 		//fmt.Printf("%v\n", args[arg.Res])
-		if _, ok := args[arg.Res]; ok {
-			if upstreamSet[args[arg.Res]] == nil {
-				upstreamSet[args[arg.Res]] = make(map[*prog.Arg][]*prog.Arg, 0)
-				upstreamSet[args[arg.Res]][arg.Res] = make([]*prog.Arg, 0)
+		if _, ok := args[a.Res]; ok {
+			if upstreamSet[args[a.Res]] == nil {
+				upstreamSet[args[a.Res]] = make(map[prog.Arg][]prog.Arg, 0)
+				upstreamSet[args[a.Res]][a.Res] = make([]prog.Arg, 0)
 			}
-			upstreamSet[args[arg.Res]][arg.Res] = append(upstreamSet[args[arg.Res]][arg.Res], arg)
+			upstreamSet[args[a.Res]][a.Res] = append(upstreamSet[args[a.Res]][a.Res], arg)
 		}
-	case prog.ArgPointer:
-		if _, ok := args[arg.Res]; ok {
-			dep := upstreamSet[args[arg.Res]][arg.Res]
+	case *prog.PointerArg:
+		if _, ok := args[a.Res]; ok {
+			dep := upstreamSet[args[a.Res]][a.Res]
 			dep = append(dep, arg)
 		} else {
-			for k, argMap := range d.isDependent(arg.Res, seed, state, callIdx, args) {
+			for k, argMap := range d.isDependent(a.Res, seed, state, callIdx, args) {
 				if upstreamSet[k] == nil {
-					upstreamSet[k] = make(map[*prog.Arg][]*prog.Arg, 0)
+					upstreamSet[k] = make(map[prog.Arg][]prog.Arg, 0)
 					upstreamSet[k] = argMap
 				} else {
 					for argK, argVs := range argMap {
@@ -236,14 +236,14 @@ func (d *DistillerMetadata) isDependent(arg *prog.Arg, seed *domain.Seed, state 
 				}
 			}
 		}
-	case prog.ArgGroup:
-		for _, inner_arg := range arg.Inner {
-			if sys.IsPad(inner_arg.Type) {
+	case *prog.GroupArg:
+		for _, inner_arg := range a.Inner {
+			if sys.IsPad(inner_arg.Type()) {
 				fmt.Printf("FOUND PAD for index: %d\n", callIdx)
 			}
 			for k, argMap := range d.isDependent(inner_arg, seed, state, callIdx, args) {
 				if upstreamSet[k] == nil {
-					upstreamSet[k] = make(map[*prog.Arg][]*prog.Arg, 0)
+					upstreamSet[k] = make(map[prog.Arg][]prog.Arg, 0)
 					upstreamSet[k] = argMap
 				} else {
 					for argK, argVs := range argMap {
@@ -252,36 +252,32 @@ func (d *DistillerMetadata) isDependent(arg *prog.Arg, seed *domain.Seed, state 
 				}
 			}
 		}
-	case prog.ArgUnion:
-		if _, ok := args[arg.Res]; ok {
-			dep := upstreamSet[args[arg.Res]][arg.Res]
-			dep = append(dep, arg)
-		} else {
-			for k, argMap := range d.isDependent(arg.Option, seed, state, callIdx, args) {
-				if upstreamSet[k] == nil {
-					upstreamSet[k] = make(map[*prog.Arg][]*prog.Arg, 0)
-					upstreamSet[k] = argMap
-				} else {
-					for argK, argVs := range argMap {
-						upstreamSet[k][argK] = append(upstreamSet[k][argK], argVs...)
-					}
+	case *prog.UnionArg:
+		for k, argMap := range d.isDependent(a.Option, seed, state, callIdx, args) {
+			if upstreamSet[k] == nil {
+				upstreamSet[k] = make(map[prog.Arg][]prog.Arg, 0)
+				upstreamSet[k] = argMap
+			} else {
+				for argK, argVs := range argMap {
+					upstreamSet[k][argK] = append(upstreamSet[k][argK], argVs...)
 				}
 			}
 		}
-	case prog.ArgData:
-		switch typ := arg.Type.(type) {
+
+	case *prog.DataArg:
+		switch typ := arg.Type().(type) {
 		case *sys.BufferType:
-			if arg.Type.Dir() != sys.DirOut && arg.Kind == prog.ArgData && len(arg.Data) != 0 {
+			if typ.ArgDir != sys.DirOut && len(a.Data) != 0 {
 				switch typ.Kind {
 				case sys.BufferFilename:
 					callMap := make(map[*prog.Call]bool, 0)
 					for s, calls := range state.Files {
-						if s == string(arg.Data) {
+						if s == string(a.Data) {
 							for _, call := range calls {
 								if _, ok := callMap[call]; !ok {
 									if d.CallToIdx[call] < seed.CallIdx {
 										fmt.Printf("LESS THAN\n")
-										d.UpstreamDependencyGraph[seed][d.CallToIdx[call]] = make(map[*prog.Arg][]*prog.Arg, 0)
+										d.UpstreamDependencyGraph[seed][d.CallToIdx[call]] = make(map[prog.Arg][]prog.Arg, 0)
 										callMap[call] = true
 									}
 								}
@@ -293,7 +289,7 @@ func (d *DistillerMetadata) isDependent(arg *prog.Arg, seed *domain.Seed, state 
 		}
 	}
 	args[arg] = callIdx
-	arg.Uses = nil
+	arg.(prog.ArgUsed).Set(nil)
 	//doesn't hurt to add again if it was already added
 	return upstreamSet
 }

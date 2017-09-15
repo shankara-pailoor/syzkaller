@@ -3,10 +3,6 @@
 
 package main
 
-// TODO: implement some form of smashing of new inputs.
-// E.g. alter arguments while the program still gives the new coverage,
-// i.e. aim at cracking new branches and triggering bugs in that new piece of code.
-
 import (
 	"bytes"
 	"flag"
@@ -25,13 +21,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/google/syzkaller/cover"
-	"github.com/google/syzkaller/hash"
-	"github.com/google/syzkaller/host"
-	"github.com/google/syzkaller/ipc"
-	. "github.com/google/syzkaller/log"
+	"github.com/google/syzkaller/pkg/cover"
+	"github.com/google/syzkaller/pkg/hash"
+	"github.com/google/syzkaller/pkg/host"
+	"github.com/google/syzkaller/pkg/ipc"
+	. "github.com/google/syzkaller/pkg/log"
+	"github.com/google/syzkaller/pkg/osutil"
+	. "github.com/google/syzkaller/pkg/rpctype"
 	"github.com/google/syzkaller/prog"
-	. "github.com/google/syzkaller/rpctype"
 	"github.com/google/syzkaller/sys"
 )
 
@@ -78,8 +75,12 @@ var (
 	triage          []Input
 	triageCandidate []Input
 	candidates      []Candidate
+
+	smashQueue      []Input
+
 	lineageMu	sync.RWMutex
 	lineage 	map[string]struct{}
+
 
 	gate *ipc.Gate
 
@@ -88,10 +89,15 @@ var (
 	statExecCandidate uint64
 	statExecTriage    uint64
 	statExecMinimize  uint64
+	statExecSmash     uint64
 	statNewInput      uint64
+	statExecHints     uint64
+	statExecHintSeeds uint64
 
-	allTriaged uint32
-	noCover    bool
+	allTriaged            uint32
+	noCover               bool
+	faultInjectionEnabled bool
+	compsSupported        bool
 )
 
 func main() {
@@ -164,13 +170,30 @@ func main() {
 		}
 	}
 
-	if r.NeedCheck { // check if kcov exists? seems to just be basic setup checking.
-		a := &CheckArgs{Name: *flagName}
-		if fd, err := syscall.Open("/sys/kernel/debug/kcov", syscall.O_RDWR, 0); err == nil {
-			syscall.Close(fd)
-			a.Kcov = true
+
+	// This requires "fault-inject: support systematic fault injection" kernel commit.
+	if fd, err := syscall.Open("/proc/self/fail-nth", syscall.O_RDWR, 0); err == nil {
+		syscall.Close(fd)
+		faultInjectionEnabled = true
+	}
+
+	kcov, compsSupported := checkCompsSupported()
+	Logf(1, "KCOV_CHECK: compsSupported=%v", compsSupported)
+	if r.NeedCheck { //check if kcov exists? seems to be basic setup checking.
+		a := &CheckArgs{
+			Name:           *flagName,
+			UserNamespaces: osutil.IsExist("/proc/self/ns/user"),
 		}
-		for c := range calls { // add all enabled syscalls to a
+		a.Kcov = kcov
+		if fd, err := syscall.Open("/sys/kernel/debug/kmemleak", syscall.O_RDWR, 0); err == nil {
+
+			syscall.Close(fd)
+			a.Leak = true
+		}
+
+		a.Fault = faultInjectionEnabled
+		a.CompsSupported = compsSupported
+		for c := range calls { //add all enabled syscalls to
 			a.Calls = append(a.Calls, c.Name)
 		}
 		if err := RpcCall(*flagManager, "Manager.Check", a, nil); err != nil {
@@ -190,14 +213,20 @@ func main() {
 
 	kmemleakInit()
 
-	flags, timeout, err := ipc.DefaultFlags()
+	config, err := ipc.DefaultConfig()
 	if err != nil {
 		panic(err)
 	}
 	if _, ok := calls[sys.CallMap["syz_emit_ethernet"]]; ok {
-		flags |= ipc.FlagEnableTun
+		config.Flags |= ipc.FlagEnableTun
 	}
-	noCover = flags&ipc.FlagSignal == 0
+	if _, ok := calls[sys.CallMap["syz_extract_tcp_res"]]; ok {
+		config.Flags |= ipc.FlagEnableTun
+	}
+	if faultInjectionEnabled {
+		config.Flags |= ipc.FlagEnableFault
+	}
+	noCover = config.Flags&ipc.FlagSignal == 0
 	leakCallback := func() {
 		if atomic.LoadUint32(&allTriaged) != 0 {
 			// Scan for leaks once in a while (it is damn slow).
@@ -213,9 +242,11 @@ func main() {
 	needPoll <- struct{}{} // this will NOT block, because needPoll has cap 1
 	// a;; subsequent sends to needPoll will block.
 	envs := make([]*ipc.Env, *flagProcs)
+
 	for pid := 0; pid < *flagProcs; pid++ { // create as many syz-executor threads as specificed in cfg.procs
 		// does mmapings for inmem and outmem, symlinks syz-executor binary
-		env, err := ipc.MakeEnv(*flagExecutor /* syz-executor binary */, timeout, flags, pid)
+		env, err := ipc.MakeEnv(*flagExecutor, pid, config)
+
 		if err != nil {
 			panic(err)
 		}
@@ -228,7 +259,7 @@ func main() {
 
 			for i := 0; ; i++ {
 				triageMu.RLock()
-				if len(triageCandidate) != 0 || len(candidates) != 0 || len(triage) != 0 {
+				if len(triageCandidate) != 0 || len(candidates) != 0 || len(triage) != 0 || len(smashQueue) != 0 {
 					triageMu.RUnlock()
 					triageMu.Lock()
 					if len(triageCandidate) != 0 {
@@ -253,7 +284,8 @@ func main() {
 							}
 						}
 						Logf(1, "executing candidate: %s", candidate.p)
-						execute(pid, env, candidate.p /*Prog.prog*/, false, candidate.minimized, true, &statExecCandidate)
+						execute(pid, env, candidate.p, false, false, candidate.minimized, true, &statExecCandidate)
+
 						continue
 					} else if len(triage) != 0 {
 						last := len(triage) - 1
@@ -263,12 +295,21 @@ func main() {
 						Logf(1, "triaging : %s", inp.p)
 						triageInput(pid, env, inp)
 						continue
+					} else if len(smashQueue) != 0 {
+						last := len(smashQueue) - 1
+						inp := smashQueue[last]
+						smashQueue = smashQueue[:last]
+						triageMu.Unlock()
+						Logf(1, "%v: smashing call %v in program: %v", pid, inp.call, inp.p.String())
+						smashInput(pid, env, ct, rs, inp)
+						continue
 					} else {
 						triageMu.Unlock()
 					}
 				} else {
 					triageMu.RUnlock()
 				}
+
 				if !(*flagFuzzDisabled) {
 					corpusMu.RLock()
 					if len(corpus) == 0 || i%100 == 0 {
@@ -276,7 +317,7 @@ func main() {
 						corpusMu.RUnlock()
 						p := prog.Generate(rnd, programLength, ct)
 						Logf(1, "#%v: generated: %s", i, p)
-						execute(pid, env, p, false, false, false, &statExecGen)
+						execute(pid, env, p, false, false, false, false, &statExecGen)
 					} else {
 						// Mutate an existing prog.
 						related := false
@@ -296,7 +337,7 @@ func main() {
 							lineageMu.Unlock()
 						}
 						Logf(1, "#%v: mutated: %s", i, p)
-						execute(pid, env, p, false, false, false, &statExecFuzz)
+						execute(pid, env, p, false, false, false, false, &statExecFuzz)
 					}
 				}
 			}
@@ -357,6 +398,9 @@ func main() {
 			execMinimize := atomic.SwapUint64(&statExecMinimize, 0)
 			a.Stats["exec minimize"] = execMinimize
 			execTotal += execMinimize
+			execSmash := atomic.SwapUint64(&statExecSmash, 0)
+			a.Stats["exec smash"] = execSmash
+			execTotal += execSmash
 			a.Stats["fuzzer new inputs"] = atomic.SwapUint64(&statNewInput, 0)
 			r := &PollRes{}
 			if err := manager.Call("Manager.Poll", a, r); err != nil {
@@ -468,6 +512,36 @@ func addInput(inp RpcInput) {
 	}
 }
 
+func smashInput(pid int, env *ipc.Env, ct *prog.ChoiceTable, rs rand.Source, inp Input) {
+	if faultInjectionEnabled {
+		failCall(pid, env, inp.p, inp.call)
+	}
+	for i := 0; i < 100; i++ {
+		p := inp.p.Clone()
+		p.Mutate(rs, programLength, ct, corpus)
+		Logf(1, "#%v: mutated: %s", pid, p)
+		execute(pid, env, p, false, false, false, false, &statExecSmash)
+	}
+	if compsSupported {
+		executeHintSeed(pid, env, inp.p)
+	}
+}
+
+func failCall(pid int, env *ipc.Env, p *prog.Prog, call int) {
+	for nth := 0; nth < 100; nth++ {
+		Logf(1, "%v: injecting fault into call %v/%v in program: %v", pid, call, nth, p.String())
+		opts := &ipc.ExecOpts{
+			Flags:     ipc.FlagInjectFault,
+			FaultCall: call,
+			FaultNth:  nth,
+		}
+		info := execute1(pid, env, opts, p, &statExecSmash)
+		if info != nil && len(info) > call && !info[call].FaultInjected {
+			break
+		}
+	}
+}
+
 func triageInput(pid int, env *ipc.Env, inp Input) {
 	if noCover {
 		panic("should not be called when coverage is disabled")
@@ -487,10 +561,13 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 
 	Logf(3, "triaging input for %v (new signal=%v):\n%s", call.CallName, len(newSignal), data)
 	var inputCover cover.Cover
+	opts := &ipc.ExecOpts{
+		Flags: ipc.FlagCollectCover,
+	}
 	if inp.minimized {
 		// We just need to get input coverage.
 		for i := 0; i < 3; i++ {
-			info := execute1(pid, env, inp.p, &statExecTriage, true)
+			info := execute1(pid, env, opts, inp.p, &statExecTriage)
 			if len(info) == 0 || len(info[inp.call].Cover) == 0 {
 				continue // The call was not executed. Happens sometimes.
 			}
@@ -501,7 +578,7 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 		// We need to compute input coverage and non-flaky signal for minimization.
 		notexecuted := false
 		for i := 0; i < 3; i++ {
-			info := execute1(pid, env, inp.p, &statExecTriage, true)
+			info := execute1(pid, env, opts, inp.p, &statExecTriage)
 			if len(info) == 0 || len(info[inp.call].Signal) == 0 {
 				// The call was not executed. Happens sometimes.
 				if notexecuted {
@@ -523,7 +600,7 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 		}
 
 		inp.p, inp.call = prog.Minimize(inp.p, inp.call, func(p1 *prog.Prog, call1 int) bool {
-			info := execute(pid, env, p1, false, false, false, &statExecMinimize)
+			info := execute(pid, env, p1, false, false, false, false, &statExecMinimize)
 			if len(info) == 0 || len(info[call1].Signal) == 0 {
 				return false // The call was not executed.
 			}
@@ -571,10 +648,49 @@ func triageInput(pid int, env *ipc.Env, inp Input) {
 		corpusHashes[sig] = struct{}{}
 	}
 	corpusMu.Unlock()
+
+	if !inp.minimized {
+		triageMu.Lock()
+		smashQueue = append(smashQueue, inp)
+		triageMu.Unlock()
+	}
 }
 
-func execute(pid int, env *ipc.Env, p *prog.Prog, needCover, minimized, candidate bool, stat *uint64) []ipc.CallInfo {
-	info := execute1(pid, env, p, stat, needCover)
+func executeHintSeed(pid int, env *ipc.Env, p *prog.Prog) {
+	if !compsSupported {
+		panic("compsSupported==false and executeHintSeed() called")
+	}
+	// First execute the original program to dump comparisons from KCOV.
+	info := execute(pid, env, p, false, true, false, false, &statExecHintSeeds)
+
+	// Then extract the comparisons data.
+	compMaps := ipc.GetCompMaps(info)
+
+	// Then mutate the initial program for every match between
+	// a syscall argument and a comparison operand.
+	// Execute each of such mutants to check if it gives new coverage.
+	p.MutateWithHints(compMaps, func(p *prog.Prog) {
+		execute(pid, env, p, false, false, false, false, &statExecHints)
+	})
+}
+
+func execute(pid int, env *ipc.Env, p *prog.Prog, needCover, needComps, minimized, candidate bool, stat *uint64) []ipc.CallInfo {
+	opts := &ipc.ExecOpts{}
+	if needComps {
+		if !compsSupported {
+			panic("compsSupported==false and execute() called with needComps")
+		}
+		if needCover {
+			// Currently KCOV is able to dump only the coverage data or only
+			// the comparisons data. We can't enable both modes at same time.
+			panic("only one of the needComps and needCover should be true")
+		}
+		opts.Flags |= ipc.FlagCollectComps
+	}
+	if needCover {
+		opts.Flags |= ipc.FlagCollectCover
+	}
+	info := execute1(pid, env, opts, p, stat)
 	signalMu.RLock()
 	defer signalMu.RUnlock()
 
@@ -611,7 +727,7 @@ func execute(pid int, env *ipc.Env, p *prog.Prog, needCover, minimized, candidat
 
 var logMu sync.Mutex
 
-func execute1(pid int, env *ipc.Env, p *prog.Prog, stat *uint64, needCover bool) []ipc.CallInfo {
+func execute1(pid int, env *ipc.Env, opts *ipc.ExecOpts, p *prog.Prog, stat *uint64) []ipc.CallInfo {
 	if false {
 		// For debugging, this function must not be executed with locks held.
 		corpusMu.Lock()
@@ -622,9 +738,16 @@ func execute1(pid int, env *ipc.Env, p *prog.Prog, stat *uint64, needCover bool)
 		triageMu.Unlock()
 	}
 
+	opts.Flags |= ipc.FlagDedupCover
+
 	// Limit concurrency window and do leak checking once in a while.
 	idx := gate.Enter()
 	defer gate.Leave(idx)
+
+	strOpts := ""
+	if opts.Flags&ipc.FlagInjectFault != 0 {
+		strOpts = fmt.Sprintf(" (fault-call:%v fault-nth:%v)", opts.FaultCall, opts.FaultNth)
+	}
 
 	// The following output helps to understand what program crashed kernel.
 	// It must not be intermixed.
@@ -634,19 +757,22 @@ func execute1(pid int, env *ipc.Env, p *prog.Prog, stat *uint64, needCover bool)
 	case "stdout":
 		data := p.Serialize()
 		logMu.Lock()
-		Logf(0, "executing program %v:\n%s", pid, data)
+		Logf(0, "executing program %v%v:\n%s", pid, strOpts, data)
 		logMu.Unlock()
 	case "dmesg":
 		fd, err := syscall.Open("/dev/kmsg", syscall.O_WRONLY, 0)
 		if err == nil {
 			buf := new(bytes.Buffer)
-			fmt.Fprintf(buf, "syzkaller: executing program %v:\n%s", pid, p.Serialize())
+			fmt.Fprintf(buf, "syzkaller: executing program %v%v:\n%s", pid, strOpts, p.Serialize())
 			syscall.Write(fd, buf.Bytes())
 			syscall.Close(fd)
 		}
 	case "file":
 		f, err := os.Create(fmt.Sprintf("%v-%v.prog", *flagName, pid))
 		if err == nil {
+			if strOpts != "" {
+				fmt.Fprintf(f, "#%v\n", strOpts)
+			}
 			f.Write(p.Serialize())
 			f.Close()
 		}
@@ -655,7 +781,7 @@ func execute1(pid int, env *ipc.Env, p *prog.Prog, stat *uint64, needCover bool)
 	try := 0
 retry:
 	atomic.AddUint64(stat, 1)
-	output, info, failed, hanged, err := env.Exec(p, needCover, true)
+	output, info, failed, hanged, err := env.Exec(opts, p)
 	if failed {
 		// BUG in output should be recognized by manager.
 		Logf(0, "BUG: executor-detected bug:\n%s", output)
@@ -747,4 +873,35 @@ func kmemleakScan(report bool) {
 	if _, err := syscall.Write(fd, []byte("clear")); err != nil {
 		panic(err)
 	}
+}
+
+// Checks if the KCOV device supports comparisons.
+// Returns a pair of bools:
+//		First  - is the kcov device present in the system.
+//		Second - is the kcov device supporting comparisons.
+func checkCompsSupported() (kcov, comps bool) {
+	fd, err := syscall.Open("/sys/kernel/debug/kcov", syscall.O_RDWR, 0)
+	if err != nil {
+		return
+	}
+	defer syscall.Close(fd)
+	kcov = true
+	coverSize := uintptr(64 << 10)
+	_, _, errno := syscall.Syscall(
+		syscall.SYS_IOCTL, uintptr(fd), sys.KCOV_INIT_TRACE, coverSize)
+	if errno != 0 {
+		Logf(1, "KCOV_CHECK: KCOV_INIT_TRACE = %v", errno)
+		return
+	}
+	_, err = syscall.Mmap(fd, 0, int(coverSize*8),
+		syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
+	if err != nil {
+		Logf(1, "KCOV_CHECK: mmap = %v", err)
+		return
+	}
+	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL,
+		uintptr(fd), sys.KCOV_ENABLE, sys.KCOV_TRACE_CMP)
+	Logf(1, "KCOV_CHECK: KCOV_ENABLE = %v", errno)
+	comps = errno == 0
+	return
 }
