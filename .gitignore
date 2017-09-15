@@ -4,8 +4,6 @@
 workdir*
 tools/create-image.sh
 bin/
-<<<<<<< HEAD
-=======
 sys/sys_amd64.go
 sys/sys_arm64.go
 sys/sys_ppc64le.go
@@ -26,4 +24,3 @@ crashes/
 distillStats
 strace-output/*
 
->>>>>>> 27396fb4700085a53265146d48270a505bb8b978
