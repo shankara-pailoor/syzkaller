@@ -5,7 +5,7 @@
 		"Ip": "127.0.0.1",
 		"Port": 26439,
 		"ssh_key": "/home/w4118/go-projects/src/github.com/google/syzkaller/ssh/id_rsa",
-		"dest_dir": "/home/w4118/go-projects/src/github.com/google/syzkaller/strace-output/testing"
+		"dest_dir": "/home/w4118/go-projects/src/github.com/google/syzkaller/strace-output/"
 	},
 	"parser_conf" : {
 		"type": "local",

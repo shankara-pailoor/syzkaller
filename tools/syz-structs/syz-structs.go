@@ -69,6 +69,7 @@ var (
 		"sock_nfc_llcp": "$nfc_llcp",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
+		"sock_netlink": "$inet6",
 	}
 
 	Bind_labels = map[string]string {
@@ -86,6 +87,10 @@ var (
 		"sock_nfc_llcp": "$nfc_llcp",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
+	}
+
+	Structs_with_reordered_fields = map[string][]int {
+		"sockaddr_in6": {0, 1, 3, 2, 4},
 	}
 
 	Connect_labels = map[string]string {
@@ -109,6 +114,7 @@ var (
 	}
 
 	Setsockopt_labels = map[Pair]string {
+		Pair{"SOL_RAW", "0x7"}: "$sock_int",
 		Pair{"SOL_SOCKET","SO_DETACH_FILTER"}: "$sock_void",
 		Pair{"SOL_SOCKET","SO_MARK"}: "$sock_void",
 		Pair{"SOL_SOCKET","SO_ACCEPTCONN"}: "$sock_int",
@@ -162,6 +168,7 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_2292RTHDR"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292DSTOPTS"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292PKTINFO"}: "$inet6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_RECVERR"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292PKTOPTIONS"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IPV6_ADD_MEMBERSHIP"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IPV6_DROP_MEMBERSHIP"}: "$inet6_buf",
@@ -186,6 +193,8 @@ var (
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_MATCH"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_TARGET"}: "$inet6_buf",
 		Pair{"IPPROTO_TCP", "TCP_FASTOPEN"}: "$inet_tcp_int",
+		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
+		Pair{"SOL_ICMPV6", "1"}: "$inet6_buf",
 	}
 
 	Getsockopt_labels = map[Pair]string {
@@ -280,8 +289,9 @@ var (
 	SocketLevel_map = map[string]string{
 		"SOL_SOCKET": "SOL_SOCKET",
 		"SOL_IPV6": "IPPROTO_IPV6",
-		"SOL_ICMPV6": "IPPROTO_ICMP",
+		"SOL_ICMPV6": "SOL_ICMPV6",
 		"SOL_TCP": "IPPROTO_TCP",
+		"SOL_RAW": "SOL_RAW",
 	}
 
 	Sendto_labels = map[string]string {
@@ -291,6 +301,7 @@ var (
 		"sock_in6": "$inet6",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
+		"sock_netlink": "$inet6",
 	}
 
 	Sendmsg_labels = map[string]string {
@@ -314,6 +325,7 @@ var (
 		"sock_in6": "$inet6",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
+		"sock_netlink": "$inet6",
 	}
 
 	Ioctl_map = map[string]string {
@@ -328,6 +340,7 @@ var (
 		"AF_INET6": "$inet6",
 		"AF_KCM": "$kcm",
 		"AF_UNIX": "$unix",
+		"AF_NETLINK": "$netlink",
 	}
 
 	Fcntl_labels = map[string]string {
