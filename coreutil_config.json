@@ -84,16 +84,100 @@
                 "Args": ["-m"]
         },
         {
-		"Name": "fuser_strace",
-                "ExecutablePath": "/bin/fuser", 
-                "StraceOutPath": "/root/corpus-distilled/fuser_strace",
-                "Args": ["/"]
-        },
-        {
 		"Name": "hostname_strace",
                 "ExecutablePath": "/bin/hostname", 
                 "StraceOutPath": "/root/corpus-distilled/hostname_strace",
                 "Args": []
+        },
+        {
+		"Name": "ip_strace",
+                "ExecutablePath": "/bin/ip", 
+                "StraceOutPath": "/root/corpus-distilled/ip_strace",
+                "Args": ["a"]
+        },
+        {
+		"Name": "ln_strace",
+                "ExecutablePath": "/bin/ln", 
+                "StraceOutPath": "/root/corpus-distilled/ln_strace",
+                "Args": ["-s", "/root/dummy_dir/dummy_file"]
+        },
+        {
+		"Name": "lsblk_strace",
+                "ExecutablePath": "/bin/lsblk", 
+                "StraceOutPath": "/root/corpus-distilled/lsblk_strace",
+                "Args": []
+        },
+        {
+		"Name": "mktemp_strace",
+                "ExecutablePath": "/bin/mktemp", 
+                "StraceOutPath": "/root/corpus-distilled/mktemp_strace",
+                "Args": []
+        },
+        {
+		"Name": "mountpoint_strace",
+                "ExecutablePath": "/bin/mountpoint", 
+                "StraceOutPath": "/root/corpus-distilled/mountpoint_strace",
+                "Args": ["/root"]
+        },
+        {
+		"Name": "mountpoint1_strace",
+                "ExecutablePath": "/bin/mountpoint", 
+                "StraceOutPath": "/root/corpus-distilled/mountpoint1_strace",
+                "Args": ["/proc"]
+        },
+        {
+		"Name": "nc_strace",
+                "ExecutablePath": "/bin/nc", 
+                "StraceOutPath": "/root/corpus-distilled/nc_strace",
+                "Args": ["-z", "localhost", "20-30"]
+        },
+        {
+		"Name": "netstat_strace",
+                "ExecutablePath": "/bin/netstat", 
+                "StraceOutPath": "/root/corpus-distilled/netstat_strace",
+                "Args": []
+        },
+        {
+		"Name": "nisdomainname_strace",
+                "ExecutablePath": "/bin/nisdomainname", 
+                "StraceOutPath": "/root/corpus-distilled/nisdomainname_strace",
+                "Args": []
+        },
+        {
+		"Name": "ps_strace",
+                "ExecutablePath": "/bin/ps", 
+                "StraceOutPath": "/root/corpus-distilled/ps_strace",
+                "Args": ["aux", ">", "/dev/null"]
+        },
+        {
+		"Name": "pwd_strace",
+                "ExecutablePath": "/bin/pwd", 
+                "StraceOutPath": "/root/corpus-distilled/pwd_strace",
+                "Args": []
+        },
+        {
+		"Name": "ss_strace",
+                "ExecutablePath": "/bin/ss", 
+                "StraceOutPath": "/root/corpus-distilled/ss_strace",
+                "Args": ["-a"]
+        },
+        {
+		"Name": "sync_strace",
+                "ExecutablePath": "/bin/sync", 
+                "StraceOutPath": "/root/corpus-distilled/sync_strace",
+                "Args": []
+        },
+        {
+		"Name": "tempfile_strace",
+                "ExecutablePath": "/bin/tempfile", 
+                "StraceOutPath": "/root/corpus-distilled/tempfile_strace",
+                "Args": []
+        },
+        {
+		"Name": "uname_strace",
+                "ExecutablePath": "/bin/uname", 
+                "StraceOutPath": "/root/corpus-distilled/uname_strace",
+                "Args": ["-a"]
         }
 
 

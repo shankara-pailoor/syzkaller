@@ -32,6 +32,7 @@ func NewState() *State {
 }
 
 func (s *State) Analyze(c *Call) {
+	fmt.Printf("Call Args: %v\n", c.Args)
 	ForeachArgArray(&c.Args, c.Ret, func(arg, base Arg, _ *[]Arg) {
 		switch a := arg.Type().(type) {
 		case *sys.ResourceType:
@@ -99,7 +100,7 @@ func (s *State) Addressable(addr *PointerArg, size *ConstArg, ok bool) {
 }
 
 
-func (s *State) AllocateMemory(size int) (page_nums []int, offset int, should_allocate bool) {
+func (s *State) AllocateMemory(size int) (page_nums []int, offset int, should_allocate bool, err error) {
 	needed_pages, remainder_size := int(size / PageSize), int(size % PageSize)
 	fmt.Printf("Needed Pages: %d, remainder_size: %d\n", needed_pages, remainder_size)
 	if needed_pages < 1 {
@@ -149,5 +150,7 @@ func (s *State) AllocateMemory(size int) (page_nums []int, offset int, should_al
 		}
 
 	}
-	panic("Out of memory")
+	fmt.Printf("OUT OF MEMORY\n")
+	err = fmt.Errorf("Out of memory\n")
+	return
 }

@@ -169,6 +169,7 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_2292DSTOPTS"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292PKTINFO"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_RECVERR"}: "$inet6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_UNICAST_HOPS"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292PKTOPTIONS"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IPV6_ADD_MEMBERSHIP"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IPV6_DROP_MEMBERSHIP"}: "$inet6_buf",
@@ -193,6 +194,8 @@ var (
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_MATCH"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_TARGET"}: "$inet6_buf",
 		Pair{"IPPROTO_TCP", "TCP_FASTOPEN"}: "$inet_tcp_int",
+		Pair{"IPPROTO_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
+		Pair{"IPPROTO_IPV6", "IPV6_MTU"}: "$inet6_int",
 		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
 		Pair{"SOL_ICMPV6", "1"}: "$inet6_buf",
 	}
@@ -250,6 +253,7 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_2292RTHDR"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292DSTOPTS"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292PKTINFO"}: "$inet6_int",
+		Pair{"IPPROTO_IPV6", "IPV6_UNICAST_HOPS"}: "$inet6_int",
 		Pair{"IPPROTO_IPV6", "IPV6_2292PKTOPTIONS"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IPV6_ADD_MEMBERSHIP"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IPV6_DROP_MEMBERSHIP"}: "$inet6_buf",
@@ -273,6 +277,9 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_PATHMTU"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_MATCH"}: "$inet6_buf",
 		Pair{"IPPROTO_IPV6", "IP6T_SO_GET_REVISION_TARGET"}: "$inet6_buf",
+		Pair{"IPPROTO_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
+		Pair{"IPPROTO_IPV6", "IPV6_MTU"}: "$inet6_int",
+		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
 	}
 
 	Getsockname_labels = map[string]string {
