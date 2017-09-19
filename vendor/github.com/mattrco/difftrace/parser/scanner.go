@@ -28,8 +28,11 @@ const (
 	SEP         // ,
 	EQUALS      // =
 	SIGNAL      // ---
+	EXIT        // +++
 	THROWAWAY   // This is meant to handle things like 0777
 	POINTER     // 0x[addr]:=[data]
+	LESS_THAN   // <
+	GREATER_THAN // >
 )
 
 var terminator = map[rune]bool{
@@ -37,6 +40,7 @@ var terminator = map[rune]bool{
 	']': true,
 	'}': true,
 	')': true,
+	'>': true,
 }
 
 var eof = rune(0)
@@ -121,6 +125,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 			s.unreadRunes(2)
 		}
 	} else if r=='&' {
+		fmt.Printf("PARSING POINTER OMG\ns")
 		// then r is a pointer
 		// read in the 0x
 		s.read()
@@ -142,6 +147,15 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		} else {
 			return ILLEGAL, ""
 		}
+	} else if r == '+' {
+		r = s.read()
+		if r == '+' {
+			r = s.read()
+			if r == '+' {
+				fmt.Printf("EXITING\n")
+				return EXIT, "+++"
+			}
+		}
 	} else if r == '"' {
 		return s.scanString()
 	} else if isWhitespace(r) {
@@ -160,6 +174,12 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		return EOF, ""
 	case '(':
 		return OPEN_PAREN, string(r)
+	case '<':
+		fmt.Printf("LESS THAN\n")
+		return LESS_THAN, string(r)
+	case '>':
+		fmt.Printf("GREATER THAN\n")
+		return GREATER_THAN, string(r)
 	case ',':
 		return SEP, string(r)
 	case ')':
@@ -234,12 +254,23 @@ func (s *Scanner) scanString() (tok Token, lit string) {
 	buf.WriteRune('"')
 
 	// Read up to the next inverted comma.
+	var inQuoteString bool = false
 	for {
 		r := s.read()
 		if r == eof {
+			fmt.Printf("FOUND EOF\n")
 			break
 		}
-		if r == '"' {
+		if r == '\\' {
+		    inQuoteString = true
+		} else if r == '"' {
+			if inQuoteString {
+				fmt.Print("HERE IN QUOTE STRING\n")
+				inQuoteString = false
+				buf.WriteRune(r)
+				continue
+			}
+			fmt.Printf("NOT IN QUOTE STRING\n")
 			next := s.read()
 			_,ok := terminator[next]
 			//if next != ',' {
@@ -258,10 +289,12 @@ func (s *Scanner) scanString() (tok Token, lit string) {
 				}
 				break
 			}
+		} else {
+			inQuoteString = false
 		}
 		buf.WriteRune(r)
 	}
-
+	fmt.Printf("RETURNING A STRING")
 	return STRING, buf.String()
 }
 

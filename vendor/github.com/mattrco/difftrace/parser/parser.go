@@ -5,6 +5,8 @@ import (
 	"errors"
 	"strings"
 	"io"
+	"fmt"
+	"strconv"
 )
 
 type OutputLine struct {
@@ -13,6 +15,9 @@ type OutputLine struct {
 	Args     []string
 	Result   string
 	Cover    []uint64
+	Pid      int64
+	Paused  bool
+	Resumed    bool
 }
 
 // Parser represents a parser.
@@ -63,10 +68,17 @@ func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
 func (p *Parser) Parse() (*OutputLine, error) {
 	line := &OutputLine{}
 	tok, lit := p.scanIgnoreWhitespace()
+	fmt.Printf("LITS: %s\n", lit)
+	var foundPid bool = false
+
 	if tok == EOF || lit == "+" {
 		return line, ErrEOF
-	}
-	if strings.Contains(lit, "Cover:") {
+	} else if pid, err := strconv.ParseInt(lit, 10, 64); err == nil {
+		foundPid = true
+		fmt.Printf("HERE: %d\n", pid)
+		line.Pid = pid
+		tok, lit = p.scanIgnoreWhitespace()
+	} else if strings.Contains(lit, "Cover:") {
 		line.Result = lit
 		for {
 			tok, lit = p.scanIgnoreWhitespace()
@@ -89,15 +101,49 @@ func (p *Parser) Parse() (*OutputLine, error) {
 		}
 		line.Signal = buf.String()
 		return line, nil
+	} else if tok == EXIT {
+		fmt.Printf("EXIT RETURNED\n")
+		var buf bytes.Buffer
+		buf.WriteString(lit)
+		for {
+			tok, lit = p.scan()
+			if tok == NEWLINE {
+				break
+			}
+			buf.WriteString(lit)
+		}
+		line.Signal = buf.String()
+		return nil, nil
+	} else if tok == LESS_THAN && foundPid{
+		line.Resumed = true
+		fmt.Printf("LESS THAN WOHOOOO\n")
+		for {
+			tok, lit = p.scanIgnoreWhitespace()
+			fmt.Printf("LESS THAN WHOOO LIT: %s\n", lit)
+			if tok == GREATER_THAN {
+				fmt.Printf("LIT: %s\n", lit)
+
+				break
+			}
+		}
 	} else {
 		line.FuncName = lit
 	}
 
-	tok, lit = p.scanIgnoreWhitespace()
-	if tok == OPEN_PAREN {
+
+	fmt.Printf("FUNC NAME: %s\n", line.FuncName)
+	if !line.Resumed {
+		fmt.Printf("NOT A RESUMED LINE HEHE\n")
+		tok, lit = p.scanIgnoreWhitespace()
+	}
+
+	if tok == OPEN_PAREN || line.Resumed {
 		// Read all the args up to CLOSE_PAREN
 		for {
 			tok, lit = p.scanIgnoreWhitespace()
+			if line.Resumed {
+				fmt.Printf("RESUMED LINE: %s\n", lit)
+			}
 			if tok == OPEN_PAREN {
 				//If we encounter an open paren
 				openParenCtr := 1
@@ -151,6 +197,21 @@ func (p *Parser) Parse() (*OutputLine, error) {
 						buf.WriteString(lit)
 					}
 				}
+			} else if tok == LESS_THAN {
+				fmt.Printf("PARSING LESS THAN\n")
+				//We have a function that is paused and will be resumed later
+				//So far haven't seen a case where the function hasn't resumed
+				//This always is written at the end of the function trace so we can exit after
+				for {
+					tok, lit = p.scanIgnoreWhitespace()
+					fmt.Printf("LESS THAN LIT: %s\n", lit)
+					if tok == GREATER_THAN {
+						break
+					}
+				}
+				line.Paused = true
+				break
+
 			} else if tok == OPEN_SQ {
 				var buf bytes.Buffer
 				buf.WriteString(lit)
@@ -184,21 +245,24 @@ func (p *Parser) Parse() (*OutputLine, error) {
 	}
 
 	tok, lit = p.scanIgnoreWhitespace()
-	if tok != EQUALS {
+	fmt.Printf("LAST LIT: %s\n", lit)
+	if !line.Paused && tok != EQUALS {
 		return nil, errors.New("Expected EQUALS")
 	}
 
-	// Read everything after '=' until newline as the result.
-	var result bytes.Buffer
+	if tok == EQUALS {
+		// Read everything after '=' until newline as the result.
+		var result bytes.Buffer
 
-	tok, lit = p.scanIgnoreWhitespace()
-	result.WriteString(lit)
-	line.Result = result.String()
-
-	for {
 		tok, lit = p.scanIgnoreWhitespace()
-		if tok == NEWLINE {
-			break
+		result.WriteString(lit)
+		line.Result = result.String()
+
+		for {
+			tok, lit = p.scanIgnoreWhitespace()
+			if tok == NEWLINE {
+				break
+			}
 		}
 	}
 	return line, nil
