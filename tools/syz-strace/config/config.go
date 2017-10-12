@@ -25,6 +25,8 @@ type DistillConfig struct {
 }
 
 type ParserConfig struct {
+	Os   string
+	Arch string
 	Type string
 	LocalConfig
 }

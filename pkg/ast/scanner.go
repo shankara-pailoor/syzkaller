@@ -177,6 +177,12 @@ func (s *scanner) Scan() (tok token, lit string, pos Pos) {
 				break
 			}
 		}
+		if lit == "" {
+			// Currently unsupported because with the current Type representation
+			// it would not be possible to understand if it is an empty string
+			// or a 0 integer.
+			s.Error(pos, "empty string literals are not supported")
+		}
 		s.next()
 	case s.ch >= '0' && s.ch <= '9':
 		tok = tokInt
@@ -235,6 +241,9 @@ func (s *scanner) Ok() bool {
 
 func (s *scanner) next() {
 	s.off++
+	for s.off < len(s.data) && s.data[s.off] == '\r' {
+		s.off++
+	}
 	if s.off == len(s.data) {
 		// Always emit NEWLINE before EOF.
 		// Makes lots of things simpler as we always

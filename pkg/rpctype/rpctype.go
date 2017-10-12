@@ -6,11 +6,10 @@
 package rpctype
 
 type RpcInput struct {
-	Call      string
-	Prog      []byte
-	CallIndex int
-	Signal    []uint32
-	Cover     []uint32
+	Call   string
+	Prog   []byte
+	Signal []uint32
+	Cover  []uint32
 }
 
 type RpcCandidate struct {
@@ -40,6 +39,11 @@ type CheckArgs struct {
 	UserNamespaces bool
 	CompsSupported bool
 	Calls          []string
+	FuzzerGitRev   string
+	FuzzerSyzRev   string
+	ExecutorGitRev string
+	ExecutorSyzRev string
+	ExecutorArch   string
 }
 
 type NewInputArgs struct {

@@ -21,8 +21,8 @@ Choose the following options.
     Target packages
 	    [*]   Show packages that are also provided by busybox
 	    Networking applications
-	    [*] dhcpcd
-	    [*] openssh
+	        [*] dhcpcd
+	        [*] openssh
     Filesystem images
 	    [*] ext2/3/4 root filesystem
 	        ext2/3/4 variant - ext3
@@ -119,18 +119,7 @@ Reboot the machine, and ensure that you can ssh from host to guest as.
 
 ## Build syzkaller
 
-Native-compile the syz-manager:
-
-    $GOROOT/bin/go build -o bin/syz-manager ./syz-manager
-
-Cross-compile the syz-fuzzer, syz-execprog:
-
-    GOARCH=arm64 $GOROOT/bin/go build -o bin/syz-fuzzer ./syz-fuzzer
-    GOARCH=arm64 $GOROOT/bin/go build -o bin/syz-execprog ./syz-execprog
-
-Cross-compile the syz-executor (Note that the cross compiler should be the same as the one used to compile the Linux kernel):
-
-    /gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++ executor/executor.cc -O1 -g -Wall -static -o bin/syz-executor -lpthread
+    make TARGETARCH=arm64 [CC=/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-g++]
 
 ## Modify your config file and start off syzkaller
 
@@ -139,6 +128,7 @@ A sample config file that exercises the required options are shown below. Modify
 ```
 {
     "name": "QEMU-aarch64",
+    "target": "linux/arm64",
     "http": ":56700",
     "workdir": "/path/to/a/dir/to/store/syzkaller/corpus”,
     "vmlinux": “/path/to/vmlinux",
@@ -150,7 +140,6 @@ A sample config file that exercises the required options are shown below. Modify
     "vm": {
         "count": 1,
         "qemu": "/path/to/qemu-system-aarch64",
-        "qemu_args": "-machine virt -cpu cortex-a57",
         "cmdline": "console=ttyAMA0 root=/dev/vda",
         "kernel": “/path/to/Image",
         "cpu": 2,

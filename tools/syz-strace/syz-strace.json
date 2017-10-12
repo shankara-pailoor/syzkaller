@@ -8,6 +8,8 @@
 		"dest_dir": "/home/w4118/go-projects/src/github.com/google/syzkaller/strace-output/"
 	},
 	"parser_conf" : {
+		"os": "linux",
+		"arch": "amd64",
 		"type": "local",
 		"InputDirectory": "/home/spailoor/go/src/github.com/google/syzkaller/strace-output/ltp-2/",
 		"OutputDirectory":"/home/spailoor/go/src/github.com/google/syzkaller/serialized/"

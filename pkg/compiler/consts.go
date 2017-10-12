@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/google/syzkaller/pkg/ast"
+	"github.com/google/syzkaller/sys/targets"
 )
 
 type ConstInfo struct {
@@ -24,7 +25,7 @@ type ConstInfo struct {
 }
 
 // ExtractConsts returns list of literal constants and other info required const value extraction.
-func ExtractConsts(desc *ast.Description, eh0 ast.ErrorHandler) *ConstInfo {
+func ExtractConsts(desc *ast.Description, target *targets.Target, eh0 ast.ErrorHandler) *ConstInfo {
 	errors := 0
 	eh := func(pos ast.Pos, msg string, args ...interface{}) {
 		errors++
@@ -41,6 +42,8 @@ func ExtractConsts(desc *ast.Description, eh0 ast.ErrorHandler) *ConstInfo {
 	includeMap := make(map[string]bool)
 	incdirMap := make(map[string]bool)
 	constMap := make(map[string]bool)
+	syscallNumbers := targets.OSList[target.OS].SyscallNumbers
+	syscallPrefix := targets.OSList[target.OS].SyscallPrefix
 
 	ast.Walk(desc, func(n1 ast.Node) {
 		switch n := n1.(type) {
@@ -73,8 +76,8 @@ func ExtractConsts(desc *ast.Description, eh0 ast.ErrorHandler) *ConstInfo {
 			info.Defines[name] = v
 			constMap[name] = true
 		case *ast.Call:
-			if !strings.HasPrefix(n.CallName, "syz_") {
-				constMap["__NR_"+n.CallName] = true
+			if syscallNumbers && !strings.HasPrefix(n.CallName, "syz_") {
+				constMap[syscallPrefix+n.CallName] = true
 			}
 		case *ast.Type:
 			if c := typeConstIdentifier(n); c != nil {
@@ -116,6 +119,7 @@ func (comp *compiler) assignSyscallNumbers(consts map[string]uint64) {
 	}
 
 	var top []ast.Node
+	syscallPrefix := targets.OSList[comp.target.OS].SyscallPrefix
 	for _, decl := range comp.desc.Nodes {
 		switch decl.(type) {
 		case *ast.Call:
@@ -125,29 +129,25 @@ func (comp *compiler) assignSyscallNumbers(consts map[string]uint64) {
 				top = append(top, decl)
 				continue
 			}
-			// Lookup in consts.
-			str := "__NR_" + c.CallName
-			nr, ok := consts[str]
-			if ok {
-				c.NR = nr
+			if !targets.OSList[comp.target.OS].SyscallNumbers {
 				top = append(top, decl)
 				continue
 			}
+			// Lookup in consts.
+			str := syscallPrefix + c.CallName
+			nr, ok := consts[str]
+			top = append(top, decl)
+			if ok {
+				c.NR = nr
+				continue
+			}
+			c.NR = ^uint64(0) // mark as unused to not generate it
 			name := "syscall " + c.CallName
 			if !comp.unsupported[name] {
 				comp.unsupported[name] = true
 				comp.warning(c.Pos, "unsupported syscall: %v due to missing const %v",
 					c.CallName, str)
 			}
-			// TODO: we still have to preserve the syscall.
-			// The problem is that manager and fuzzer use syscall indexes
-			// to communicate enabled syscalls. If manager is built for
-			// amd64 and fuzzer for arm64, then they would have different
-			// sets of syscalls and would not agree on syscall indexes.
-			// Remove this once we have proper cross-OS/arch support.
-			// The same happens in patchConsts.
-			c.NR = ^uint64(0)
-			top = append(top, decl)
 		case *ast.IntFlags, *ast.Resource, *ast.Struct, *ast.StrFlags:
 			top = append(top, decl)
 		case *ast.NewLine, *ast.Comment, *ast.Include, *ast.Incdir, *ast.Define:
@@ -214,12 +214,9 @@ func (comp *compiler) patchConsts(consts map[string]uint64) {
 			}
 			// We have to keep partially broken resources and structs,
 			// because otherwise their usages will error.
-			if c, ok := decl.(*ast.Call); !ok {
-				top = append(top, decl)
-			} else {
-				// See comment in assignSyscallNumbers.
-				c.NR = ^uint64(0)
-				top = append(top, decl)
+			top = append(top, decl)
+			if c, ok := decl.(*ast.Call); ok {
+				c.NR = ^uint64(0) // mark as unused to not generate it
 			}
 		}
 	}

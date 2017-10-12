@@ -3,7 +3,6 @@ package domain
 import (
 	"fmt"
 	. "github.com/google/syzkaller/prog"
-	"github.com/google/syzkaller/sys"
 	"sort"
 )
 
@@ -14,6 +13,7 @@ const (
 )
 
 type State struct {
+	Target    *Target
 	Files     map[string][]*Call
 	Resources map[string][]Arg
 	Strings   map[string]*Call
@@ -76,7 +76,7 @@ func (m *MemoryTracker) FillOutMemory() {
 			switch arg := a.arg.(type) {
 			case *PointerArg:
 				switch arg.Type().(type) {
-				case *sys.VmaType:
+				case *VmaType:
 					pages = a.num_bytes % PageSize + 1
 				default:
 					pages = 0
@@ -94,8 +94,9 @@ func (m *MemoryTracker) FillOutMemory() {
 }
 
 
-func NewState() *State {
+func NewState(target *Target) *State {
 	s := &State{
+		Target:    target,
 		Files:     make(map[string][]*Call),
 		Resources: make(map[string][]Arg),
 		Strings:   make(map[string]*Call),
@@ -106,61 +107,42 @@ func NewState() *State {
 }
 
 func (s *State) Analyze(c *Call) {
-	fmt.Printf("Call Args: %v\n", c.Args)
 	ForeachArgArray(&c.Args, c.Ret, func(arg, base Arg, _ *[]Arg) {
-		switch a := arg.Type().(type) {
-		case *sys.ResourceType:
-			if a.Dir() != sys.DirIn {
-				s.Resources[a.Name()] = append(s.Resources[a.Name()], arg)
+		switch typ := arg.Type().(type) {
+		case *ResourceType:
+			if typ.Dir() != DirIn {
+				s.Resources[typ.Desc.Name] = append(s.Resources[typ.Desc.Name], arg)
 				// TODO: negative PIDs and add them as well (that's process groups).
 			}
-		case *sys.BufferType:
-			data_arg := arg.(*DataArg)
-			if a.Dir() != sys.DirOut {
-				switch a.Kind {
-				case sys.BufferString:
-					fmt.Printf("ADDING STRING\n")
-					if len(a.Values) > 0 {
-						s.Strings[string(a.Values[0])] = c
+		case *BufferType:
+			a := arg.(*DataArg)
+			if typ.Dir() != DirOut && len(a.Data) != 0 {
+				switch typ.Kind {
+				case BufferString:
+					if len(typ.Values) > 0 {
+						s.Strings[string(typ.Values[0])] = c
 					}
-				case sys.BufferFilename:
-					fmt.Printf("ADDING FILENAME\n")
-					if _, ok := s.Files[string(data_arg.Data)]; !ok {
-						s.Files[string(data_arg.Data)] = make([]*Call, 0)
+				case BufferFilename:
+					if _, ok := s.Files[string(a.Data)]; !ok {
+						s.Files[string(a.Data)] = make([]*Call, 0)
 					}
-					s.Files[string(data_arg.Data)] = append(s.Files[string(data_arg.Data)], c)
+					s.Files[string(a.Data)] = append(s.Files[string(a.Data)], c)
 				}
 			}
 		}
 	})
-	switch c.Meta.Name {
-	case "mmap":
-		// Filter out only very wrong arguments.
-		length := c.Args[1].(*ConstArg)
-		if length.Val == 0 {
-			break
+	start, npages, mapped := s.Target.AnalyzeMmap(c)
+	if npages != 0 {
+		if start+npages > uint64(len(s.Pages)) {
+			panic(fmt.Sprintf("address is out of bounds: page=%v len=%v bound=%v",
+				start, npages, len(s.Pages)))
 		}
-		flags := c.Args[3].(*ConstArg)
-		fd := c.Args[4].(*ResultArg)
-		if flags.Val&sys.MAP_ANONYMOUS == 0 && fd.Val == sys.InvalidFD {
-			break
-		}
-		s.Addressable(c.Args[0].(*PointerArg), length, true)
-	case "munmap":
-		s.Addressable(c.Args[0].(*PointerArg), c.Args[1].(*ConstArg), false)
-	case "mremap":
-		s.Addressable(c.Args[4].(*PointerArg), c.Args[2].(*ConstArg), true)
-	case "io_submit":
-		if arr := c.Args[2].(*PointerArg).Res; arr != nil {
-			for _, ptr := range arr.(*GroupArg).Inner {
-				p := ptr.(*PointerArg)
-				if p.Res != nil && p.Res.Type().Name() == "iocb" {
-					s.Resources["iocbptr"] = append(s.Resources["iocbptr"], ptr)
-				}
-			}
+		for i := uint64(0); i < npages; i++ {
+			s.Pages[start+i] = mapped
 		}
 	}
 }
+
 
 func (s *State) Addressable(addr *PointerArg, size *ConstArg, ok bool) {
 	sizePages := size.Val / PageSize

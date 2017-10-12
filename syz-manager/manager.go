@@ -31,6 +31,7 @@ import (
 	"github.com/google/syzkaller/pkg/repro"
 	. "github.com/google/syzkaller/pkg/rpctype"
 	"github.com/google/syzkaller/prog"
+	"github.com/google/syzkaller/sys"
 	"github.com/google/syzkaller/syz-manager/mgrconfig"
 	"github.com/google/syzkaller/vm"
 )
@@ -45,6 +46,7 @@ var (
 type Manager struct {
 	cfg          *mgrconfig.Config
 	vmPool       *vm.Pool
+	target       *prog.Target
 	crashdir     string
 	port         int
 	corpusDB     *db.DB
@@ -82,6 +84,10 @@ type Manager struct {
 	hubCorpus      map[hash.Sig]bool
 	needMoreRepros chan chan bool
 	hubReproQueue  chan *Crash
+
+	// For checking that files that we are using are not changing under us.
+	// Maps file name to modification time.
+	usedFiles map[string]time.Time
 }
 
 const (
@@ -114,15 +120,25 @@ type Crash struct {
 func main() {
 	flag.Parse()
 	EnableLogCaching(1000, 1<<20)
-	cfg, syscalls, err := mgrconfig.LoadFile(*flagConfig)
+	cfg, err := mgrconfig.LoadFile(*flagConfig)
 	if err != nil {
 		Fatalf("%v", err)
 	}
+	target, err := prog.GetTarget(cfg.TargetOS, cfg.TargetArch)
+	if err != nil {
+		Fatalf("%v", err)
+	}
+	syscalls, err := mgrconfig.ParseEnabledSyscalls(cfg)
+	if err != nil {
+		Fatalf("%v", err)
+	}
+	// mmap is used to allocate memory.
+	syscalls[target.MmapSyscall.ID] = true
 	initAllCover(cfg.Vmlinux)
-	RunManager(cfg, syscalls)
+	RunManager(cfg, target, syscalls)
 }
 
-func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
+func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]bool) {
 	env := mgrconfig.CreateVMEnv(cfg, *flagDebug)
 	vmPool, err := vm.Create(cfg.Type, env)
 	if err != nil {
@@ -145,6 +161,7 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 	mgr := &Manager{
 		cfg:             cfg,
 		vmPool:          vmPool,
+		target:          target,
 		crashdir:        crashdir,
 		startTime:       time.Now(),
 		stats:           make(map[string]uint64),
@@ -160,8 +177,9 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 		fuzzers:         make(map[string]*Fuzzer),
 		fresh:           true,
 		vmStop:          make(chan bool),
-		hubReproQueue:   make(chan *Crash), //!!! make buffered
+		hubReproQueue:   make(chan *Crash, 10),
 		needMoreRepros:  make(chan chan bool),
+		usedFiles:       make(map[string]time.Time),
 	}
 
 	Logf(0, "loading corpus...")
@@ -172,7 +190,7 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 	deleted := 0
 	// disable all programs that contain disabled syscalls
 	for key, rec := range mgr.corpusDB.Records {
-		p, err := prog.Deserialize(rec.Val)
+		p, err := mgr.target.Deserialize(rec.Val)
 		if err != nil {
 			if deleted < 10 {
 				Logf(0, "deleting broken program: %v\n%s", err, rec.Val)
@@ -224,6 +242,7 @@ func RunManager(cfg *mgrconfig.Config, syscalls map[int]bool) {
 
 	// Create HTTP server.
 	mgr.initHttp()
+	mgr.collectUsedFiles()
 
 	// Create RPC server for fuzzers.
 	s, err := NewRpcServer(cfg.Rpc, mgr) //cfg.Rpc defaults to "localhost:0"
@@ -510,6 +529,7 @@ func (mgr *Manager) vmLoop() {
 }
 
 func (mgr *Manager) runInstance(index int) (*Crash, error) {
+	mgr.checkUsedFiles()
 	inst, err := mgr.vmPool.Create(index)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create instance: %v", err)
@@ -522,11 +542,11 @@ func (mgr *Manager) runInstance(index int) (*Crash, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup port forwarding: %v", err)
 	}
-	fuzzerBin, err := inst.Copy(filepath.Join(mgr.cfg.Syzkaller, "bin", "syz-fuzzer"))
+	fuzzerBin, err := inst.Copy(mgr.cfg.SyzFuzzerBin)
 	if err != nil {
 		return nil, fmt.Errorf("failed to copy binary: %v", err)
 	}
-	executorBin, err := inst.Copy(filepath.Join(mgr.cfg.Syzkaller, "bin", "syz-executor"))
+	executorBin, err := inst.Copy(mgr.cfg.SyzExecutorBin)
 	if err != nil {
 		return nil, fmt.Errorf("failed to copy binary: %v", err)
 	}
@@ -545,8 +565,8 @@ func (mgr *Manager) runInstance(index int) (*Crash, error) {
 	atomic.AddUint32(&mgr.numFuzzing, 1)
 	defer atomic.AddUint32(&mgr.numFuzzing, ^uint32(0))
 
-	cmd := fmt.Sprintf("%v -fuzz-disabled=%v -executor=%v -name=vm-%v -manager=%v  -procs=%v -leak=%v -cover=%v -sandbox=%v -debug=%v -v=%d",
-		fuzzerBin, *flagFuzzDisabled, executorBin, index, fwdAddr,  procs, leak, mgr.cfg.Cover, mgr.cfg.Sandbox, *flagDebug, fuzzerV)
+	cmd := fmt.Sprintf("%v -fuzz-disabled=%v -executor=%v -name=vm-%v -arch=%v -manager=%v  -procs=%v -leak=%v -cover=%v -sandbox=%v -debug=%v -v=%d",
+		fuzzerBin, *flagFuzzDisabled, executorBin, index, mgr.cfg.TargetArch, fwdAddr,  procs, leak, mgr.cfg.Cover, mgr.cfg.Sandbox, *flagDebug, fuzzerV)
 
 	outc, errc, err := inst.Run(time.Hour, mgr.vmStop, cmd)
 	if err != nil {
@@ -775,8 +795,8 @@ func (mgr *Manager) saveRepro(res *repro.Result, hub bool) {
 
 
 func (mgr *Manager) symbolizeReport(text []byte) []byte {
-	if len(text) == 0 {
-		return nil
+	if len(text) == 0 || mgr.cfg.Vmlinux == "" {
+		return text
 	}
 	<-allSymbolsReady
 	symbolized, err := report.Symbolize(mgr.cfg.Vmlinux, text, allSymbols)
@@ -857,17 +877,20 @@ func (mgr *Manager) Connect(a *ConnectArgs, r *ConnectRes) error {
 		// deserialize each mgr.corpus.Prog into a full prog.Prog (i.e. slice of prog.Calls)
 		// put all prog.Progs into corpus
 		for _, inp := range inputs {
-			p, err := prog.Deserialize(inp)
+			p, err := mgr.target.Deserialize(inp)
 			if err != nil {
 				panic(err)
 			}
 			corpus = append(corpus, p)
 		}
+
 		// TODO: major room for improvement here, as priorities are arbitrary
 		// For example: data-mining from real workloads to create a more robust priority system
-		prios := prog.CalculatePriorities(corpus) // prioritize!
 		// prios[X][Y] represents the guess of whether the addition of call Y into a program
 		// containing acll X is likely to give new coverage.
+
+		prios := mgr.target.CalculatePriorities(corpus)
+
 
 		mgr.mu.Lock()
 		mgr.prios = prios
@@ -920,6 +943,18 @@ func (mgr *Manager) Check(a *CheckArgs, r *int) error {
 	}
 	if mgr.cfg.Sandbox == "namespace" && !a.UserNamespaces {
 		Fatalf("/proc/self/ns/user is missing or permission is denied. Requested namespace sandbox but user namespaces are not enabled. Enable CONFIG_USER_NS")
+	}
+	if mgr.target.Arch != a.ExecutorArch {
+		Fatalf("mismatching target/executor arch: target=%v executor=%v",
+			mgr.target.Arch, a.ExecutorArch)
+	}
+	if sys.GitRevision != a.FuzzerGitRev || sys.GitRevision != a.ExecutorGitRev {
+		Fatalf("mismatching git revisions:\nmanager= %v\nfuzzer=  %v\nexecutor=%v",
+			sys.GitRevision, a.FuzzerGitRev, a.ExecutorGitRev)
+	}
+	if mgr.target.Revision != a.FuzzerSyzRev || mgr.target.Revision != a.ExecutorSyzRev {
+		Fatalf("mismatching syscall descriptions:\nmanager= %v\nfuzzer=  %v\nexecutor=%v",
+			mgr.target.Revision, a.FuzzerSyzRev, a.ExecutorSyzRev)
 	}
 	mgr.vmChecked = true
 	mgr.enabledCalls = a.Calls
@@ -1145,7 +1180,7 @@ func (mgr *Manager) hubSync() {
 
 		reproDropped := 0
 		for _, repro := range r.Repros {
-			_, err := prog.Deserialize(repro)
+			_, err := mgr.target.Deserialize(repro)
 			if err != nil {
 				reproDropped++
 				continue
@@ -1163,7 +1198,7 @@ func (mgr *Manager) hubSync() {
 		mgr.newRepros = nil
 		dropped := 0
 		for _, inp := range r.Progs {
-			_, err := prog.Deserialize(inp)
+			_, err := mgr.target.Deserialize(inp)
 			if err != nil {
 				dropped++
 				continue
@@ -1188,6 +1223,7 @@ func (mgr *Manager) hubSync() {
 		a.Del = nil
 	}
 }
+
 
 func (mgr *Manager) getCallCover() *UISummaryData{
 	data := &UISummaryData{}
@@ -1224,4 +1260,38 @@ func (mgr *Manager) getCallCover() *UISummaryData{
 	return data
 }
 
+
+func (mgr *Manager) collectUsedFiles() {
+	addUsedFile := func(f string) {
+		if f == "" {
+			return
+		}
+		stat, err := os.Stat(f)
+		if err != nil {
+			Fatalf("failed to stat %v: %v", f, err)
+		}
+		mgr.usedFiles[f] = stat.ModTime()
+	}
+	cfg := mgr.cfg
+	addUsedFile(cfg.SyzFuzzerBin)
+	addUsedFile(cfg.SyzExecprogBin)
+	addUsedFile(cfg.SyzExecutorBin)
+	addUsedFile(cfg.Sshkey)
+	addUsedFile(cfg.Vmlinux)
+	if cfg.Image != "9p" {
+		addUsedFile(cfg.Image)
+	}
+}
+
+func (mgr *Manager) checkUsedFiles() {
+	for f, mod := range mgr.usedFiles {
+		stat, err := os.Stat(f)
+		if err != nil {
+			Fatalf("failed to stat %v: %v", f, err)
+		}
+		if mod != stat.ModTime() {
+			Fatalf("modification time of %v has changed: %v -> %v", f, mod, stat.ModTime())
+		}
+	}
+}
 
