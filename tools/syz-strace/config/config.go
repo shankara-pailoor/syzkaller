@@ -14,7 +14,8 @@ type SyzStraceConfig struct {
 
 type CorpusGenConfig struct {
 	ConfigPath string `json:"workload_config"`
-	Type string
+	Tracer string
+	Executor string
 	SSHConfig
 	DestinationDir string `json:"dest_dir"`
 }

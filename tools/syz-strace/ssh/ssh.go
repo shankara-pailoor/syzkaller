@@ -31,7 +31,7 @@ type SSHClient struct {
 	Port int
 }
 
-func NewClient(config config.CorpusGenConfig) (client *SSHClient) {
+func NewClient(config config.SSHConfig) (client *SSHClient) {
 	sshConfig := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
@@ -78,12 +78,18 @@ func (client *SSHClient) extractCommand(config domain.WorkloadConfig) (sshComman
 	return sshCommand
 }
 
-func (client *SSHClient) RunCommand(config domain.WorkloadConfig) error{
+func (client *SSHClient) RunStrace(config domain.WorkloadConfig)  error {
 	cmd := client.extractCommand(config)
-	return client.runCommand(cmd)
+	if err := client.runCommand(cmd); err != nil {
+		logrus.Errorf("Failed to run command: %s", err.Error())
+		return err
+	}
+	client.copyPath(config.StraceOutPath, config.StraceOutPath + "/" + config.Name)
+	client.deleteFile(config)
+	return nil
 }
 
-func (client *SSHClient) runCommand(cmd *SSHCommand) error {
+func (client *SSHClient) runCommand(cmd *SSHCommand) error{
 	var (
 		session *ssh.Session
 		err     error
@@ -99,6 +105,7 @@ func (client *SSHClient) runCommand(cmd *SSHCommand) error {
 
 	err = session.Run(cmd.build())
 	return err
+
 }
 
 func SSHAgent() ssh.AuthMethod {
@@ -108,7 +115,7 @@ func SSHAgent() ssh.AuthMethod {
 	return nil
 }
 
-func (client *SSHClient) CopyPath(srcPath, destPath string) {
+func (client *SSHClient) copyPath(srcPath, destPath string) {
 	fdest, err := os.OpenFile(destPath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
 	if err != nil {
 		logrus.Fatalf("failed to open dest path: %s", err.Error())
@@ -175,7 +182,7 @@ func (client *SSHClient) prepareCommand(session *ssh.Session, cmd *SSHCommand) e
 	return nil
 }
 
-func (client *SSHClient) DeleteFile(config domain.WorkloadConfig) {
+func (client *SSHClient) deleteFile(config domain.WorkloadConfig) {
 	deleteCmd := new(SSHCommand)
 	deleteCmd.Path = "/bin/rm"
 	deleteCmd.Args = append([]string{deleteCmd.Path}, "-f")

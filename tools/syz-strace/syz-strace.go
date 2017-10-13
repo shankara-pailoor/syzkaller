@@ -11,7 +11,6 @@ import (
 	. "github.com/google/syzkaller/tools/syz-strace/config"
 	"github.com/google/syzkaller/tools/syz-strace/distiller"
 	"github.com/google/syzkaller/tools/syz-strace/domain"
-	. "github.com/google/syzkaller/tools/syz-strace/ssh"
 	. "github.com/google/syzkaller/tools/syz-strace/workload-tracer"
 	. "github.com/google/syzkaller/tools/syz-structs"
 	sparser "github.com/mattrco/difftrace/parser"
@@ -204,6 +203,7 @@ func main() {
 			fmt.Printf("HAVE FD_CWD\n")
 		}
 	}
+	seen_calls := make(map[string]bool)
 	seeds := make(domain.Seeds, 0)
 	progs := make([]*prog.Prog, 0)
 	for i, filename := range strace_files {
@@ -240,6 +240,13 @@ func main() {
 				continue
 			}
 			s.Tracker.FillOutMemory()
+			for _, call := range parsedProg.Calls {
+				if _, ok := seen_calls[call.Meta.CallName]; ok {
+					continue
+				} else {
+					seen_calls[call.Meta.CallName] = true
+				}
+			}
 			fmt.Printf("ABOUT TO VALIDATE PROGRAM\n");
 			if err := parsedProg.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", "something")
@@ -259,7 +266,13 @@ func main() {
 			}
 
 		}
+
 	}
+	for call, _ := range seen_calls {
+		fmt.Printf("\"%s\",", call)
+	}
+	fmt.Printf("\n");
+
 	if distill {
 		distiller_.Add(seeds)
 		distilled := distiller_.Distill(progs)
@@ -283,13 +296,8 @@ func main() {
 }
 
 func gatherTraces(conf *SyzStraceConfig) {
-	fmt.Printf("Syz Strace Config: %v\n", conf)
-	var executor domain.Executor
-	if conf.CorpusGenConf.Type == "ssh" {
-		executor = NewClient(conf.CorpusGenConf)
-	}
-	GenerateCorpus(conf.CorpusGenConf, executor)
-	fmt.Printf("Distill Config: %v\n", conf)
+	tracer := NewTracer(conf.CorpusGenConf)
+	tracer.GenerateCorpus()
 }
 
 func parseStrace(filename string) (calls []*sparser.OutputLine) {
@@ -343,6 +351,9 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 			s.CurrentCallIdx -= 1
 			return nil, err
 		}
+		if seed == nil {
+			continue
+		}
 		seeds.Add(seed)
 	}
 	memory := s.Tracker.GetTotalMemoryNeeded()
@@ -382,14 +393,16 @@ func parseInstructions(line string) (ips []uint64) {
 func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint64,
 	return_vars *map[returnType]Arg, s *domain.State, prog_ *Prog) (*domain.Seed, error) {
 	if _, ok := Unsupported[line.FuncName]; ok {
-		failf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
+		fmt.Printf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
+		return nil, nil
 	}
 
 	/* adjust functions to fit syzkaller standards */
 	process(target, line, consts, return_vars)
 	meta := target.SyscallMap[line.FuncName]
 	if meta == nil {
-		failf("unknown syscall %v\n", line.Unparse())
+		fmt.Printf("unknown syscall %v\n", line.Unparse())
+		return nil, nil
 	}
 	//fmt.Printf("unknown syscall %v\n", line.FuncName)
 	//continue
