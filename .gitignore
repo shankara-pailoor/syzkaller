@@ -1,3 +1,4 @@
+*.iml
 *.swp
 *~
 *.cfg
@@ -23,4 +24,3 @@ corpuses/
 crashes/
 distillStats
 strace-output/*
-
