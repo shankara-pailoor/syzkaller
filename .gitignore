@@ -10,7 +10,8 @@ sys/sys_arm64.go
 sys/sys_ppc64le.go
 executor/syscalls.h
 .idea/
-ssh/
+/ssh/
+/tools/ssh/
 wheezy.img
 wheezy/
 wheezy_old/
