@@ -89,11 +89,9 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 	}
 	seen := 0
 	for b := range recv_chan {
-		fmt.Printf("Bool: %b\n", b)
 		seen += 1
 		if (seen  == len(tracer.workloads)) {
 			close(recv_chan)
-			close(wc_chan)
 		}
 	}
 	return nil
