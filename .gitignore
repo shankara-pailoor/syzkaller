@@ -22,5 +22,6 @@ tools/syz-strace/syz-strace.json
 corpuses/
 crashes/
 distillStats
+*.tar.gz
 strace-output/*
 
