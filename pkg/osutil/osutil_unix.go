@@ -1,7 +1,7 @@
 // Copyright 2017 syzkaller project authors. All rights reserved.
 // Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
 
-// +build linux,!appengine darwin,!appengine
+// +build freebsd,!appengine linux,!appengine darwin,!appengine
 
 package osutil
 
@@ -70,7 +70,7 @@ func ProcessTempDir(where string) (string, error) {
 func HandleInterrupts(shutdown chan struct{}) {
 	go func() {
 		c := make(chan os.Signal, 3)
-		signal.Notify(c, syscall.SIGINT)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		<-c
 		close(shutdown)
 		fmt.Fprint(os.Stderr, "SIGINT: shutting down...\n")

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sort"
 	"github.com/google/syzkaller/tools/syz-strace/domain"
-	"github.com/google/syzkaller/sys"
 	"os"
 )
 
@@ -238,7 +237,7 @@ func (d *DistillerMetadata) isDependent(arg prog.Arg, seed *domain.Seed, state *
 		}
 	case *prog.GroupArg:
 		for _, inner_arg := range a.Inner {
-			if sys.IsPad(inner_arg.Type()) {
+			if prog.IsPad(inner_arg.Type()) {
 				fmt.Printf("FOUND PAD for index: %d\n", callIdx)
 			}
 			for k, argMap := range d.isDependent(inner_arg, seed, state, callIdx, args) {
@@ -266,10 +265,10 @@ func (d *DistillerMetadata) isDependent(arg prog.Arg, seed *domain.Seed, state *
 
 	case *prog.DataArg:
 		switch typ := arg.Type().(type) {
-		case *sys.BufferType:
-			if typ.ArgDir != sys.DirOut && len(a.Data) != 0 {
+		case *prog.BufferType:
+			if typ.ArgDir != prog.DirOut && len(a.Data) != 0 {
 				switch typ.Kind {
-				case sys.BufferFilename:
+				case prog.BufferFilename:
 					callMap := make(map[*prog.Call]bool, 0)
 					for s, calls := range state.Files {
 						if s == string(a.Data) {

@@ -43,8 +43,13 @@ func (d *StrongDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 	}
 	d.Stats(heavyHitters)
 	for _, seed := range heavyHitters {
+		//Pulls upstream dependencies
+		//If any upstream dependencies are in a distilled prog we add our call to that
+		//and merge all programs that contain our upstream dependencies
 		d.AddToDistilledProg(seed)
 	}
+	//At this point our programs are stored in map: Call->Distilled Program
+	//We now want to get the programs
 	distilledProgs := make(map[*prog.Prog]bool)
 	for _, seed := range seeds {
 		if _, ok := d.CallToDistilledProg[seed.Call]; ok {
@@ -52,6 +57,7 @@ func (d *StrongDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 		}
 	}
 	for prog, _ := range distilledProgs {
+		d.CallToSeed[prog.Calls[0]].State.Tracker.FillOutMemory(prog)
 		//fmt.Printf("Prog: %v\n", prog)
 		distilled = append(distilled, prog)
 	}

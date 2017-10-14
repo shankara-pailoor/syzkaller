@@ -9,26 +9,16 @@ Prerequisites:
  - Build syzkaller
 
 ```sh
-$ make android
-```
-
- - Check the output files are correct
-
-```sh
-$ file bin/*
-bin/syz-execprog: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, stripped
-bin/syz-executor: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, not stripped
-bin/syz-fuzzer:   ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, stripped
-bin/syz-manager:  Mach-O 64-bit executable x86_64
+$ NDK=/path/to/android/ndk make TARGETOS=android TARGETARCH=arm64
 ```
 
  - Create config with `"type": "adb"` and specify adb devices to use. For example:
 ```
 {
+	"target": "linux/arm64",
 	"http": "localhost:50000",
 	"workdir": "/gopath/src/github.com/google/syzkaller/workdir",
 	"syzkaller": "/gopath/src/github.com/google/syzkaller",
-	"vmlinux": "-",
 	"sandbox": "none",
 	"procs": 8,
 	"type": "adb",
@@ -41,4 +31,4 @@ bin/syz-manager:  Mach-O 64-bit executable x86_64
  - Start `syz-manager -config adb.cfg` as usual.
 
 If you get issues after `syz-manager` starts, consider running it with the `-debug` flag.
-Also see [this page](troubleshooting.md) for troubleshooting tips.
+Also see [this page](troubleshooting.md) for troubleshooting tips and [Building a Pixel kernel with KASAN+KCOV](https://source.android.com/devices/tech/debug/kasan-kcov) for kernel build/boot instructions.

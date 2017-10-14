@@ -1,40 +1,38 @@
 package main
 
 import (
-sparser "github.com/mattrco/difftrace/parser"
-"os"
-"fmt"
-"strings"
-"github.com/google/syzkaller/sys"
-. "github.com/google/syzkaller/prog"
-"path/filepath"
-"bufio"
-"strconv"
-"reflect"
-"io/ioutil"
-"github.com/google/syzkaller/pkg/db"
-"github.com/google/syzkaller/pkg/hash"
-. "github.com/google/syzkaller/tools/syz-structs"
-"sync"
-"math/rand"
-"github.com/google/syzkaller/tools/syz-strace/distiller"
-"github.com/google/syzkaller/prog"
-"errors"
-"math"
-"flag"
-. "github.com/google/syzkaller/tools/syz-strace/config"
-. "github.com/google/syzkaller/tools/syz-strace/workload-tracer"
-. "github.com/google/syzkaller/tools/syz-strace/ssh"
-"github.com/google/syzkaller/tools/syz-strace/domain"
+	"errors"
+	"flag"
+	"fmt"
+	"github.com/google/syzkaller/pkg/db"
+	"github.com/google/syzkaller/pkg/hash"
+	"github.com/google/syzkaller/prog"
+	. "github.com/google/syzkaller/prog"
+	. "github.com/google/syzkaller/tools/syz-strace/config"
+	"github.com/google/syzkaller/tools/syz-strace/distiller"
+	"github.com/google/syzkaller/tools/syz-strace/domain"
+	. "github.com/google/syzkaller/tools/syz-strace/workload-tracer"
+	. "github.com/google/syzkaller/tools/syz-structs"
+	sparser "github.com/mattrco/difftrace/parser"
+	"github.com/google/syzkaller/sys"
+	"io/ioutil"
+	"math"
+	"math/rand"
 	"net"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync"
 )
 
 const (
-	arch = "amd64"
-	maxLineLen = 256 << 10
-	pageSize   = 4 << 10
-	maxPages   = 4 << 10
-	COVER_ID = "Cover:"
+	arch        = "amd64"
+	maxLineLen  = 256 << 10
+	pageSize    = 4 << 10
+	maxPages    = 4 << 10
+	COVER_ID    = "Cover:"
 	COVER_DELIM = "-"
 )
 
@@ -48,8 +46,8 @@ func (p pid) String() string {
 
 type Trace struct {
 	rootPid pid
-	ptree map[pid][]pid
-	progs map[pid][]*sparser.OutputLine
+	ptree   map[pid][]pid
+	progs   map[pid][]*sparser.OutputLine
 }
 
 func NewTrace() *Trace {
@@ -65,7 +63,6 @@ func (t *Trace) Parse(lines []*sparser.OutputLine) {
 		var pid_ pid = 0
 		if line.Pid != 0 {
 			if i == 0 {
-				t.rootPid = pid(line.Pid)
 				pid_ = t.rootPid
 			} else {
 				pid_ = pid(line.Pid)
@@ -98,26 +95,26 @@ func (t *Trace) Parse(lines []*sparser.OutputLine) {
 	return
 }
 
-func (t *Trace) Sanitize(lines []*sparser.OutputLine) []*sparser.OutputLine{
+func (t *Trace) Sanitize(lines []*sparser.OutputLine) []*sparser.OutputLine {
 	sanitizedLines := lines
 	for i, line := range sanitizedLines {
 		if line.Paused {
 			fmt.Printf("Paused: %s %d %v\n", line.FuncName, i, line.Pid)
-			for j := 0; j < len(lines) - i; j++ {
-				if lines[i + j].Resumed && lines[i + j].Pid == line.Pid {
-					if line.FuncName == "clone" && lines[i + j].Result == "?" {
+			for j := 0; j < len(lines)-i; j++ {
+				if lines[i+j].Resumed && lines[i+j].Pid == line.Pid {
+					if line.FuncName == "clone" && lines[i+j].Result == "?" {
 						//The clone is going to be restarted so we should delete the paused and resumed portions
 						fmt.Println("FOUND BAD CLONE")
-						sanitizedLines = append(sanitizedLines[:i], append(sanitizedLines[i + 1:i + j], sanitizedLines[i + j + 1:]...)...)
+						sanitizedLines = append(sanitizedLines[:i], append(sanitizedLines[i+1:i+j], sanitizedLines[i+j+1:]...)...)
 						break
 					}
-					fmt.Printf("line[%d], result: %s, conents:%v\n", i + j, lines[i + j].Result, lines[i + j])
-					lines[i].Args = append(lines[i].Args, lines[i + j].Args...)
+					fmt.Printf("line[%d], result: %s, conents:%v\n", i+j, lines[i+j].Result, lines[i+j])
+					lines[i].Args = append(lines[i].Args, lines[i+j].Args...)
 
 					//If the program is unfinished it needs the result from the finished part
-					lines[i].Result = lines[i + j].Result
+					lines[i].Result = lines[i+j].Result
 					//Delete the resumed line
-					sanitizedLines = append(sanitizedLines[:i + j], sanitizedLines[i + j + 1:]...)
+					sanitizedLines = append(sanitizedLines[:i+j], sanitizedLines[i+j+1:]...)
 					break
 				}
 			}
@@ -132,22 +129,22 @@ func (t *Trace) Sanitize(lines []*sparser.OutputLine) []*sparser.OutputLine{
 }
 
 type pointer struct {
-	Addr	string
-	Val	string
+	Addr string
+	Val  string
 }
 
 type returnType struct {
-	Type 	string
-	Val  	string
+	Type string
+	Val  string
 }
 
 var (
-	flagFile = flag.String("file", "", "file to parse")
-	flagDir = flag.String("dir", "", "directory to parse")
-	flagSkip = flag.Int("skip", 0, "how many to skip")
-	flagConfig = flag.String("config", "/etc/strace-config.json", "config file for syz strace")
+	flagFile      = flag.String("file", "", "file to parse")
+	flagDir       = flag.String("dir", "", "directory to parse")
+	flagSkip      = flag.Int("skip", 0, "how many to skip")
+	flagConfig    = flag.String("config", "/etc/strace-config.json", "config file for syz strace")
 	flagGetTraces = flag.Bool("trace", false, "gather traces")
-	flagDistill = flag.Bool("distill", false, "distill traces")
+	flagDistill   = flag.Bool("distill", false, "distill traces")
 )
 
 func usage() {
@@ -158,25 +155,27 @@ func usage() {
 }
 
 func main() {
+	fmt.Printf("git revision: %s\n", sys.GitRevision)
 	var err error
+	var target *Target
 	flag.Parse()
 	file, dir, configLocation := *flagFile, *flagDir, *flagConfig
 	getTraces, distill := *flagGetTraces, *flagDistill
 	/* if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
-		usage()
-} */
+			usage()
+	} */
 	config := NewConfig(configLocation)
-	if (getTraces) {
+	if getTraces {
 		gatherTraces(config)
 	}
 	strace_files := make([]string, 0)
-	if (file != "") {
+	if file != "" {
 		strace_files = append(strace_files, file)
 	}
 	if dir == "" {
 		dir = config.ParserConf.InputDirectory
 	}
-	if (dir != "") {
+	if dir != "" {
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
 			failf(err.Error())
@@ -189,10 +188,25 @@ func main() {
 	fmt.Printf("strace_files: %v\n", strace_files)
 	distiller_ := distiller.NewDistiller(config.DistillConf)
 	os.Mkdir("serialized", 0750)
-	consts := readConsts(arch)
+	fmt.Printf("OS: %s, ARCH: %s\n", config.ParserConf.Os, config.ParserConf.Arch)
+	target, err = prog.GetTarget(config.ParserConf.Os, config.ParserConf.Arch)
+	fmt.Printf("%v\n", target.ConstMap)
+	if err != nil {
+		s := fmt.Sprintf("Failed to parse config: %s\n", err.Error())
+		panic(s)
+	}
+	consts := target.ConstMap
+	fmt.Printf("CONSTANTS\n")
+	for k, _ := range consts {
+		fmt.Printf("%s\n", k)
+		if k == "AT_FDCWD" {
+			fmt.Printf("HAVE FD_CWD\n")
+		}
+	}
+	seen_calls := make(map[string]bool)
 	seeds := make(domain.Seeds, 0)
 	progs := make([]*prog.Prog, 0)
-	for i,filename := range strace_files {
+	for i, filename := range strace_files {
 		if i < *flagSkip {
 			continue
 		}
@@ -211,16 +225,29 @@ func main() {
 				fmt.Printf("Parent pid: %v, Child Pid: %v\n", pid, child)
 			}
 		}
-		var parsedProg *prog.Prog;
+		var parsedProg *prog.Prog
 		for pid, _ := range trace.progs {
 			fmt.Printf("TRACE PROGS PIDS: %v\n", pid)
 			lines := trace.progs[pid]
-			parsedProg, err = parse(lines, &consts, &seeds)
+			if len(lines) > 250 {
+				fmt.Printf("Pid has more than 250 calls: %v, %d", pid, len(lines))
+				continue
+			}
+			s := domain.NewState(target) /* to keep track of resources and memory */
+			parsedProg, err = parse(target, lines, s, &consts, &seeds)
 			if err != nil {
 				fmt.Printf("Error parsing program: %s\n", err.Error())
 				continue
 			}
-
+			s.Tracker.FillOutMemory(parsedProg)
+			for _, call := range parsedProg.Calls {
+				if _, ok := seen_calls[call.Meta.CallName]; ok {
+					continue
+				} else {
+					seen_calls[call.Meta.CallName] = true
+				}
+			}
+			fmt.Printf("ABOUT TO VALIDATE PROGRAM\n");
 			if err := parsedProg.Validate(); err != nil {
 				fmt.Printf("Error validating %v\n", "something")
 				failf(err.Error())
@@ -237,10 +264,15 @@ func main() {
 				fmt.Printf("==============================\n\n")
 
 			}
+
 		}
 
-
 	}
+	for call, _ := range seen_calls {
+		fmt.Printf("\"%s\",", call)
+	}
+	fmt.Printf("\n");
+
 	if distill {
 		distiller_.Add(seeds)
 		distilled := distiller_.Distill(progs)
@@ -251,7 +283,7 @@ func main() {
 				failf(err.Error())
 				break
 			}
-			s_name := "serialized/" + filepath.Base("distilled" + strconv.Itoa(i))
+			s_name := "serialized/" + filepath.Base("distilled"+strconv.Itoa(i))
 			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
 				failf("failed to output file: %v", err)
 			}
@@ -264,13 +296,8 @@ func main() {
 }
 
 func gatherTraces(conf *SyzStraceConfig) {
-	fmt.Printf("Syz Strace Config: %v\n", conf)
-	var executor domain.Executor
-	if conf.CorpusGenConf.Type == "ssh" {
-		executor = NewClient(conf.CorpusGenConf)
-	}
-	GenerateCorpus(conf.CorpusGenConf, executor)
-	fmt.Printf("Distill Config: %v\n", conf)
+	tracer := NewTracer(conf.CorpusGenConf)
+	tracer.GenerateCorpus()
 }
 
 func parseStrace(filename string) (calls []*sparser.OutputLine) {
@@ -313,18 +340,28 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 	return
 }
 
-func  parse(straceCalls []*sparser.OutputLine, consts *map[string]uint64, seeds *domain.Seeds) (*Prog, error){
-	prog :=  new(Prog)
+func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, consts *map[string]uint64, seeds *domain.Seeds) (*Prog, error) {
+	prog := new(Prog)
 	return_vars := make(map[returnType]Arg)
-	s := domain.NewState() /* to keep track of resources and memory */
 
 	for _, line := range straceCalls {
-		seed, err := parseCall(line, consts, &return_vars, s, prog)
-		if err != nil {
+
+		seed, err := parseCall(target, line, consts, &return_vars, s, prog)
+		if err != nil  {
 			return nil, err
+		}
+		if seed == nil {
+			continue
 		}
 		seeds.Add(seed)
 	}
+	memory := s.Tracker.GetTotalMemoryNeeded()
+	fmt.Printf("TOTAL Memory Needed: %d\n", memory)
+	calls := make([]*Call, 0)
+	calls = append(calls, target.MakeMmap(0, uint64(memory/pageSize)+1))
+	calls = append(calls, prog.Calls...)
+	prog.Calls = calls
+	s.Tracker.FillOutMemory(prog)
 	return prog, nil
 }
 
@@ -352,18 +389,19 @@ func parseInstructions(line string) (ips []uint64) {
 	return
 }
 
-
-func parseCall(line *sparser.OutputLine, consts *map[string]uint64,
-return_vars *map[returnType]Arg, s *domain.State, prog_ *Prog) (*domain.Seed, error){
+func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint64,
+	return_vars *map[returnType]Arg, s *domain.State, prog_ *Prog) (*domain.Seed, error) {
 	if _, ok := Unsupported[line.FuncName]; ok {
-		failf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
+		fmt.Printf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
+		return nil, nil
 	}
 
 	/* adjust functions to fit syzkaller standards */
-	process(line, consts, return_vars)
-	meta := sys.CallMap[line.FuncName]
+	process(target, line, consts, return_vars)
+	meta := target.SyscallMap[line.FuncName]
 	if meta == nil {
-		failf("unknown syscall %v\n", line.Unparse())
+		fmt.Printf("unknown syscall %v\n", line.Unparse())
+		return nil, nil
 	}
 	//fmt.Printf("unknown syscall %v\n", line.FuncName)
 	//continue
@@ -383,11 +421,12 @@ return_vars *map[returnType]Arg, s *domain.State, prog_ *Prog) (*domain.Seed, er
 		Meta: meta,
 		Ret:  returnArg(meta.Ret),
 	}
+	s.CurrentCall = c
 	var calls []*Call
 	var strace_arg string
 	progLen := len(prog_.Calls)
 	for i, typ := range meta.Args {
-		if (i < len(line.Args)) {
+		if i < len(line.Args) {
 			strace_arg = line.Args[i]
 		} else {
 			fmt.Printf("arg %v %v not present, using nil\n", i, typ.Name())
@@ -415,21 +454,21 @@ return_vars *map[returnType]Arg, s *domain.State, prog_ *Prog) (*domain.Seed, er
 
 	// add calls to our program
 
-	for _,c := range calls {
+	for _, c := range calls {
 		// TODO: sanitize c?
 		s.Analyze(c)
 		prog_.Calls = append(prog_.Calls, c)
 	}
 	dependsOn := make(map[*prog.Call]int, 0)
 	for i := 0; i < len(calls)-1; i++ {
-		dependsOn[calls[i]] = progLen+i
+		dependsOn[calls[i]] = progLen + i
 	}
 	fmt.Println("\n---------done parsing line--------\n")
 	return domain.NewSeed(c, s, dependsOn, prog_, len(prog_.Calls)-1, line.Cover), nil
 }
 
-func parseInnerCall(val string, typ sys.Type, line *sparser.OutputLine, consts *map[string]uint64,
-return_vars *map[returnType]Arg, s *domain.State) Arg {
+func parseInnerCall(val string, typ Type, line *sparser.OutputLine, consts *map[string]uint64,
+	return_vars *map[returnType]Arg, s *domain.State) Arg {
 
 	fmt.Println("---------Parsing Inner Call Args-----------")
 	fmt.Println(val)
@@ -438,8 +477,8 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 	for val[i] != '(' {
 		i++
 	}
-	call, arg_str := val[:i], val[i:] // split into form <call>=(<args>)
-	arg_str = arg_str[1:len(arg_str)-1] // strip parentheses
+	call, arg_str := val[:i], val[i:]     // split into form <call>=(<args>)
+	arg_str = arg_str[1 : len(arg_str)-1] // strip parentheses
 
 	args := make([]string, 0)
 
@@ -456,40 +495,40 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 
 	switch a := typ.(type) {
 	/* just choose max allowed for proc args */
-	case *sys.ProcType:
-		return constArg(a, uint64(a.ValuesPerProc - 1))
-	case *sys.UnionType:
+	case *ProcType:
+		return constArg(a, uint64(a.ValuesPerProc-1))
+	case *UnionType:
 		fmt.Println("PARSING UNION TYPE")
 		/* I know this is horrible but there's no other way to know the union type! :( */
 		if strings.Contains(line.FuncName, "$inet6") && call == "htonl" {
 			var inner_arg Arg
-			var optType sys.Type
-			if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+			var optType Type
+			if i, err := strconv.ParseUint(args[0], 0, 32); err == nil {
 				if Htonl(uint32(i)) == 0 {
-					optType = a.Options[0]
+					optType = a.Fields[0]
 				}
 			}
 			switch t := optType.(type) {
-			case *sys.StructType:
+			case *StructType:
 				fmt.Printf("PARSING STRUCT TYPE\n")
 				struct_args := make([]Arg, 0)
 				for _, field := range t.Fields {
 					var inner_arg Arg
 					switch ft := field.(type) {
-					case *sys.ArrayType:
+					case *ArrayType:
 						fmt.Print("PARSING ARRAY TYPE\n")
 						switch t := ft.Type.(type) {
-						case *sys.IntType:
+						case *IntType:
 							fmt.Print("PARSING INT TYPE\n")
-							if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+							if i, err := strconv.ParseUint(args[0], 0, 32); err == nil {
 								inner_arg = groupArg(field, []Arg{constArg(ft.Type, uint64(Htonl(uint32(i))))})
 
 							} else {
 								failf("failed to parse inner call %v\n", val)
 							}
-						case *sys.ConstType:
+						case *ConstType:
 							fmt.Print("PARSING CONST TYPE\n")
-							if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+							if i, err := strconv.ParseUint(args[0], 0, 32); err == nil {
 								inner_arg = groupArg(field, []Arg{constArg(ft.Type, uint64(Htonl(uint32(i))))})
 
 							} else {
@@ -503,10 +542,10 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 					struct_args = append(struct_args, inner_arg)
 				}
 				return unionArg(a, groupArg(t, struct_args), optType)
-			case *sys.UnionType:
+			case *UnionType:
 				fmt.Print("YEAH UNION TYPE\n")
 			}
-			if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+			if i, err := strconv.ParseUint(args[0], 0, 32); err == nil {
 				fmt.Printf("HTONL parsed: %d\n", Htonl(uint32(i)))
 				inner_arg = constArg(typ, uint64(Htonl(uint32(i))))
 			} else {
@@ -515,27 +554,27 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 			return unionArg(a, inner_arg, optType)
 		}
 		if strings.Contains(line.FuncName, "$inet") && call == "inet_addr" {
-			var optType sys.Type
+			var optType Type
 			var inner_arg Arg
-			args[0] = args[0][1:len(args[0])-1] // strip quotes
+			args[0] = args[0][1 : len(args[0])-1] // strip quotes
 			if args[0] == "0.0.0.0" {
-				optType = a.Options[0]
+				optType = a.Fields[0]
 				inner_arg = constArg(optType, uint64(0x00000000))
 			} else if args[0] == "127.0.0.1" {
-				optType = a.Options[3]
+				optType = a.Fields[3]
 				inner_arg = constArg(optType, uint64(0x7f000001))
 			} else if args[0] == "255.255.255.255" {
-				optType = a.Options[6]
+				optType = a.Fields[6]
 				inner_arg = constArg(optType, uint64(0xffffffff))
 			} else {
 				fmt.Printf("unsupported inet_addr %v in %v\n", args[0], val)
 				// TODO: is this right? Will syzkaller mutate later on? How do we hit these EADDRNOTAVAIL blocks
-				optType = a.Options[7]
+				optType = a.Fields[7]
 				inner_arg = constArg(optType, uint64(0x10000000))
 			}
 			return unionArg(a, inner_arg, optType)
 		} else if strings.Contains(line.FuncName, "$inet6") && call == "inet_pton" {
-			var optType sys.Type
+			var optType Type
 			var inner_arg Arg
 			inner_arg, optType = parseIpV6(a, args[1])
 			if optType == nil {
@@ -543,23 +582,23 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 			}
 			/*
 
-			if args[1] == "\"::1\"" {
-				optType = a.Options[3]
-			} else if args[1] == "\"::\"" {
-				optType = a.Options[0]
-			} else {
-				failf("invalid sin_addr `%v` in call to inet_pton: %v\n for call%v \n", args[1], val, line.Unparse())
-			}
-			switch b := optType.(type) {
-			case *sys.StructType:
-				a0 := b.Fields[0].(*sys.ConstType)
-				a1 := b.Fields[1].(*sys.ConstType)
-				a0_arg := constArg(a0, a0.Val)
-				a1_arg := constArg(a1, a1.Val)
-				inner_arg = groupArg(b, []Arg{a0_arg, a1_arg})
-			default:
-				failf("inner option not a structType %v\n", line.Unparse())
-			}
+				if args[1] == "\"::1\"" {
+					optType = a.Options[3]
+				} else if args[1] == "\"::\"" {
+					optType = a.Options[0]
+				} else {
+					failf("invalid sin_addr `%v` in call to inet_pton: %v\n for call%v \n", args[1], val, line.Unparse())
+				}
+				switch b := optType.(type) {
+				case *sys.StructType:
+					a0 := b.Fields[0].(*sys.ConstType)
+					a1 := b.Fields[1].(*sys.ConstType)
+					a0_arg := constArg(a0, a0.Val)
+					a1_arg := constArg(a1, a1.Val)
+					inner_arg = groupArg(b, []Arg{a0_arg, a1_arg})
+				default:
+					failf("inner option not a structType %v\n", line.Unparse())
+				}
 			*/
 			return unionArg(a, inner_arg, optType)
 		} else {
@@ -572,19 +611,19 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 	var arg Arg
 	switch call {
 	case "htons":
-		if i,err := strconv.ParseUint(args[0], 0, 16); err == nil {
+		if i, err := strconv.ParseUint(args[0], 0, 16); err == nil {
 			arg = constArg(typ, uint64(Htons(uint16(i))))
 		} else {
 			failf("failed to parse inner call %v\n", val)
 		}
 	case "htonl":
-		if i,err := strconv.ParseUint(args[0], 0, 32); err == nil {
+		if i, err := strconv.ParseUint(args[0], 0, 32); err == nil {
 			arg = constArg(typ, uint64(Htonl(uint32(i))))
 		} else {
 			failf("failed to parse inner call %v\n", val)
 		}
 	case "inet_addr":
-		args[0] = args[0][1:len(args[0])-1] // strip quotes
+		args[0] = args[0][1 : len(args[0])-1] // strip quotes
 		if args[0] == "0.0.0.0" {
 			arg = constArg(typ, uint64(0x00000000))
 		} else if args[0] == "127.0.0.1" {
@@ -616,45 +655,45 @@ return_vars *map[returnType]Arg, s *domain.State) Arg {
 
 	return arg
 	/*
-	if _, ok := Unsupported[call]; ok {
-		failf("Inner call unsupported %v\n", val)
-	}
+		if _, ok := Unsupported[call]; ok {
+			failf("Inner call unsupported %v\n", val)
+		}
 
-	meta := sys.CallMap[call]
-	if meta == nil {
-		failf("Inner call unknown %v\n", val)
-	}
+		meta := sys.CallMap[call]
+		if meta == nil {
+			failf("Inner call unknown %v\n", val)
+		}
 
-	c := &Call{
-		Meta: meta,
-		Ret:  returnArg(meta.Ret),
-	}
+		c := &Call{
+			Meta: meta,
+			Ret:  returnArg(meta.Ret),
+		}
 
-	var calls []*Call
-	i = 0
+		var calls []*Call
+		i = 0
 
-	for len(arg_str) > 0 {
-		param, rem := ident(arg_str)
-		arg_str = rem
-		inner_arg, inner_calls := parseArg(meta.Args[i], param, consts, return_vars, call, s)
-		c.Args = append(c.Args, inner_arg)
-		calls = append(calls, inner_calls...)
-		i++
-	}
-	if i != len(meta.Args) {
-		failf("did not parse sufficient arguments for inner call %v\n", val)
-	}
-	calls = append(calls, c)
-	fmt.Println("\n---------Done Parsing Inner Call--------\n")
+		for len(arg_str) > 0 {
+			param, rem := ident(arg_str)
+			arg_str = rem
+			inner_arg, inner_calls := parseArg(meta.Args[i], param, consts, return_vars, call, s)
+			c.Args = append(c.Args, inner_arg)
+			calls = append(calls, inner_calls...)
+			i++
+		}
+		if i != len(meta.Args) {
+			failf("did not parse sufficient arguments for inner call %v\n", val)
+		}
+		calls = append(calls, c)
+		fmt.Println("\n---------Done Parsing Inner Call--------\n")
 
-	return calls
+		return calls
 	*/
 }
 
 func cache(return_vars *map[returnType]Arg, return_var returnType, arg Arg, returned bool) bool {
 	/* TODO: may want to have more fine-grained type for caching to reduce collisions.
 	as of now we over-write any collision, but this may not be optimal behavior.
-	 */
+	*/
 	if arg == nil {
 		return false
 	}
@@ -665,7 +704,7 @@ func cache(return_vars *map[returnType]Arg, return_var returnType, arg Arg, retu
 			(*return_vars)[return_var] = arg
 			return true
 		}
-		if _,ok := (*return_vars)[return_var]; !ok {
+		if _, ok := (*return_vars)[return_var]; !ok {
 			fmt.Printf("caching %v %v\n", return_var, arg.Type().Name())
 			(*return_vars)[return_var] = arg
 			return true
@@ -676,17 +715,17 @@ func cache(return_vars *map[returnType]Arg, return_var returnType, arg Arg, retu
 	}
 }
 
-func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]Arg) {
+func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]Arg) {
 	switch line.FuncName {
 	case "accept", "accept4":
 		return_var := returnType{
 			"ResourceType" + "fd",
 			line.Args[0],
 		}
-		if arg,ok := (*return_vars)[return_var]; ok {
+		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
-			case *sys.ResourceType:
-				if label,ok := Accept_labels[a.TypeName]; ok {
+			case *ResourceType:
+				if label, ok := Accept_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered accept type: %v\n", line.FuncName)
 				} else {
@@ -710,10 +749,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		} else {
 			m = &Connect_labels
 		}
-		if arg,ok := (*return_vars)[return_var]; ok {
+		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
-			case *sys.ResourceType:
-				if label,ok = (*m)[a.TypeName]; ok {
+			case *ResourceType:
+				if label, ok = (*m)[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					if label == "" { /* we don't know what variant, set uniontype to nil */
 						line.Args[1] = "nil"
@@ -733,7 +772,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "epoll_ctl":
 		line.FuncName = line.FuncName + "$" + line.Args[1]
 	case "socket":
-		if label,ok := Socket_labels[line.Args[0]]; ok {
+		if label, ok := Socket_labels[line.Args[0]]; ok {
 			line.FuncName += label
 		} else {
 			failf("unrecognized socket variant %v\n", line.Unparse())
@@ -741,10 +780,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	case "getsockopt":
 		fmt.Println(line.Unparse())
 		fmt.Printf("arg 1 and 2: %v and %v\n", line.Args[1], line.Args[2])
-		if name,ok := SocketLevel_map[line.Args[1]]; ok { /*strace uses SOL levels */
+		if name, ok := SocketLevel_map[line.Args[1]]; ok { /*strace uses SOL levels */
 			line.Args[1] = name
 		}
-		variant := Pair{line.Args[1],line.Args[2]}
+		variant := Pair{line.Args[1], line.Args[2]}
 		/* key collision, need to resolve manually */
 		if line.Args[1] == "SOL_SOCKET" && line.Args[2] == "SO_PEERCRED" {
 			if line.Args[3][0] == '"' {
@@ -755,9 +794,9 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			return
 		}
 
-		if label,ok := Getsockopt_labels[variant]; ok {
+		if label, ok := Getsockopt_labels[variant]; ok {
 			line.FuncName += label
-		} else if _,ok := (*consts)[variant.B]; ok {
+		} else if _, ok := (*consts)[variant.B]; ok {
 			line.FuncName += ("$" + variant.B)
 		}
 		//If it isn't a special variant then we treat it like a good old socket
@@ -767,10 +806,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			"ResourceType" + "fd",
 			line.Args[0],
 		}
-		if arg,ok := (*return_vars)[return_var]; ok {
+		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
-			case *sys.ResourceType:
-				if label,ok = Getsockname_labels[a.TypeName]; ok {
+			case *ResourceType:
+				if label, ok = Getsockname_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
@@ -786,12 +825,12 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			if arg == "NULL" {
 				return "nil"
 			}
-			arg = arg[1:len(arg)-1]
+			arg = arg[1 : len(arg)-1]
 			masks := strings.Split(arg, " ")
 			for len(masks) < 8 {
 				masks = append(masks, "nil")
 			}
-			for i,mask := range masks {
+			for i, mask := range masks {
 				if i == len(masks)-1 {
 					ret += mask
 				} else {
@@ -801,7 +840,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			ret += "}"
 			return ret
 		}
-		for i:=1; i<=3; i++ {
+		for i := 1; i <= 3; i++ {
 			line.Args[i] = f(line.Args[i])
 		}
 		fmt.Printf("Processed select: %v\n", line.Unparse())
@@ -811,9 +850,9 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		variant := Pair{line.Args[1], line.Args[2]}
 
 		fmt.Printf("variant: %v\n", variant)
-		if label,ok := Setsockopt_labels[variant]; ok {
+		if label, ok := Setsockopt_labels[variant]; ok {
 			line.FuncName += label
-		} else if _,ok := (*consts)[variant.B]; ok {
+		} else if _, ok := (*consts)[variant.B]; ok {
 			line.FuncName += ("$" + variant.B)
 		} else {
 			fmt.Printf("unrecognized set sockopt variant %v\n", line.Unparse())
@@ -824,10 +863,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			"ResourceType" + "fd",
 			line.Args[0],
 		}
-		if arg,ok := (*return_vars)[return_var]; ok {
+		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
-			case *sys.ResourceType:
-				if label,ok = Sendto_labels[a.TypeName]; ok {
+			case *ResourceType:
+				if label, ok = Sendto_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered sendto type: %v\n", line.FuncName)
 				} else {
@@ -846,10 +885,10 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			"ResourceType" + "fd",
 			line.Args[0],
 		}
-		if arg,ok := (*return_vars)[return_var]; ok {
+		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
-			case *sys.ResourceType:
-				if label,ok := Sendmsg_labels[a.TypeName]; ok {
+			case *ResourceType:
+				if label, ok := Sendmsg_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
@@ -864,14 +903,14 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			"ResourceType" + "fd",
 			line.Args[0],
 		}
-		if arg,ok := (*return_vars)[return_var]; ok {
+		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
-			case *sys.ResourceType:
-				if label,ok := Recvfrom_labels[a.TypeName]; ok {
+			case *ResourceType:
+				if label, ok := Recvfrom_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
-            if label == "$inet" || label == "$inet6" {
-              line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil}", 1)
-            }
+					if label == "$inet" || label == "$inet6" {
+						line.Args[4] = strings.Replace(line.Args[4], "}", ", pad=nil}", 1)
+					}
 					fmt.Printf("discovered type: %v\n", line.FuncName)
 				} else {
 					failf("unknown variant for type %v\nline: %v\n", a.TypeName, line.Unparse())
@@ -881,9 +920,9 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 			}
 		}
 	case "fcntl":
-		if label,ok := Fcntl_labels[line.Args[1]]; ok {
+		if label, ok := Fcntl_labels[line.Args[1]]; ok {
 			line.FuncName += label
-			if meta,ok := sys.CallMap[line.FuncName]; ok {
+			if meta, ok := target.SyscallMap[line.FuncName]; ok {
 				if len(line.Args) < len(meta.Args) { /* third arg is missing, put in default */
 					line.Args = append(line.Args, strconv.FormatUint(uint64(meta.Args[2].Default()), 10))
 				}
@@ -891,12 +930,12 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 				failf("call not found: %v\n", line.FuncName)
 			}
 		} else {
-			failf("unrecognized fcntl variant %v\n", line.Unparse())
+			fmt.Printf("unrecognized fcntl variant %v\n", line.Unparse())
 		}
 	case "sched_setaffinity":
 		s := line.Args[2]
 		if s[0] == '[' && s[len(s)-1] == ']' {
-			line.Args[2] = s[1:len(s)-1]
+			line.Args[2] = s[1 : len(s)-1]
 		}
 	case "capget":
 		line.Args[1] = "[]"
@@ -907,7 +946,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		if strings.Contains(line.Args[0], "SIGRT_") {
 			min := int((*consts)["SIGRTMIN"])
 			max := int((*consts)["SIGRTMAX"])
-			line.Args[0] = strconv.Itoa(rand.Intn(max - min + 1) + min)
+			line.Args[0] = strconv.Itoa(rand.Intn(max-min+1) + min)
 		}
 		if strings.Contains(line.Args[1], "~[RTMIN RT_1]") {
 			line.Args[1] = strings.Replace(line.Args[1], "~[RTMIN RT_1]", "[SIGRTMIN]", 1)
@@ -933,7 +972,7 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 	case "ioctl":
 		candidateName := line.FuncName + "$" + line.Args[1]
-		if _, ok := sys.CallMap[candidateName]; !ok {
+		if _, ok := target.SyscallMap[candidateName]; !ok {
 			if _, ok = Ioctl_map[line.Args[1]]; ok {
 				line.FuncName = line.FuncName + "$" + Ioctl_map[line.Args[1]]
 			}
@@ -951,19 +990,19 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 		}
 	case "shmctl":
 		candidateName := line.FuncName + "$" + line.Args[1]
-		if _, ok := sys.CallMap[candidateName]; !ok {
+		if _, ok := target.SyscallMap[candidateName]; !ok {
 			fmt.Printf("unknown shmctl variant %v\n", line.Unparse())
 		} else {
 			line.FuncName = candidateName
 		}
 	case "keyctl":
-		if label,ok := Keyctl_labels[line.Args[0]]; ok {
+		if label, ok := Keyctl_labels[line.Args[0]]; ok {
 			line.FuncName = line.FuncName + label
 		} else {
 			fmt.Printf("unknown keyctl variant %v\n", line.Unparse())
 		}
 	case "prctl":
-		if label,ok := Prctl_labels[line.Args[0]]; ok {
+		if label, ok := Prctl_labels[line.Args[0]]; ok {
 			line.FuncName = line.FuncName + label
 		} else {
 			failf("unknown prctl variant %v\n", line.Unparse())
@@ -972,18 +1011,18 @@ func process(line *sparser.OutputLine, consts *map[string]uint64, return_vars *m
 	}
 }
 
-func parseSpecialStructs(typ sys.Type, strace_arg string,
-					consts *map[string]uint64,
-					return_vars *map[returnType]Arg,
-					line *sparser.OutputLine) (arg Arg, calls []*Call){
-	st := typ.(*sys.StructType)
+func parseSpecialStructs(typ Type, strace_arg string,
+	consts *map[string]uint64,
+	return_vars *map[returnType]Arg,
+	line *sparser.OutputLine) (arg Arg, calls []*Call) {
+	st := typ.(*StructType)
 	fmt.Printf("TYPE NAME: %s\n", st.TypeName)
 	if strings.Compare(typ.Name(), "timeval") == 0 {
 		//This is a particular field of the socket operation with optname SO_SNDTIMEO
 		//inner_args := make([]Arg, 0)
 
 		if strings.Contains(strace_arg, "\"") {
-			strace_arg = strace_arg[1: len(strace_arg)-1]
+			strace_arg = strace_arg[1 : len(strace_arg)-1]
 			split := strings.Split(strace_arg, "\\")
 			fmt.Printf("SPECIFIC STRUCT SPLIT %v\n", split)
 			timeout_secs, err := strconv.ParseUint(strings.Split(strace_arg, "\\")[1], 10, 64)
@@ -1002,13 +1041,12 @@ func parseSpecialStructs(typ sys.Type, strace_arg string,
 	return nil, nil
 }
 
-
-func parseArg(typ sys.Type, strace_arg string,
-consts *map[string]uint64, return_vars *map[returnType]Arg,
-line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
+func parseArg(typ Type, strace_arg string,
+	consts *map[string]uint64, return_vars *map[returnType]Arg,
+	line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 	call := line.FuncName
-	fmt.Printf("-----Entering parseArg-------" +
-		"\nparsing arg: %v" +
+	fmt.Printf("-----Entering parseArg-------"+
+		"\nparsing arg: %v"+
 		"\nfor call: %v \n", strace_arg, call)
 	// check if this is a return arg
 	if arg := isReturned(typ, strace_arg, return_vars); arg != nil {
@@ -1018,7 +1056,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 	}
 
 	switch a := typ.(type) {
-	case *sys.FlagsType:
+	case *FlagsType:
 		fmt.Printf("Call: %v\nparsing FlagsType %v\n", call, strace_arg)
 		if strace_arg == "nil" || strace_arg == "NULL" {
 			return constArg(a, a.Default()), nil, nil
@@ -1035,10 +1073,10 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 				arg, calls = constArg(a, val), nil
 			}
 		} else {
-			if val,err := extractVal(strace_arg, a.FldName, consts); err == nil {
+			if val, err := extractVal(strace_arg, a.FldName, consts); err == nil {
 				fmt.Printf("2: Flags type parsing value: %v\n", val)
 				arg, calls = constArg(a, uint64(val)), nil
-			} else if val,err := uintToVal(strace_arg); err == nil {
+			} else if val, err := uintToVal(strace_arg); err == nil {
 				fmt.Printf("1: Flags type parsing value: %v\n", val)
 				arg, calls = constArg(a, uint64(val)), nil
 			} else {
@@ -1047,47 +1085,48 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			}
 		}
 
-	case *sys.ResourceType:
+	case *ResourceType:
 		fmt.Printf("Resource Type: %v\n", a.Desc)
 		// TODO: special parsing required if struct is type timespec or timeval
-		if strace_arg == "nil"  || a.Dir() == sys.DirOut{
+		if strace_arg == "nil" || a.Dir() == DirOut {
 			return resultArg(a, nil, a.Default()), nil, nil
 		}
 		if v, ok := (*consts)[strace_arg]; ok {
 			return resultArg(a, nil, uint64(v)), nil, nil
 		}
+		//Need to parse as int because we may have negative file descriptor
 		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {
-			failf("Error converting int type for syscall: %s, %s", call, err.Error())
+			failf("Error parsing resource arg %s for call %s, desc: %s\n", strace_arg, call, err.Error())
 		}
 		// TODO: special values only
 		arg, calls = resultArg(a, nil, uint64(extracted_int)), nil
 		err = nil
-	case *sys.BufferType:
+	case *BufferType:
 		fmt.Printf("Parsing Buffer Type: %v\n", strace_arg)
 
-		if a.Dir() != sys.DirOut && strace_arg != "nil" {
+		if a.Dir() != DirOut && strace_arg != "nil" {
 			var buffer []byte
 			switch a.Kind {
-			case sys.BufferFilename, sys.BufferString:
+			case BufferFilename, BufferString:
 				fmt.Printf("BUFFER BLOB STRING\n")
 
 				buffer = make([]byte, len(strace_arg)-2)
-			case sys.BufferBlobRand:
+			case BufferBlobRand:
 				fmt.Printf("BUFFER BLOB RAND\n")
-				size := len(strace_arg)-2
+				size := len(strace_arg) - 2
 				buffer = make([]byte, size)
-			case sys.BufferBlobRange:
+			case BufferBlobRange:
 				fmt.Printf("BUFFER BLOB RANGE\n")
-				size := rand.Intn(int(a.RangeEnd) - int(a.RangeBegin) + 1) + int(a.RangeBegin)
+				size := rand.Intn(int(a.RangeEnd)-int(a.RangeBegin)+1) + int(a.RangeBegin)
 				fmt.Printf("SIZE: %d\n", size)
 				buffer = make([]byte, size)
 			default:
 				failf("unexpected buffer type. call %v arg %v", call, strace_arg)
 			}
 			fmt.Printf("Strace Arg Len: %d\n", len(strace_arg))
-			strace_arg_arr := []byte(strace_arg[1:len(strace_arg)-1])
-			for i := 0 ; i < len(buffer); i++ {
+			strace_arg_arr := []byte(strace_arg[1 : len(strace_arg)-1])
+			for i := 0; i < len(buffer); i++ {
 				if i < len(strace_arg_arr) {
 					buffer[i] = strace_arg_arr[i]
 				}
@@ -1099,13 +1138,13 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			}
 
 			switch a.Kind {
-			case sys.BufferFilename, sys.BufferString:
+			case BufferFilename, BufferString:
 				arg = dataArg(a, make([]byte, len(strace_arg)-1)) // -2 for the " "
-			case sys.BufferBlobRand:
+			case BufferBlobRand:
 				size := rand.Intn(256)
 				arg = dataArg(a, make([]byte, size))
-			case sys.BufferBlobRange:
-				size := rand.Intn(int(a.RangeEnd) - int(a.RangeBegin) + 1) + int(a.RangeBegin)
+			case BufferBlobRange:
+				size := rand.Intn(int(a.RangeEnd)-int(a.RangeBegin)+1) + int(a.RangeBegin)
 				fmt.Printf("HERE IS THE SIZE NIGGA: %d\n", size)
 				arg = dataArg(a, make([]byte, size))
 			default:
@@ -1114,12 +1153,12 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		fmt.Printf("parsed buffer type with val: %v\n", arg.(*DataArg).Data)
 		return arg, nil, nil
-	case *sys.PtrType:
+	case *PtrType:
 		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", call, a.Type.Name())
 		if strace_arg == "NULL" && a.IsOptional {
 			var size uint64 = 0
 			switch b := a.Type.(type) {
-			case *sys.BufferType:
+			case *BufferType:
 				if !b.Varlen() {
 					size = b.Size()
 				}
@@ -1144,8 +1183,8 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 
 		if ptr.Val[0] == '[' {
 			switch a.Type.(type) {
-			case *sys.IntType, *sys.LenType, *sys.CsumType, *sys.ResourceType:
-				ptr.Val = ptr.Val[1:len(ptr.Val)-1]
+			case *IntType, *LenType, *CsumType, *ResourceType:
+				ptr.Val = ptr.Val[1 : len(ptr.Val)-1]
 			default:
 			}
 		}
@@ -1159,7 +1198,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		/* cache this pointer value */
 		switch a.Type.(type) {
 		/* don't cache for these types */
-		case *sys.PtrType, *sys.ArrayType, *sys.StructType, *sys.BufferType, *sys.UnionType:
+		case *PtrType, *ArrayType, *StructType, *BufferType, *UnionType:
 		default:
 			return_var := returnType{
 				getType(a.Type),
@@ -1176,13 +1215,13 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		inner_calls = append(inner_calls, outer_calls...)
 		arg, calls = outer_arg, inner_calls
-	case *sys.IntType:
+	case *IntType:
 		var extracted_int uint64
 		err = nil
-		if strace_arg == "nil" || a.Dir() == sys.DirOut || strace_arg == "NULL" {
+		if strace_arg == "nil" || a.Dir() == DirOut || strace_arg == "NULL" {
 			extracted_int = uint64(a.Default())
 		} else {
-			strace_arg = func () string {
+			strace_arg = func() string {
 				for _, macro := range Macros {
 					if strings.Contains(strace_arg, macro) {
 						return MacroExpand_map[macro](strace_arg)
@@ -1192,7 +1231,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			}()
 
 			if strace_arg[0] == '[' && strace_arg[len(strace_arg)-1] == ']' {
-				strace_arg = strace_arg[1:len(strace_arg)-1]
+				strace_arg = strace_arg[1 : len(strace_arg)-1]
 			}
 			extracted_int, err = uintToVal(strace_arg)
 		}
@@ -1204,7 +1243,8 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		fmt.Printf("Parsed IntType %v with val %v\n", strace_arg, int(extracted_int))
 		arg, calls = constArg(a, uint64(extracted_int)), nil
-	case *sys.VmaType:
+	case *VmaType:
+		//panic("VMA Type encountered")
 		err = nil
 		fmt.Printf("VMA Type: %v Call: %s\n", strace_arg, call)
 		npages := uint64(1)
@@ -1212,11 +1252,12 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		if a.RangeBegin != 0 || a.RangeEnd != 0 {
 			npages = uint64(int(a.RangeEnd)) // + r.Intn(int(a.RangeEnd-a.RangeBegin+1)))
 		}
-		if a.Dir() == sys.DirOut {
-			return pointerArg(typ, 0, 0, npages, nil), nil, nil
-		}
+		var arg Arg
+		arg = pointerArg(typ, 0, 0, npages, nil)
+		s.Tracker.AddAllocation(s.CurrentCall, pageSize, arg)
 		//We might encounter an mlock done because of a brk
 		//But strace doesn't support brk so we need to allocate the address
+		/*
 		for i := uint64(0); i < maxPages-npages; i++ {
 			free := true
 			for j := uint64(0); j < npages; j++ {
@@ -1229,7 +1270,6 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 				continue
 			}
 
-			/* mark memory as claimed */
 			for j := uint64(0); j < npages; j++ {
 				s.Pages[i+j] = true
 			}
@@ -1240,11 +1280,12 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			//	arg.Val = a.Default()
 			//}
 			return arg, calls, err
-		}
+		}*/
+		return arg, nil, nil
 		failf("out of memory\n")
-	case *sys.ConstType:
+	case *ConstType:
 		fmt.Printf("Parsing Const type %v\n", strace_arg)
-		if a.Dir() == sys.DirOut {
+		if a.Dir() == DirOut {
 			return constArg(a, a.Default()), nil, nil
 		}
 		data, e := uintToVal(strace_arg)
@@ -1257,17 +1298,17 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		fmt.Printf("Creating constarg with val %v\n", data)
 		return constArg(a, data), nil, nil
-	case *sys.ProcType:
+	case *ProcType:
 		fmt.Println("Proc Type", strace_arg)
 		var data uint64
 		var e error
-		if a.Dir() == sys.DirOut {
+		if a.Dir() == DirOut {
 			data = uint64(a.Default())
 		} else {
 			data, e = uintToVal(strace_arg)
 		}
 		if e == nil {
-			if data > a.ValuesPerProc - 1 {
+			if data > a.ValuesPerProc-1 {
 				data = a.ValuesPerProc - 1
 			}
 		} else {
@@ -1275,7 +1316,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		fmt.Printf("Proc Type parsing proc value %v\n", data)
 		return constArg(a, uint64(data)), nil, nil
-	case *sys.LenType, *sys.CsumType:
+	case *LenType, *CsumType:
 		fmt.Println("Len/Csum Type")
 		var data uint64
 		var e error
@@ -1288,11 +1329,11 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			return constArg(a, uint64(data)), nil, nil
 		}
 		return constArg(a, 0), nil, nil
-	case *sys.ArrayType:
+	case *ArrayType:
 		var args []Arg
 		if strace_arg == "nil" {
-			if a.Kind == sys.ArrayRangeLen {
-				size := rand.Intn(int(a.RangeEnd) - int(a.RangeBegin) + 1) + int(a.RangeBegin)
+			if a.Kind == ArrayRangeLen {
+				size := rand.Intn(int(a.RangeEnd)-int(a.RangeBegin)+1) + int(a.RangeBegin)
 				for i := 0; i < size; i++ {
 					inner_arg, inner_calls, err_ := parseArg(a.Type, "nil", consts, return_vars, line, s)
 					if err_ != nil {
@@ -1308,7 +1349,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		// clip the square brackets
 		if strace_arg[0] == '[' && strace_arg[len(strace_arg)-1] == ']' {
-			strace_arg = strace_arg[1:len(strace_arg)-1]
+			strace_arg = strace_arg[1 : len(strace_arg)-1]
 		}
 		fmt.Printf("ArrayType %v\n", a.TypeName)
 
@@ -1324,7 +1365,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			calls = append(calls, inner_calls...)
 		}
 		arg = groupArg(typ, args)
-	case *sys.StructType:
+	case *StructType:
 		arg, calls = parseSpecialStructs(typ, strace_arg, consts, return_vars, line)
 		if arg != nil {
 			fmt.Printf("NON NIL ARG: %v\n", arg)
@@ -1333,10 +1374,9 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		name, val := "nil", "nil"
 		struct_args := make([]string, 0)
 		if strace_arg != "nil" {
-			strace_arg = strace_arg[1:len(strace_arg) - 1]
+			strace_arg = strace_arg[1 : len(strace_arg)-1]
 		}
 		fmt.Printf("StructType %v\n", a.TypeName)
-
 
 		is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
 		if !is_nil {
@@ -1372,9 +1412,9 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 					//However, syzkaller has fd_set as a struct of 8 longs. If there are more
 					//Fields than what strace gives us then we just keep val "nil"
 					var should_parse bool = true
-					if a.Dir() == sys.DirOut {
+					if a.Dir() == DirOut {
 						switch arg_type.(type) {
-						case *sys.ResourceType:
+						case *ResourceType:
 						default:
 							should_parse = false
 						}
@@ -1392,9 +1432,8 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 				}
 			}
 
-
 			/* If there is a function embedded in the struct
-			 See ltp_accept4_01 line 50 for example
+			See ltp_accept4_01 line 50 for example
 			*/
 			if val[len(val)-1] == ')' {
 				inner_arg := parseInnerCall(val, arg_type, line, consts, return_vars, s)
@@ -1413,9 +1452,9 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 			/* cache value */
 			if !is_nil {
 				should_cache := true
-				if a.Dir() == sys.DirOut {
+				if a.Dir() == DirOut {
 					switch arg_type.(type) {
-					case *sys.ResourceType:
+					case *ResourceType:
 					default:
 						should_cache = false
 					}
@@ -1427,7 +1466,7 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 					}
 					switch arg_type.(type) {
 					/* check for edge null conditions */
-					case *sys.StructType, *sys.ArrayType, *sys.BufferType, *sys.UnionType:
+					case *StructType, *ArrayType, *BufferType, *UnionType:
 					default:
 						cache(return_vars, return_var, inner_arg, false)
 					}
@@ -1439,9 +1478,9 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 		}
 		arg = groupArg(a, args)
 		return arg, calls, nil
-	case *sys.UnionType:
-		fmt.Printf("Parsing unionType for: %v\n", strace_arg)
-		optType := a.Options[0]
+	case *UnionType:
+		fmt.Printf("Parsing unionType for: %v with type: %s\n", strace_arg, a.TypeName)
+		optType := a.Fields[0]
 		opt, inner_calls, err_ := parseArg(optType, strace_arg, consts, return_vars, line, s)
 		if err_ != nil {
 			err = err_
@@ -1460,8 +1499,6 @@ line *sparser.OutputLine, s *domain.State) (arg Arg, calls []*Call, err error) {
 	return arg, calls, nil
 }
 
-
-
 func ident(arg string) (string, string) {
 	s := make(Stack, 0)
 	var r byte
@@ -1476,7 +1513,7 @@ func ident(arg string) (string, string) {
 		var inquote bool = false
 		var sawSpecialChar bool = false
 		for ; i != len(arg) || len(s) != 0; i++ {
-			if !inquote && !sawSpecialChar{
+			if !inquote && !sawSpecialChar {
 				if arg[i] == '"' {
 					inquote = true
 					continue
@@ -1533,13 +1570,13 @@ func ident(arg string) (string, string) {
 	panic("ident failed")
 }
 
-func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]Arg) Arg {
+func isReturned(typ Type, strace_arg string, return_vars *map[returnType]Arg) Arg {
 	var val string
 	switch typ.(type) {
 	/* see google syzkaller issue 162. We prevent issuing a returnArg for lenType
-	 because it causes the fuzzer to crash when mutating programs with read, write, pread64, pwrite64
-	 */
-	case *sys.LenType:
+	because it causes the fuzzer to crash when mutating programs with read, write, pread64, pwrite64
+	*/
+	case *LenType:
 		return nil
 	default:
 	}
@@ -1554,7 +1591,7 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]Arg
 	}
 	return_var := returnType{
 		Type: getType(typ),
-		Val: val,
+		Val:  val,
 	}
 	if arg, ok := (*return_vars)[return_var]; ok {
 		if arg != nil {
@@ -1565,36 +1602,39 @@ func isReturned(typ sys.Type, strace_arg string, return_vars *map[returnType]Arg
 	return nil
 }
 
-func addr(s *domain.State, typ sys.Type, size uint64, data Arg) (Arg, []*Call, error) {
+func addr(s *domain.State, typ Type, size uint64, data Arg) (Arg, []*Call, error) {
 	/*
-	npages := (size + pageSize - 1) / pageSize
-	fmt.Println("NPAGES: %d, %s", npages, typ.Name())
-	if npages == 0 {
-		npages = 1
-	}
-	for i := uint64(0); i < maxPages-npages; i++ {
-		free := true
-		for j := uint64(0); j < npages; j++ {
-			if s.Pages[i+j] {
-				free = false
-				break
+		npages := (size + pageSize - 1) / pageSize
+		fmt.Println("NPAGES: %d, %s", npages, typ.Name())
+		if npages == 0 {
+			npages = 1
+		}
+		for i := uint64(0); i < maxPages-npages; i++ {
+			free := true
+			for j := uint64(0); j < npages; j++ {
+				if s.Pages[i+j] {
+					free = false
+					break
+				}
 			}
-		}
-		if !free {
-			continue
-		}
+			if !free {
+				continue
+			}
 
 
-		for j := uint64(0); j < npages; j++ {
-			s.Pages[i+j] = true
+			for j := uint64(0); j < npages; j++ {
+				s.Pages[i+j] = true
+			}
+			// found a free memory section, let's mmap
+			c := createMmapCall(i, npages)
+			arg, calls := pointerArg(typ, i, 0, 0, data), []*Call{c}
+			return arg, calls
 		}
-		// found a free memory section, let's mmap
-		c := createMmapCall(i, npages)
-		arg, calls := pointerArg(typ, i, 0, 0, data), []*Call{c}
-		return arg, calls
-	}
 	*/
-
+	arg := pointerArg(typ, uint64(0), 0, 0, data)
+	s.Tracker.AddAllocation(s.CurrentCall, size, arg)
+	return arg, nil, nil
+	/*
 	pages, offset, should_allocate, err := s.AllocateMemory(int(size))
 	if err != nil {
 		return nil, nil, err
@@ -1611,10 +1651,11 @@ func addr(s *domain.State, typ sys.Type, size uint64, data Arg) (Arg, []*Call, e
 		args, calls := pointerArg(typ, uint64(pages[0]), 0, 0, data), []*Call{c}
 		return args, calls, nil
 	}
+	*/
 	//return r.randPageAddr(s, typ, npages, data, false), nil
 }
 
-func randPageAddr(s *domain.State, typ sys.Type, npages uint64, data Arg, vma bool) Arg {
+func randPageAddr(s *domain.State, typ Type, npages uint64, data Arg, vma bool) Arg {
 	poolPtr := pageStartPool.Get().(*[]uint64)
 	starts := (*poolPtr)[:0]
 	for i := uint64(0); i < maxPages-npages; i++ {
@@ -1647,52 +1688,33 @@ func randPageAddr(s *domain.State, typ sys.Type, npages uint64, data Arg, vma bo
 	return pointerArg(typ, page, 0, npages, data)
 }
 
-// createMmapCall creates a "normal" mmap call that maps [start, start+npages) page range.
-func createMmapCall(start, npages uint64) *Call {
-	meta := sys.CallMap["mmap"]
-	mmap := &Call{
-		Meta: meta,
-		Args: []Arg{
-			pointerArg(meta.Args[0], start, 0, npages, nil),
-			constArg(meta.Args[1], npages*domain.PageSize),
-			constArg(meta.Args[2], sys.PROT_READ|sys.PROT_WRITE),
-			constArg(meta.Args[3], sys.MAP_ANONYMOUS|sys.MAP_PRIVATE|sys.MAP_FIXED),
-			resultArg(meta.Args[4], nil, sys.InvalidFD),
-			constArg(meta.Args[5], 0),
-		},
-		Ret: returnArg(meta.Ret),
-	}
-	return mmap
-}
-
-func getType(typ sys.Type) string {
-	switch typ.(type) {
-	case *sys.ResourceType:
-		a := typ.(*sys.ResourceType)
+func getType(typ Type) string {
+	switch a := typ.(type) {
+	case *ResourceType:
 		return "ResourceType" + a.Desc.Kind[0]
-	case *sys.BufferType:
+	case *BufferType:
 		return "BufferType"
-	case *sys.VmaType:
+	case *VmaType:
 		return "VmaType"
-	case *sys.FlagsType:
+	case *FlagsType:
 		return "FlagsType"
-	case *sys.ConstType:
+	case *ConstType:
 		return "ConstType"
-	case *sys.IntType:
+	case *IntType:
 		return "IntType"
-	case *sys.ProcType:
+	case *ProcType:
 		return "ProcType"
-	case *sys.ArrayType:
+	case *ArrayType:
 		return "ArrayType"
-	case *sys.StructType:
+	case *StructType:
 		return "StructType"
-	case *sys.UnionType:
+	case *UnionType:
 		return "UnionType"
-	case *sys.PtrType:
+	case *PtrType:
 		return "PtrType"
-	case *sys.LenType:
+	case *LenType:
 		return "LenType"
-	case *sys.CsumType:
+	case *CsumType:
 		return "CsumType"
 	default:
 		panic("unknown argument type")
@@ -1700,7 +1722,7 @@ func getType(typ sys.Type) string {
 }
 
 func parsePointerArg(p string) pointer {
-	if p[0:int(math.Min(2,float64(len(p))))] == "0x" {
+	if p[0:int(math.Min(2, float64(len(p))))] == "0x" {
 		return pointer{p, ""}
 	}
 	if p[0] != '&' {
@@ -1711,53 +1733,14 @@ func parsePointerArg(p string) pointer {
 	s := strings.SplitN(p, "=", 2)
 	addr, val := s[0], s[1]
 	if addr[0] == '&' {
-		return pointer{addr[1:],val}
+		return pointer{addr[1:], val}
 	} else {
-		return pointer{addr,val}
+		return pointer{addr, val}
 	}
 }
 
 func (p pointer) String() string {
 	return fmt.Sprintf("&%v=%v", p.Addr, p.Val)
-}
-
-func readConsts(arch string) map[string]uint64 {
-	constFiles, err := filepath.Glob("sys/*_" + arch + ".const")
-	if err != nil {
-		failf("failed to find const files: %v", err)
-	}
-	consts := make(map[string]uint64)
-	for _, fname := range constFiles {
-		f, err := os.Open(fname)
-		if err != nil {
-			failf("failed to open const file: %v", err)
-		}
-		defer f.Close()
-		s := bufio.NewScanner(f)
-		for s.Scan() {
-			line := s.Text()
-			if line == "" || line[0] == '#' {
-				continue
-			}
-			eq := strings.IndexByte(line, '=')
-			if eq == -1 {
-				failf("malformed const file %v: no '=' in '%v'", fname, line)
-			}
-			name := strings.TrimSpace(line[:eq])
-			val, err := strconv.ParseUint(strings.TrimSpace(line[eq+1:]), 0, 64)
-			if err != nil {
-				failf("malformed const file %v: bad value in '%v'", fname, line)
-			}
-			if old, ok := consts[name]; ok && old != val {
-				failf("const %v has different values for %v: %v vs %v", name, arch, old, val)
-			}
-			consts[name] = val
-		}
-		if err := s.Err(); err != nil {
-			failf("failed to read const file: %v", err)
-		}
-	}
-	return consts
 }
 
 func failf(msg string, args ...interface{}) {
@@ -1771,7 +1754,7 @@ func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, e
 	var base int = 0
 
 	for _, or_op := range strings.Split(flags, "|") {
-		var and_val uint64  = 0xFFFFFFFFFFFFFFFF
+		var and_val uint64 = 0xFFFFFFFFFFFFFFFF
 		for _, and_op := range strings.Split(or_op, "&") {
 			c, ok := (*consts)[and_op]
 			fmt.Printf("c: %v\n", c)
@@ -1794,34 +1777,34 @@ func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, e
 
 /* Arg helper functions */
 
-func commonArg(t sys.Type) ArgCommon {
+func commonArg(t Type) ArgCommon {
 	common := ArgCommon{}
 	common.AddType(t)
 	return common
 }
 
-func groupArg(t sys.Type, inner []Arg) Arg {
+func groupArg(t Type, inner []Arg) Arg {
 
 	return &GroupArg{ArgCommon: commonArg(t), Inner: inner}
 }
 
-func pointerArg(t sys.Type, page uint64, off int, npages uint64, obj Arg) Arg {
+func pointerArg(t Type, page uint64, off int, npages uint64, obj Arg) Arg {
 	return &PointerArg{ArgCommon: commonArg(t), PageIndex: page, PageOffset: off, PagesNum: npages, Res: obj}
 }
 
-func constArg(t sys.Type, v uint64) Arg {
+func constArg(t Type, v uint64) Arg {
 	return &ConstArg{ArgCommon: commonArg(t), Val: v}
 }
 
-func dataArg(t sys.Type, data []byte) Arg {
-	return &DataArg{ArgCommon: commonArg(t),  Data: append([]byte{}, data...)}
+func dataArg(t Type, data []byte) Arg {
+	return &DataArg{ArgCommon: commonArg(t), Data: append([]byte{}, data...)}
 }
 
-func unionArg(t sys.Type, opt Arg, typ sys.Type) Arg {
+func unionArg(t Type, opt Arg, typ Type) Arg {
 	return &UnionArg{ArgCommon: commonArg(t), Option: opt, OptionType: typ}
 }
 
-func resultArg(t sys.Type, r Arg, v uint64) Arg {
+func resultArg(t Type, r Arg, v uint64) Arg {
 	arg := &ResultArg{ArgCommon: commonArg(t), Res: r, Val: v}
 	if r == nil {
 		return arg
@@ -1838,10 +1821,10 @@ func resultArg(t sys.Type, r Arg, v uint64) Arg {
 	return arg
 }
 
-
-func returnArg(t sys.Type) Arg {
+func returnArg(t Type) Arg {
 	return &ReturnArg{ArgCommon: commonArg(t)}
 }
+
 /* Misc Helpers */
 
 func uintToVal(s string) (uint64, error) {
@@ -1850,7 +1833,7 @@ func uintToVal(s string) (uint64, error) {
 	if strings.Contains(s, "*") {
 		expression := strings.Split(s, "*")
 		val = 1
-		for _,v := range expression {
+		for _, v := range expression {
 			v_parsed, ok := strconv.ParseInt(v, 0, 64)
 			if ok != nil {
 				failf("error evaluating expression %v\n", s)
@@ -1859,27 +1842,27 @@ func uintToVal(s string) (uint64, error) {
 		}
 		return val, nil
 	}
-	if i,e := strconv.ParseInt(s, 0, 64); e == nil {
+	if i, e := strconv.ParseInt(s, 0, 64); e == nil {
 		return uint64(i), nil
 	} else {
 		return 0, e
 	}
 }
 
-func parseIpV6(typ sys.Type, ip string) (Arg, sys.Type) {
-	var optType sys.Type
+func parseIpV6(typ Type, ip string) (Arg, Type) {
+	var optType Type
 	switch b := typ.(type) {
-	case *sys.UnionType:
+	case *UnionType:
 		if strings.Compare(ip, "\"::1\"") == 0 {
 			//Loopback address and we are parsing into ipv6_addr_loopback
-			optType = b.Options[3]
+			optType = b.Fields[3]
 			switch a := optType.(type) {
-			case *sys.StructType:
-				a0 := a.Fields[0].(*sys.ConstType)
-				a1 := a.Fields[1].(*sys.ConstType)
-				a2 := a.Fields[2].(*sys.ArrayType)
-				a3 := a.Fields[3].(*sys.ProcType)
-				a4 := a.Fields[4].(*sys.ConstType)
+			case *StructType:
+				a0 := a.Fields[0].(*ConstType)
+				a1 := a.Fields[1].(*ConstType)
+				a2 := a.Fields[2].(*ArrayType)
+				a3 := a.Fields[3].(*ProcType)
+				a4 := a.Fields[4].(*ConstType)
 				a0_arg := constArg(a0, a0.Val)
 				a1_arg := constArg(a1, a1.Val)
 				arr_arg := make([]Arg, 12)
@@ -1896,11 +1879,11 @@ func parseIpV6(typ sys.Type, ip string) (Arg, sys.Type) {
 
 		} else if strings.Compare(ip, "\"::\"") == 0 {
 			//We have 0.0.0.0 and we are parsing into ipv6_addr_empty in sys/vnet.txt
-			optType = b.Options[0]
+			optType = b.Fields[0]
 
 			switch a := optType.(type) {
-			case *sys.StructType:
-				arrType := a.Fields[0].(*sys.ArrayType)
+			case *StructType:
+				arrType := a.Fields[0].(*ArrayType)
 				inner_args := make([]Arg, 16)
 				for i, _ := range inner_args {
 					inner_args[i] = constArg(arrType.Type, 0)
@@ -1911,14 +1894,14 @@ func parseIpV6(typ sys.Type, ip string) (Arg, sys.Type) {
 				fmt.Printf("DEFAULT TYPE FOR EMPTY: %s\n", optType.Name())
 			}
 		} else {
-			optType = b.Options[1]
+			optType = b.Fields[1]
 			switch a := optType.(type) {
-			case *sys.StructType:
-				a0 := a.Fields[0].(*sys.ConstType)
-				a1 := a.Fields[1].(*sys.ConstType)
-				a2 := a.Fields[2].(*sys.ArrayType)
-				a3 := a.Fields[3].(*sys.ProcType)
-				a4 := a.Fields[4].(*sys.ConstType)
+			case *StructType:
+				a0 := a.Fields[0].(*ConstType)
+				a1 := a.Fields[1].(*ConstType)
+				a2 := a.Fields[2].(*ArrayType)
+				a3 := a.Fields[3].(*ProcType)
+				a4 := a.Fields[4].(*ConstType)
 				a0_arg := constArg(a0, uint64(0xfe))
 				a1_arg := constArg(a1, uint64(0x80))
 				arr_arg := make([]Arg, 12)
@@ -1976,5 +1959,3 @@ func pack(dir, file string) {
 		failf("failed to save database file: %v", err)
 	}
 }
-
-

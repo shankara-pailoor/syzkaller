@@ -3,10 +3,22 @@
 	"ignore": "",
 	"package": [
 		{
+			"checksumSHA1": "0bZ5c+J+4vgXT4gIXX7byaqOChA=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "89742aefa4b206dcf400792f3bd35b542998eb3b",
+			"revisionTime": "2017-08-22T13:27:46Z"
+		},
+		{
 			"checksumSHA1": "Zwfya1NbHFbZTID+IPyOyz1q8Fk=",
 			"path": "github.com/mattrco/difftrace",
 			"revision": "3de8b62791b297d82f82a7333b0830507525e242",
 			"revisionTime": "2015-01-05T23:34:14Z"
+		},
+		{
+			"checksumSHA1": "osoZQtXGdVPl0j7rGxKqnkgxBHs=",
+			"path": "github.com/pkg/sftp",
+			"revision": "98203f5a8333288eb3163b7c667d4260fe1333e9",
+			"revisionTime": "2017-08-23T21:46:20Z"
 		}
 	],
 	"rootPath": "github.com/google/syzkaller"
