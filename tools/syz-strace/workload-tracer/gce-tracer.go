@@ -63,10 +63,34 @@ func NewGCETracer(config config.CorpusGenConfig) (tracer *GCETracer){
 	return
 }
 
+func runExecutor(executor Executor, in chan WorkloadConfig, out chan bool) {
+	wc := <-in
+	fmt.Printf("received workload: %s\n", wc.Name)
+	if err := executor.RunStrace(wc); err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+	}
+	out <- true
+}
 
 func (tracer *GCETracer) GenerateCorpus() (err error) {
-	fmt.Printf("some dummy value\n")
+	recv_chan := make(chan bool)
+	wc_chan := make(chan WorkloadConfig, len(tracer.workloads))
+	for _, wc := range tracer.workloads {
+		wc_chan <- wc
+	}
+	for _, exec := range tracer.executor {
+		go runExecutor(exec, wc_chan, recv_chan)
+	}
+	seen := 0
+	for b := range recv_chan {
+		fmt.Printf("Bool: %b\n", b)
+		seen += 1
+		if (seen  == len(tracer.workloads)) {
+			close(recv_chan)
+		}
+	}
 	return nil
+
 }
 
 func (tracer *GCETracer) createInstance(name string) (string, error) {
@@ -103,7 +127,7 @@ func (tracer *GCETracer) deleteInstance(name string) (string, error) {
 func (tracer *GCETracer) waitForBoot(ip string) error {
 	args := []string {
 		"-p", "22",
-		"-i ", tracer.sshkey,
+		"-i", tracer.sshkey,
 		"-F", "/dev/null",
 		"-o", "UserKnownHostsFile=/dev/null",
 		"-o", "BatchMode=yes",
