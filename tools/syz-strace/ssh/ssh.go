@@ -25,10 +25,11 @@ type SSHCommand struct {
 type SSHClient struct {
 	Config *ssh.ClientConfig
 	Host string
+	DestDir string
 	Port int
 }
 
-func NewClient(port int, sshKey, sshUser, host string) (client *SSHClient) {
+func NewClient(port int, destDir, sshKey, sshUser, host string) (client *SSHClient) {
 	sshConfig := &ssh.ClientConfig{
 		User: sshUser,
 		Auth: []ssh.AuthMethod{
@@ -40,6 +41,7 @@ func NewClient(port int, sshKey, sshUser, host string) (client *SSHClient) {
 		Config: sshConfig,
 		Host:   host,
 		Port:   port,
+		DestDir: destDir,
 	}
 	return
 }
@@ -80,7 +82,7 @@ func (client *SSHClient) RunStrace(config domain.WorkloadConfig)  error {
 		logrus.Errorf("Failed to run command: %s", err.Error())
 		return err
 	}
-	client.copyPath(config.StraceOutPath, config.StraceOutPath + "/" + config.Name)
+	client.copyPath(config.StraceOutPath, client.DestDir + "/" + config.Name)
 	client.deleteFile(config)
 	return nil
 }

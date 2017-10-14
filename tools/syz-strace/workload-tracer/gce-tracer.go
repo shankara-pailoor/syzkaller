@@ -53,7 +53,10 @@ func NewGCETracer(config config.CorpusGenConfig) (tracer *GCETracer){
 		}
 		switch config.Executor {
 		case "ssh":
-			executor = syz_ssh.NewClient(config.SshPort, config.SshKey, config.SshUser, ip)
+			executor = syz_ssh.NewClient(config.SshPort,
+							config.DestinationDir,
+							config.SshKey,
+							config.SshUser, ip)
 		default:
 			panic("Only ssh executor supported\n")
 		}
