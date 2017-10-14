@@ -36,6 +36,9 @@ func NewGCETracer(config config.CorpusGenConfig) (tracer *GCETracer){
 		machinetype: config.MachineType,
 		imagename: config.ImageName,
 		executor: make([]Executor, 0),
+		sshkey: config.SshKey,
+		sshuser: config.SshUser,
+
 	}
 
 	workloads := readWorkload(config.ConfigPath)
@@ -50,7 +53,7 @@ func NewGCETracer(config config.CorpusGenConfig) (tracer *GCETracer){
 		}
 		switch config.Executor {
 		case "ssh":
-			executor = syz_ssh.NewClient(config.SSHConfig, ip)
+			executor = syz_ssh.NewClient(config.SshPort, config.SshUser, config.SshKey, ip)
 		default:
 			panic("Only ssh executor supported\n")
 		}

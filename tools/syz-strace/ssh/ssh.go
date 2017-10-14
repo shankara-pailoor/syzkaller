@@ -10,7 +10,6 @@ import (
 	"net"
 	"os"
 	"github.com/Sirupsen/logrus"
-	"github.com/google/syzkaller/tools/syz-strace/config"
 	"golang.org/x/crypto/ssh/agent"
 	"github.com/pkg/sftp"
 	"github.com/google/syzkaller/tools/syz-strace/domain"
@@ -31,11 +30,11 @@ type SSHClient struct {
 	Port int
 }
 
-func NewClient(config config.SSHConfig, host string) (client *SSHClient) {
+func NewClient(port int, sshKey, sshUser, host string) (client *SSHClient) {
 	sshConfig := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
-			PublicKeyFile(config.KeyFile),
+			PublicKeyFile(sshKey),
 			SSHAgent(),
 		},
 		HostKeyCallback: func(string, net.Addr, ssh.PublicKey) error { return nil },
@@ -43,7 +42,7 @@ func NewClient(config config.SSHConfig, host string) (client *SSHClient) {
 	client = &SSHClient{
 		Config: sshConfig,
 		Host:   host,
-		Port:   config.Port,
+		Port:   port,
 	}
 	return
 }

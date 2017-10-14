@@ -16,8 +16,10 @@ type CorpusGenConfig struct {
 	ConfigPath string `json:"workload_config"`
 	Tracer string
 	Executor string
+	SshKey string
+	SshUser string
+	SshPort int
 	GceConfig
-	SSHConfig
 	DestinationDir string `json:"dest_dir"`
 }
 
@@ -33,11 +35,6 @@ type ParserConfig struct {
 	LocalConfig
 }
 
-type SSHConfig struct {
-	Port int
-	KeyFile string `json:"ssh_key"`
-}
-
 type LocalConfig struct {
 	InputDirectory string
 	Files []string
@@ -49,8 +46,6 @@ type GceConfig struct {
 	NumInstances int
 	MachineType  string
 	ImageName    string
-	SshKey       string
-	SshUser      string
 }
 
 func NewConfig(location string) (config *SyzStraceConfig) {
