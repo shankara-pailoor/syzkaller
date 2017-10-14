@@ -23,5 +23,7 @@ corpuses/
 crashes/
 distillStats
 *.tar.gz
+tools/syz-strace/syz-strace.json
+syz-manager/mgrconfig/testdata/qemu.cfg
 strace-output/*
 
