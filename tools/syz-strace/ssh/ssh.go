@@ -7,10 +7,8 @@ import (
 	"io/ioutil"
 	"golang.org/x/crypto/ssh"
 	"strings"
-	"net"
 	"os"
 	"github.com/Sirupsen/logrus"
-	"golang.org/x/crypto/ssh/agent"
 	"github.com/pkg/sftp"
 	"github.com/google/syzkaller/tools/syz-strace/domain"
 )
@@ -32,12 +30,11 @@ type SSHClient struct {
 
 func NewClient(port int, sshKey, sshUser, host string) (client *SSHClient) {
 	sshConfig := &ssh.ClientConfig{
-		User: "root",
+		User: sshUser,
 		Auth: []ssh.AuthMethod{
 			PublicKeyFile(sshKey),
-			SSHAgent(),
 		},
-		HostKeyCallback: func(string, net.Addr, ssh.PublicKey) error { return nil },
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	client = &SSHClient{
 		Config: sshConfig,
@@ -105,13 +102,6 @@ func (client *SSHClient) runCommand(cmd *SSHCommand) error{
 	err = session.Run(cmd.build())
 	return err
 
-}
-
-func SSHAgent() ssh.AuthMethod {
-	if sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK")); err == nil {
-		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers)
-	}
-	return nil
 }
 
 func (client *SSHClient) copyPath(srcPath, destPath string) {
@@ -231,6 +221,7 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 	}
 
 	key, err := ssh.ParsePrivateKey(buffer)
+	key.PublicKey()
 	if err != nil {
 		fmt.Printf("Failed to print private key: %s\n", err.Error())
 		return nil
