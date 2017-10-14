@@ -232,6 +232,7 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 
 	key, err := ssh.ParsePrivateKey(buffer)
 	if err != nil {
+		fmt.Printf("Failed to print private key: %s\n", err.Error())
 		return nil
 	}
 	return ssh.PublicKeys(key)
