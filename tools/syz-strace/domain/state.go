@@ -3,7 +3,6 @@ package domain
 import (
 	"fmt"
 	. "github.com/google/syzkaller/prog"
-	"sort"
 )
 
 const (
@@ -20,7 +19,7 @@ type State struct {
 	Pages     [maxPages]bool
 	Pages_    [maxPages]int
 	Tracker	  *MemoryTracker
-	CurrentCallIdx int
+	CurrentCall *Call
 }
 
 type Allocation struct {
@@ -29,16 +28,16 @@ type Allocation struct {
 }
 
 type MemoryTracker struct {
-	allocations map[int][]*Allocation
+	allocations map[*Call][]*Allocation
 }
 
 func NewTracker() *MemoryTracker {
 	m := new(MemoryTracker)
-	m.allocations = make(map[int][]*Allocation, 0)
+	m.allocations = make(map[*Call][]*Allocation, 0)
 	return m
 }
 
-func (m *MemoryTracker) AddAllocation(callidx int, size uint64, arg Arg) {
+func (m *MemoryTracker) AddAllocation(call *Call, size uint64, arg Arg) {
 	switch arg.(type) {
 	case *PointerArg:
 	default:
@@ -47,10 +46,10 @@ func (m *MemoryTracker) AddAllocation(callidx int, size uint64, arg Arg) {
 	allocation := new(Allocation)
 	allocation.arg = arg
 	allocation.num_bytes = size
-	if _, ok := m.allocations[callidx]; !ok {
-		m.allocations[callidx] = make([]*Allocation, 0)
+	if _, ok := m.allocations[call]; !ok {
+		m.allocations[call] = make([]*Allocation, 0)
 	}
-	m.allocations[callidx] = append(m.allocations[callidx], allocation)
+	m.allocations[call] = append(m.allocations[call], allocation)
 }
 
 func (m *MemoryTracker) GetTotalMemoryNeeded() uint64{
@@ -63,16 +62,16 @@ func (m *MemoryTracker) GetTotalMemoryNeeded() uint64{
 	return sum
 }
 
-func (m *MemoryTracker) FillOutMemory() {
+func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 	offset := uint64(0)
-	var pages uint64 = 0
-	callIdxs := make([]int, 0)
-	for key, _ := range m.allocations {
-		callIdxs = append(callIdxs, key)
-	}
-	sort.Ints(callIdxs)
-	for _, idx := range callIdxs {
-		for _, a := range m.allocations[idx] {
+
+
+	for _, call := range prog.Calls {
+		pages := uint64(0)
+		if _, ok := m.allocations[call]; !ok {
+			continue
+		}
+		for _, a := range m.allocations[call] {
 			switch arg := a.arg.(type) {
 			case *PointerArg:
 				switch arg.Type().(type) {
@@ -101,7 +100,7 @@ func NewState(target *Target) *State {
 		Resources: make(map[string][]Arg),
 		Strings:   make(map[string]*Call),
 		Tracker:   NewTracker(),
-		CurrentCallIdx: 0,
+		CurrentCall: nil,
 	}
 	return s
 }

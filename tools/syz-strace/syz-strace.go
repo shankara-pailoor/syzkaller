@@ -239,7 +239,7 @@ func main() {
 				fmt.Printf("Error parsing program: %s\n", err.Error())
 				continue
 			}
-			s.Tracker.FillOutMemory()
+			s.Tracker.FillOutMemory(parsedProg)
 			for _, call := range parsedProg.Calls {
 				if _, ok := seen_calls[call.Meta.CallName]; ok {
 					continue
@@ -345,10 +345,9 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 	return_vars := make(map[returnType]Arg)
 
 	for _, line := range straceCalls {
-		s.CurrentCallIdx = seeds.Len()+1
+
 		seed, err := parseCall(target, line, consts, &return_vars, s, prog)
 		if err != nil  {
-			s.CurrentCallIdx -= 1
 			return nil, err
 		}
 		if seed == nil {
@@ -358,11 +357,11 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 	}
 	memory := s.Tracker.GetTotalMemoryNeeded()
 	fmt.Printf("TOTAL Memory Needed: %d\n", memory)
-	s.Tracker.FillOutMemory()
 	calls := make([]*Call, 0)
 	calls = append(calls, target.MakeMmap(0, uint64(memory/pageSize)+1))
 	calls = append(calls, prog.Calls...)
 	prog.Calls = calls
+	s.Tracker.FillOutMemory(prog)
 	return prog, nil
 }
 
@@ -422,6 +421,7 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 		Meta: meta,
 		Ret:  returnArg(meta.Ret),
 	}
+	s.CurrentCall = c
 	var calls []*Call
 	var strace_arg string
 	progLen := len(prog_.Calls)
@@ -1254,7 +1254,7 @@ func parseArg(typ Type, strace_arg string,
 		}
 		var arg Arg
 		arg = pointerArg(typ, 0, 0, npages, nil)
-		s.Tracker.AddAllocation(s.CurrentCallIdx, pageSize, arg)
+		s.Tracker.AddAllocation(s.CurrentCall, pageSize, arg)
 		//We might encounter an mlock done because of a brk
 		//But strace doesn't support brk so we need to allocate the address
 		/*
@@ -1632,7 +1632,7 @@ func addr(s *domain.State, typ Type, size uint64, data Arg) (Arg, []*Call, error
 		}
 	*/
 	arg := pointerArg(typ, uint64(0), 0, 0, data)
-	s.Tracker.AddAllocation(s.CurrentCallIdx, size, arg)
+	s.Tracker.AddAllocation(s.CurrentCall, size, arg)
 	return arg, nil, nil
 	/*
 	pages, offset, should_allocate, err := s.AllocateMemory(int(size))

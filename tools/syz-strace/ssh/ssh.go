@@ -31,7 +31,7 @@ type SSHClient struct {
 	Port int
 }
 
-func NewClient(config config.SSHConfig) (client *SSHClient) {
+func NewClient(config config.SSHConfig, host string) (client *SSHClient) {
 	sshConfig := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
@@ -42,7 +42,7 @@ func NewClient(config config.SSHConfig) (client *SSHClient) {
 	}
 	client = &SSHClient{
 		Config: sshConfig,
-		Host:   config.Ip,
+		Host:   host,
 		Port:   config.Port,
 	}
 	return

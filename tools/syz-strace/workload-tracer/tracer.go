@@ -7,7 +7,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"encoding/json"
 	. "github.com/google/syzkaller/tools/syz-strace/domain"
-	"github.com/google/syzkaller/tools/syz-strace/ssh"
 )
 
 
@@ -16,18 +15,13 @@ type Tracer interface {
 }
 
 func NewTracer(config config.CorpusGenConfig) (tracer Tracer) {
-	var executor Executor
-	switch config.Executor {
-	case "ssh":
-		executor = syz_ssh.NewClient(config.SSHConfig)
-	default:
-		panic("Only ssh executor supported\n")
-	}
+
 
 	switch config.Tracer {
+	case "gce":
+		tracer = NewGCETracer(config)
 	default:
-		workloads := readWorkload(config.ConfigPath)
-		tracer = &DefaultTracer{executor: executor, workloads: workloads}
+		tracer = NewDefaultTracer(config)
 	}
 	return
 }
