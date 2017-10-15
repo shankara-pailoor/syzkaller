@@ -4,6 +4,7 @@ import (
 	"github.com/google/syzkaller/tools/syz-strace/domain"
 	"github.com/google/syzkaller/prog"
 	"github.com/google/syzkaller/tools/syz-strace/config"
+	"github.com/google/syzkaller/tools/syz-strace/implicit-dependencies"
 )
 
 type Distiller interface {
@@ -22,6 +23,8 @@ func NewDistiller(conf config.DistillConfig) (d Distiller){
 		d = NewWeakDistiller(conf)
 	case "strong":
 		d = NewStrongDistiller(conf)
+	case "implicit":
+		d = NewImplicitDistiller(conf)
 	default:
 		d = NewWeakDistiller(conf)
 	}
@@ -55,5 +58,22 @@ func NewWeakDistiller(conf config.DistillConfig) (d *WeakDistiller) {
 		DownstreamDependents: make(map[*domain.Seed]map[int]bool, 0),
 	}
 	d.DistillerMetadata = dm
+	return
+}
+
+func NewImplicitDistiller(conf config.DistillConfig) (d *ImplicitDistiller) {
+	d = new(ImplicitDistiller)
+	dm := &DistillerMetadata{
+		StatFile: conf.Stats,
+		DistilledProgs: make([]*prog.Prog, 0),
+		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
+		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
+		CallToIdx: make(map[*prog.Call]int, 0),
+		UpstreamDependencyGraph: make(map[*domain.Seed]map[int]map[prog.Arg][]prog.Arg, 0),
+		DownstreamDependents: make(map[*domain.Seed]map[int]bool, 0),
+	}
+	impl_deps := implicit_dependencies.LoadImplicitDependencies(conf.ImplicitDepsFile)
+	d.DistillerMetadata = dm
+	d.impl_deps = *impl_deps
 	return
 }

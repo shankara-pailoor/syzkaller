@@ -26,6 +26,7 @@ type CorpusGenConfig struct {
 type DistillConfig struct {
 	Type string
 	Stats string `json:"stats"`
+	ImplicitDepsFile string `json:"implicit_dependencies"`
 }
 
 type ParserConfig struct {
