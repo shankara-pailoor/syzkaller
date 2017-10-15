@@ -288,7 +288,9 @@ func (d *DistillerMetadata) isDependent(arg prog.Arg, seed *domain.Seed, state *
 		}
 	}
 	args[arg] = callIdx
-	arg.(prog.ArgUsed).Set(nil)
+	if _, ok := arg.(prog.ArgUsed); ok {
+		arg.(prog.ArgUsed).Set(nil)
+	}
 	//doesn't hurt to add again if it was already added
 	return upstreamSet
 }

@@ -88,7 +88,7 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 		go runExecutor(exec, wc_chan, recv_chan)
 	}
 	seen := 0
-	for b := range recv_chan {
+	for _ = range recv_chan {
 		seen += 1
 		if (seen  == len(tracer.workloads)) {
 			close(recv_chan)
