@@ -30,6 +30,9 @@ type SSHClient struct {
 }
 
 func NewClient(port int, destDir, sshKey, sshUser, host string) (client *SSHClient) {
+	fmt.Printf("Ssh user: %s\n", sshUser)
+	fmt.Printf("Ssh key: %s\n", sshKey)
+	fmt.Printf("host key: %s\n", host)
 	sshConfig := &ssh.ClientConfig{
 		User: sshUser,
 		Auth: []ssh.AuthMethod{
@@ -211,7 +214,7 @@ func (client *SSHClient) newSession() (*ssh.Session, error) {
 func (client *SSHClient) newConnection() (*ssh.Client, error) {
 	connection, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", client.Host, client.Port), client.Config)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to dial: %s", err)
+		return nil, fmt.Errorf(fmt.Sprintf("Failed to dial: %s", err.Error()))
 	}
 	return connection, err
 }
