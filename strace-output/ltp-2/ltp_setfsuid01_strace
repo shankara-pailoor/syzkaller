@@ -1,2 +1,0 @@
-geteuid()                               = 0
-setfsuid(0)                             = 0

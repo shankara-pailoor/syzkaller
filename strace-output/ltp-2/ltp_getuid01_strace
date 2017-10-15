@@ -1,6 +1,0 @@
-getuid()                                = 0
-ioctl(1, TCGETS, 0x7ffdfcb00580)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=42893, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:37:18+0000.890899077, st_mtime=2017-03-31T06:37:18+0000.890899077, st_ctime=2017-03-31T06:37:18+0000.890899077}) = 0
-write(1, &0x1d9e010="getuid01    1  TPASS  :  getuid returned 0\n", 43) = 43
-exit_group(0)                           = ?
-+++ exited with 0 +++

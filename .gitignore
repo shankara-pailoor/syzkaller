@@ -1,3 +1,4 @@
+*.iml
 *.swp
 *~
 *.cfg
@@ -9,7 +10,8 @@ sys/sys_arm64.go
 sys/sys_ppc64le.go
 executor/syscalls.h
 .idea/
-ssh/
+/ssh/
+/tools/ssh/
 wheezy.img
 wheezy/
 wheezy_old/
@@ -22,5 +24,7 @@ tools/syz-strace/syz-strace.json
 corpuses/
 crashes/
 distillStats
+*.tar.gz
+tools/syz-strace/syz-strace.json
+syz-manager/mgrconfig/testdata/qemu.cfg
 strace-output/*
-

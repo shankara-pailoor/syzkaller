@@ -1,5 +1,0 @@
-mknod("select03", S_IFIFO|0777)         = 0
-open("select03", O_RDWR)                = 3
-select(5, [3], [3], NULL, {tv_sec=0, tv_usec=0}) = 1 (out [3], left {tv_sec=0, tv_usec=0})
-ioctl(1, TCGETS, 0x7ffce3c425f0)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=45690, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:11+0000.726899077, st_mtime=2017-03-31T06:38:11+0000.726899077, st_ctime=2017-03-31T06:38:11+0000.726899077}) = 0

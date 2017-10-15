@@ -1,6 +1,0 @@
-timerfd_create(CLOCK_REALTIME, 0)       = 3
-fcntl(3, F_GETFD)                       = 0
-close(3)                                = 0
-timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC) = 3
-fcntl(3, F_GETFD)                       = 0x1 (flags FD_CLOEXEC)
-close(3)                                = 0

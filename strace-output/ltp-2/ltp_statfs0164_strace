@@ -1,6 +1,0 @@
-open("tfile_4024", O_RDWR|O_CREAT, 0700) = 3
-write(3, &0x40d6ea="statfs01", 8)       = 8
-close(3)                                = 0
-statfs("tfile_4024", {f_type=EXT2_SUPER_MAGIC, f_bsize=4096, f_blocks=2547534, f_bfree=2042844, f_bavail=1907676, f_files=655360, f_ffree=623836, f_fsid={val=[1507683243, 2557745238]}, f_namelen=255, f_frsize=4096, f_flags=ST_VALID|ST_RELATIME}) = 0
-ioctl(1, TCGETS, 0x7ffdb3dcf600)        = -1 ENOTTY (Inappropriate ioctl for device)
-fstat(1, {st_dev=makedev(0, 10), st_ino=43935, st_mode=S_IFIFO|0600, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:12+0000.545899077, st_mtime=2017-03-31T06:38:12+0000.545899077, st_ctime=2017-03-31T06:38:12+0000.545899077}) = 0

@@ -1,9 +1,0 @@
-open("./tfile_3970", O_WRONLY|O_CREAT, 0666) = 3
-close(3)                                = 0
-chmod("./tfile_3970", 0700)             = 0
-utimensat(AT_FDCWD, "./tfile_3970", NULL, 0) = 0
-stat("./tfile_3970", {st_dev=makedev(8, 0), st_ino=401839, st_mode=S_IFREG|0700, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=0, st_size=0, st_atime=2017-03-31T06:38:08+0000.949899077, st_mtime=2017-03-31T06:38:08+0000.949899077, st_ctime=2017-03-31T06:38:08+0000.949899077}) = 0
-stat("./rndir_3970", 0x6172e0)          = -1 ENOENT (No such file or directory)
-mkdir("./rndir_3970", 0770)             = 0
-stat("./rndir_3970", {st_dev=makedev(8, 0), st_ino=401840, st_mode=S_IFDIR|0750, st_nlink=2, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=8, st_size=4096, st_atime=2017-03-31T06:38:08+0000.953899077, st_mtime=2017-03-31T06:38:08+0000.953899077, st_ctime=2017-03-31T06:38:08+0000.953899077}) = 0
-rename("./tfile_3970", "./rndir_3970")  = -1 EISDIR (Is a directory)

@@ -1,2 +1,0 @@
-set_robust_list(0x7ffe9faecdf0, 4294967295) = -1 EINVAL (Invalid argument)
-set_robust_list(0x7ffe9faecdf0, 24)     = 0

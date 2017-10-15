@@ -1,2 +1,0 @@
-pipe([3, 4])                            = 0
-select(5, [3], [4], NULL, {tv_sec=0, tv_usec=0}) = 1 (out [4], left {tv_sec=0, tv_usec=0})
