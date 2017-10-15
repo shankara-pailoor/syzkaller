@@ -16,7 +16,11 @@ func NewDefaultTracer(config config.CorpusGenConfig) (tracer Tracer) {
 	var executor Executor
 	switch config.Executor {
 	case "ssh":
-		executor = syz_ssh.NewClient(config.SshPort, config.SshKey, config.SshUser, "127.0.0.1")
+		executor = syz_ssh.NewClient(config.SshPort,
+			config.DestinationDir,
+			config.SshKey,
+			config.SshUser,
+			"127.0.0.1")
 	default:
 		panic("Only ssh executor supported\n")
 	}

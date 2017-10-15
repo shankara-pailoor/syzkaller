@@ -53,7 +53,10 @@ func NewGCETracer(config config.CorpusGenConfig) (tracer *GCETracer){
 		}
 		switch config.Executor {
 		case "ssh":
-			executor = syz_ssh.NewClient(config.SshPort, config.SshKey, config.SshUser, ip)
+			executor = syz_ssh.NewClient(config.SshPort,
+							config.DestinationDir,
+							config.SshKey,
+							config.SshUser, ip)
 		default:
 			panic("Only ssh executor supported\n")
 		}
@@ -64,12 +67,14 @@ func NewGCETracer(config config.CorpusGenConfig) (tracer *GCETracer){
 }
 
 func runExecutor(executor Executor, in chan WorkloadConfig, out chan bool) {
-	wc := <-in
-	fmt.Printf("received workload: %s\n", wc.Name)
-	if err := executor.RunStrace(wc); err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
+	for wc := range in {
+		fmt.Printf("received workload: %s\n", wc.Name)
+		if err := executor.RunStrace(wc); err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		}
+		out <- true
 	}
-	out <- true
+
 }
 
 func (tracer *GCETracer) GenerateCorpus() (err error) {
@@ -78,12 +83,12 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 	for _, wc := range tracer.workloads {
 		wc_chan <- wc
 	}
+	close(wc_chan)
 	for _, exec := range tracer.executor {
 		go runExecutor(exec, wc_chan, recv_chan)
 	}
 	seen := 0
 	for b := range recv_chan {
-		fmt.Printf("Bool: %b\n", b)
 		seen += 1
 		if (seen  == len(tracer.workloads)) {
 			close(recv_chan)
