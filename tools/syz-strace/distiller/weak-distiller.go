@@ -7,9 +7,12 @@ import (
 	"sort"
 )
 
-
+const (
+	pageSize = 4 << 10
+)
 var (
 	RADIUS int = 2
+
 )
 
 type WeakDistiller struct {
@@ -61,9 +64,19 @@ func (d *WeakDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 			distilledProgs[d.CallToDistilledProg[seed.Call]] = true
 		}
 	}
-	for prog, _ := range distilledProgs {
+	for prog_, _ := range distilledProgs {
+		seed := d.CallToSeed[prog_.Calls[0]]
+		state := seed.State
+		state.Tracker.FillOutMemory(prog_)
+		totalMemory := state.Tracker.GetTotalMemoryNeeded(prog_)
+		mmapCall := state.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
+		calls := make([]*prog.Call, 0)
+		calls = append(append(calls, mmapCall), prog_.Calls...)
+
+		prog_.Calls = calls
+
 		//fmt.Printf("Prog: %v\n", prog)
-		distilled = append(distilled, prog)
+		distilled = append(distilled, prog_)
 	}
 	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
 	return

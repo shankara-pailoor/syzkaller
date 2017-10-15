@@ -52,16 +52,6 @@ func (m *MemoryTracker) AddAllocation(call *Call, size uint64, arg Arg) {
 	m.allocations[call] = append(m.allocations[call], allocation)
 }
 
-func (m *MemoryTracker) GetTotalMemoryNeeded() uint64{
-	sum := uint64(0)
-	for _, a := range m.allocations {
-		for _, a1 := range a {
-			sum += a1.num_bytes
-		}
-	}
-	return sum
-}
-
 func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 	offset := uint64(0)
 
@@ -91,6 +81,21 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 
 	}
 }
+
+func (m *MemoryTracker) GetTotalMemoryNeeded(prog *Prog) uint64{
+	sum := uint64(0)
+	for _, call := range prog.Calls {
+		if _, ok := m.allocations[call]; !ok {
+			continue
+		}
+		for _, a := range m.allocations[call] {
+			sum += a.num_bytes
+		}
+	}
+	return sum
+}
+
+
 
 
 func NewState(target *Target) *State {
