@@ -1,10 +1,10 @@
 package workload_tracer
 
 import (
-	"github.com/Sirupsen/logrus"
 	. "github.com/google/syzkaller/tools/syz-strace/domain"
 	"github.com/google/syzkaller/tools/syz-strace/ssh"
 	"github.com/google/syzkaller/tools/syz-strace/config"
+	"fmt"
 )
 
 type DefaultTracer struct {
@@ -33,11 +33,9 @@ func NewDefaultTracer(config config.CorpusGenConfig) (tracer Tracer) {
 func (dt *DefaultTracer) GenerateCorpus() (err error) {
 	//ctx := context.Background()
 	//client, err := storage.NewClient(ctx)
-	if err != nil {
-		logrus.Fatalf("Unable to generate client config: %s", err.Error())
-	}
 	for _, wc := range dt.workloads {
 		if err = dt.executor.RunStrace(wc); err != nil {
+			fmt.Printf("Error generating strace: %s\n", err.Error())
 			return err
 		}
 	}

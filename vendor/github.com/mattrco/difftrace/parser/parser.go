@@ -68,7 +68,7 @@ func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
 func (p *Parser) Parse() (*OutputLine, error) {
 	line := &OutputLine{}
 	tok, lit := p.scanIgnoreWhitespace()
-	fmt.Printf("LITS: %s\n", lit)
+	fmt.Printf("LITS: %s ENDLIT\n", lit)
 	var foundPid bool = false
 
 	if tok == EOF || lit == "+" {
@@ -80,12 +80,8 @@ func (p *Parser) Parse() (*OutputLine, error) {
 		tok, lit = p.scanIgnoreWhitespace()
 	} else if strings.Contains(lit, "Cover:") {
 		line.Result = lit
-		for {
-			tok, lit = p.scanIgnoreWhitespace()
-			if tok == NEWLINE {
-				return line, nil
-			}
-		}
+		p.scan() //Consuming newline
+		return line, nil
 	}
 	// Handle signals.
 	if tok == SIGNAL {
@@ -126,6 +122,10 @@ func (p *Parser) Parse() (*OutputLine, error) {
 				break
 			}
 		}
+	} else if strings.Contains(lit, "Cover:") {
+		line.Result = lit
+		p.scan() //Consuming newline
+		return line, nil
 	} else {
 		line.FuncName = lit
 	}

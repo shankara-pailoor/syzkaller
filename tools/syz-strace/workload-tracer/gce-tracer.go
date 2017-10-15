@@ -92,6 +92,7 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 		seen += 1
 		if (seen  == len(tracer.workloads)) {
 			close(recv_chan)
+			close(wc_chan)
 		}
 	}
 	return nil

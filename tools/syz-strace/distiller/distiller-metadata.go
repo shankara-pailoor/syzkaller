@@ -117,17 +117,18 @@ func (d *DistillerMetadata) BuildDependency(seed *domain.Seed, distilledProg *pr
 		if s, ok := d.CallToSeed[call]; ok {
 			//fmt.Printf("HERE\n")
 			dependencyMap := d.UpstreamDependencyGraph[s]
+			fmt.Printf("dependency map: %v\n", dependencyMap)
 			for idx, argMap := range dependencyMap {
 				upstreamSeed := d.CallToSeed[seed.Prog.Calls[idx]]
 				for argK, argVs := range argMap {
 					//fmt.Printf("dealing with argMap\n")
 					for _, argV := range argVs {
 						if _, ok := upstreamSeed.ArgMeta[argK]; !ok {
-							fmt.Printf("UpstreamedSeed: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
+							//fmt.Printf("UpstreamedSeed: %s, for call: %s index: %d\n", upstreamSeed.Call.Meta.CallName, seed.Call.Meta.CallName, idx)
 							argK.(prog.ArgUsed).Set(nil)
 							upstreamSeed.ArgMeta[argK] = true
 						}
-						if argK.(prog.ArgUsed).Used() == nil {
+						if (*argK.(prog.ArgUsed).Used()) == nil {
 							//fmt.Printf("Allocating Uses: %s, index: %d\n", upstreamSeed.Call.Meta.CallName, idx)
 							argK.(prog.ArgUsed).Set(make(map[prog.Arg]bool, 0))
 						}

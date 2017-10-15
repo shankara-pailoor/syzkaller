@@ -33,7 +33,7 @@ const (
 	pageSize    = 4 << 10
 	maxPages    = 4 << 10
 	COVER_ID    = "Cover:"
-	COVER_DELIM = "-"
+	COVER_DELIM = ","
 )
 
 var pageStartPool = sync.Pool{New: func() interface{} { return new([]uintptr) }}
@@ -239,7 +239,14 @@ func main() {
 				fmt.Printf("Error parsing program: %s\n", err.Error())
 				continue
 			}
-			s.Tracker.FillOutMemory(parsedProg)
+			if !distill {
+				s.Tracker.FillOutMemory(parsedProg)
+				totalMemory := s.Tracker.GetTotalMemoryNeeded(parsedProg)
+				mmapCall := s.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
+				calls := make([]*prog.Call, 0)
+				calls = append(append(calls, mmapCall), parsedProg.Calls...)
+				parsedProg.Calls = calls
+			}
 			for _, call := range parsedProg.Calls {
 				if _, ok := seen_calls[call.Meta.CallName]; ok {
 					continue
@@ -355,18 +362,14 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 		}
 		seeds.Add(seed)
 	}
-	memory := s.Tracker.GetTotalMemoryNeeded()
+	memory := s.Tracker.GetTotalMemoryNeeded(prog)
 	fmt.Printf("TOTAL Memory Needed: %d\n", memory)
-	calls := make([]*Call, 0)
-	calls = append(calls, target.MakeMmap(0, uint64(memory/pageSize)+1))
-	calls = append(calls, prog.Calls...)
-	prog.Calls = calls
-	s.Tracker.FillOutMemory(prog)
 	return prog, nil
 }
 
 func parseInstructions(line string) (ips []uint64) {
 	uniqueIps := make(map[uint64]bool)
+	line = line[1: len(line)-1]
 	strippedLine := strings.TrimSpace(line)
 	/*
 		Instructions for a call all appear in one line of the form
@@ -374,7 +377,7 @@ func parseInstructions(line string) (ips []uint64) {
 		COVER_DELIM = "-" then it would appear as "Cover:ip1-ip2-ip3"
 
 	*/
-	instructions := strings.Split(strippedLine[1:len(strippedLine)-1], COVER_ID)
+	instructions := strings.Split(strippedLine, COVER_ID)
 	s := strings.Split(instructions[1], COVER_DELIM)
 	for _, ins := range s {
 		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)

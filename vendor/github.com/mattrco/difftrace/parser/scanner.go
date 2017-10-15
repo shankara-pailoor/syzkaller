@@ -41,6 +41,8 @@ var terminator = map[rune]bool{
 	'}': true,
 	')': true,
 	'>': true,
+	'.': true,
+	'\n': true,
 }
 
 var eof = rune(0)
@@ -162,7 +164,7 @@ func (s *Scanner) Scan() (tok Token, lit string) {
 		// Consume all contiguous whitespace.
 		s.unreadRune()
 		return s.scanWhitespace()
-	} else if isLetter(r) || isDigit(r) {
+	} else if isLetter(r) || isDigit(r)  {
 		// If we see a letter then consume as an identifier.
 		s.unreadRune()
 		return s.scanIdent()
@@ -272,6 +274,7 @@ func (s *Scanner) scanString() (tok Token, lit string) {
 			}
 			fmt.Printf("NOT IN QUOTE STRING\n")
 			next := s.read()
+			fmt.Printf("NEXT: %s\n", string(next))
 			_,ok := terminator[next]
 			//if next != ',' {
 			//	s.unreadRune()
