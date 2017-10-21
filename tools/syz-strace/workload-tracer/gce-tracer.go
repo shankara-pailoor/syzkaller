@@ -95,6 +95,14 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 			close(wc_chan)
 		}
 	}
+	defer func() {
+		for i := 0; i < tracer.numinstances; i++ {
+			if err = tracer.GCE.DeleteImage(fmt.Sprintf("tracer-%d", i)); err != nil {
+				fmt.Printf("error deleting instance: %s", err.Error())
+			}
+		}
+	}()
+
 	return nil
 
 }
@@ -118,17 +126,6 @@ func (tracer *GCETracer) createInstance(name string) (string, error) {
 	return ip, nil
 }
 
-func (tracer *GCETracer) deleteInstance(name string) (string, error) {
-	ip, err := tracer.GCE.CreateInstance(name, tracer.machinetype, tracer.imagename, "")
-	if err != nil {
-		return "", nil
-	}
-	err = tracer.waitForBoot(ip)
-	if err != nil {
-		return "", nil
-	}
-	return ip, nil
-}
 
 func (tracer *GCETracer) waitForBoot(ip string) error {
 	args := []string {
