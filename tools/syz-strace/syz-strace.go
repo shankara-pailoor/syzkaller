@@ -196,13 +196,6 @@ func main() {
 		panic(s)
 	}
 	consts := target.ConstMap
-	fmt.Printf("CONSTANTS\n")
-	for k, _ := range consts {
-		fmt.Printf("%s\n", k)
-		if k == "AT_FDCWD" {
-			fmt.Printf("HAVE FD_CWD\n")
-		}
-	}
 	seen_calls := make(map[string]bool)
 	seeds := make(domain.Seeds, 0)
 	progs := make([]*prog.Prog, 0)
