@@ -85,14 +85,14 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 	}
 	close(wc_chan)
 	for _, exec := range tracer.executor {
-		go runExecutor(exec, wc_chan, recv_chan)
+		var tmp_exec Executor = exec;
+		go func() {runExecutor(tmp_exec, wc_chan, recv_chan)}()
 	}
 	seen := 0
 	for _ = range recv_chan {
 		seen += 1
 		if (seen  == len(tracer.workloads)) {
 			close(recv_chan)
-			close(wc_chan)
 		}
 	}
 	defer func() {

@@ -9,6 +9,7 @@ import (
 	. "github.com/google/syzkaller/tools/syz-strace/domain"
 	"os"
 	"strings"
+	"path/filepath"
 )
 
 
@@ -29,9 +30,9 @@ func NewTracer(config config.CorpusGenConfig) (tracer Tracer) {
 }
 
 func readWorkload(location string) (wcs []WorkloadConfig) {
-	reader := func (file os.FileInfo) {
+	reader := func (file string) {
 		tmpWcs := make([]WorkloadConfig, 0)
-		if strings.Contains(file.Name(), ".json") {
+		if strings.Contains(file, ".json") {
 			data, fileErr := ioutil.ReadFile(location)
 			if fileErr != nil {
 				logrus.Fatalf("Unable to read config, exiting")
@@ -46,17 +47,17 @@ func readWorkload(location string) (wcs []WorkloadConfig) {
 	if err != nil {
 		panic(err.Error())
 	}
-	switch finfo.Mode() {
-	case os.ModeDir:
+	switch mode := finfo.Mode(); {
+	case mode.IsDir():
 		var finfos []os.FileInfo
 		if finfos, err = ioutil.ReadDir(location); err != nil {
 			panic(err.Error())
 		}
 		for _, file := range finfos {
-			reader(file)
+			reader(filepath.Join(location, file.Name()))
 		}
 	default:
-		reader(finfo)
+		reader(location)
 	}
 
 	return
