@@ -5,9 +5,11 @@ import (
 	"github.com/google/syzkaller/tools/syz-strace/domain"
 	"fmt"
 	"sort"
+	"os"
 )
 
 func (d *StrongDistiller) Add(seeds domain.Seeds) {
+	/* builds out CallToIdx which is used for sorting calls in distilled programs */
 	d.Seeds = seeds
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
@@ -15,11 +17,15 @@ func (d *StrongDistiller) Add(seeds domain.Seeds) {
 		seed.ArgMeta = make(map[prog.Arg]bool, 0)
 		for call, idx := range seed.DependsOn {
 			if _, ok := d.UpstreamDependencyGraph[seed][idx]; !ok {
+				/* Loop over upstream, dependent calls within seed.Prog.
+				Dependent call c is the idx'th call in seed.Prog.
+				Set d.UpstreamDependencyGraph[idx] = { Arg --> [Args] }
+				 */
 				d.UpstreamDependencyGraph[seed][idx] = make(map[prog.Arg][]prog.Arg, 0)
 			}
-			d.CallToIdx[call] = idx
+			d.CallToIdx[call] = idx  // track position of dependent calls
 		}
-		d.CallToIdx[seed.Call] = seed.CallIdx
+		d.CallToIdx[seed.Call] = seed.CallIdx  // track position of seed call
 	}
 }
 
@@ -28,17 +34,17 @@ func (d *StrongDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 	seeds := d.Seeds
 	fmt.Printf("Computing Min Cover with %d seeds\n", len(seeds))
 	sort.Sort(sort.Reverse(seeds))
-	contributing_progs := 0
-	heavyHitters := make(domain.Seeds, 0)
+	contributing_seeds := 0  /* how many seeds contribute new coverage? */
+	heavyHitters := make(domain.Seeds, 0)  /* all seeds that contribute new coverage */
 	for _, prog := range progs {
 		d.TrackDependencies(prog)
 	}
 	for _, seed := range seeds {
-		var ips int = d.Contributes(seed, seenIps)
+		var ips int = d.Contributes(seed, seenIps)  /* how many unique Ips does seed contribute */
 		if ips > 0 {
 			heavyHitters.Add(seed)
 			fmt.Printf("Seed: %s contributes: %d ips out of its total of: %d\n", seed.Call.Meta.Name, ips, len(seed.Cover))
-			contributing_progs += 1
+			contributing_seeds += 1
 		}
 	}
 	d.Stats(heavyHitters)
@@ -61,7 +67,8 @@ func (d *StrongDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 		//fmt.Printf("Prog: %v\n", prog)
 		distilled = append(distilled, prog)
 	}
-	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
+	fmt.Fprintf(os.Stderr, "Total Contributing seeds: %d out of %d, in %d strong-distilled programs\n",
+		   contributing_seeds, len(seeds), len(distilled))
 	return
 }
 
@@ -73,24 +80,26 @@ func (d *StrongDistiller) AddToDistilledProg(seed *domain.Seed) {
 	totalCalls := make([]*prog.Call, 0)
 
 	if d.CallToDistilledProg[seed.Call] != nil {
-		return
+		return  /* skip call if already in a distilled program */
 	}
 	seenMap := make(map[int]bool, 0)
 	upstreamCalls := make([]*prog.Call, 0)
+	/* collect list of all upstream dependent calls, unsorted? */
 	upstreamCalls = append(upstreamCalls, d.GetAllUpstreamDependents(seed, seenMap)...)
-	upstreamCalls = append(upstreamCalls, seed.Call)
+	upstreamCalls = append(upstreamCalls, seed.Call) // add seed as last call
 	distinctProgs := d.getAllProgs(upstreamCalls)
-	if len(distinctProgs) > 0 {
+	if len(distinctProgs) > 0 {  // we need to merge!
+		// collect all the calls from all distinct progs, plus our upstreamCalls together
 		totalCalls = append(d.getCalls(distinctProgs), upstreamCalls...)
 	} else {
 		totalCalls = upstreamCalls
 	}
 
-	callIndexes = d.uniqueCallIdxs(totalCalls)
+	callIndexes = d.uniqueCallIdxs(totalCalls)  // dedups and sorts calls by their program idx
 	for _, idx := range callIndexes {
 		call := seed.Prog.Calls[idx]
-		d.CallToDistilledProg[call] = distilledProg
+		d.CallToDistilledProg[call] = distilledProg  // set calls to point to new, merged program
 		distilledProg.Calls = append(distilledProg.Calls, call)
 	}
-	d.BuildDependency(seed, distilledProg)
+	d.BuildDependency(seed, distilledProg)  // set args to point to dependent args.
 }

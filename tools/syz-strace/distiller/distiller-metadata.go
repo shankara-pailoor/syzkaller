@@ -52,11 +52,12 @@ func (d *DistillerMetadata) GetAllUpstreamDependents(seed *domain.Seed, seen map
 	for idx, _ := range d.UpstreamDependencyGraph[seed] {
 		call := seed.Prog.Calls[idx]
 		if seen[idx] || idx == seed.CallIdx {
-			continue
+			continue  // skip calls we've already added, and skip the current seed
 		}
-		seen[idx] = true
+		seen[idx] = true  // mark that we're adding this call at position idx
 		if s, ok := d.CallToSeed[call]; ok {
 			calls = append(calls, call)
+			/* recursively add upstream dependents */
 			calls = append(calls, d.GetAllUpstreamDependents(s, seen)...)
 		} else {
 			calls = append(calls, call)
@@ -85,6 +86,7 @@ func (d *DistillerMetadata) TrackDependencies(prg *prog.Prog) {
 		for _, arg := range call.Args {
 			fmt.Printf("Arg: %s, %v\n", call.Meta.CallName, arg)
 			upstream_maps := d.isDependent(arg, seed, seed.State, i, args)
+			/* upstream_maps: given a call at index k that uses arg, what are the upstream args that arg depends on? */
 			for k, argMap := range upstream_maps {
 				fmt.Printf("K: %d\n", k)
 				if d.UpstreamDependencyGraph[seed][k] == nil {
@@ -92,15 +94,18 @@ func (d *DistillerMetadata) TrackDependencies(prg *prog.Prog) {
 				}
 				for argK, argVs := range argMap {
 					//fmt.Printf("ARGVs: %v\n", argVs)
+					/* given an arg in call at idx k, add its upstream deps*/
 					d.UpstreamDependencyGraph[seed][k][argK] = append(d.UpstreamDependencyGraph[seed][k][argK], argVs...)
 				}
 			}
 		}
 		for idx, _ := range d.UpstreamDependencyGraph[seed] {
+			/* if one of the calls in upstream depencies is a seed */
 			if upstreamSeed, ok := d.CallToSeed[prg.Calls[idx]]; ok {
 				if d.DownstreamDependents[upstreamSeed] == nil {
 					d.DownstreamDependents[upstreamSeed] = make(map[int]bool, 0)
 				}
+				/* mark that this upstream seed is dependent on our current seed at index i */
 				d.DownstreamDependents[upstreamSeed][i] = true
 			}
 		}
@@ -160,6 +165,7 @@ func (d *DistillerMetadata) Stats(distilledSeeds domain.Seeds) {
 }
 
 func (d *DistillerMetadata) uniqueCallIdxs(calls []*prog.Call) []int {
+	/* returns sorted list of distinct indexes of all calls */
 	seenCalls := make(map[*prog.Call]bool, 0)
 	ret := make([]int, 0)
 
@@ -174,6 +180,7 @@ func (d *DistillerMetadata) uniqueCallIdxs(calls []*prog.Call) []int {
 }
 
 func (d *DistillerMetadata) getAllProgs(calls []*prog.Call) (ret []*prog.Prog) {
+	/* given a list of calls, returns a list of distinct distilled progs they belong to */
 	distinctProgs := make(map[*prog.Prog]bool)
 	for _, call := range calls {
 		if _, ok := d.CallToDistilledProg[call]; ok {
@@ -218,6 +225,7 @@ func (d *DistillerMetadata) isDependent(arg prog.Arg, seed *domain.Seed, state *
 				upstreamSet[args[a.Res]] = make(map[prog.Arg][]prog.Arg, 0)
 				upstreamSet[args[a.Res]][a.Res] = make([]prog.Arg, 0)
 			}
+			/* the call at index args[a.Res]-->the result arg a.res-->add itself to its upstream deps*/
 			upstreamSet[args[a.Res]][a.Res] = append(upstreamSet[args[a.Res]][a.Res], arg)
 		}
 	case *prog.PointerArg:
@@ -288,7 +296,7 @@ func (d *DistillerMetadata) isDependent(arg prog.Arg, seed *domain.Seed, state *
 			}
 		}
 	}
-	args[arg] = callIdx
+	args[arg] = callIdx  // this arg is used in the call at position callIdx in prog
 	if _, ok := arg.(prog.ArgUsed); ok {
 		arg.(prog.ArgUsed).Set(nil)
 	}

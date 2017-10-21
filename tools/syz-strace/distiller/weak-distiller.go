@@ -5,6 +5,7 @@ import (
 	"github.com/google/syzkaller/tools/syz-strace/domain"
 	"fmt"
 	"sort"
+	"os"
 )
 
 const (
@@ -20,6 +21,7 @@ type WeakDistiller struct {
 }
 
 func (d *WeakDistiller) Add(seeds domain.Seeds) {
+	/* identical to strong distiller */
 	d.Seeds = seeds
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
@@ -78,7 +80,8 @@ func (d *WeakDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 		//fmt.Printf("Prog: %v\n", prog)
 		distilled = append(distilled, prog_)
 	}
-	fmt.Printf("Total Contributing: %d, out of %d", contributing_progs, len(seeds))
+	fmt.Fprintf(os.Stderr, "Total Contributing seeds: %d out of %d, in %d weak-distilled programs\n",
+		contributing_progs, len(seeds), len(distilled))
 	return
 }
 

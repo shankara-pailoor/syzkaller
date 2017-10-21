@@ -281,6 +281,7 @@ func main() {
 	fmt.Printf("\n");
 
 	if distill {
+		fmt.Fprintf(os.Stderr, "distilling using %s method\n", config.DistillConf.Type)
 		distiller_.Add(seeds)
 		distilled := distiller_.Distill(progs)
 
@@ -368,6 +369,9 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 }
 
 func parseInstructions(line string) (ips []uint64) {
+	/* function returns a slice of all unique IPs hit by this call
+	 Used to popoulate field Seed.Cover
+	*/
 	uniqueIps := make(map[uint64]bool)
 	line = line[1: len(line)-1]
 	strippedLine := strings.TrimSpace(line)
@@ -1953,7 +1957,7 @@ func pack(dir, file string) {
 			}
 		}
 		if sig := hash.String(data); key != sig {
-			fmt.Fprintf(os.Stderr, "fixing hash %v -> %v\n", key, sig)
+			fmt.Fprintf(os.Stdout, "fixing hash %v -> %v\n", key, sig)
 			key = sig
 		}
 		db.Save(key, data, seq)
