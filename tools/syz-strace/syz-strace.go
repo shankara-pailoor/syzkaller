@@ -763,6 +763,16 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 				}
 			default:
 				failf("first arg is NOT a resource type %v\n", line.Unparse())
+
+			}
+		} else {
+
+			fmt.Printf("Could not find file descriptor for function: %s. Looking at second arg\n", line.FuncName)
+			if len(line.Args) > 1 {
+				if strings.Contains(line.Args[1], "AF_INET") {
+					line.FuncName = line.FuncName + (*m)["AF_INET"]
+					label = "$inet"
+				}
 			}
 		}
 
@@ -1178,7 +1188,12 @@ func parseArg(typ Type, strace_arg string,
 
 		ptr := parsePointerArg(strace_arg)
 		if ptr.Val == "" {
-			ptr.Val = "nil" // TODO: this is really bad, consider refactoring parseArg
+			//Most likely our trace is testing for bad addresses
+			//we just return empty pointer
+
+			ptr.Val = "nil" //TODO: this is really bad, consider refactoring parseArg
+
+			//return pointerArg(a.Type, 0xffffffff >> pageSize, pageSize-1, 1,  nil), nil, nil
 		}
 
 		if ptr.Val[0] == '[' {
@@ -1284,7 +1299,7 @@ func parseArg(typ Type, strace_arg string,
 		return arg, nil, nil
 		failf("out of memory\n")
 	case *ConstType:
-		fmt.Printf("Parsing Const type %v\n", strace_arg)
+		fmt.Printf("Parsing Const type %v with type: %s\n", strace_arg, a.Name())
 		if a.Dir() == DirOut {
 			return constArg(a, a.Default()), nil, nil
 		}
@@ -1332,7 +1347,9 @@ func parseArg(typ Type, strace_arg string,
 	case *ArrayType:
 		var args []Arg
 		if strace_arg == "nil" {
+			fmt.Printf("Filling out default values for nil array\n")
 			if a.Kind == ArrayRangeLen {
+				fmt.Printf("Kid of arg is array range len with type: %s\n", a.Type.Name())
 				size := rand.Intn(int(a.RangeEnd)-int(a.RangeBegin)+1) + int(a.RangeBegin)
 				for i := 0; i < size; i++ {
 					inner_arg, inner_calls, err_ := parseArg(a.Type, "nil", consts, return_vars, line, s)
@@ -1345,6 +1362,7 @@ func parseArg(typ Type, strace_arg string,
 				}
 
 			}
+			fmt.Printf("args: %v\n", args)
 			return groupArg(typ, args), nil, nil
 		}
 		// clip the square brackets
@@ -1441,7 +1459,9 @@ func parseArg(typ Type, strace_arg string,
 				continue
 			}
 
-			fmt.Printf("generating arg (%v) for struct type %v, field: %v\n", i, a.Name(), name)
+			if (len(struct_args) > i) {
+				fmt.Printf("generating arg (%v) for struct type %v, field: %v, :%v\n", i, a.Name(), name, struct_args[i])
+			}
 			inner_arg, inner_calls, err_ := parseArg(arg_type, val, consts, return_vars, line, s)
 			if err_ != nil {
 				fmt.Printf("RETURNING FROM ERROR IN PARSE STRUCT: %s\n", err_.Error())

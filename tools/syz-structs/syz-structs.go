@@ -87,6 +87,8 @@ var (
 		"sock_nfc_llcp": "$nfc_llcp",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
+		"AF_INET": "$inet",
+		"AF_INET6": "$inet6",
 	}
 
 	Structs_with_reordered_fields = map[string][]int {
@@ -107,6 +109,8 @@ var (
 		"sock_nfc_raw": "$nfc_raw",
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
+		"AF_INET": "$inet",
+		"AF_INET6": "$inet6",
 	}
 
 	Bpf_labels = map[string]string {
