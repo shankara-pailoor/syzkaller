@@ -39,7 +39,6 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 	sort.Sort(sort.Reverse(seeds))  // sort seeds by inidividual coverage.
 	contributing_seeds := 0
 	heavyHitters := make(domain.Seeds, 0)
-	seedOnly := false
 	for _, prog := range progs {
 		d.TrackDependencies(prog)
 	}
@@ -52,7 +51,7 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 		}
 	}
 	for _, seed := range heavyHitters {
-		d.AddToDistilledProg(seed, seedOnly)
+		d.AddToDistilledProg(seed)
 	}
 	distilledProgs := make(map[*prog.Prog]bool)
 	for _, seed := range seeds {
@@ -72,13 +71,13 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 		distilled = append(distilled, prog_)
 	}
 	fmt.Fprintf(os.Stderr,
-		"Total Contributing seeds: %d out of %d, in %d implicitly-distilled programs using seedonly %t\n",
-		contributing_seeds, len(seeds), len(distilled), seedOnly,
+		"Total Contributing seeds: %d out of %d, in %d implicitly-distilled programs\n",
+		contributing_seeds, len(seeds), len(distilled),
 	)
 	return
 }
 
-func (d *ImplicitDistiller) AddToDistilledProg(seed *domain.Seed, seedOnly bool) {
+func (d *ImplicitDistiller) AddToDistilledProg(seed *domain.Seed) {
 	distilledProg := new(prog.Prog)
 	distilledProg.Calls = make([]*prog.Call, 0)
 	callIndexes := make([]int, 0)
@@ -89,10 +88,10 @@ func (d *ImplicitDistiller) AddToDistilledProg(seed *domain.Seed, seedOnly bool)
 	}
 	seenMap := make(map[int]bool, 0)
 	upstreamCalls := make([]*prog.Call, 0)
-	/* collect list of all upstream dependent calls, unsorted? */
+
 	upstreamCalls = append(upstreamCalls, d.GetAllUpstreamDependents(seed, seenMap)...)
 	upstreamCalls = append(upstreamCalls, seed.Call) // add seed as last call
-	upstreamCalls = d.AddImplicitDependencies(upstreamCalls, seed, seenMap, seedOnly)
+	upstreamCalls = d.AddImplicitDependencies(upstreamCalls, seed, seenMap)
 
 	distinctProgs := d.getAllProgs(upstreamCalls)
 	if len(distinctProgs) > 0 {  // we need to merge!
@@ -115,31 +114,37 @@ func syscallKeyword(syscall string) string {
 	return strings.Split(syscall, "$")[0]
 }
 
+func dedupSyscalls(calls []*prog.Call) []*prog.Call {
+	seenCalls := make(map[*prog.Call]bool, 0)
+	ret := make([]*prog.Call, 0)
+
+	for _, call := range calls {
+		if _, ok := seenCalls[call]; !ok {
+			seenCalls[call] = true
+			ret = append(ret, call)
+		}
+	}
+	return ret
+}
+
 func (d *ImplicitDistiller) AddImplicitDependencies(
 	calls []*prog.Call,
 	seed *domain.Seed,
 	seenMap map[int]bool,
-	seedOnly bool,
 ) []*prog.Call {
+	/* Recursively collect implicit --> explicit --> implicit ... dependencies */
 	implicit_callmap := make(map[string]bool, 0)
 	implicit_calls := make([]*prog.Call, 0)
+	orig_call_len := len(dedupSyscalls(calls))
 
-	if seedOnly {  // get implicit deps of seed only
-		if impl_deps, ok := d.impl_deps[syscallKeyword(seed.Call.Meta.Name)]; ok {
-			for _, impl_dep := range impl_deps {
-				implicit_callmap[impl_dep] = true
-			}
+	for _, call := range calls {
+		impl_deps, ok := d.impl_deps[syscallKeyword(call.Meta.Name)]
+		if !ok {
+			//fmt.Fprintf(os.Stderr, "no implicit dependencies for %s\n", call.Meta.Name)
+			continue
 		}
-	} else {  // get implicit deps of seed + upstream explicit deps
-		for _, call := range calls {
-			impl_deps, ok := d.impl_deps[syscallKeyword(call.Meta.Name)]
-			if !ok {
-				//fmt.Fprintf(os.Stderr, "no implicit dependencies for %s\n", call.Meta.Name)
-				continue
-			}
-			for _, impl_dep := range impl_deps {
-				implicit_callmap[impl_dep] = true
-			}
+		for _, impl_dep := range impl_deps {
+			implicit_callmap[impl_dep] = true
 		}
 	}
 
@@ -161,5 +166,10 @@ func (d *ImplicitDistiller) AddImplicitDependencies(
 		}
 	}
 	calls = append(calls, upstreamOfImplCalls...)
+	calls = dedupSyscalls(calls)
+	if len(calls) > orig_call_len {
+		// if we added more calls, need to recursively readd implicit deps of these new calls
+		return d.AddImplicitDependencies(calls, seed, seenMap)
+	}
 	return calls
 }
