@@ -403,22 +403,25 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 			seed := parseMmap(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
-		} else if  strings.Compare(line.FuncName, "mprotect") == 0 {
+		} else if strings.Compare(line.FuncName, "mprotect") == 0 {
 			seed := parseMprotect(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
-		}  else if  strings.Compare(line.FuncName, "munmap") == 0 {
+		}  else if strings.Compare(line.FuncName, "munmap") == 0 {
 			seed := parseMunmap(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
-		} else if  strings.Compare(line.FuncName, "msync") == 0 {
+		} else if strings.Compare(line.FuncName, "msync") == 0 {
 			seed := parseMsync(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
-		} else if  strings.Compare(line.FuncName, "remap_file_pages") == 0 {
+		} else if strings.Compare(line.FuncName, "remap_file_pages") == 0 {
 			seed := parseRemapFilePages(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
+		} else if strings.Compare(line.FuncName, "mremap") == 0 {
+			seed := parseMremap(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
 		}
 		return nil, nil
 
@@ -531,8 +534,15 @@ func parseMmap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State,
 			start = 0x80000000
 			panic("Mmap failed\n")
 		}
+	} else {
+		//This is a mmap fixed
+		if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+			start = res
+			fmt.Printf("start: %d\n", start)
+		} else {
+			panic(fmt.Sprintf("Failed to parse address for mmap fixed: %s\n", line.Args[0]))
+		}
 	}
-
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
 		length = res
@@ -595,6 +605,8 @@ func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.Sta
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
 		start = res
 		fmt.Printf("Start: %d\n", length)
+	} else {
+		panic(fmt.Sprintf("Failed to parse address in mprotect: %s\n", line.Args[0]))
 	}
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
@@ -637,11 +649,15 @@ func parseMunmap(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
 		start = res
 		fmt.Printf("Start: %d\n", length)
+	} else {
+		panic(fmt.Sprintf("Failed to parse address in munmap: %s\n", line.Args[0]))
 	}
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
 		length = res
 		fmt.Printf("Length: %d\n", length)
+	} else {
+		panic(fmt.Sprintf("Failed to length in munmap: %s\n", line.Args[1]))
 	}
 	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
 	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
@@ -674,10 +690,14 @@ func parseMsync(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State,
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
 		start = res
 		fmt.Printf("Start: %d\n", start)
+	} else {
+		panic(fmt.Sprintf("Failed to parse address in msync: %s\n", line.Args[0]))
 	}
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
 		length = res
+	} else {
+		panic(fmt.Sprintf("Failed to parse length in mysnc: %s\n", line.Args[1]))
 	}
 
 	for _, prot_field := range strings.Split(line.Args[2], "|") {
@@ -769,6 +789,109 @@ func parseRemapFilePages(line *sparser.OutputLine,  prog_ *prog.Prog, state *dom
 		prog.MakeConstArg(meta.Args[3], pgoff),
 		prog.MakeConstArg(meta.Args[4], flags),
 
+	}
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	/*
+	 * Mremap either has 4 arguments or 5. If it has 5 then it is trying to map to a fixed address
+	 * Syzkaller requires the remapping to be fixed so make sure to add MREMAP_FIXED flag to the flag
+	 */
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+	old_addr := uint64(0)
+	remapped_addr := uint64(0)
+	old_size := uint64(0)
+	new_size := uint64(0)
+	flags := uint64(0)
+	successful := true
+
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+
+	//For mremap the first argument must be an address
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		old_addr = res
+		fmt.Printf("Start: %d\n", old_addr)
+	} else {
+		panic("Failed to parse address in mremap")
+	}
+
+	//Getting old size of VMA
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		old_size = res
+	} else {
+		panic("Failed to parse old size in mremap_pages")
+	}
+
+	//Getting new size of VMA
+	if res, err := strconv.ParseUint(line.Args[2], 0, 64); err == nil {
+		new_size = res
+		fmt.Printf("new size: %d\n", new_size)
+	} else {
+		panic("Failed to parse new size in mremap")
+	}
+
+
+	for _, flag_field := range strings.Split(line.Args[3], "|") {
+		fmt.Printf("Protection: %s\n", flag_field)
+		flags |= state.Target.ConstMap[flag_field]
+	}
+
+	flags |= state.Target.ConstMap["MREMAP_FIXED"]
+	if len(line.Args)  < 5 {
+		 //We have an anonymous map
+		if res, err := strconv.ParseUint(line.Result, 0, 64); err == nil {
+			remapped_addr = res
+
+			fmt.Printf("remapped addr: %d\n", remapped_addr)
+		} else {
+			successful = false
+		}
+	} else {
+		//This is a mmremap fixed
+		if res, err := strconv.ParseUint(line.Args[4], 0, 64); err == nil {
+			remapped_addr = res
+			fmt.Printf("start: %d\n", remapped_addr)
+		} else {
+			panic("Failed to parse address for mmap fixed")
+		}
+	}
+
+
+
+	for _, flag_field := range strings.Split(line.Args[3], "|") {
+		fmt.Printf("Protection: %s\n", flag_field)
+		flags |= state.Target.ConstMap[flag_field]
+	}
+
+
+	oldAddrArg := prog.MakePointerArg(meta.Args[0], old_addr/pageSize, 0, 1, nil)
+	newAddrArg := prog.MakePointerArg(meta.Args[4], remapped_addr/pageSize, 0, 1, nil)
+
+	//Add this mmap to the dependency list of the old mapping
+	if mapping := state.Tracker.FindLatestOverlappingVMA(old_addr); mapping != nil {
+		fmt.Printf("Found mapping: %v\n", mapping)
+		dep := domain.NewMemDependency(oldAddrArg, old_addr, old_addr)
+		mapping.AddDependency(dep)
+	}
+
+	//Create new mapping for remapped address.
+	call.Args = []Arg{
+		oldAddrArg,
+		prog.MakeConstArg(meta.Args[1], old_size),
+		prog.MakeConstArg(meta.Args[2], new_size),
+		prog.MakeConstArg(meta.Args[3], flags),
+		newAddrArg,
+	}
+	if successful {
+		state.Tracker.CreateMapping(call, call.Args[4], remapped_addr, remapped_addr + new_size)
 	}
 	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
 }
