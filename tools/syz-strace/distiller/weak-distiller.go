@@ -70,7 +70,7 @@ func (d *WeakDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 		seed := d.CallToSeed[prog_.Calls[0]]
 		state := seed.State
 		state.Tracker.FillOutMemory(prog_)
-		totalMemory := state.Tracker.GetTotalMemoryNeeded(prog_)
+		totalMemory := state.Tracker.GetTotalMemoryAllocations(prog_)
 		mmapCall := state.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
 		calls := make([]*prog.Call, 0)
 		calls = append(append(calls, mmapCall), prog_.Calls...)

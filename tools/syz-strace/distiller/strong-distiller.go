@@ -62,10 +62,17 @@ func (d *StrongDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 			distilledProgs[d.CallToDistilledProg[seed.Call]] = true
 		}
 	}
-	for prog, _ := range distilledProgs {
-		d.CallToSeed[prog.Calls[0]].State.Tracker.FillOutMemory(prog)
-		//fmt.Printf("Prog: %v\n", prog)
-		distilled = append(distilled, prog)
+	for prog_, _ := range distilledProgs {
+		seed := d.CallToSeed[prog_.Calls[0]]
+		state := seed.State
+		state.Tracker.FillOutMemory(prog_)
+		totalMemory := state.Tracker.GetTotalMemoryAllocations(prog_)
+		mmapCall := state.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
+		calls := make([]*prog.Call, 0)
+		calls = append(append(calls, mmapCall), prog_.Calls...)
+
+		prog_.Calls = calls
+		distilled = append(distilled, prog_)
 	}
 	fmt.Fprintf(os.Stderr, "Total Contributing seeds: %d out of %d, in %d strong-distilled programs\n",
 		   contributing_seeds, len(seeds), len(distilled))

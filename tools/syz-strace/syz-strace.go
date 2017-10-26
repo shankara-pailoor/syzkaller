@@ -234,7 +234,7 @@ func main() {
 			}
 			if !distill {
 				s.Tracker.FillOutMemory(parsedProg)
-				totalMemory := s.Tracker.GetTotalMemoryNeeded(parsedProg)
+				totalMemory := s.Tracker.GetTotalMemoryAllocations(parsedProg)
 				mmapCall := s.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
 				calls := make([]*prog.Call, 0)
 				calls = append(append(calls, mmapCall), parsedProg.Calls...)
@@ -356,7 +356,7 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 		}
 		seeds.Add(seed)
 	}
-	memory := s.Tracker.GetTotalMemoryNeeded(prog)
+	memory := s.Tracker.GetTotalMemoryAllocations(prog)
 	fmt.Printf("TOTAL Memory Needed: %d\n", memory)
 	return prog, nil
 }
@@ -394,6 +394,34 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 	if _, ok := Unsupported[line.FuncName]; ok {
 		fmt.Printf("Found unsupported call: %s in prog: %v\n", line.FuncName, prog_) // don't parse unsupported syscalls
 		return nil, nil
+	}
+
+	if _, ok := VMACall[line.FuncName]; ok {
+		//return nil, nil
+
+		if strings.Compare(line.FuncName, "mmap") == 0 {
+			seed := parseMmap(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		} else if  strings.Compare(line.FuncName, "mprotect") == 0 {
+			seed := parseMprotect(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		}  else if  strings.Compare(line.FuncName, "munmap") == 0 {
+			seed := parseMunmap(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		} else if  strings.Compare(line.FuncName, "msync") == 0 {
+			seed := parseMsync(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		} else if  strings.Compare(line.FuncName, "remap_file_pages") == 0 {
+			seed := parseRemapFilePages(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		}
+		return nil, nil
+
 	}
 
 	/* adjust functions to fit syzkaller standards */
@@ -466,6 +494,285 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 	fmt.Println("\n---------done parsing line--------\n")
 	return domain.NewSeed(c, s, dependsOn, prog_, len(prog_.Calls)-1, line.Cover), nil
 }
+
+func parseMmap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+	if (len(line.Args) < 4) {
+		return nil
+	}
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+	fmt.Printf("Call: %v\n", call)
+	start := uint64(0)
+	length := uint64(0)
+	prot := uint64(0)
+	flags := uint64(0)
+	var fd Arg;
+
+	if meta == nil {
+		fmt.Printf("unknown syscall %v\n", line.Unparse())
+		return nil
+	}
+
+	if strings.Contains(line.Args[0], "NULL") {
+		//We have an anonymous map
+		if res, err := strconv.ParseUint(line.Result, 0, 64); err == nil {
+			start = res
+
+			fmt.Printf("start: %d\n", start)
+		} else {
+			fmt.Printf("Result: %s\n", line.Result)
+			start = 0x80000000
+			panic("Mmap failed\n")
+		}
+	}
+
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+		fmt.Printf("Length: %d\n", length)
+	}
+
+	for _, prot_field := range strings.Split(line.Args[2], "|") {
+		fmt.Printf("Protection: %s\n", prot_field)
+		prot |= state.Target.ConstMap[prot_field]
+	}
+
+	for _, flag := range strings.Split(line.Args[3], "|") {
+		fmt.Printf("Field: %s\n", flag)
+		flags |= state.Target.ConstMap[flag]
+	}
+	flags |= state.Target.ConstMap["MAP_FIXED"]
+	key := returnType {
+		Type: "ResourceType" + "fd",
+		Val: line.Args[4],
+	}
+	if res, ok := (*return_vars)[key]; ok {
+		fmt.Printf("FOUND RESULT: %v\n", res)
+		//fd = res
+		fd = resultArg(res.Type(), res, res.Type().Default())
+	} else {
+		fd = MakeResultArg(meta.Args[4], nil, ^uint64(0))
+	}
+	fmt.Printf("LENGTH/PAGESIZE: %d\n", length/pageSize)
+	if length % pageSize > 0 {
+		length = (length/pageSize + 1)*pageSize //Make length page aligned
+	}
+
+	call.Args = []Arg {
+		prog.MakePointerArg(meta.Args[0], start, 0, length/pageSize, nil),
+		prog.MakeConstArg(meta.Args[1], length),
+		prog.MakeConstArg(meta.Args[2], prot),
+		prog.MakeConstArg(meta.Args[3], flags),
+		fd,
+		prog.MakeConstArg(meta.Args[5], 0),
+	}
+	state.Tracker.CreateMapping(call, call.Args[0], start, start+length) //All mmaps have fixed mappings in syzkaller
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+	start := uint64(0)
+	length := uint64(0)
+	prot := uint64(0)
+
+
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		start = res
+		fmt.Printf("Start: %d\n", length)
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+	}
+
+	for _, prot_field := range strings.Split(line.Args[2], "|") {
+		fmt.Printf("Protection: %s\n", prot_field)
+		prot |= state.Target.ConstMap[prot_field]
+	}
+
+	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
+
+	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
+		dep := domain.NewMemDependency(addrArg, start, start+length)
+		mapping.AddDependency(dep)
+	}
+
+	call.Args = []Arg {
+		addrArg,
+		prog.MakeConstArg(meta.Args[1], length),
+		prog.MakeConstArg(meta.Args[2], prot),
+	}
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseMunmap(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	for i, arg := range line.Args {
+		fmt.Printf("Munmap Arg: %d %s\n", i, arg)
+	}
+	start := uint64(0)
+	length := uint64(0)
+
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		start = res
+		fmt.Printf("Start: %d\n", length)
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+		fmt.Printf("Length: %d\n", length)
+	}
+	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
+	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
+		dep := domain.NewMemDependency(addrArg, start, start+length)
+		mapping.AddDependency(dep)
+	}
+
+	call.Args = []Arg {
+		addrArg,
+		prog.MakeConstArg(meta.Args[1], length),
+	}
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseMsync(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+	start := uint64(0)
+	length := uint64(0)
+	flags := uint64(0)
+
+
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		start = res
+		fmt.Printf("Start: %d\n", start)
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+	}
+
+	for _, prot_field := range strings.Split(line.Args[2], "|") {
+		fmt.Printf("Protection: %s\n", prot_field)
+		flags |= state.Target.ConstMap[prot_field]
+	}
+
+	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
+
+	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
+		fmt.Printf("Found mapping: %v\n", mapping)
+		dep := domain.NewMemDependency(addrArg, start, start+length)
+		mapping.AddDependency(dep)
+	}
+
+	call.Args = []Arg {
+		addrArg,
+		prog.MakeConstArg(meta.Args[1], length),
+		prog.MakeConstArg(meta.Args[2], flags),
+	}
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseRemapFilePages(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+	start := uint64(0)
+	length := uint64(0)
+	prot := uint64(0)
+	pgoff := uint64(0)
+	flags := uint64(0)
+
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		start = res
+		fmt.Printf("Start: %d\n", start)
+	} else {
+		panic("Failed to parse address in remap_file_pages")
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+	} else {
+		panic("Failed to parse length in remap_file_pages")
+	}
+
+	if length % pageSize > 0 {
+		//See man pages for mremap. If the length is not page aligned the kernel rounds down
+		//We will round down to simplify tracking
+		length = (length/pageSize)*pageSize
+	}
+
+	for _, prot_field := range strings.Split(line.Args[2], "|") {
+		fmt.Printf("Protection: %s\n", prot_field)
+		prot |= state.Target.ConstMap[prot_field]
+	}
+
+	if res, err := strconv.ParseUint(line.Args[3], 0, 64); err == nil {
+		pgoff = res
+	} else {
+		panic("Failed to parse pgoff argument in remap_file_pages")
+	}
+
+	for _, flag_field := range strings.Split(line.Args[4], "|") {
+		fmt.Printf("Protection: %s\n", flag_field)
+		flags |= state.Target.ConstMap[flag_field]
+	}
+
+
+	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
+
+	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
+		fmt.Printf("Found mapping: %v\n", mapping)
+		dep := domain.NewMemDependency(addrArg, start, start+length)
+		mapping.AddDependency(dep)
+	}
+
+	call.Args = []Arg {
+		addrArg,
+		prog.MakeConstArg(meta.Args[1], length),
+		prog.MakeConstArg(meta.Args[2], prot),
+		prog.MakeConstArg(meta.Args[3], pgoff),
+		prog.MakeConstArg(meta.Args[4], flags),
+
+	}
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
 
 func parseInnerCall(val string, typ Type, line *sparser.OutputLine, consts *map[string]uint64,
 	return_vars *map[returnType]Arg, s *domain.State) Arg {
@@ -1109,7 +1416,7 @@ func parseArg(typ Type, strace_arg string,
 		if err != nil {
 			failf("Error parsing resource arg %s for call %s, desc: %s\n", strace_arg, call, err.Error())
 		}
-		// TODO: special values only
+		// TODO: special values onlystate.Target.ConstMap[prot_field]
 		arg, calls = resultArg(a, nil, uint64(extracted_int)), nil
 		err = nil
 	case *BufferType:

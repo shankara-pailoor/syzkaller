@@ -60,9 +60,16 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 			distilledProgs[d.CallToDistilledProg[seed.Call]] = true
 		}
 	}
-	for prog, _ := range distilledProgs {
-		d.CallToSeed[prog.Calls[0]].State.Tracker.FillOutMemory(prog)
-		distilled = append(distilled, prog)
+	for prog_, _ := range distilledProgs {
+		d.CallToSeed[prog_.Calls[0]].State.Tracker.FillOutMemory(prog_)
+		totalMemoryAllocations := d.CallToSeed[prog_.Calls[0]].State.Tracker.GetTotalMemoryAllocations(prog_)
+		state := d.CallToSeed[prog_.Calls[0]].State
+		mmapCall := state.Target.MakeMmap(0, uint64(totalMemoryAllocations/pageSize)+1)
+		calls := make([]*prog.Call, 0)
+		calls = append(append(calls, mmapCall), prog_.Calls...)
+
+		prog_.Calls = calls
+		distilled = append(distilled, prog_)
 	}
 	fmt.Fprintf(os.Stderr,
 		"Total Contributing seeds: %d out of %d, in %d implicitly-distilled programs using seedonly %t\n",

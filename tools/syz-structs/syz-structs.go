@@ -31,12 +31,12 @@ type Pair struct {
 var (
 	Unsupported = map[string]bool{
 		"brk": true,
-		"mprotect": true,
-		"munmap": true,
+		//"mprotect": true,
+		//"munmap": true,
 		"": true,
 		"execve": true, // unsupported
 		"access": true, // unsupported
-		"mmap": true, // don't need, we generate our own
+		//"mmap": true, // don't need, we generate our own
 		"sendmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"recvmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"gettimeofday": true, // unsupported
@@ -45,7 +45,7 @@ var (
 		//"shmctl": true,
 		//"getsockname": true,
 		"arch_prctl": true,
-		"mremap": true, // knowing vma location is difficult
+		//"mremap": true, // knowing vma location is difficult
 		"getcwd": true, // unsupported
 		"setdomainname": true, // unsupported
 		"reboot": true, // unsupported
@@ -57,6 +57,15 @@ var (
 		"chdir": true, // unsupported
 		"clone": true, // unsupported
     "newfstatat": true, // unsupported
+	}
+
+	VMACall = map[string] bool {
+		"mmap": true,
+		"munmap": true,
+		"mremap": true,
+		"msync": true,
+		"mprotect": true,
+		"remap_file_pages": true,
 	}
 
 	Accept_labels = map[string]string {

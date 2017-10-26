@@ -68,7 +68,6 @@ func (p *Parser) scanIgnoreWhitespace() (tok Token, lit string) {
 func (p *Parser) Parse() (*OutputLine, error) {
 	line := &OutputLine{}
 	tok, lit := p.scanIgnoreWhitespace()
-	fmt.Printf("LITS: %s ENDLIT\n", lit)
 	var foundPid bool = false
 
 	if tok == EOF || lit == "+" {
@@ -141,6 +140,7 @@ func (p *Parser) Parse() (*OutputLine, error) {
 		// Read all the args up to CLOSE_PAREN
 		for {
 			tok, lit = p.scanIgnoreWhitespace()
+			fmt.Printf("lit: %s, tok: %s\n", lit, tok)
 			if line.Resumed {
 				fmt.Printf("RESUMED LINE: %s\n", lit)
 			}
@@ -265,6 +265,7 @@ func (p *Parser) Parse() (*OutputLine, error) {
 			}
 		}
 	}
+	fmt.Printf("Line: %v\n", line)
 	return line, nil
 }
 
