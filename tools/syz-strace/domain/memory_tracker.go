@@ -224,34 +224,6 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 			}
 		}
 		offset += mapping.GetEnd() - mapping.GetStart()
-		/*
-		switch arg := call.Args[0].(type) {
-		case *PointerArg:
-			pgIdx := uint64(offset/PageSize) + 1
-			arg.PageIndex = uint64(pgIdx)
-			arg.PageOffset = 0
-			arg.PagesNum = (mapping.GetEnd() - mapping.GetStart())/PageSize
-			arg.Res = nil
-			for _, dep := range mapping.usedBy {
-				fmt.Printf("USED BY\n")
-				switch arg_ := dep.usedBy.(type) {
-				case *PointerArg:
-					fmt.Printf("ARG TYPE: %s\n", arg_.Type().Name())
-					fmt.Printf("Page idx: %d\n", uint64((offset + dep.start - mapping.start)/PageSize))
-					arg_.PageIndex = uint64((offset)/PageSize)+1 + dep.start - mapping.start
-					arg_.PageOffset = 0
-					arg_.PagesNum = 1
-					arg_.Size()
-					arg_.Res = nil
-				default:
-					panic("Mapping needs to be Pointer Arg")
-				}
-			}
-			offset += arg.PagesNum * PageSize
-		default:
-			panic("Failed to mapping")
-		}
-		*/
 	}
 }
 
