@@ -40,6 +40,17 @@ type VirtualMapping struct {
 	end uint64
 }
 
+type ShmRequest struct {
+	size uint64
+	shmid uint64
+	call *Call
+}
+
+func (s *ShmRequest) GetSize() uint64{
+	return s.size
+}
+
+
 func (vm *VirtualMapping) AddDependency(md *MemDependency){
 	vm.usedBy = append(vm.usedBy, md)
 }
@@ -55,6 +66,15 @@ func (vm *VirtualMapping) GetStart() uint64{
 type MemoryTracker struct {
 	allocations map[*Call][]*Allocation
 	mappings []*VirtualMapping
+	/*
+	 We keep the SYSTEM V shared mapping requests because
+	 the creation of memory is broken into two steps: shmget, shmat
+	 shmget requests for an amount of shared memory and returns an id for it
+	 shmat generates the address for the given segment using the id but
+	 when we add the address to our tracker we need to know the size.
+	 Memory tracker seems like a good place to keep the requests
+	 */
+	shm_requests []*ShmRequest
 }
 
 func NewTracker() *MemoryTracker {
@@ -64,6 +84,26 @@ func NewTracker() *MemoryTracker {
 	return m
 }
 
+func (m *MemoryTracker) AddShmRequest(call *Call, shmid uint64, size uint64) {
+	shm_request := &ShmRequest{
+		size: size,
+		shmid: shmid,
+		call: call,
+	}
+	m.shm_requests = append(m.shm_requests, shm_request)
+}
+
+func (m *MemoryTracker) FindShmRequest(shmid uint64) *ShmRequest{
+	//Get the latest Request associated with id
+	var ret *ShmRequest = nil
+	for _, req := range m.shm_requests {
+		var req_ *ShmRequest = req
+		if req.shmid == shmid {
+			ret = req_
+		}
+	}
+	return ret
+}
 
 func (m *MemoryTracker) CreateMapping(call *Call, arg Arg, start uint64, end uint64) {
 
@@ -169,6 +209,7 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 				fmt.Printf("ARG TYPE: %s\n", arg_.Type().Name())
 				fmt.Printf("Page idx: %d\n", uint64((offset + dep.start - mapping.start)/PageSize))
 				numPages := (dep.end - dep.start)/PageSize
+				fmt.Printf("NUM PAGES: %d\n", numPages)
 				if numPages == 0 {
 					numPages = 1
 				}

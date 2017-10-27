@@ -422,6 +422,11 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 		} else if strings.Compare(line.FuncName, "mremap") == 0 {
 			seed := parseMremap(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		} else if strings.Compare(line.FuncName, "shmat") == 0 {
+			seed := parseShmat(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
 		}
 		return nil, nil
 
@@ -472,6 +477,7 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 		calls = append(calls, calls1...)
 	}
 
+
 	calls = append(calls, c)
 
 	// store the return value if we had a valid return
@@ -483,6 +489,7 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 		cache(return_vars, return_var, c.Ret, true)
 	}
 
+	postProcess(line, c, prog_, s)
 	// add calls to our program
 
 	for _, c := range calls {
@@ -496,6 +503,18 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 	}
 	fmt.Println("\n---------done parsing line--------\n")
 	return domain.NewSeed(c, s, dependsOn, prog_, len(prog_.Calls)-1, line.Cover), nil
+}
+
+func postProcess(line *sparser.OutputLine, call *Call, prog_ *prog.Prog, state *domain.State) {
+	switch line.FuncName {
+	case "shmget":
+		//Add request id and size to the memory tracker
+		if shmid, err := strconv.ParseUint(line.Result, 0, 64); err == nil {
+			if size, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+				state.Tracker.AddShmRequest(call, shmid, size)
+			}
+		}
+	}
 }
 
 func parseMmap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -802,8 +821,9 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 	for i, _ := range line.Args {
 		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
 	}
+	fmt.Printf("RET: %s\n", line.Result)
 	old_addr := uint64(0)
-	remapped_addr := uint64(0)
+	remapped_addr := uint64(maxPages*pageSize) //Should be maximum address
 	old_size := uint64(0)
 	new_size := uint64(0)
 	flags := uint64(0)
@@ -815,6 +835,7 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 		Ret: returnArg(meta.Ret),
 	}
 
+	fmt.Printf("remapped addr start: %d\n", remapped_addr)
 	//For mremap the first argument must be an address
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
 		old_addr = res
@@ -840,7 +861,6 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 
 
 	for _, flag_field := range strings.Split(line.Args[3], "|") {
-		fmt.Printf("Protection: %s\n", flag_field)
 		flags |= state.Target.ConstMap[flag_field]
 	}
 
@@ -867,17 +887,15 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 
 
 	for _, flag_field := range strings.Split(line.Args[3], "|") {
-		fmt.Printf("Protection: %s\n", flag_field)
 		flags |= state.Target.ConstMap[flag_field]
 	}
 
-
+	fmt.Printf("remapped addr/pageSize: %d\n", remapped_addr/pageSize)
 	oldAddrArg := prog.MakePointerArg(meta.Args[0], old_addr/pageSize, 0, 1, nil)
-	newAddrArg := prog.MakePointerArg(meta.Args[4], remapped_addr/pageSize, 0, 1, nil)
+	newAddrArg := prog.MakePointerArg(meta.Args[4], remapped_addr, 0, 1, nil)
 
 	//Add this mmap to the dependency list of the old mapping
 	if mapping := state.Tracker.FindLatestOverlappingVMA(old_addr); mapping != nil {
-		fmt.Printf("Found mapping: %v\n", mapping)
 		dep := domain.NewMemDependency(oldAddrArg, old_addr, old_addr)
 		mapping.AddDependency(dep)
 	}
@@ -893,6 +911,97 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 	if successful {
 		state.Tracker.CreateMapping(call, call.Args[4], remapped_addr, remapped_addr + new_size)
 	}
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+}
+
+func parseShmat(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	/*
+	 * Shmat will create a shared memory map which we should track.
+	 * If the second argument is NULL then shmat will create the memory map and
+	 * store it at that address if successful.
+	 */
+
+	addr := uint64(0)
+	flags := uint64(0)
+	shmid := uint64(0)
+	var fd Arg
+
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+
+
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+
+	return_var := returnType {
+		Type: getType(meta.Args[0]),
+		Val: line.Args[0],
+	}
+
+	/* Get shared map id.
+	 * Check to see if it has been cached. If it hasn't then we are likely running a call that failed.
+	 * but it may still give interesting coverage so we parse with the same id we get from strace
+	 */
+
+	if ret, ok := (*return_vars)[return_var]; ok {
+		fd = resultArg(meta.Args[0], ret, ret.Type().Default())
+		shmid, _ = strconv.ParseUint(line.Args[0], 0, 64)
+	} else if ret, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		fd = resultArg(meta.Args[0], nil, ret)
+		shmid = ret
+	} else {
+		panic(fmt.Sprintf("error parsing shmat first argument: %s\n", line.Args[0]))
+	}
+
+	/*
+	 * Parse address.
+	 */
+	if ret, err := strconv.ParseUint(line.Args[1], 0, 16); err == nil {
+		//Fixed shmat position
+		addr = ret
+		fmt.Printf("Fixed shmat address: %s\n", addr)
+	} else if strings.Contains(line.Args[1], "NULL") {
+		if ret, err := strconv.ParseUint(line.Result, 0, 64); err == nil {
+			addr = ret
+			fmt.Printf("Dynamically created shmat addr: %d\n", addr)
+		} else {
+			panic(err.Error())
+		}
+	} else {
+		//Maybe a -1 in the second argument and strace doesn't parse it as 0xffffffffff
+		panic(fmt.Sprintf("Failed to parse shmat addr: %s\n", line.Args[1]))
+	}
+
+	for _, flag_field := range strings.Split(line.Args[2], "|") {
+		fmt.Printf("Protection: %s\n", flag_field)
+		flags |= state.Target.ConstMap[flag_field]
+	}
+
+	/*
+	Add mapping to tracker
+	 */
+	call.Args = []Arg{
+		fd,
+		prog.MakePointerArg(meta.Args[1], addr/pageSize, 0, 1, nil),
+		prog.MakeConstArg(meta.Args[2], flags),
+	}
+	//Cache the mapped address since it is a resource type as well
+	call.Ret = prog.MakeReturnArg(meta.Ret)
+	return_var = returnType {
+		Type: getType(meta.Ret),
+		Val: line.Result,
+	}
+	(*return_vars)[return_var] = call.Ret
+	length := uint64(4096)
+	if req := state.Tracker.FindShmRequest(shmid);  req != nil {
+		length = req.GetSize()
+	}
+	state.Tracker.CreateMapping(call, call.Args[1], addr, addr + length)
 	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
 }
 

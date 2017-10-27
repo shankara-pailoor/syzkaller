@@ -66,6 +66,7 @@ var (
 		"msync": true,
 		"mprotect": true,
 		"remap_file_pages": true,
+		"shmat": true,
 	}
 
 	Accept_labels = map[string]string {
