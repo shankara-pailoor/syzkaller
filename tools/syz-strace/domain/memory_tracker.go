@@ -19,14 +19,15 @@ beginning of the function. Moreover there are no calls which we know of
 that take a list of pages as arguments.
  */
 type MemDependency struct {
+	Callidx int
 	arg Arg
 	start uint64
 	end uint64
-
 }
 
-func NewMemDependency(usedBy Arg, start uint64, end uint64) *MemDependency {
+func NewMemDependency(callidx int, usedBy Arg, start uint64, end uint64) *MemDependency {
 	return &MemDependency{
+		Callidx: callidx,
 		arg: usedBy,
 		start: start,
 		end: end,
@@ -36,6 +37,7 @@ func NewMemDependency(usedBy Arg, start uint64, end uint64) *MemDependency {
 type VirtualMapping struct {
 	usedBy []*MemDependency
 	createdBy *Call
+	callidx int
 	start uint64
 	end uint64
 }
@@ -51,7 +53,11 @@ func (s *ShmRequest) GetSize() uint64{
 }
 
 
-func (vm *VirtualMapping) AddDependency(md *MemDependency){
+func (vm *VirtualMapping) GetUsedBy() []*MemDependency {
+	return vm.usedBy
+}
+
+func (vm *VirtualMapping) AddDependency(md *MemDependency) {
 	vm.usedBy = append(vm.usedBy, md)
 }
 
@@ -61,6 +67,14 @@ func (vm *VirtualMapping) GetEnd() uint64{
 
 func (vm *VirtualMapping) GetStart() uint64{
 	return vm.start
+}
+
+func (vm *VirtualMapping) GetCall() *Call {
+	return vm.createdBy
+}
+
+func (vm *VirtualMapping) GetCallIdx() int {
+	return vm.callidx
 }
 
 type MemoryTracker struct {
@@ -105,10 +119,11 @@ func (m *MemoryTracker) FindShmRequest(shmid uint64) *ShmRequest{
 	return ret
 }
 
-func (m *MemoryTracker) CreateMapping(call *Call, arg Arg, start uint64, end uint64) {
+func (m *MemoryTracker) CreateMapping(call *Call, callidx int, arg Arg, start uint64, end uint64) {
 
 	mapping := &VirtualMapping{
 		createdBy: call,
+		callidx: callidx,
 		start: start,
 		end: end,
 		usedBy: make([]*MemDependency, 0),
