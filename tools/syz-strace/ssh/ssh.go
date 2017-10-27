@@ -64,9 +64,9 @@ func (cmd *SSHCommand) build() string {
 
 func (client *SSHClient) extractCommand(config domain.WorkloadConfig) (sshCommand *SSHCommand){
 	sshCommand = new(SSHCommand)
-	sshCommand.Path = "/root/strace"
+	sshCommand.Path = "timeout 30s /root/strace"
 	sshCommand.Args = make([]string, 0)
-	sshCommand.Args = append([]string{"/root/strace"}, "-s")
+	sshCommand.Args = append([]string{"timeout 30s /root/strace"}, "-s")
 	sshCommand.Args = append(sshCommand.Args, "65500")
 	sshCommand.Args = append(sshCommand.Args, "-o")
 	sshCommand.Args = append(sshCommand.Args, config.StraceOutPath)
