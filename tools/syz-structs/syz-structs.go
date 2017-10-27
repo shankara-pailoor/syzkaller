@@ -29,6 +29,8 @@ type Pair struct {
 }
 
 var (
+	EnabledSyscalls = map[string]bool{}
+
 	Unsupported = map[string]bool{
 		"brk": true,
 		//"mprotect": true,
@@ -56,7 +58,7 @@ var (
 		"sysfs": true, // unsupported
 		"chdir": true, // unsupported
 		"clone": true, // unsupported
-    "newfstatat": true, // unsupported
+		"newfstatat": true, // unsupported
 	}
 
 	VMACall = map[string] bool {
