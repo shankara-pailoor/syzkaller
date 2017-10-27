@@ -67,6 +67,8 @@ var (
 		"mprotect": true,
 		"remap_file_pages": true,
 		"shmat": true,
+		"mlock": true,
+		"munlock": true,
 	}
 
 	Accept_labels = map[string]string {
