@@ -264,14 +264,14 @@ func main() {
 				fmt.Printf("==============================\n\n")
 
 			}
-
 		}
+	}
 
-	}
+	fmt.Fprintf(os.Stderr, "===================Seen Calls===================\n")
 	for call, _ := range seen_calls {
-		fmt.Printf("\"%s\",", call)
+		fmt.Fprintf(os.Stderr, "\"%s\",", call)
 	}
-	fmt.Printf("\n");
+	fmt.Fprintf(os.Stderr, "\n")
 
 	if distill {
 		fmt.Fprintf(os.Stderr, "distilling using %s method\n", config.DistillConf.Type)
@@ -342,6 +342,7 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 }
 
 func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, consts *map[string]uint64, seeds *domain.Seeds) (*Prog, error) {
+	idx := -1
 	prog := new(Prog)
 	return_vars := make(map[returnType]Arg)
 
@@ -354,6 +355,10 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 		if seed == nil {
 			continue
 		}
+		if seed.CallIdx <= idx { // seed callidx must monotonically increase
+			panic(fmt.Sprintf("Seed index error, index %d\n", seed.CallIdx))
+		}
+		idx = seed.CallIdx
 		seeds.Add(seed)
 	}
 	memory := s.Tracker.GetTotalMemoryAllocations(prog)
@@ -602,8 +607,8 @@ func parseMmap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State,
 		fd,
 		prog.MakeConstArg(meta.Args[5], 0),
 	}
-	state.Tracker.CreateMapping(call, call.Args[0], start, start+length) //All mmaps have fixed mappings in syzkaller
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+	state.Tracker.CreateMapping(call, len(prog_.Calls), call.Args[0], start, start+length) //All mmaps have fixed mappings in syzkaller
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls), line.Cover)
 }
 
 func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -619,6 +624,7 @@ func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.Sta
 	start := uint64(0)
 	length := uint64(0)
 	prot := uint64(0)
+	var dependsOn map[*prog.Call]int = nil
 
 
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
@@ -638,10 +644,15 @@ func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.Sta
 	}
 
 	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
-
 	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
-		dep := domain.NewMemDependency(addrArg, start, start+length)
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), addrArg, start, start+length)
 		mapping.AddDependency(dep)
+
 	}
 
 	call.Args = []Arg {
@@ -649,7 +660,9 @@ func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.Sta
 		prog.MakeConstArg(meta.Args[1], length),
 		prog.MakeConstArg(meta.Args[2], prot),
 	}
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+
+
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
 func parseMunmap(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -658,6 +671,7 @@ func parseMunmap(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State
 	}
 	start := uint64(0)
 	length := uint64(0)
+	var dependsOn map[*Call]int = nil
 
 	meta := state.Target.SyscallMap[line.FuncName]
 	call := &prog.Call{
@@ -680,7 +694,12 @@ func parseMunmap(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State
 	}
 	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
 	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
-		dep := domain.NewMemDependency(addrArg, start, start+length)
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), addrArg, start, start+length)
 		mapping.AddDependency(dep)
 	}
 
@@ -688,7 +707,7 @@ func parseMunmap(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State
 		addrArg,
 		prog.MakeConstArg(meta.Args[1], length),
 	}
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
 func parseMsync(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -704,6 +723,7 @@ func parseMsync(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State,
 	start := uint64(0)
 	length := uint64(0)
 	flags := uint64(0)
+	var dependsOn map[*Call]int = nil
 
 
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
@@ -728,7 +748,12 @@ func parseMsync(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State,
 
 	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
 		fmt.Printf("Found mapping: %v\n", mapping)
-		dep := domain.NewMemDependency(addrArg, start, start+length)
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), addrArg, start, start+length)
 		mapping.AddDependency(dep)
 	}
 
@@ -737,7 +762,7 @@ func parseMsync(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State,
 		prog.MakeConstArg(meta.Args[1], length),
 		prog.MakeConstArg(meta.Args[2], flags),
 	}
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
 func parseRemapFilePages(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -750,6 +775,7 @@ func parseRemapFilePages(line *sparser.OutputLine,  prog_ *prog.Prog, state *dom
 	prot := uint64(0)
 	pgoff := uint64(0)
 	flags := uint64(0)
+	var dependsOn map[*Call]int = nil
 
 	meta := state.Target.SyscallMap[line.FuncName]
 	call := &prog.Call{
@@ -797,7 +823,12 @@ func parseRemapFilePages(line *sparser.OutputLine,  prog_ *prog.Prog, state *dom
 
 	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
 		fmt.Printf("Found mapping: %v\n", mapping)
-		dep := domain.NewMemDependency(addrArg, start, start+length)
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), addrArg, start, start+length)
 		mapping.AddDependency(dep)
 	}
 
@@ -809,7 +840,7 @@ func parseRemapFilePages(line *sparser.OutputLine,  prog_ *prog.Prog, state *dom
 		prog.MakeConstArg(meta.Args[4], flags),
 
 	}
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
 func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -828,6 +859,7 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 	new_size := uint64(0)
 	flags := uint64(0)
 	successful := true
+	var dependsOn map[*Call]int = nil
 
 	meta := state.Target.SyscallMap[line.FuncName]
 	call := &prog.Call{
@@ -896,7 +928,12 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 
 	//Add this mmap to the dependency list of the old mapping
 	if mapping := state.Tracker.FindLatestOverlappingVMA(old_addr); mapping != nil {
-		dep := domain.NewMemDependency(oldAddrArg, old_addr, old_addr)
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), oldAddrArg, old_addr, old_addr)
 		mapping.AddDependency(dep)
 	}
 
@@ -909,9 +946,9 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 		newAddrArg,
 	}
 	if successful {
-		state.Tracker.CreateMapping(call, call.Args[4], remapped_addr, remapped_addr + new_size)
+		state.Tracker.CreateMapping(call, len(prog_.Calls), call.Args[4], remapped_addr, remapped_addr + new_size)
 	}
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
 func parseShmat(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
@@ -1001,8 +1038,8 @@ func parseShmat(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State
 	if req := state.Tracker.FindShmRequest(shmid);  req != nil {
 		length = req.GetSize()
 	}
-	state.Tracker.CreateMapping(call, call.Args[1], addr, addr + length)
-	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls)-1, line.Cover)
+	state.Tracker.CreateMapping(call, len(prog_.Calls), call.Args[1], addr, addr + length)
+	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls), line.Cover)
 }
 
 

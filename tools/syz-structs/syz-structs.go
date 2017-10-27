@@ -56,7 +56,7 @@ var (
 		"sysfs": true, // unsupported
 		"chdir": true, // unsupported
 		"clone": true, // unsupported
-    "newfstatat": true, // unsupported
+		"newfstatat": true, // unsupported
 	}
 
 	VMACall = map[string] bool {
