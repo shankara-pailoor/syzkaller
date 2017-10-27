@@ -15,6 +15,7 @@ import (
 	. "github.com/google/syzkaller/tools/syz-structs"
 	sparser "github.com/mattrco/difftrace/parser"
 	"github.com/google/syzkaller/sys"
+	"encoding/json"
 	"io/ioutil"
 	"math"
 	"math/rand"
@@ -25,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"github.com/google/syzkaller/syz-manager/mgrconfig"
 )
 
 const (
@@ -145,6 +147,7 @@ var (
 	flagConfig    = flag.String("config", "/etc/strace-config.json", "config file for syz strace")
 	flagGetTraces = flag.Bool("trace", false, "gather traces")
 	flagDistill   = flag.Bool("distill", false, "distill traces")
+	flagMgrConfig = flag.String("mgr", "/root/mgr.cfg", "directory to parse")
 )
 
 func usage() {
@@ -159,11 +162,16 @@ func main() {
 	var err error
 	var target *Target
 	flag.Parse()
-	file, dir, configLocation := *flagFile, *flagDir, *flagConfig
+	file, dir, configLocation, mgrConfigLocation := *flagFile, *flagDir, *flagConfig, *flagMgrConfig
 	getTraces, distill := *flagGetTraces, *flagDistill
 	/* if ((file == "" && dir == "" )|| (file != "" && dir != "")) {
 			usage()
 	} */
+	mgrConfig, err := mgrconfig.LoadFile(mgrConfigLocation)
+	if err != nil {
+		panic(fmt.Sprintf("Err %s: Cannot find mgr config file: %s\n", err.Error(), mgrConfigLocation))
+	}
+	mgrConfig.Enable_Syscalls = make([]string, 0)
 	config := NewConfig(configLocation)
 	if getTraces {
 		gatherTraces(config)
@@ -267,11 +275,16 @@ func main() {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "===================Seen Calls===================\n")
-	for call, _ := range seen_calls {
+	fmt.Fprintf(os.Stderr, "===================Enabled Calls===================\n")
+	for call, _ := range EnabledSyscalls {
 		fmt.Fprintf(os.Stderr, "\"%s\",", call)
+		mgrConfig.Enable_Syscalls = append(mgrConfig.Enable_Syscalls, call)
 	}
 	fmt.Fprintf(os.Stderr, "\n")
+
+	/* now write mgr config back to mgrConfigLocation */
+	mgrConfigJson, _ := json.Marshal(mgrConfig)
+	ioutil.WriteFile(mgrConfigLocation, mgrConfigJson, 600)
 
 	if distill {
 		fmt.Fprintf(os.Stderr, "distilling using %s method\n", config.DistillConf.Type)
@@ -1292,6 +1305,7 @@ func cache(return_vars *map[returnType]Arg, return_var returnType, arg Arg, retu
 }
 
 func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]Arg) {
+	defer func() { EnabledSyscalls[line.FuncName] = true }()
 	switch line.FuncName {
 	case "accept", "accept4":
 		return_var := returnType{

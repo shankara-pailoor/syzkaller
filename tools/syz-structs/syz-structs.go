@@ -29,6 +29,8 @@ type Pair struct {
 }
 
 var (
+	EnabledSyscalls = map[string]bool{}
+
 	Unsupported = map[string]bool{
 		"brk": true,
 		//"mprotect": true,
