@@ -445,6 +445,14 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 			seed := parseShmat(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
+		}  else if strings.Compare(line.FuncName, "mlock") == 0 {
+			seed := parseMlock(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		} else if strings.Compare(line.FuncName, "munlock") == 0 {
+			seed := parseMUnlock(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
 		}
 		return nil, nil
 
@@ -1055,6 +1063,109 @@ func parseShmat(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State
 	return domain.NewSeed(call, state, nil, prog_, len(prog_.Calls), line.Cover)
 }
 
+func parseMlock(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+
+	addr := uint64(0)
+	length := uint64(0)
+	var dependsOn map[*Call]int = nil
+
+
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+
+
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+		//We have an anonymous map
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		addr = res
+
+		fmt.Printf("start: %d\n", addr)
+	} else {
+		fmt.Printf("Result: %s\n", line.Result)
+		addr = 0x80000000
+		panic("Mmap failed\n")
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+	} else {
+		panic("Failed to parse length argument from mlock\n")
+	}
+
+	call.Args = []Arg{
+		prog.MakePointerArg(meta.Args[0], addr/pageSize, 0, 1, nil),
+		prog.MakeConstArg(meta.Args[1], length),
+	}
+
+	if mapping := state.Tracker.FindLatestOverlappingVMA(addr); mapping != nil {
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), call.Args[0], addr, length)
+		mapping.AddDependency(dep)
+	}
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
+}
+
+func parseMUnlock(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+
+	addr := uint64(0)
+	length := uint64(0)
+	var dependsOn map[*Call]int = nil
+
+
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+
+
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+	//We have an anonymous map
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		addr = res
+
+		fmt.Printf("start: %d\n", addr)
+	} else {
+		fmt.Printf("Result: %s\n", line.Result)
+		addr = 0x80000000
+		panic("Mmap failed\n")
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+	} else {
+		panic("Failed to parse length argument from munlock\n")
+	}
+
+	call.Args = []Arg{
+		prog.MakePointerArg(meta.Args[0], addr/pageSize, 0, 1, nil),
+		prog.MakeConstArg(meta.Args[1], length),
+	}
+
+	if mapping := state.Tracker.FindLatestOverlappingVMA(addr); mapping != nil {
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), call.Args[0], addr, length)
+		mapping.AddDependency(dep)
+	}
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
+}
 
 func parseInnerCall(val string, typ Type, line *sparser.OutputLine, consts *map[string]uint64,
 	return_vars *map[returnType]Arg, s *domain.State) Arg {

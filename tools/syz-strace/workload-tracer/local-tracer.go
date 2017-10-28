@@ -36,7 +36,7 @@ func (dt *DefaultTracer) GenerateCorpus() (err error) {
 	for _, wc := range dt.workloads {
 		if err = dt.executor.RunStrace(wc); err != nil {
 			fmt.Printf("Error generating strace: %s\n", err.Error())
-			return err
+			continue
 		}
 	}
 	return
