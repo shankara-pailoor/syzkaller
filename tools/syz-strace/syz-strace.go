@@ -416,7 +416,7 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 
 	if _, ok := VMACall[line.FuncName]; ok {
 		//return nil, nil
-
+		EnabledSyscalls[line.FuncName] = true
 		if strings.Compare(line.FuncName, "mmap") == 0 {
 			seed := parseMmap(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
