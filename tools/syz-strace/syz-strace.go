@@ -570,14 +570,16 @@ func parseMmap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State,
 
 	if strings.Contains(line.Args[0], "NULL") {
 		//We have an anonymous map
+
 		if res, err := strconv.ParseUint(line.Result, 0, 64); err == nil {
 			start = res
 
 			fmt.Printf("start: %d\n", start)
 		} else {
+			//Mmap failed
 			fmt.Printf("Result: %s\n", line.Result)
 			start = 0x80000000
-			panic("Mmap failed\n")
+			//panic("Mmap failed\n")
 		}
 	} else {
 		//This is a mmap fixed
@@ -651,8 +653,10 @@ func parseMprotect(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.Sta
 	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
 		start = res
 		fmt.Printf("Start: %d\n", length)
-	} else {
-		panic(fmt.Sprintf("Failed to parse address in mprotect: %s\n", line.Args[0]))
+	} else if res, err := strconv.ParseInt(line.Args[0], 0, 64); err == nil{
+		if res < 0 {
+			start = ^uint64(0)
+		}
 	}
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
@@ -1019,7 +1023,7 @@ func parseShmat(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State
 	/*
 	 * Parse address.
 	 */
-	if ret, err := strconv.ParseUint(line.Args[1], 0, 16); err == nil {
+	if ret, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
 		//Fixed shmat position
 		addr = ret
 		fmt.Printf("Fixed shmat address: %s\n", addr)
