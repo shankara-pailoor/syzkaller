@@ -230,10 +230,10 @@ func main() {
 		for pid, _ := range trace.progs {
 			fmt.Printf("TRACE PROGS PIDS: %v\n", pid)
 			lines := trace.progs[pid]
-			if len(lines) > 250 {
-				fmt.Printf("Pid has more than 250 calls: %v, %d", pid, len(lines))
-				continue
-			}
+			//if len(lines) > 250 {
+			//	fmt.Printf("Pid has more than 250 calls: %v, %d", pid, len(lines))
+			//	continue
+			//}
 			s := domain.NewState(target) /* to keep track of resources and memory */
 			parsedProg, err = parse(target, lines, s, &consts, &seeds)
 			if err != nil {
@@ -451,6 +451,10 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 			return seed, nil
 		} else if strings.Compare(line.FuncName, "munlock") == 0 {
 			seed := parseMUnlock(line, prog_, s, return_vars)
+			prog_.Calls = append(prog_.Calls, seed.Call)
+			return seed, nil
+		} else if strings.Compare(line.FuncName, "madvise") == 0 {
+			seed := parseMadvise(line, prog_, s, return_vars)
 			prog_.Calls = append(prog_.Calls, seed.Call)
 			return seed, nil
 		}
@@ -1168,6 +1172,65 @@ func parseMUnlock(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Sta
 		dep := domain.NewMemDependency(len(prog_.Calls), call.Args[0], addr, length)
 		mapping.AddDependency(dep)
 	}
+	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
+}
+
+func parseMadvise(line *sparser.OutputLine, prog_ *prog.Prog, state *domain.State, return_vars *map[returnType]Arg) *domain.Seed {
+	fmt.Printf("Call: %s\n", line.FuncName)
+	for i, _ := range line.Args {
+		fmt.Printf("Arg: %d: %v\n", i, line.Args[i])
+	}
+	meta := state.Target.SyscallMap[line.FuncName]
+	call := &prog.Call{
+		Meta: meta,
+		Ret: returnArg(meta.Ret),
+	}
+	start := uint64(0)
+	length := uint64(0)
+	advice := uint64(0)
+	var dependsOn map[*prog.Call]int = nil
+
+
+	if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
+		start = res
+		fmt.Printf("Start: %d\n", length)
+	} else if res, err := strconv.ParseInt(line.Args[0], 0, 64); err == nil{
+		if res < 0 {
+			start = ^uint64(0)
+		}
+	}
+
+	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
+		length = res
+	} else if res, err := strconv.ParseInt(line.Args[1], 0, 64); err == nil {
+		length = uint64(res)
+	}
+
+	if res, err := extractVal(line.Args[2], "mode", &state.Target.ConstMap); err == nil {
+		advice = res
+	} else {
+		panic("Failed to parse the advice of madvise")
+	}
+
+	addrArg := prog.MakePointerArg(meta.Args[0], start/pageSize, 0, 1, nil)
+	if mapping := state.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
+		dependsOn = make(map[*prog.Call]int, 0)
+		dependsOn[mapping.GetCall()] = mapping.GetCallIdx()
+		for _, dep := range mapping.GetUsedBy() {
+			dependsOn[prog_.Calls[dep.Callidx]] = dep.Callidx
+		}
+		dep := domain.NewMemDependency(len(prog_.Calls), addrArg, start, start+length)
+		mapping.AddDependency(dep)
+
+	}
+
+	call.Args = []Arg {
+		addrArg,
+		prog.MakeConstArg(meta.Args[1], length),
+		prog.MakeConstArg(meta.Args[2], advice),
+	}
+
+
 	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
@@ -2477,6 +2540,10 @@ func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, e
 	var val uint64 = 0
 	var err error
 	var base int = 0
+
+	if res, err := strconv.ParseUint(flags, 0, 64); err == nil {
+		return res, nil
+	}
 
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64 = 0xFFFFFFFFFFFFFFFF

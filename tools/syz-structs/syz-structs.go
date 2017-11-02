@@ -71,6 +71,7 @@ var (
 		"shmat": true,
 		"mlock": true,
 		"munlock": true,
+		"madvise": true,
 	}
 
 	Accept_labels = map[string]string {
