@@ -33,7 +33,7 @@ func readWorkload(location string) (wcs []WorkloadConfig) {
 	reader := func (file string) {
 		tmpWcs := make([]WorkloadConfig, 0)
 		if strings.Contains(file, ".json") {
-			data, fileErr := ioutil.ReadFile(location)
+			data, fileErr := ioutil.ReadFile(file)
 			if fileErr != nil {
 				logrus.Fatalf("Unable to read config, exiting")
 			}
