@@ -579,19 +579,12 @@ func parseMmap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State,
 			start = res
 
 			fmt.Printf("start: %d\n", start)
-		} else {
-			//Mmap failed
-			fmt.Printf("Result: %s\n", line.Result)
-			start = 0x80000000
-			//panic("Mmap failed\n")
 		}
 	} else {
 		//This is a mmap fixed
 		if res, err := strconv.ParseUint(line.Args[0], 0, 64); err == nil {
 			start = res
 			fmt.Printf("start: %d\n", start)
-		} else {
-			panic(fmt.Sprintf("Failed to parse address for mmap fixed: %s\n", line.Args[0]))
 		}
 	}
 
@@ -1094,10 +1087,6 @@ func parseMlock(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.State
 		addr = res
 
 		fmt.Printf("start: %d\n", addr)
-	} else {
-		fmt.Printf("Result: %s\n", line.Result)
-		addr = 0x80000000
-		panic("Mmap failed\n")
 	}
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
@@ -1146,10 +1135,6 @@ func parseMUnlock(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Sta
 		addr = res
 
 		fmt.Printf("start: %d\n", addr)
-	} else {
-		fmt.Printf("Result: %s\n", line.Result)
-		addr = 0x80000000
-		panic("Mmap failed\n")
 	}
 
 	if res, err := strconv.ParseUint(line.Args[1], 0, 64); err == nil {
