@@ -82,7 +82,6 @@ func (client *SSHClient) RunStrace(config domain.WorkloadConfig)  error {
 	cmd := client.extractCommand(config)
 	if err := client.runCommand(cmd); err != nil {
 		logrus.Errorf("Failed to run command: %s", err.Error())
-		return err
 	}
 	client.copyPath(config.StraceOutPath, client.DestDir + "/" + config.Name)
 	client.deleteFile(config)
