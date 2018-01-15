@@ -112,18 +112,22 @@ func (client *SSHClient) copyPath(srcPath, destPath string) {
 	if err != nil {
 		logrus.Fatalf("failed to open dest path: %s", err.Error())
 	}
+	defer fdest.Close()
 	conn, err := client.newConnection()
 	if err != nil {
 		logrus.Fatalf("failed to open connection in CopyPath: %s", err.Error())
 	}
+	defer conn.Close()
 	sftp, err := sftp.NewClient(conn)
 	if err != nil {
 		logrus.Fatalf("failed to initialize sftp: %s", err.Error())
 	}
+	defer sftp.Close()
 	f, err := sftp.Open(srcPath)
 	if err != nil {
 		logrus.Fatalf("failed to open remote file: %s with error: %s", srcPath, err.Error())
 	}
+	defer f.Close()
 	data, err := ioutil.ReadAll(f)
 	if err != nil {
 		logrus.Fatalf("failed to read remote file: %s with error: %s", srcPath, err.Error())

@@ -6,9 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Sirupsen/logrus"
-	"github.com/google/syzkaller/rpctype"
-	"github.com/google/syzkaller/symbolizer"
-	"github.com/google/syzkaller/cover"
+	"github.com/google/syzkaller/pkg/rpctype"
+	"github.com/google/syzkaller/pkg/symbolizer"
+	"github.com/google/syzkaller/pkg/cover"
+	sparser "github.com/mattrco/difftrace/parser"
 	"os"
 	"os/exec"
 	"strings"
@@ -20,10 +21,14 @@ import (
 
 var (
 	corpuses = flag.String("corpuses", "", "Path to file containing corpuses")
+	traces = flag.String("traces", "", "Path to directory containing traces")
+	vmlinux = flag.String("vmlinux", "", "Path to vmlinux e.g. linux-4.14-rc1/vmlinux")
 )
 
 const (
 	callLen = 5
+	COVER_ID    = "Cover:"
+	COVER_DELIM = ","
 )
 
 type Corpus struct {
@@ -44,12 +49,45 @@ type ParsedFile struct {
 	DirectoryBreakdown []string
 }
 
+func failf(msg string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, msg+"\n", args...)
+	os.Exit(1)
+}
 
 func main() {
 	flag.Parse()
-	if corpuses == nil {
-		logrus.Infof("")
+	corpusStats := make([]*CorpusStats, 0)
+	if corpuses != nil {
+		corpusStats = append(corpusStats, parseCorpuses(*corpuses, *vmlinux)...)
 	}
+
+	if traces != nil {
+		corpusStats = append(corpusStats, parseTraces(*traces, *vmlinux)...)
+	}
+
+
+	/*
+	for _, input := range newestCorpus
+
+		prg, err := prog.Deserialize(input.Prog)
+		if err != nil {
+			continue
+		}
+		args := make(map[*prog.Arg]string)
+		trackProgDependencies(prg, args)
+	}*/
+	if len(corpusStats) == 1 {
+		computeCoverageBreakdown(corpusStats[0])
+	}
+	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
+	for i, corpusStat := range corpusStats {
+		for _, corpusStat2 := range corpusStats[i+1:] {
+			computeCoverageDifference(corpusStat, corpusStat2)
+		}
+	}
+}
+
+func parseCorpuses(directory string, vmlinux string) []*CorpusStats{
 	corpii := readCorpus(*corpuses)
 	corpusStats := make([]*CorpusStats, 0)
 	for _, corpus := range corpii {
@@ -59,7 +97,7 @@ func main() {
 			FileCover: make(map[string][]uint64, 0),
 			SubsystemCover: make(map[string][]uint64, 0),
 		}
-		frames := ComputeFrames("/home/w4118/linux-4.10-rc7/vmlinux", corpus.Data)
+		frames := ComputeFrames(vmlinux, corpus.Data)
 		fmt.Printf("FRAME LEN: %d\n", len(frames))
 		framePc := make(map[uint64][]symbolizer.Frame, 0)
 		for _, frame := range frames {
@@ -95,26 +133,58 @@ func main() {
 		corpusStats = append(corpusStats, corpusStat)
 	}
 
-	if len(corpusStats) == 1 {
-		computeCoverageBreakdown(corpusStats[0])
-	}
-	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
-	for i, corpusStat := range corpusStats {
-		for _, corpusStat2 := range corpusStats[i+1:] {
-			computeCoverageDifference(corpusStat, corpusStat2)
-		}
-	}
+	return corpusStats
+}
 
-	/*
-	for _, input := range newestCorpus {
-
-		prg, err := prog.Deserialize(input.Prog)
-		if err != nil {
-			continue
+func parseTraces(traceDir string, vmlinux string) []*CorpusStats{
+	traces := make([]string, 0)
+	corpusStats := make([]*CorpusStats, 0)
+	fmt.Printf("trace dir: %s\n", traceDir)
+	if fileInfos, err := ioutil.ReadDir(traceDir); err == nil {
+		for _, fileInfo := range fileInfos {
+			traces = append(traces, path.Join(traceDir, fileInfo.Name()))
 		}
-		args := make(map[*prog.Arg]string)
-		trackProgDependencies(prg, args)
-	}*/
+	} else {
+		failf("error reading directory: %s\n", err.Error())
+	}
+	ips := make(map[uint32]bool, 0)
+	for _, t := range traces {
+		calls := parseStrace(t)
+		for _, call := range calls {
+			for _, ip := range call.Cover {
+				ip_u32 := uint32(ip)
+				if _, ok := ips[ip_u32]; !ok {
+					ips[ip_u32] = true
+				}
+			}
+		}
+		frames := computeFrames(vmlinux, ips)
+		corpusStat := &CorpusStats {
+			CorpusName: t,
+			SyscallCover: make(map[string][]uint64, 0),
+			FileCover: make(map[string][]uint64, 0),
+			SubsystemCover: make(map[string][]uint64, 0),
+		}
+
+		for _, frame := range frames {
+			if _, ok := corpusStat.FileCover[frame.File]; !ok {
+				corpusStat.FileCover[frame.File] = make([]uint64, 0)
+			}
+			corpusStat.FileCover[frame.File] = append(corpusStat.FileCover[frame.File], frame.PC)
+			parsedFile := rebuildPath(frame.File)
+			if _, ok := corpusStat.SubsystemCover[parsedFile.Subsystem]; !ok {
+				corpusStat.SubsystemCover[parsedFile.Subsystem] = make([]uint64, 0)
+			}
+			corpusStat.SubsystemCover[parsedFile.Subsystem] = append(corpusStat.SubsystemCover[parsedFile.Subsystem], frame.PC)
+			if _, ok := corpusStat.SyscallCover[frame.Func]; !ok {
+				corpusStat.SyscallCover[frame.Func] = make([]uint64, 0)
+			}
+			corpusStat.SyscallCover[frame.Func] = append(corpusStat.SyscallCover[frame.Func], frame.PC)
+		}
+
+		corpusStats = append(corpusStats, corpusStat)
+	}
+	return corpusStats
 }
 
 func computeCoverageBreakdown(stat *CorpusStats) {
@@ -125,13 +195,7 @@ func computeCoverageBreakdown(stat *CorpusStats) {
 		}
 		fmt.Printf("Subsystem: %s, Seen: %d\n", subsystem, len(seen))
 	}
-	for file, cov := range stat.FileCover {
-		seen := make(map[uint64]bool, 0)
-		for _, ip := range cov {
-			seen[ip] = true
-		}
-		fmt.Printf("Subsystem: %s, Seen: %d\n", file, len(seen))
-	}
+
 }
 
 func computeCoverageDifference(stat1, stat2 *CorpusStats) {
@@ -208,7 +272,8 @@ func computeCoverageDifference(stat1, stat2 *CorpusStats) {
 			}
 			fmt.Printf("File: %s, SeenInOnly %s: %d, SeenInOnly %s: %d, SeenInBoth: %d\n", stat1File, stat1.CorpusName, len(seenIn1Not2), stat2.CorpusName, len(seenIn2Not1), len(seenInBoth))
 		}
-	}}
+	}
+}
 
 func rebuildPath(path string) *ParsedFile {
 	parsedFile := new(ParsedFile)
@@ -235,7 +300,6 @@ func rebuildPath(path string) *ParsedFile {
 
 func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolizer.Frame {
 	coverMap := make(map[uint32]bool, 0)
-	coverArray := make([]uint32, 0)
 
 	for _, inp := range data {
 		for _, cov := range inp.Cover {
@@ -245,14 +309,22 @@ func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolize
 		}
 	}
 
+	return computeFrames(vmlinux, coverMap)
+}
+
+func computeFrames(vmlinux string, coverMap map[uint32]bool) []symbolizer.Frame {
+	coverArray := make([]uint32, 0)
+
 	for cov, _ := range coverMap {
 		coverArray = append(coverArray, cov)
 	}
+
 	base, err := getVmOffset(vmlinux)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 		panic("Failure")
 	}
+
 	pcs := make([]uint64, len(coverArray))
 	for i, pc := range coverArray {
 		pcs[i] = cover.RestorePC(pc, base) - callLen
@@ -268,6 +340,7 @@ func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolize
 		return nil
 	}
 	return coveredFrames
+
 }
 
 func symbolize(vmlinux string, pcs []uint64) ([]symbolizer.Frame, string, error) {
@@ -332,6 +405,73 @@ func getVmOffset(vmlinux string) (uint32, error) {
 	return addr, nil
 }
 
+func parseStrace(filename string) (calls []*sparser.OutputLine) {
+	var lastParsed *sparser.OutputLine
+	calls = make([]*sparser.OutputLine, 0)
+	f, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("failed to open file: %v\n", filename)
+		failf(err.Error())
+	}
+	p := sparser.NewParser(f)
+	i := 0
+	for {
+		line, err := p.Parse()
+		if err != nil {
+			if err != sparser.ErrEOF {
+				fmt.Println(err.Error())
+			}
+			return
+		}
+		if line == nil {
+			continue
+		}
+		if line.FuncName == "" && line.Result != "" && !line.Paused && !line.Resumed {
+			if lastParsed == nil {
+				continue
+			}
+			lastParsed.Cover = parseInstructions(line.Result)
+		} else {
+			//if _, ok := Unsupported[line.FuncName]; ok {
+			//	lastParsed = nil
+			//	continue
+			//}
+			lastParsed = line
+			calls = append(calls, line)
+		}
+		i += 1
+		fmt.Printf("I: %d\n", i)
+	}
+	return
+}
+
+func parseInstructions(line string) (ips []uint64) {
+	/* function returns a slice of all unique IPs hit by this call
+	 Used to popoulate field Seed.Cover
+	*/
+	uniqueIps := make(map[uint64]bool)
+	line = line[1: len(line)-1]
+	strippedLine := strings.TrimSpace(line)
+	/*
+		Instructions for a call all appear in one line of the form
+		COVER_IDip1COVER_DELIMip2COVER_DELIMip3. Ex: If COVER_ID = "Cover:" and
+		COVER_DELIM = "-" then it would appear as "Cover:ip1-ip2-ip3"
+
+	*/
+	instructions := strings.Split(strippedLine, COVER_ID)
+	s := strings.Split(instructions[1], COVER_DELIM)
+	for _, ins := range s {
+		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
+		if err != nil {
+			failf("failed parsing ip: %s", ins)
+		}
+		if _, ok := uniqueIps[ip]; !ok {
+			uniqueIps[ip] = true
+			ips = append(ips, ip)
+		}
+	}
+	return
+}
 
 
 func readCorpus(directory string) ([]*Corpus) {

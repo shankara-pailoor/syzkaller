@@ -104,6 +104,7 @@ var (
 		"sock_unix": "$unix",
 		"AF_INET": "$inet",
 		"AF_INET6": "$inet6",
+		"sock_packet": "$packet",
 	}
 
 	Structs_with_reordered_fields = map[string][]int {
@@ -217,6 +218,29 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_MTU"}: "$inet6_int",
 		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
 		Pair{"SOL_ICMPV6", "1"}: "$inet6_buf",
+		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
+		Pair{"SOL_PACKET", "PACKET_RX_RING"}: "$packet_rx_ring",
+		Pair{"SOL_PACKET", "PACKET_RECV_OUTPUT"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_COPY_THRESH"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_AUXDATA"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_ORIGDEV"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_VERSION"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_HDRLEN"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_RESERVE"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_LOSS"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_VNET_HDR"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_TX_TIMESTAMP"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_TIMESTAMP"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_FANOUT"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_TX_HAS_OFF"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_QDISC_BYPASS"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_AUXDATA"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_HDRLEN"}: "$packet_rx_ring",
+		Pair{"SOL_PACKET", "PACKET_ADD_MEMBERSHIP"}: "$packet_buf",
+		Pair{"SOL_PACKET", "PACKET_DROP_MEMBERSHIP"}: "$packet_buf",
+		Pair{"SOL_PACKET", "PACKET_STATISTICS"}: "$packet_buf",
+		Pair{"SOL_PACKET", "PACKET_TX_RING"}: "$packet_tx_ring",
+		Pair{"SOL_PACKET", "PACKET_FANOUT_DATA"}: "$packet_buf",
 	}
 
 	Getsockopt_labels = map[Pair]string {
@@ -299,6 +323,28 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
 		Pair{"IPPROTO_IPV6", "IPV6_MTU"}: "$inet6_int",
 		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
+		Pair{"SOL_PACKET", "PACKET_RX_RING"}: "$packet_rx_ring",
+		Pair{"SOL_PACKET", "PACKET_RECV_OUTPUT"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_COPY_THRESH"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_AUXDATA"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_ORIGDEV"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_VERSION"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_HDRLEN"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_RESERVE"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_LOSS"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_VNET_HDR"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_TX_TIMESTAMP"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_TIMESTAMP"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_FANOUT"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_TX_HAS_OFF"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_QDISC_BYPASS"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_AUXDATA"}: "$packet_int",
+		Pair{"SOL_PACKET", "PACKET_HDRLEN"}: "$packet_rx_ring",
+		Pair{"SOL_PACKET", "PACKET_ADD_MEMBERSHIP"}: "$packet_buf",
+		Pair{"SOL_PACKET", "PACKET_DROP_MEMBERSHIP"}: "$packet_buf",
+		Pair{"SOL_PACKET", "PACKET_STATISTICS"}: "$packet_buf",
+		Pair{"SOL_PACKET", "PACKET_TX_RING"}: "$packet_tx_ring",
+		Pair{"SOL_PACKET", "PACKET_FANOUT_DATA"}: "$packet_buf",
 	}
 
 	Getsockname_labels = map[string]string {
@@ -367,6 +413,7 @@ var (
 		"AF_KCM": "$kcm",
 		"AF_UNIX": "$unix",
 		"AF_NETLINK": "$netlink",
+		"AF_PACKET": "$packet",
 	}
 
 	Fcntl_labels = map[string]string {
