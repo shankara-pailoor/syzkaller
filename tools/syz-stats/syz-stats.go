@@ -23,6 +23,7 @@ var (
 	corpuses = flag.String("corpuses", "", "Path to file containing corpuses")
 	traces = flag.String("traces", "", "Path to directory containing traces")
 	vmlinux = flag.String("vmlinux", "", "Path to vmlinux e.g. linux-4.14-rc1/vmlinux")
+	decode = flag.String("decode", "", "Decode instructions from trace")
 )
 
 const (
@@ -57,12 +58,18 @@ func failf(msg string, args ...interface{}) {
 func main() {
 	flag.Parse()
 	corpusStats := make([]*CorpusStats, 0)
-	if corpuses != nil {
+	if *corpuses != "" {
 		corpusStats = append(corpusStats, parseCorpuses(*corpuses, *vmlinux)...)
 	}
 
-	if traces != nil {
-		corpusStats = append(corpusStats, parseTraces(*traces, *vmlinux)...)
+	if *traces != "" {
+		fmt.Printf("decode: %p\n", decode)
+		if *decode != "" {
+			decodeTraces(*traces, *decode, *vmlinux)
+			return
+		} else {
+			corpusStats = append(corpusStats, parseTraces(*traces, *vmlinux)...)
+		}
 	}
 
 
@@ -136,6 +143,51 @@ func parseCorpuses(directory string, vmlinux string) []*CorpusStats{
 	return corpusStats
 }
 
+
+func decodeTraces(traceDir, decodeDir, vmlinux string) {
+	symb := symbolizer.NewSymbolizer()
+	defer symb.Close()
+
+
+	traces := make([]string, 0)
+	if fileInfos, err := ioutil.ReadDir(traceDir); err == nil {
+		for _, fileInfo := range fileInfos {
+			traces = append(traces, path.Join(traceDir, fileInfo.Name()))
+		}
+	}
+	for _, t := range traces {
+		decodedFile := path.Join(decodeDir, path.Base(t))
+		calls := parseStrace(t)
+		fmt.Printf("PARSE STRACE\n")
+		f, err := os.OpenFile(decodedFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			failf(err.Error())
+		}
+		for _, call := range calls {
+			coverMap := make(map[uint32]bool)
+			var buffer bytes.Buffer
+
+			for _, ip := range call.Cover {
+				ip_u32 := uint32(ip)
+				if _, ok := coverMap[ip_u32]; !ok {
+					coverMap[ip_u32] = true
+				}
+			}
+
+			frames := computeFrames(vmlinux, coverMap)
+			header := fmt.Sprintf("SYSCALL: %s, pid: %d", call.FuncName,  call.Pid)
+			buffer.Write([]byte(header))
+			buffer.Write([]byte("\n"))
+
+			for _, frame := range frames {
+				frameData := fmt.Sprintf("Func: %s, File: %s, Line: %d\n", frame.Func, path.Base(frame.File), frame.Line)
+				buffer.Write([]byte(frameData))
+			}
+			f.WriteString(buffer.String())
+		}
+	}
+}
+
 func parseTraces(traceDir string, vmlinux string) []*CorpusStats{
 	traces := make([]string, 0)
 	corpusStats := make([]*CorpusStats, 0)
@@ -159,6 +211,7 @@ func parseTraces(traceDir string, vmlinux string) []*CorpusStats{
 			}
 		}
 		frames := computeFrames(vmlinux, ips)
+		fmt.Printf("Frames: %d\n", len(frames))
 		corpusStat := &CorpusStats {
 			CorpusName: t,
 			SyscallCover: make(map[string][]uint64, 0),
@@ -324,8 +377,8 @@ func computeFrames(vmlinux string, coverMap map[uint32]bool) []symbolizer.Frame 
 		fmt.Printf("Error: %s\n", err.Error())
 		panic("Failure")
 	}
-
 	pcs := make([]uint64, len(coverArray))
+
 	for i, pc := range coverArray {
 		pcs[i] = cover.RestorePC(pc, base) - callLen
 	}
@@ -419,7 +472,7 @@ func parseStrace(filename string) (calls []*sparser.OutputLine) {
 		line, err := p.Parse()
 		if err != nil {
 			if err != sparser.ErrEOF {
-				fmt.Println(err.Error())
+				fmt.Println("sparser error: %s", err.Error())
 			}
 			return
 		}
