@@ -195,7 +195,7 @@ func (client *SSHClient) deleteFile(config domain.WorkloadConfig) {
 
 
 func (client *SSHClient) newSession() (*ssh.Session, error) {
-	session, err := client.newSession()
+	session, err := client.Conn.NewSession()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create session: %s", err)
 	}
