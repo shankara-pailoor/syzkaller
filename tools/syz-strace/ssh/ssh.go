@@ -27,12 +27,14 @@ type SSHClient struct {
 	Host string
 	DestDir string
 	Port int
+	Conn *ssh.Client
 }
 
 func NewClient(port int, destDir, sshKey, sshUser, host string) (client *SSHClient) {
 	fmt.Printf("Ssh user: %s\n", sshUser)
 	fmt.Printf("Ssh key: %s\n", sshKey)
 	fmt.Printf("host key: %s\n", host)
+	var err error
 	sshConfig := &ssh.ClientConfig{
 		User: sshUser,
 		Auth: []ssh.AuthMethod{
@@ -45,6 +47,9 @@ func NewClient(port int, destDir, sshKey, sshUser, host string) (client *SSHClie
 		Host:   host,
 		Port:   port,
 		DestDir: destDir,
+	}
+	if client.Conn, err = client.newConnection(); err != nil {
+		panic(err.Error())
 	}
 	return
 }
@@ -190,11 +195,7 @@ func (client *SSHClient) deleteFile(config domain.WorkloadConfig) {
 
 
 func (client *SSHClient) newSession() (*ssh.Session, error) {
-	connection, err := client.newConnection()
-	if err != nil {
-		logrus.Fatalf("Failed to initialize connection: %s", err.Error())
-	}
-	session, err := connection.NewSession()
+	session, err := client.newSession()
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create session: %s", err)
 	}
