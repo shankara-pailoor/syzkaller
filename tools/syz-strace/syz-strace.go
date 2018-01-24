@@ -886,7 +886,6 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 	old_size := uint64(0)
 	new_size := uint64(0)
 	flags := uint64(0)
-	successful := true
 	var dependsOn map[*Call]int = nil
 
 	meta := state.Target.SyscallMap[line.FuncName]
@@ -931,8 +930,6 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 			remapped_addr = res
 
 			fmt.Printf("remapped addr: %d\n", remapped_addr)
-		} else {
-			successful = false
 		}
 	} else {
 		//This is a mmremap fixed
@@ -1561,7 +1558,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 			} else {
 				line.FuncName += "$sock_cred"
 			}
-			return
+			return skip
 		}
 
 		if label, ok := Getsockopt_labels[variant]; ok {
