@@ -185,7 +185,7 @@ func (m *MemoryTracker) TrackDependency(arg Arg, start uint64, end uint64, mappi
 	mapping.usedBy = append(mapping.usedBy, dependency)
 }
 
-func (m *MemoryTracker) FillOutMemory(prog *Prog) {
+func (m *MemoryTracker) FillOutMemory(prog *Prog) error {
 	offset := uint64(0)
 
 	for _, call := range prog.Calls {
@@ -206,6 +206,10 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 				arg.PageOffset = int(offset % PageSize)
 				arg.PagesNum = pages
 				offset += a.num_bytes
+				if uint64(arg.PageIndex) + uint64(arg.PagesNum) > uint64(4096) {
+					return fmt.Errorf("Call: %v, address out of range: %d %d %d\n",
+						call, arg.PageIndex, arg.PagesNum, offset)
+				}
 			default:
 				panic("Pointer Arg Failed")
 			}
@@ -218,7 +222,6 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 		fmt.Printf("Mapping start: %d, end: %d\n", mapping.GetStart(), mapping.GetEnd())
 		fmt.Printf("NUM MAPGES USED: %d\n", (mapping.GetEnd() - mapping.GetStart())/PageSize)
 		for _, dep := range mapping.usedBy {
-			fmt.Printf("USED BY\n")
 			switch arg_ := dep.arg.(type) {
 			case *PointerArg:
 				fmt.Printf("ARG TYPE: %s\n", arg_.Type().Name())
@@ -234,12 +237,15 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) {
 				arg_.PagesNum = numPages
 				arg_.Size()
 				arg_.Res = nil
+				return fmt.Errorf("Address out of range: %d %d %d\n",
+					arg_.PageIndex, arg_.PagesNum, offset)
 			default:
 				panic("Mapping needs to be Pointer Arg")
 			}
 		}
 		offset += mapping.GetEnd() - mapping.GetStart()
 	}
+	return nil
 }
 
 func (m *MemoryTracker) GetTotalMemoryAllocations(prog *Prog) uint64{

@@ -241,7 +241,10 @@ func main() {
 				continue
 			}
 			if !distill {
-				s.Tracker.FillOutMemory(parsedProg)
+				if err := s.Tracker.FillOutMemory(parsedProg); err != nil {
+					fmt.Printf("Error: %s\n", err.Error())
+					continue
+				}
 				totalMemory := s.Tracker.GetTotalMemoryAllocations(parsedProg)
 				mmapCall := s.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
 				calls := make([]*prog.Call, 0)
@@ -463,7 +466,10 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 	}
 
 	/* adjust functions to fit syzkaller standards */
-	process(target, line, consts, return_vars)
+	skip := process(target, line, consts, return_vars)
+	if skip {
+		return nil, nil
+	}
 	meta := target.SyscallMap[line.FuncName]
 	if meta == nil {
 		fmt.Printf("unknown syscall %v\n", line.Unparse())
@@ -967,9 +973,8 @@ func parseMremap(line *sparser.OutputLine,  prog_ *prog.Prog, state *domain.Stat
 		prog.MakeConstArg(meta.Args[3], flags),
 		newAddrArg,
 	}
-	if successful {
-		state.Tracker.CreateMapping(call, len(prog_.Calls), call.Args[4], remapped_addr, remapped_addr + new_size)
-	}
+
+	state.Tracker.CreateMapping(call, len(prog_.Calls), call.Args[4], remapped_addr, remapped_addr + new_size)
 	return domain.NewSeed(call, state, dependsOn, prog_, len(prog_.Calls), line.Cover)
 }
 
@@ -1467,8 +1472,9 @@ func cache(return_vars *map[returnType]Arg, return_var returnType, arg Arg, retu
 	}
 }
 
-func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]Arg) {
+func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64, return_vars *map[returnType]Arg) bool{
 	defer func() { EnabledSyscalls[line.FuncName] = true }()
+	skip := false
 	switch line.FuncName {
 	case "accept", "accept4":
 		return_var := returnType{
@@ -1488,6 +1494,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 				failf("return_var for accept is NOT a resource type %v\n", line.Unparse())
 			}
 		}
+		return false
 	case "bpf":
 		line.FuncName = line.FuncName + Bpf_labels[line.Args[0]]
 	case "bind", "connect":
@@ -1681,6 +1688,8 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 			default:
 				failf("return_var is NOT a resource type %v\n", line.Unparse())
 			}
+		} else {
+			skip = true
 		}
 	case "fcntl":
 		if label, ok := Fcntl_labels[line.Args[1]]; ok {
@@ -1772,6 +1781,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 		}
 	default:
 	}
+	return skip
 }
 
 func parseSpecialStructs(typ Type, strace_arg string,
@@ -1857,6 +1867,7 @@ func parseArg(typ Type, strace_arg string,
 		if v, ok := (*consts)[strace_arg]; ok {
 			return resultArg(a, nil, uint64(v)), nil, nil
 		}
+		strace_arg = strings.TrimSpace(strace_arg)
 		//Need to parse as int because we may have negative file descriptor
 		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {

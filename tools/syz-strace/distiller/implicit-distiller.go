@@ -60,7 +60,9 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 		}
 	}
 	for prog_, _ := range distilledProgs {
-		d.CallToSeed[prog_.Calls[0]].State.Tracker.FillOutMemory(prog_)
+		if err := d.CallToSeed[prog_.Calls[0]].State.Tracker.FillOutMemory(prog_); err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		}
 		totalMemoryAllocations := d.CallToSeed[prog_.Calls[0]].State.Tracker.GetTotalMemoryAllocations(prog_)
 		state := d.CallToSeed[prog_.Calls[0]].State
 		mmapCall := state.Target.MakeMmap(0, uint64(totalMemoryAllocations/pageSize)+1)
