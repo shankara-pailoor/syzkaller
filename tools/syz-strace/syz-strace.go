@@ -116,7 +116,11 @@ func (t *Trace) Sanitize(lines []*sparser.OutputLine) []*sparser.OutputLine {
 					//If the program is unfinished it needs the result from the finished part
 					lines[i].Result = lines[i+j].Result
 					//Delete the resumed line
-					sanitizedLines = append(sanitizedLines[:i+j], sanitizedLines[i+j+1:]...)
+					if i+j >= len(lines)-i {
+						sanitizedLines = sanitizedLines[:i+j]
+					} else {
+						sanitizedLines = append(sanitizedLines[:i+j], sanitizedLines[i+j+1:]...)
+					}
 					break
 				}
 			}
@@ -211,7 +215,7 @@ func main() {
 		if i < *flagSkip {
 			continue
 		}
-		fmt.Printf("==========File %v PARSING: %v=========\n", i, filename)
+		fmt.Fprintf(os.Stderr, "==========File %v PARSING: %v=========\n", i, filename)
 		trace := NewTrace()
 		straceCalls := parseStrace(filename)
 
@@ -1727,7 +1731,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 		}
 	case "rt_sigprocmask": // TODO: look at ltp_rtsigprocmask02. how to properly handle the addr args?
 		// TODO: removed '~' from second arg orgiinally ~[RTMIN RT_1]
-		if strings.Contains(line.Args[1], "RTMIN") || strings.Contains(line.Args[1], "RT_3") {
+		if strings.Contains(line.Args[1], "RTMIN") || strings.Contains(line.Args[1], "RT_3") || strings.Contains(line.Args[1],"RT_1") {
 			line.Args[1] = "{mask=0x8001}"
 		} else if strings.Contains(line.Args[1], "RTMAX") {
 			line.Args[1] = "{mask=0xfffffffffffffffe}"
@@ -1773,9 +1777,9 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 	case "prctl":
 		if label, ok := Prctl_labels[line.Args[0]]; ok {
 			line.FuncName = line.FuncName + label
-		} else {
+		} /*else {
 			failf("unknown prctl variant %v\n", line.Unparse())
-		}
+		}*/
 	default:
 	}
 	return skip
@@ -2152,7 +2156,7 @@ func parseArg(typ Type, strace_arg string,
 		}
 		name, val := "nil", "nil"
 		struct_args := make([]string, 0)
-		if strace_arg != "nil" {
+		if strace_arg != "nil" && len(strace_arg) >= 2 {
 			strace_arg = strace_arg[1 : len(strace_arg)-1]
 		}
 		fmt.Printf("StructType %v\n", a.TypeName)
@@ -2645,11 +2649,14 @@ func parseIpV6(typ Type, ip string) (Arg, Type) {
 			case *StructType:
 				a0 := a.Fields[0].(*ConstType)
 				a1 := a.Fields[1].(*ConstType)
+				/*
 				a2 := a.Fields[2].(*ArrayType)
 				a3 := a.Fields[3].(*ProcType)
 				a4 := a.Fields[4].(*ConstType)
+				*/
 				a0_arg := constArg(a0, a0.Val)
 				a1_arg := constArg(a1, a1.Val)
+				/*
 				arr_arg := make([]Arg, 12)
 				for i, _ := range arr_arg {
 					arr_arg[i] = constArg(a2.Type, 0)
@@ -2657,7 +2664,8 @@ func parseIpV6(typ Type, ip string) (Arg, Type) {
 				a2_arg := groupArg(a2, arr_arg)
 				a3_arg := constArg(a3, 0)
 				a4_arg := constArg(a4, 0)
-				return groupArg(b, []Arg{a0_arg, a1_arg, a2_arg, a3_arg, a4_arg}), optType
+				*/
+				return groupArg(a, []Arg{a0_arg, a1_arg}), optType
 			default:
 				failf("inner option not a structType\n")
 			}
