@@ -206,7 +206,7 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) error {
 				arg.PageOffset = int(offset % PageSize)
 				arg.PagesNum = pages
 				offset += a.num_bytes
-				if uint64(arg.PageIndex) + uint64(arg.PagesNum) > uint64(4096) {
+				if uint64(arg.PageIndex) + uint64(arg.PagesNum) >= uint64(4096) {
 					return fmt.Errorf("Call: %v, address out of range: %d %d %d\n",
 						call, arg.PageIndex, arg.PagesNum, offset)
 				}
@@ -237,8 +237,10 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) error {
 				arg_.PagesNum = numPages
 				arg_.Size()
 				arg_.Res = nil
-				return fmt.Errorf("Address out of range: %d %d %d\n",
-					arg_.PageIndex, arg_.PagesNum, offset)
+				if uint64(arg_.PageIndex) + uint64(arg_.PagesNum) >= uint64(4096) {
+					return fmt.Errorf("Address out of range: %d %d %d\n",
+						arg_.PageIndex, arg_.PagesNum, offset)
+				}
 			default:
 				panic("Mapping needs to be Pointer Arg")
 			}
