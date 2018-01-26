@@ -267,6 +267,9 @@ func main() {
 				fmt.Printf("Error validating %v\n", "something")
 				failf(err.Error())
 			}
+			if progIsTooLarge(parsedProg) {
+				continue
+			}
 			progs = append(progs, parsedProg)
 			fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
 
@@ -304,6 +307,9 @@ func main() {
 				failf(err.Error())
 				break
 			}
+			if progIsTooLarge(progd) {
+				continue
+			}
 			s_name := "serialized/" + filepath.Base("distilled"+strconv.Itoa(i))
 			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
 				failf("failed to output file: %v", err)
@@ -314,6 +320,13 @@ func main() {
 	}
 	fmt.Println("Done, now packing into corpus.db")
 	pack("serialized", "corpus.db")
+}
+
+func progIsTooLarge(prog *Prog) bool{
+	if err := prog.SerializeForExec(prog.Serialize(), 0); err != nil {
+		return true
+	}
+	return false
 }
 
 func gatherTraces(conf *SyzStraceConfig) {
