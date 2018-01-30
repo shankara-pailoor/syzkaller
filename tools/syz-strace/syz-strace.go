@@ -268,7 +268,6 @@ func main() {
 				fmt.Printf("Error validating %v\n", "something")
 				failf(err.Error())
 			}
-			parsedProg.Target = target
 			if progIsTooLarge(parsedProg) {
 				fmt.Fprintf(os.Stderr, "Program is too large\n")
 				continue
@@ -323,8 +322,9 @@ func main() {
 	pack("serialized", "corpus.db")
 }
 
-func progIsTooLarge(prog *Prog) bool{
-	if err := prog.SerializeForExec(prog.Serialize(), 0); err != nil {
+func progIsTooLarge(prog *Prog) bool {
+	buff := make([]byte, ExecBufferSize)
+	if err := prog.SerializeForExec(buff, 0); err != nil {
 		return true
 	}
 	return false
@@ -396,6 +396,7 @@ func parse(target *Target, straceCalls []*sparser.OutputLine, s *domain.State, c
 		seeds.Add(seed)
 	}
 	memory := s.Tracker.GetTotalMemoryAllocations(prog)
+	prog.Target = target
 	fmt.Printf("TOTAL Memory Needed: %d\n", memory)
 	return prog, nil
 }
