@@ -89,11 +89,26 @@ func (d *TraceDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 	seenIps := make(map[uint64]bool)
 	traces := d.traces(progs)
 	sort.Sort(sort.Reverse(traces))
+	distilledProgs := make([]*prog.Prog, 0)
 
 	for _, trace := range traces {
 		if d.Contributes(trace, seenIps) > 0 {
-			distilled = append(distilled, trace.Prog)
+			distilledProgs = append(distilledProgs, trace.Prog)
 		}
+	}
+	for _, prog_ := range distilledProgs {
+		if err := d.CallToSeed[prog_.Calls[0]].State.Tracker.FillOutMemory(prog_); err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+			continue
+		}
+		totalMemoryAllocations := d.CallToSeed[prog_.Calls[0]].State.Tracker.GetTotalMemoryAllocations(prog_)
+		state := d.CallToSeed[prog_.Calls[0]].State
+		mmapCall := state.Target.MakeMmap(0, uint64(totalMemoryAllocations/pageSize)+1)
+		calls := make([]*prog.Call, 0)
+		calls = append(append(calls, mmapCall), prog_.Calls...)
+
+		prog_.Calls = calls
+		distilled = append(distilled, prog_)
 	}
 	fmt.Fprintf(os.Stderr, "Only: %d programs contribute new coverage\n", len(distilled))
 	return
