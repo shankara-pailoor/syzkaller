@@ -59,6 +59,10 @@ var (
 		"chdir": true, // unsupported
 		"clone": true, // unsupported
 		"newfstatat": true, // unsupported
+		"getsid": true,
+		"getcpu": true,
+		"sched_get_priority_min": true,
+		"sched_get_priority_max": true,
 	}
 
 	VMACall = map[string] bool {

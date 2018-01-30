@@ -4,6 +4,8 @@ import (
 	"github.com/google/syzkaller/prog"
 	"sort"
 	"github.com/google/syzkaller/tools/syz-strace/domain"
+	"fmt"
+	"os"
 )
 
 type TraceDistiller struct {
@@ -83,6 +85,7 @@ func (d *TraceDistiller) Add(seeds domain.Seeds) {
 }
 
 func (d *TraceDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
+	fmt.Fprintf(os.Stderr, "Distilling %d programs with trace method\n", len(progs))
 	seenIps := make(map[uint64]bool)
 	traces := d.traces(progs)
 	sort.Sort(sort.Reverse(traces))
@@ -92,6 +95,7 @@ func (d *TraceDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 			distilled = append(distilled, trace.Prog)
 		}
 	}
+	fmt.Fprintf(os.Stderr, "Only: %d programs contribute new coverage\n", len(distilled))
 	return
 }
 

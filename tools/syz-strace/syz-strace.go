@@ -244,6 +244,7 @@ func main() {
 				fmt.Printf("Error parsing program: %s\n", err.Error())
 				continue
 			}
+
 			if !distill {
 				if err := s.Tracker.FillOutMemory(parsedProg); err != nil {
 					fmt.Printf("Error: %s\n", err.Error())
@@ -267,7 +268,9 @@ func main() {
 				fmt.Printf("Error validating %v\n", "something")
 				failf(err.Error())
 			}
+			parsedProg.Target = target
 			if progIsTooLarge(parsedProg) {
+				fmt.Fprintf(os.Stderr, "Program is too large\n")
 				continue
 			}
 			progs = append(progs, parsedProg)
@@ -307,9 +310,7 @@ func main() {
 				failf(err.Error())
 				break
 			}
-			if progIsTooLarge(progd) {
-				continue
-			}
+
 			s_name := "serialized/" + filepath.Base("distilled"+strconv.Itoa(i))
 			if err := ioutil.WriteFile(s_name, progd.Serialize(), 0640); err != nil {
 				failf("failed to output file: %v", err)
