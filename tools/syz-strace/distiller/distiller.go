@@ -25,11 +25,29 @@ func NewDistiller(conf config.DistillConfig) (d Distiller){
 		d = NewStrongDistiller(conf)
 	case "implicit":
 		d = NewImplicitDistiller(conf)
+	case "trace":
+		d = NewTraceDistiller(conf)
 	default:
 		d = NewWeakDistiller(conf)
 	}
 	return
 }
+
+func NewTraceDistiller(conf config.DistillConfig) (d *TraceDistiller) {
+	d = new(TraceDistiller)
+	dm := &DistillerMetadata{
+		StatFile: conf.Stats,
+		DistilledProgs: make([]*prog.Prog, 0),
+		CallToSeed: make(map[*prog.Call]*domain.Seed, 0),
+		CallToDistilledProg: make(map[*prog.Call]*prog.Prog, 0),
+		CallToIdx: make(map[*prog.Call]int, 0),
+		UpstreamDependencyGraph: make(map[*domain.Seed]map[int]map[prog.Arg][]prog.Arg, 0),
+		DownstreamDependents: make(map[*domain.Seed]map[int]bool, 0),
+	}
+	d.DistillerMetadata = dm
+	return
+}
+
 
 func NewStrongDistiller(conf config.DistillConfig) (d *StrongDistiller) {
 	d = new(StrongDistiller)
