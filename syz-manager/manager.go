@@ -34,6 +34,7 @@ import (
 	"github.com/google/syzkaller/sys"
 	"github.com/google/syzkaller/syz-manager/mgrconfig"
 	"github.com/google/syzkaller/vm"
+	"golang.org/x/tools/go/gcimporter15/testdata"
 )
 
 var (
@@ -279,11 +280,11 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 
 	if *flagBench != "" {
 		// benchmark stats
-		f, err := os.OpenFile(*flagBench, os.O_WRONLY | os.O_CREATE | os.O_EXCL, osutil.DefaultFilePerm)
+		//f, err := os.OpenFile(*flagBench, os.O_WRONLY | os.O_CREATE | os.O_EXCL, osutil.DefaultFilePerm)
 		f1, err1 := os.OpenFile(*flagBench + "_summary", os.O_WRONLY | os.O_CREATE | os.O_APPEND, osutil.DefaultFilePerm)
-		if err != nil {
-			Fatalf("failed to open bench file: %v", err)
-		}
+		//if err != nil {
+		//	Fatalf("failed to open bench file: %v", err)
+		//}
 
 		if err1 != nil {
 			Fatalf("failed to open summary file: %v", err)
@@ -291,18 +292,36 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 
 		go func() {
 			for {
-				time.Sleep(2 * time.Minute)
+				stats := make(map[string]uint64)
 				mgr.mu.Lock()
 				coverageSummary := uint64(len(mgr.corpusCover))
 				lineageSummary := uint64(len(mgr.lineageCover))
-				summary := strconv.FormatUint(lineageSummary, 10) + "," + strconv.FormatUint(coverageSummary, 10)
+				//summary := strconv.FormatUint(lineageSummary, 10) + "," + strconv.FormatUint(coverageSummary, 10)
+				stats["exec candidate"] = mgr.stats["exec candidate"]
+				stats["exec fuzz"] = mgr.stats["exec fuzz"]
+				stats["exec gen"] = mgr.stats["exec gen"]
+				stats["exec minimize"] = mgr.stats["exec minimize"]
+				stats["exec smash"] = mgr.stats["exec smash"]
+				stats["exec total"] = mgr.stats["exec total"]
+				stats["exec triage"] = mgr.stats["exec triage"]
+				stats["fuzzer new inputs"] = mgr.stats["fuzzer new inputs"]
 				mgr.mu.Unlock()
-				if _, err := f1.WriteString(summary + "\n"); err != nil {
+				stats["coverage"] = coverageSummary
+				stats["lineage"] = lineageSummary
+				//if _, err := f1.WriteString(summary + "\n"); err != nil {
+				//	Fatalf("failed to write bench data")
+				//}
+				data, err := json.MarshalIndent(stats, "", "\t");
+				if err != nil {
+					Fatalf("failed to serialize bench data")
+				}
+				if _, err := f1.Write(append(data, '\n')); err != nil {
 					Fatalf("failed to write bench data")
 				}
+				time.Sleep(2 * time.Minute)
 			}
 		}()
-		go func() {
+		/* go func() {
 			for {
 				time.Sleep(10 * time.Minute)
 				//vals := make(map[string]uint64)
@@ -313,14 +332,14 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 				}
 				//summary := mgr.getCallCover()
 				mgr.minimizeCorpus()
-				/*vals["corpus"] = uint64(len(mgr.corpus))
+				vals["corpus"] = uint64(len(mgr.corpus))
 				vals["uptime"] = uint64(time.Since(mgr.firstConnect)) / 1e9
 				vals["fuzzing"] = uint64(mgr.fuzzingTime) / 1e9
 				vals["signal"] = uint64(len(mgr.corpusSignal))
 				vals["coverage"] = uint64(len(mgr.corpusCover))
 				for k, v := range mgr.stats {
 					vals[k] = v
-				}*/
+				}
 
 				data, err := json.MarshalIndent(mgr.corpus, "", "  ")
 				mgr.mu.Unlock()
@@ -331,7 +350,7 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 					Fatalf("failed to write bench data")
 				}
 			}
-		}()
+		}() */
 	}
 
 	if mgr.cfg.Hub_Client != "" {
