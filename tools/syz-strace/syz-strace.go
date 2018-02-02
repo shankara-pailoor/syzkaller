@@ -286,7 +286,18 @@ func main() {
 			}
 		}
 	}
-
+	fmt.Fprintf(os.Stderr, "===========AVERAGE PROGRAM LENGTH===================\n")
+	avgLen := 0
+	totalProgs := 0
+	for _, prog := range progs {
+		if len(prog.Calls) < 3 {
+			continue
+		}
+		avgLen += len(prog.Calls)
+		totalProgs += 1
+	}
+	avgLen = avgLen/totalProgs
+	fmt.Fprintf(os.Stderr, "%d\n", avgLen)
 	fmt.Fprintf(os.Stderr, "===================Enabled Calls===================\n")
 	for call, _ := range EnabledSyscalls {
 		fmt.Fprintf(os.Stderr, "\"%s\",", call)

@@ -73,6 +73,17 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 		prog_.Calls = calls
 		distilled = append(distilled, prog_)
 	}
+	avgLen := 0
+	progs_ := 0
+	for _, prog_ := range distilled {
+		if len(prog_.Calls) < 2 {
+			continue
+		}
+		progs_ += 1
+		avgLen += len(prog_.Calls)
+	}
+	avgLen /= progs_
+	fmt.Fprintf(os.Stderr, "Average Program Length: %d\n", avgLen)
 	fmt.Fprintf(os.Stderr,
 		"Total Contributing seeds: %d out of %d, in %d implicitly-distilled programs\n",
 		contributing_seeds, len(seeds), len(distilled),
