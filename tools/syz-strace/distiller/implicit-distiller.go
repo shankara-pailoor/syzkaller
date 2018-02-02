@@ -8,6 +8,8 @@ import (
 	"sort"
 	"os"
 	"strings"
+	"math/rand"
+	"time"
 )
 
 type ImplicitDistiller struct {
@@ -32,16 +34,10 @@ func (d *ImplicitDistiller) Add(seeds domain.Seeds) {
 	}
 }
 
-func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
+func (d *ImplicitDistiller) getHeavyHitters(seeds domain.Seeds) domain.Seeds {
 	seenIps := make(map[uint64]bool)
-	seeds := d.Seeds
-	fmt.Printf("Performing implicit distillation with %d seeds\n", len(seeds))
-	sort.Sort(sort.Reverse(seeds))  // sort seeds by inidividual coverage.
-	contributing_seeds := 0
 	heavyHitters := make(domain.Seeds, 0)
-	for _, prog := range progs {
-		d.TrackDependencies(prog)
-	}
+	contributing_seeds := 0
 	for _, seed := range seeds {
 		ips := d.Contributes(seed, seenIps)  /* how many unique Ips does seed contribute */
 		if ips > 0 {
@@ -50,6 +46,30 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 			contributing_seeds += 1
 		}
 	}
+	return heavyHitters
+}
+
+func (d *ImplicitDistiller) getRandomSeeds(seeds domain.Seeds) domain.Seeds {
+	heavyHitters := d.getHeavyHitters(seeds)
+	randHitters := make(domain.Seeds, 0)
+	totalCalls := len(seeds)
+	rand.Seed(time.Now().Unix())
+	for i:=0; i < len(heavyHitters); i++ {
+		idx := rand.Int31n(int32(totalCalls))
+		randHitters.Add(seeds[idx])
+	}
+	return randHitters
+}
+
+func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
+	seeds := d.Seeds
+	fmt.Printf("Performing implicit distillation with %d seeds\n", len(seeds))
+	sort.Sort(sort.Reverse(seeds))  // sort seeds by inidividual coverage.
+	heavyHitters := make(domain.Seeds, 0)
+	for _, prog := range progs {
+		d.TrackDependencies(prog)
+	}
+	heavyHitters = d.getRandomSeeds(seeds)
 	for _, seed := range heavyHitters {
 		d.AddToDistilledProg(seed)
 	}
@@ -75,7 +95,7 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 	}
 	fmt.Fprintf(os.Stderr,
 		"Total Contributing seeds: %d out of %d, in %d implicitly-distilled programs\n",
-		contributing_seeds, len(seeds), len(distilled),
+		len(heavyHitters), len(seeds), len(distilled),
 	)
 	return
 }
