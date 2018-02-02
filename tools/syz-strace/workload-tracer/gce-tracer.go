@@ -80,6 +80,7 @@ func runExecutor(executor Executor, in chan WorkloadConfig, out chan bool) {
 func (tracer *GCETracer) GenerateCorpus() (err error) {
 	recv_chan := make(chan bool)
 	wc_chan := make(chan WorkloadConfig, len(tracer.workloads))
+	start := time.Now()
 	for _, wc := range tracer.workloads {
 		wc_chan <- wc
 	}
@@ -95,6 +96,9 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 			close(recv_chan)
 		}
 	}
+	finish := time.Now()
+	diff := now.Sub(then)
+	fmt.Fprintf(os.Stderr, "Time to trace: %d %d %d\n", diff.Hours(), diff.Minutes(), diff.Seconds()) 
 	defer func() {
 		for i := 0; i < tracer.numinstances; i++ {
 			if err = tracer.GCE.DeleteImage(fmt.Sprintf("tracer-%d", i)); err != nil {
