@@ -211,6 +211,7 @@ func main() {
 	seen_calls := make(map[string]bool)
 	seeds := make(domain.Seeds, 0)
 	progs := make([]*prog.Prog, 0)
+	total_pids := 0
 	for i, filename := range strace_files {
 		if i < *flagSkip {
 			continue
@@ -223,6 +224,7 @@ func main() {
 		straceCalls = trace.Sanitize(straceCalls)
 		trace.Parse(straceCalls)
 		fmt.Fprintf(os.Stderr, "Number of pids: %d\n", len(trace.ptree))
+		total_pids = total_pids + len(trace.ptree)
 		for pid, childPids := range trace.ptree {
 			fmt.Printf("pid: %v\n", pid)
 			fmt.Printf("childPids: %v", childPids)
@@ -286,6 +288,20 @@ func main() {
 			}
 		}
 	}
+	fmt.Fprintf(os.Stderr, "===========AVERAGE PROGRAM LENGTH===================\n")
+	avgLen := 0
+	totalProgs := 0
+	for _, prog := range progs {
+		if len(prog.Calls) < 3 {
+			continue
+		}
+		avgLen += len(prog.Calls)
+		totalProgs += 1
+	}
+	avgLen = avgLen/totalProgs
+	fmt.Fprintf(os.Stderr, "%d\n", avgLen)
+
+	fmt.Fprintf(os.Stderr, "Total pids: %v\n", total_pids)
 
 	fmt.Fprintf(os.Stderr, "===================Enabled Calls===================\n")
 	for call, _ := range EnabledSyscalls {
@@ -305,9 +321,10 @@ func main() {
 
 		for i, progd := range distilled {
 			if err := progd.Validate(); err != nil {
-				fmt.Printf("Error validating %v\n", progd)
-				failf(err.Error())
-				break
+				fmt.Fprintf(os.Stderr, "Error validating %v\n", progd)
+				continue
+				// failf(err.Error())
+				// break
 			}
 
 			s_name := "serialized/" + filepath.Base("distilled"+strconv.Itoa(i))

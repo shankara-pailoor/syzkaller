@@ -59,6 +59,6 @@ func readWorkload(location string) (wcs []WorkloadConfig) {
 	default:
 		reader(location)
 	}
-
+	fmt.Fprintf(os.Stderr, "About to trace: %d programs\n", len(wcs))
 	return
 }

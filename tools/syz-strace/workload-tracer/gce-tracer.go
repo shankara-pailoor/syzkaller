@@ -8,6 +8,7 @@ import (
 	"github.com/google/syzkaller/pkg/osutil"
 	"time"
 	"github.com/google/syzkaller/tools/syz-strace/ssh"
+	"os"
 )
 
 type GCETracer struct {
@@ -80,6 +81,7 @@ func runExecutor(executor Executor, in chan WorkloadConfig, out chan bool) {
 func (tracer *GCETracer) GenerateCorpus() (err error) {
 	recv_chan := make(chan bool)
 	wc_chan := make(chan WorkloadConfig, len(tracer.workloads))
+	start := time.Now()
 	for _, wc := range tracer.workloads {
 		wc_chan <- wc
 	}
@@ -91,10 +93,14 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 	seen := 0
 	for _ = range recv_chan {
 		seen += 1
-		if (seen  == len(tracer.workloads)) {
+		fmt.Fprintf(os.Stderr, "seen: %d workload: %d\n", seen, len(tracer.workloads))
+		if (seen  == len(tracer.workloads)-1) {
 			close(recv_chan)
 		}
 	}
+	finish := time.Now()
+	diff := start.Sub(finish)
+	fmt.Fprintf(os.Stderr, "Time to trace: %d %d %d\n", diff.Hours(), diff.Minutes(), diff.Seconds()) 
 	defer func() {
 		for i := 0; i < tracer.numinstances; i++ {
 			if err = tracer.GCE.DeleteImage(fmt.Sprintf("tracer-%d", i)); err != nil {
