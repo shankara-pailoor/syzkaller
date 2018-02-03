@@ -70,6 +70,9 @@ func (t *Trace) Parse(lines []*sparser.OutputLine) {
 				pid_ = pid(line.Pid)
 			}
 		}
+		if pid_ == 0 && i == 0 {
+			continue
+		}
 		if _, ok := t.ptree[pid_]; !ok {
 			fmt.Printf("MAPAPAPAPPAPAP\n")
 			t.ptree[pid_] = make([]pid, 0)
