@@ -69,7 +69,7 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 	for _, prog := range progs {
 		d.TrackDependencies(prog)
 	}
-	heavyHitters = d.getRandomSeeds(seeds)
+	heavyHitters = d.getHeavyHitters(seeds)
 	for _, seed := range heavyHitters {
 		d.AddToDistilledProg(seed)
 	}
