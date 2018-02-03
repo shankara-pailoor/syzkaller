@@ -18,7 +18,6 @@ import (
 	"syscall"
 	"time"
 	"sort"
-	"strconv"
 
 	"github.com/google/syzkaller/dashboard/dashapi"
 	"github.com/google/syzkaller/pkg/cover"
@@ -34,7 +33,6 @@ import (
 	"github.com/google/syzkaller/sys"
 	"github.com/google/syzkaller/syz-manager/mgrconfig"
 	"github.com/google/syzkaller/vm"
-	"golang.org/x/tools/go/gcimporter15/testdata"
 )
 
 var (
@@ -305,6 +303,7 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 				stats["exec total"] = mgr.stats["exec total"]
 				stats["exec triage"] = mgr.stats["exec triage"]
 				stats["fuzzer new inputs"] = mgr.stats["fuzzer new inputs"]
+				stats["uptime"] = uint64(time.Since(mgr.startTime) / 1e9 * 1e9)
 				mgr.mu.Unlock()
 				stats["coverage"] = coverageSummary
 				stats["lineage"] = lineageSummary
@@ -318,7 +317,7 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 				if _, err := f1.Write(append(data, '\n')); err != nil {
 					Fatalf("failed to write bench data")
 				}
-				time.Sleep(2 * time.Minute)
+				time.Sleep(10 * time.Minute)
 			}
 		}()
 		/* go func() {

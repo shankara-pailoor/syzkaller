@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 	"github.com/google/syzkaller/tools/syz-strace/ssh"
+	"os"
 )
 
 type GCETracer struct {
@@ -93,7 +94,8 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 	seen := 0
 	for _ = range recv_chan {
 		seen += 1
-		if (seen  == len(tracer.workloads)) {
+		fmt.Fprintf(os.Stderr, "seen: %d workload: %d\n", seen, len(tracer.workloads))
+		if (seen  == len(tracer.workloads)-1) {
 			close(recv_chan)
 		}
 	}

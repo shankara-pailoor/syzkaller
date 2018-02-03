@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	. "github.com/google/syzkaller/tools/syz-strace/domain"
 	"os"
+	"fmt"
 	"strings"
 	"path/filepath"
 )
