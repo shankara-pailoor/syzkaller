@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 	"math/rand"
+	"math"
 )
 
 type RandomDistiller struct {
