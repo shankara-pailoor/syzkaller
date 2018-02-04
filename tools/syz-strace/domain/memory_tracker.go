@@ -242,7 +242,7 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) error {
 						arg_.PageIndex, arg_.PagesNum, offset)
 				}
 			default:
-				panic("Mapping needs to be Pointer Arg")
+				c
 			}
 		}
 		offset += mapping.GetEnd() - mapping.GetStart()
