@@ -323,11 +323,13 @@ func main() {
 		distilled := distiller_.Distill(progs)
 
 		for i, progd := range distilled {
-			if err := progd.Validate(); err != nil {
-				fmt.Fprintf(os.Stderr, "Error validating %v\n", progd)
-				continue
-				// failf(err.Error())
-				// break
+			if config.DistillConf.Type != "random" {
+				if err := progd.Validate(); err != nil {
+					fmt.Fprintf(os.Stderr, "Error validating %v\n", progd)
+					continue
+					// failf(err.Error())
+					// break
+				}
 			}
 
 			s_name := "serialized/" + filepath.Base("distilled"+strconv.Itoa(i))

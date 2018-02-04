@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 	"github.com/google/syzkaller/tools/syz-strace/ssh"
-	"os"
 )
 
 type GCETracer struct {

@@ -40,10 +40,13 @@ func (d *RandomDistiller) getRandomCallIndices(seeds domain.Seeds, N int, total 
 	randIndices := make(map[int][]int)
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	perm := r.Perm(seeds.Len())
+	total = int(math.Min(float64(total), float64(len(seeds))))
 	callsPerBucket := (total - N) / N
 
+	fmt.Fprintf(os.Stderr, "perm of length %d\n", len(perm))
+
 	for i := 0; i < N; i++ {
-		randIndices[i] = perm[(i * callsPerBucket):(i+1 * callsPerBucket)]
+		randIndices[i] = perm[(i * callsPerBucket):((i+1) * callsPerBucket)]
 	}
 
 	return randIndices
@@ -70,7 +73,10 @@ func (d *RandomDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 	seeds := d.Seeds
 	heavyHitters := d.getHeavyHitters(seeds)
 	N := len(heavyHitters)
-	totalRandCalls :=  NumCallsLTPKselfPosixGlibc  // change this to test different corpuses
+	fmt.Fprintf(os.Stderr, "Generating random progs around %d heavy hitters and %d seeds\n", N, len(seeds))
+	// change this to test different corpuses
+	// totalRandCalls :=  NumCallsLTPKselfPosixGlibc 
+	totalRandCalls := NumCallsLTPKself
 	seedsWithoutHeavy := make(domain.Seeds, 0)
 	for _, seed := range seeds{
 		if _, ok := heavyHitters[seed]; !ok {
@@ -82,15 +88,19 @@ func (d *RandomDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 	}
 	randIndices := d.getRandomCallIndices(seedsWithoutHeavy, N, totalRandCalls)
 	i := 0
+	totalAddedCalls := 0
 	for heavyHitter, _ := range heavyHitters {
 		randProg := new(prog.Prog)
 		randProg.Calls = make([]*prog.Call, 0)
 		for _, j := range randIndices[i] {
+			totalAddedCalls = totalAddedCalls + 1
 			randProg.Calls = append(randProg.Calls, seeds[j].Call)
 		}
 		randProg.Calls = append(randProg.Calls, heavyHitter.Call)
+		totalAddedCalls = totalAddedCalls + 1
 		distilled = append(distilled, randProg)
 		i++
 	}
+	fmt.Fprintf(os.Stderr, "Collected %d random calls in %d programs", totalAddedCalls, len(distilled))
 	return distilled
 }
