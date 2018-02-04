@@ -101,6 +101,14 @@ func (d *RandomDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 		distilled = append(distilled, randProg)
 		i++
 	}
+	distilled = d.StripDependencies(distilled)
 	fmt.Fprintf(os.Stderr, "Collected %d random calls in %d programs", totalAddedCalls, len(distilled))
 	return distilled
+}
+
+func (d *RandomDistiller) StripDependencies(distilledProgs []*prog.Prog) []*prog.Prog {
+	for _, p := range distilledProgs {
+		p.StripDependencies()
+	}
+	return distilledProgs
 }
