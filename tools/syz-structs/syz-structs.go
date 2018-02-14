@@ -28,6 +28,12 @@ type Pair struct {
 	B string
 }
 
+type SocketDesc struct {
+	Domain string
+	Type string
+	Proto string
+}
+
 var (
 	EnabledSyscalls = map[string]bool{}
 
@@ -39,8 +45,8 @@ var (
 		"execve": true, // unsupported
 		"access": true, // unsupported
 		//"mmap": true, // don't need, we generate our own
-		"sendmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
-		"recvmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
+//		"sendmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
+//		"recvmsg": true, //TODO: the addr arg in msg_name struct is all wonky and ordering of args is off
 		"gettimeofday": true, // unsupported
 		"kill": true, // unsupported
 		//"keyctl": true,
@@ -245,6 +251,48 @@ var (
 		Pair{"SOL_PACKET", "PACKET_STATISTICS"}: "$packet_buf",
 		Pair{"SOL_PACKET", "PACKET_TX_RING"}: "$packet_tx_ring",
 		Pair{"SOL_PACKET", "PACKET_FANOUT_DATA"}: "$packet_buf",
+		Pair{"IPPROTO_IP", "IP_RECVERR"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_TOS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_HDRINCL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_ROUTER_ALERT"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVOPTS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RETOPTS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_PKTINFO"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MTU_DISCOVER"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVTTL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVTOS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MTU"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_FREEBIND"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_PASSEC"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_TRANSPARENT"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVORIGDSTADDR"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MINTTL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_NODEFRAG"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_CHECKSUM"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_BIND_ADDRESS_NO_PORT"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_TTL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_LOOP"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_ALL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_UNICAST_IF"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_OPTIONS"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_PKTOPTIONS"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_XFRM_POLICY"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_IF"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_ADD_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_DROP_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_UNBLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_BLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_ADD_SOURCE_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_DROP_SOURCE_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_MSFILTER"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_JOIN_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_BLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_UNBLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_LEAVE_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_JOIN_SOURCE_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_LEAVE_SOURCE_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_MS_FILTER"}: "$inet_buf",
+		Pair{"IPPROTO_ICMP", "ICMP_FILTER"}: "$inet_icmp_ICMP_FILTER",
 	}
 
 	Getsockopt_labels = map[Pair]string {
@@ -327,7 +375,7 @@ var (
 		Pair{"IPPROTO_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
 		Pair{"IPPROTO_IPV6", "IPV6_MTU"}: "$inet6_int",
 		Pair{"SOL_IPV6", "IPV6_MTU_DISCOVER"}: "$inet6_mtu",
-		Pair{"SOL_PACKET", "PACKET_RX_RING"}: "$packet_rx_ring",
+		Pair{"SOL_PACKET", "PACKET_RX_RING"}: "$packet_buf",
 		Pair{"SOL_PACKET", "PACKET_RECV_OUTPUT"}: "$packet_int",
 		Pair{"SOL_PACKET", "PACKET_COPY_THRESH"}: "$packet_int",
 		Pair{"SOL_PACKET", "PACKET_AUXDATA"}: "$packet_int",
@@ -343,12 +391,53 @@ var (
 		Pair{"SOL_PACKET", "PACKET_TX_HAS_OFF"}: "$packet_int",
 		Pair{"SOL_PACKET", "PACKET_QDISC_BYPASS"}: "$packet_int",
 		Pair{"SOL_PACKET", "PACKET_AUXDATA"}: "$packet_int",
-		Pair{"SOL_PACKET", "PACKET_HDRLEN"}: "$packet_rx_ring",
 		Pair{"SOL_PACKET", "PACKET_ADD_MEMBERSHIP"}: "$packet_buf",
 		Pair{"SOL_PACKET", "PACKET_DROP_MEMBERSHIP"}: "$packet_buf",
 		Pair{"SOL_PACKET", "PACKET_STATISTICS"}: "$packet_buf",
-		Pair{"SOL_PACKET", "PACKET_TX_RING"}: "$packet_tx_ring",
+		Pair{"SOL_PACKET", "PACKET_TX_RING"}: "$packet_buf",
 		Pair{"SOL_PACKET", "PACKET_FANOUT_DATA"}: "$packet_buf",
+		Pair{"IPPROTO_IP", "IP_RECVERRR"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_TOS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_HDRINCL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_ROUTER_ALERT"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVOPTS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RETOPTS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_PKTINFO"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MTU_DISCOVER"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVTTL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVTOS"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MTU"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_FREEBIND"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_PASSEC"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_TRANSPARENT"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_RECVORIGDSTADDR"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MINTTL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_NODEFRAG"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_CHECKSUM"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_BIND_ADDRESS_NO_PORT"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_TTL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_LOOP"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_ALL"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_UNICAST_IF"}: "$inet_int",
+		Pair{"IPPROTO_IP", "IP_OPTIONS"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_PKTOPTIONS"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_XFRM_POLICY"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_MULTICAST_IF"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_ADD_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_DROP_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_UNBLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_BLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_ADD_SOURCE_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_DROP_SOURCE_MEMBERSHIP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "IP_MSFILTER"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_JOIN_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_BLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_UNBLOCK_SOURCE"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_LEAVE_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_JOIN_SOURCE_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_LEAVE_SOURCE_GROUP"}: "$inet_buf",
+		Pair{"IPPROTO_IP", "MCAST_MS_FILTER"}: "$inet_buf",
+		Pair{"IPPROTO_ICMP", "ICMP_FILTER"}: "$inet_icmp_ICMP_FILTER",
 	}
 
 	Getsockname_labels = map[string]string {
@@ -367,7 +456,9 @@ var (
 		"SOL_IPV6": "IPPROTO_IPV6",
 		"SOL_ICMPV6": "SOL_ICMPV6",
 		"SOL_TCP": "IPPROTO_TCP",
-		"SOL_RAW": "SOL_RAW",
+		"SOL_RAW": "IPPROTO_ICMP",
+		"SOL_PACKET": "SOL_PACKET",
+		"SOL_IP": "IPPROTO_IP",
 	}
 
 	Sendto_labels = map[string]string {
@@ -402,6 +493,7 @@ var (
 		"sock_sctp": "$sctp",
 		"sock_unix": "$unix",
 		"sock_netlink": "$inet6",
+		"sock_packet": "$packet",
 	}
 
 	Ioctl_map = map[string]string {
@@ -409,8 +501,24 @@ var (
 		"FIOASYNC": "int_in",
 		"FS_IOC_GETFLAGS": "int_out",
 		"FS_IOC_SETFLAGS": "int_in",
+		"SIOCGIFINDEX": "sock_SIOCGIFINDEX",
 	}
 
+	Socket_labels_pair = map[Pair]string {
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_DGRAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_STREAM"}: "$inet",
+		Pair{"AF_INET", "SOCK_RAW"}: "$inet_icmp_raw",
+		Pair{"AF_PACKET", "SOCK_RAW"}: "$packet",
+		Pair{"AF_PACKET", "SOCK_DGRAM"}: "$packet",
+	}
 	Socket_labels = map[string]string {
 		"AF_INET": "$inet",
 		"AF_INET6": "$inet6",
@@ -515,6 +623,12 @@ var (
 		"PR_SET_NAME": "$setname",
 		"PR_GET_NAME": "$getname",
 		"PR_SET_PTRACER": "$setptracer",
+	}
+
+	Special_Consts = map[string]uint64 {
+		"_LINUX_CAPABILITY_VERSION_1": uint64(0x19980330),
+		"_LINUX_CAPABILITY_VERSION_2": uint64(0x20071026),
+		"_LINUX_CAPABILITY_VERSION_3": uint64(0x20080522),
 	}
 
 	Macros = []string{"makedev"}

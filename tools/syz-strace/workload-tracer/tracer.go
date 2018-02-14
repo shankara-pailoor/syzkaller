@@ -7,6 +7,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"encoding/json"
 	. "github.com/google/syzkaller/tools/syz-strace/domain"
+    "fmt"
 	"os"
 	"strings"
 	"path/filepath"

@@ -70,6 +70,9 @@ func (t *Trace) Parse(lines []*sparser.OutputLine) {
 				pid_ = pid(line.Pid)
 			}
 		}
+        if i == 0 && pid_ == 0 {
+            continue
+        }
 		if _, ok := t.ptree[pid_]; !ok {
 			fmt.Printf("MAPAPAPAPPAPAP\n")
 			t.ptree[pid_] = make([]pid, 0)
@@ -101,16 +104,18 @@ func (t *Trace) Sanitize(lines []*sparser.OutputLine) []*sparser.OutputLine {
 	sanitizedLines := lines
 	for i, line := range sanitizedLines {
 		if line.Paused {
-			fmt.Printf("Paused: %s %d %v\n", line.FuncName, i, line.Pid)
+			fmt.Printf("Paused: %s %d %d%v\n", line.FuncName, i, line.Pid, len(lines))
 			for j := 0; j < len(lines)-i; j++ {
 				if lines[i+j].Resumed && lines[i+j].Pid == line.Pid {
 					if line.FuncName == "clone" && lines[i+j].Result == "?" {
 						//The clone is going to be restarted so we should delete the paused and resumed portions
 						fmt.Println("FOUND BAD CLONE")
-						sanitizedLines = append(sanitizedLines[:i], append(sanitizedLines[i+1:i+j], sanitizedLines[i+j+1:]...)...)
+                        if i + j  < len(sanitizedLines)-1 {
+                            sanitizedLines = append(sanitizedLines[:i], append(sanitizedLines[i+1:i+j], sanitizedLines[i+j+1:]...)...)
+                        }
+						sanitizedLines = append(sanitizedLines[:i], sanitizedLines[i+1:i+j]...)
 						break
 					}
-					fmt.Printf("line[%d], result: %s, conents:%v\n", i+j, lines[i+j].Result, lines[i+j])
 					lines[i].Args = append(lines[i].Args, lines[i+j].Args...)
 
 					//If the program is unfinished it needs the result from the finished part
@@ -270,9 +275,9 @@ func main() {
 				fmt.Printf("Error validating %v\n", "something")
 				failf(err.Error())
 			}
-			if progIsTooLarge(parsedProg) {
-				fmt.Fprintf(os.Stderr, "Program is too large\n")
-				continue
+            if progIsTooLarge(parsedProg) {
+					fmt.Fprintf(os.Stderr, "Program is too large\n")
+					continue
 			}
 			progs = append(progs, parsedProg)
 			fmt.Printf("successfully parsed %v into program of length %v\n", filename, len(parsedProg.Calls))
@@ -320,6 +325,11 @@ func main() {
 		distilled := distiller_.Distill(progs)
 
 		for i, progd := range distilled {
+            progd.Target = target
+			if progIsTooLarge(progd) {
+				fmt.Fprintf(os.Stderr, "Program is too large\n")
+				continue
+			}
 			if err := progd.Validate(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error validating %v\n", progd)
 				continue
@@ -434,6 +444,9 @@ func parseInstructions(line string) (ips []uint64) {
 	instructions := strings.Split(strippedLine, COVER_ID)
 	s := strings.Split(instructions[1], COVER_DELIM)
 	for _, ins := range s {
+        if ins == "" {
+            continue
+        }
 		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
 		if err != nil {
 			failf("failed parsing ip: %s", ins)
@@ -566,6 +579,7 @@ func parseCall(target *Target, line *sparser.OutputLine, consts *map[string]uint
 
 	for _, c := range calls {
 		// TODO: sanitize c?
+		fmt.Printf("Analyzing Call: %v %s\n", c, c.Meta.CallName)
 		s.Analyze(c)
 		prog_.Calls = append(prog_.Calls, c)
 	}
@@ -1343,7 +1357,8 @@ func parseInnerCall(val string, typ Type, line *sparser.OutputLine, consts *map[
 			}
 			return unionArg(a, inner_arg, optType)
 		}
-		if strings.Contains(line.FuncName, "$inet") && call == "inet_addr" {
+		if call == "inet_addr" {
+			fmt.Printf("UNION TYPE inet inet_addr parsing\n")
 			var optType Type
 			var inner_arg Arg
 			args[0] = args[0][1 : len(args[0])-1] // strip quotes
@@ -1351,6 +1366,7 @@ func parseInnerCall(val string, typ Type, line *sparser.OutputLine, consts *map[
 				optType = a.Fields[0]
 				inner_arg = constArg(optType, uint64(0x00000000))
 			} else if args[0] == "127.0.0.1" {
+				fmt.Printf("HERHEHREHRHE\n")
 				optType = a.Fields[3]
 				inner_arg = constArg(optType, uint64(0x7f000001))
 			} else if args[0] == "255.255.255.255" {
@@ -1404,13 +1420,21 @@ func parseInnerCall(val string, typ Type, line *sparser.OutputLine, consts *map[
 		if i, err := strconv.ParseUint(args[0], 0, 16); err == nil {
 			arg = constArg(typ, uint64(Htons(uint16(i))))
 		} else {
-			failf("failed to parse inner call %v\n", val)
+			if v, ok := val_from_const(args[0], consts); ok {
+				arg = constArg(typ, uint64(Htons(uint16(v))))
+			} else {
+				failf("failed to parse inner call %v\n", val)
+			}
 		}
 	case "htonl":
 		if i, err := strconv.ParseUint(args[0], 0, 32); err == nil {
 			arg = constArg(typ, uint64(Htonl(uint32(i))))
 		} else {
-			failf("failed to parse inner call %v\n", val)
+			if v, ok := val_from_const(args[0], consts); ok {
+				arg = constArg(typ, uint64(Htonl(uint32(v))))
+			} else {
+				failf("failed to parse inner call %v\n", val)
+			}
 		}
 	case "inet_addr":
 		args[0] = args[0][1 : len(args[0])-1] // strip quotes
@@ -1599,7 +1623,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 
 		if label, ok := Getsockopt_labels[variant]; ok {
 			line.FuncName += label
-		} else if _, ok := (*consts)[variant.B]; ok {
+		} else if _, ok := val_from_const(variant.B, consts); ok {
 			line.FuncName += ("$" + variant.B)
 		}
 		//If it isn't a special variant then we treat it like a good old socket
@@ -1655,7 +1679,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 		fmt.Printf("variant: %v\n", variant)
 		if label, ok := Setsockopt_labels[variant]; ok {
 			line.FuncName += label
-		} else if _, ok := (*consts)[variant.B]; ok {
+		} else if _, ok := val_from_const(variant.B, consts); ok {
 			line.FuncName += ("$" + variant.B)
 		} else {
 			fmt.Printf("unrecognized set sockopt variant %v\n", line.Unparse())
@@ -1691,6 +1715,7 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 		if arg, ok := (*return_vars)[return_var]; ok {
 			switch a := arg.Type().(type) {
 			case *ResourceType:
+				fmt.Printf("Sendmsg typeName: %s\n", a.TypeName)
 				if label, ok := Sendmsg_labels[a.TypeName]; ok {
 					line.FuncName = line.FuncName + label
 					fmt.Printf("discovered type: %v\n", line.FuncName)
@@ -1817,34 +1842,13 @@ func process(target *Target, line *sparser.OutputLine, consts *map[string]uint64
 	return skip
 }
 
-func parseSpecialStructs(typ Type, strace_arg string,
-	consts *map[string]uint64,
-	return_vars *map[returnType]Arg,
-	line *sparser.OutputLine) (arg Arg, calls []*Call) {
-	st := typ.(*StructType)
-	fmt.Printf("TYPE NAME: %s\n", st.TypeName)
-	if strings.Compare(typ.Name(), "timeval") == 0 {
-		//This is a particular field of the socket operation with optname SO_SNDTIMEO
-		//inner_args := make([]Arg, 0)
-
-		if strings.Contains(strace_arg, "\"") {
-			strace_arg = strace_arg[1 : len(strace_arg)-1]
-			split := strings.Split(strace_arg, "\\")
-			fmt.Printf("SPECIFIC STRUCT SPLIT %v\n", split)
-			timeout_secs, err := strconv.ParseUint(strings.Split(strace_arg, "\\")[1], 10, 64)
-			if err != nil {
-				panic(fmt.Sprintf("Error parsing timeout_secs in specific structs: %s\n", err.Error()))
-			}
-			timeout_usecs := uint64(0)
-			fmt.Printf("FIELD TYPE NAME:%s\n", st.Fields[0])
-			arg = groupArg(typ, []Arg{resultArg(st.Fields[0], nil, timeout_secs), resultArg(st.Fields[1], nil, timeout_usecs)})
-			calls = nil
-			return
-		} else {
-			return nil, nil
-		}
+func val_from_const(constant string, consts *map[string]uint64) (uint64, bool) {
+	if v, ok := (*consts)[constant]; ok {
+		return v, true
+	} else if v, ok := Special_Consts[constant]; ok {
+		return v, true
 	}
-	return nil, nil
+	return 0, false
 }
 
 func parseArg(typ Type, strace_arg string,
@@ -1897,18 +1901,20 @@ func parseArg(typ Type, strace_arg string,
 		if strace_arg == "nil" || a.Dir() == DirOut {
 			return resultArg(a, nil, a.Default()), nil, nil
 		}
-		if v, ok := (*consts)[strace_arg]; ok {
+		if v, ok := val_from_const(strace_arg, consts); ok {
 			return resultArg(a, nil, uint64(v)), nil, nil
 		}
 		strace_arg = strings.TrimSpace(strace_arg)
 		//Need to parse as int because we may have negative file descriptor
 		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {
-			failf("Error parsing resource arg %s for call %s, desc: %s\n", strace_arg, call, err.Error())
+			fmt.Fprintf(os.Stderr, "Error parsing resource arg %s for call %s, desc: %s\n", strace_arg, call, err.Error())
+			arg, calls = resultArg(a, nil, a.Default()), nil
+		} else {
+			arg, calls = resultArg(a, nil, uint64(extracted_int)), nil
+			err = nil
 		}
 		// TODO: special values onlystate.Target.ConstMap[prot_field]
-		arg, calls = resultArg(a, nil, uint64(extracted_int)), nil
-		err = nil
 	case *BufferType:
 		fmt.Printf("Parsing Buffer Type: %v\n", strace_arg)
 
@@ -1918,7 +1924,8 @@ func parseArg(typ Type, strace_arg string,
 			case BufferFilename, BufferString:
 				fmt.Printf("BUFFER BLOB STRING\n")
 
-				buffer = make([]byte, len(strace_arg)-2)
+				buffer = make([]byte, len(strace_arg)-1)
+				buffer[len(strace_arg)-2] = '\x00'
 			case BufferBlobRand:
 				fmt.Printf("BUFFER BLOB RAND\n")
 				size := len(strace_arg) - 2
@@ -1943,7 +1950,6 @@ func parseArg(typ Type, strace_arg string,
 			if strace_arg != "nil" && strace_arg[0] == '"' { /* make buffer size of given string */
 				return dataArg(a, make([]byte, len(strace_arg)-1)), nil, nil
 			}
-
 			switch a.Kind {
 			case BufferFilename, BufferString:
 				arg = dataArg(a, make([]byte, len(strace_arg)-1)) // -2 for the " "
@@ -1962,18 +1968,26 @@ func parseArg(typ Type, strace_arg string,
 		return arg, nil, nil
 	case *PtrType:
 		fmt.Printf("Call: %s \n Pointer with inner type: %v\n", call, a.Type.Name())
+		if strace_arg == "NULL" {
+			fmt.Printf("Generating DEFAULT?\n")
+			return DefaultArg(typ), nil, nil
+		}
 		if strace_arg == "NULL" && a.IsOptional {
+			fmt.Printf("ARG is NULL and is optional\n")
 			var size uint64 = 0
 			switch b := a.Type.(type) {
 			case *BufferType:
 				if !b.Varlen() {
 					size = b.Size()
 				}
+			case *StructType:
+
 			default:
 				size = a.Type.Size()
 			}
 			arg, calls, err = addr(s, a, size, nil)
 			if err != nil {
+				fmt.Printf("ERROR IS NOT NILL ARG NULL AND IS OPTIONAL")
 				return
 			}
 			return arg, calls, nil
@@ -1989,7 +2003,7 @@ func parseArg(typ Type, strace_arg string,
 			//we just return empty pointer
 
 			ptr.Val = "nil" //TODO: this is really bad, consider refactoring parseArg
-
+			fmt.Printf("PTR VAL is empty\n")
 			//return pointerArg(a.Type, 0xffffffff >> pageSize, pageSize-1, 1,  nil), nil, nil
 		}
 
@@ -2003,6 +2017,7 @@ func parseArg(typ Type, strace_arg string,
 
 		inner_arg, inner_calls, err_ := parseArg(a.Type, ptr.Val, consts, return_vars, line, s)
 		if err_ != nil {
+			fmt.Fprint(os.Stderr, "Error parsing arg: %s\n", err_.Error())
 			err = err_
 			return
 		}
@@ -2143,7 +2158,7 @@ func parseArg(typ Type, strace_arg string,
 		return constArg(a, 0), nil, nil
 	case *ArrayType:
 		var args []Arg
-		if strace_arg == "nil" {
+		if strace_arg == "nil" || strace_arg == "" {
 			fmt.Printf("Filling out default values for nil array\n")
 			if a.Kind == ArrayRangeLen {
 				fmt.Printf("Kid of arg is array range len with type: %s\n", a.Type.Name())
@@ -2181,123 +2196,15 @@ func parseArg(typ Type, strace_arg string,
 		}
 		arg = groupArg(typ, args)
 	case *StructType:
-		arg, calls = parseSpecialStructs(typ, strace_arg, consts, return_vars, line)
-		if arg != nil {
-			fmt.Printf("NON NIL ARG: %v\n", arg)
-			return
-		}
-		name, val := "nil", "nil"
-		struct_args := make([]string, 0)
-		if strace_arg != "nil" && len(strace_arg) >= 2 {
-			strace_arg = strace_arg[1 : len(strace_arg)-1]
-		}
-		fmt.Printf("StructType %v\n", a.TypeName)
-
-		is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
-		if !is_nil {
-			for len(strace_arg) > 0 {
-				param, rem := ident(strace_arg)
-				strace_arg = rem
-				struct_args = append(struct_args, param)
-			}
-			fmt.Printf("struct_args: %v\n", struct_args)
-		}
-
-		args := make([]Arg, 0)
-		fmt.Println(a.TypeName, a.FldName)
-		fmt.Println(len(a.Fields))
-
-		field_order := make([]int, len(a.Fields))
-		for i, _ := range field_order {
-			//Usual case where Syzkaller and Strace have sync'd fields
-			field_order[i] = i
-		}
-		fmt.Printf("STRUCT TYPE NAME: %s\n", typ.Name())
-		if field_mapping, ok := Structs_with_reordered_fields[typ.Name()]; ok {
-			//We have a special struct where strace has a different field order than syzkaller
-			field_order = field_mapping
-
-		}
-
-		for i, arg_type := range a.Fields {
-			fmt.Printf("%v: %v\n", i, a.Fields[i])
-			if !is_nil { // if nil, we need to generate nil values for entire struct
-				if i < len(struct_args) {
-					//For pselect6, the fd_set just returns an array with the fd mask
-					//However, syzkaller has fd_set as a struct of 8 longs. If there are more
-					//Fields than what strace gives us then we just keep val "nil"
-					var should_parse bool = true
-					if a.Dir() == DirOut {
-						switch arg_type.(type) {
-						case *ResourceType:
-						default:
-							should_parse = false
-						}
-					}
-					if should_parse {
-						struct_arg := struct_args[field_order[i]]
-						if strings.Contains(struct_arg, "=") {
-							param := strings.SplitN(struct_arg, "=", 2)
-							name, val = param[0], param[1]
-						} else {
-							name, val = "<missing>", struct_arg
-						}
-					}
-
-				}
-			}
-
-			/* If there is a function embedded in the struct
-			See ltp_accept4_01 line 50 for example
-			*/
-			if val[len(val)-1] == ')' {
-				inner_arg := parseInnerCall(val, arg_type, line, consts, return_vars, s)
-				args = append(args, inner_arg)
-				continue
-			}
-
-			if (len(struct_args) > i) {
-				fmt.Printf("generating arg (%v) for struct type %v, field: %v, :%v\n", i, a.Name(), name, struct_args[i])
-			}
-			inner_arg, inner_calls, err_ := parseArg(arg_type, val, consts, return_vars, line, s)
-			if err_ != nil {
-				fmt.Printf("RETURNING FROM ERROR IN PARSE STRUCT: %s\n", err_.Error())
-				err = err_
-				return
-			}
-
-			/* cache value */
-			if !is_nil {
-				should_cache := true
-				if a.Dir() == DirOut {
-					switch arg_type.(type) {
-					case *ResourceType:
-					default:
-						should_cache = false
-					}
-				}
-				if should_cache {
-					return_var := returnType{
-						getType(arg_type),
-						val,
-					}
-					switch arg_type.(type) {
-					/* check for edge null conditions */
-					case *StructType, *ArrayType, *BufferType, *UnionType:
-					default:
-						cache(return_vars, return_var, inner_arg, false)
-					}
-				}
-
-			}
-			args = append(args, inner_arg)
-			calls = append(calls, inner_calls...)
-		}
-		arg = groupArg(a, args)
-		return arg, calls, nil
+		fmt.Printf("Strace arg pre process: %s\n", strace_arg)
+		preProcessStructs(typ, &strace_arg)
+		fmt.Printf("Strace arg post process: %s\n", strace_arg)
+		arg, calls, err = parseStructs(typ, strace_arg, consts, return_vars, line, s)
+		return
 	case *UnionType:
 		fmt.Printf("Parsing unionType for: %v with type: %s\n", strace_arg, a.TypeName)
-		optType := a.Fields[0]
+		unionIdx := identifyUnionType(typ, strace_arg, consts, return_vars, line)
+		optType := a.Fields[unionIdx]
 		opt, inner_calls, err_ := parseArg(optType, strace_arg, consts, return_vars, line, s)
 		if err_ != nil {
 			err = err_
@@ -2316,7 +2223,52 @@ func parseArg(typ Type, strace_arg string,
 	return arg, calls, nil
 }
 
+func identifyUnionType(typ Type, strace_arg string,
+			consts *map[string]uint64,
+			return_vars *map[returnType]Arg,
+			line *sparser.OutputLine) int {
+
+	switch line.FuncName {
+	case "sendmsg":
+		return sendMsgUnion(typ, strace_arg, consts, return_vars, line)
+	default:
+		return 0;
+	}
+}
+
+func sendMsgUnion(typ Type, strace_arg string,
+			consts *map[string]uint64,
+			return_vars *map[returnType]Arg,
+			line *sparser.OutputLine) int {
+	var sendMsgType string
+	return_var := returnType{
+		"ResourceType" + "fd",
+		line.Args[0],
+	}
+	if arg, ok := (*return_vars)[return_var]; ok {
+		switch a := arg.Type().(type) {
+		case *ResourceType:
+			sendMsgType = a.TypeName
+		default:
+			failf("return_var is NOT a resource type %v\n", line.Unparse())
+		}
+	}
+	switch sendMsgType {
+	case "sock_in":
+		return 1
+	case "sock_unix":
+		return 0
+	case "sock_netlink":
+		return 5
+	case "sock_in6":
+		return 4
+	default:
+		return 0
+	}
+}
+
 func ident(arg string) (string, string) {
+	fmt.Printf("ident arg: %s\n", arg)
 	s := make(Stack, 0)
 	var r byte
 	for i := 0; i < len(arg); i++ {
@@ -2336,13 +2288,19 @@ func ident(arg string) (string, string) {
 					continue
 				}
 				if arg[i] == '\\' {
+					fmt.Printf("i: %d\n", i)
+					fmt.Printf("Saw special char here\n")
 					sawSpecialChar = true
 					continue
 				}
 				if len(s) == 0 && arg[i] == ',' {
+					fmt.Printf("i: %d\n", i)
+					fmt.Printf("saw comma breaking\n")
 					break
 				}
 				if arg[i] == '[' || arg[i] == '{' || arg[i] == '(' {
+					fmt.Printf("i: %d\n", i)
+					fmt.Printf("pushing character\n")
 					s = s.Push(arg[i])
 					continue
 				}
@@ -2361,6 +2319,8 @@ func ident(arg string) (string, string) {
 					continue
 				}
 				if arg[i] == ')' {
+					fmt.Printf("i: %d\n", i)
+					fmt.Printf("popping character\n")
 					s, r = s.Pop()
 					if r != '(' {
 						failf("illegal argument format %v\n", arg)
@@ -2368,9 +2328,14 @@ func ident(arg string) (string, string) {
 					continue
 				}
 			} else {
+				fmt.Printf("i: %d, %s\n", i, string(arg[i]))
+				if arg[i] == '\\' {
+					sawSpecialChar = true
+				}
 				if arg[i] == '"' {
 					if sawSpecialChar {
 						//We have a nested string we can continue
+						fmt.Printf("Saw special char set to false\n")
 						sawSpecialChar = false
 						continue
 					}
@@ -2577,7 +2542,7 @@ func extractVal(flags string, mode string, consts *map[string]uint64) (uint64, e
 	for _, or_op := range strings.Split(flags, "|") {
 		var and_val uint64 = 0xFFFFFFFFFFFFFFFF
 		for _, and_op := range strings.Split(or_op, "&") {
-			c, ok := (*consts)[and_op]
+			c, ok := val_from_const(and_op, consts)
 			fmt.Printf("c: %v\n", c)
 			if !ok { // const doesn't exist, just return 0
 				fmt.Printf("c: %s\n", and_op)
@@ -2748,7 +2713,185 @@ func parseIpV6(typ Type, ip string) (Arg, Type) {
 
 }
 
+func preProcessStructs(typ prog.Type, strace_arg *string){
+	switch typ.Name() {
+	case "itimerval":
+		PreProcessItimerval(strace_arg)
+	default:
+		return
+	}
+	return
+}
+
+func parseStructs(typ prog.Type, strace_arg string,
+			consts *map[string]uint64,
+			return_vars *map[returnType]Arg,
+			line *sparser.OutputLine,
+			s *domain.State) (Arg, []*Call, error) {
+	fmt.Printf("Type name: %s\n", typ.Name())
+	is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
+	if is_nil {
+		return DefaultArg(typ), nil, nil
+	}
+	switch typ.Name() {
+	case "timeval":
+		return ParseTimeval(typ, strace_arg, consts, return_vars, line, s)
+	case "icmp_filter":
+		return ParseIcmpFilter(typ, strace_arg, consts, return_vars, line, s)
+	default:
+		return defaultParseStruct(typ, strace_arg, consts, return_vars, line, s)
+	}
+}
+
+func defaultParseStruct(typ prog.Type, strace_arg string,
+			consts *map[string]uint64,
+			return_vars *map[returnType]prog.Arg,
+			line *sparser.OutputLine,
+			s *domain.State) (arg prog.Arg, calls []*Call, err error) {
+	a := typ.(*StructType)
+	name, val := "nil", "nil"
+	struct_args := make([]string, 0)
+	if strace_arg != "nil" && len(strace_arg) >= 2 {
+		strace_arg = strace_arg[1 : len(strace_arg)-1]
+	}
+	fmt.Printf("StructType %v\n", a.TypeName)
+
+	is_nil := (strace_arg == "nil" || len(strace_arg) == 0)
+	if !is_nil {
+		for len(strace_arg) > 0 {
+			param, rem := ident(strace_arg)
+			strace_arg = rem
+			struct_args = append(struct_args, param)
+		}
+		fmt.Printf("struct_args: %v\n", struct_args)
+	}
+
+	args := make([]Arg, 0)
+	fmt.Println(a.TypeName, a.FldName)
+	fmt.Println(len(a.Fields))
+
+	field_order := make([]int, len(a.Fields))
+	for i, _ := range field_order {
+		//Usual case where Syzkaller and Strace have sync'd fields
+		field_order[i] = i
+	}
+	fmt.Printf("STRUCT TYPE NAME: %s\n", typ.Name())
+	if field_mapping, ok := Structs_with_reordered_fields[typ.Name()]; ok {
+		//We have a special struct where strace has a different field order than syzkaller
+		field_order = field_mapping
+
+	}
+	j := 0 //Some of the struct fields are pads so they don't correspond to strace args
+	for i, arg_type := range a.Fields {
+		fmt.Printf("i: %d, arg type: %v, is_nil: %b\n", i, arg_type, is_nil)
+		if prog.IsPad(arg_type) {
+			fmt.Printf("Is pad generating default arg in struct\n")
+			args = append(args, DefaultArg(arg_type))
+			continue
+		}
+		if !is_nil { // if nil, we need to generate nil values for entire struct
+			if j < len(struct_args) {
+				fmt.Printf("j < len(struct_args): %d\n", j)
+				//For pselect6, the fd_set just returns an array with the fd mask
+				//However, syzkaller has fd_set as a struct of 8 longs. If there are more
+				//Fields than what strace gives us then we just keep val "nil"
+				var should_parse bool = true
+				if a.Dir() == DirOut {
+					switch arg_type.(type) {
+					case *ResourceType:
+					default:
+						should_parse = false
+					}
+				}
+				if should_parse {
+					struct_arg := struct_args[field_order[j]]
+					fmt.Printf("should parse: %s\n", struct_arg)
+					if strings.Contains(struct_arg, "=") && !IsTypeChar(struct_arg[0]){
+						param := strings.SplitN(struct_arg, "=", 2)
+						name, val = param[0], param[1]
+					} else {
+						name, val = "<missing>", struct_arg
+					}
+				}
+
+			} else {
+				//Strace doesn't provide any more arguments but the struct expects some.
+				// Most likely padding so we just generate a default argument
+				fmt.Printf("APPENDING DEFAULT ARG j > len(struct_args)")
+				args = append(args, DefaultArg(arg_type))
+				continue
+			}
+		}
+
+		/* If there is a function embedded in the struct
+		See ltp_accept4_01 line 50 for example
+		*/
+		if len(val) > 0 && val[len(val)-1] == ')' {
+			inner_arg := parseInnerCall(val, arg_type, line, consts, return_vars, s)
+			args = append(args, inner_arg)
+			j+=1
+			continue
+		}
+
+		if (len(struct_args) > i) {
+			fmt.Printf("generating arg (%v) for struct type %v, field: %v, argtype: %v :%v, val: %v\n", i, a.Name(), name, arg_type, struct_args[j], val)
+		}
+		inner_arg, inner_calls, err_ := parseArg(arg_type, val, consts, return_vars, line, s)
+		if err_ != nil {
+			fmt.Printf("RETURNING FROM ERROR IN PARSE STRUCT: %s\n", err_.Error())
+			err = err_
+			j+=1
+			return
+		}
+
+		/* cache value */
+		if !is_nil {
+			should_cache := true
+			if a.Dir() == DirOut {
+				switch arg_type.(type) {
+				case *ResourceType:
+				default:
+					should_cache = false
+				}
+			}
+			if should_cache {
+				return_var := returnType{
+					getType(arg_type),
+					val,
+				}
+				switch arg_type.(type) {
+				/* check for edge null conditions */
+				case *StructType, *ArrayType, *BufferType, *UnionType:
+				default:
+					cache(return_vars, return_var, inner_arg, false)
+				}
+			}
+
+		}
+		args = append(args, inner_arg)
+		calls = append(calls, inner_calls...)
+		j+=1
+	}
+	fmt.Printf("ARG LEN: %d\n", len(args))
+	arg = groupArg(a, args)
+	return arg, calls, nil
+}
+
+func IsTypeChar(c byte) bool{
+	ret := false
+	switch c {
+	case '{':
+		ret = true
+	case '[':
+		ret = true
+	case '"':
+		ret = true
+	}
+	return ret
+}
+
 /* pack into corpus.db */
+
 
 func pack(dir, file string) {
 	files, err := ioutil.ReadDir(dir)

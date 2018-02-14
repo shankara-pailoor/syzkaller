@@ -91,6 +91,7 @@ func (d *ImplicitDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog)
 		calls = append(append(calls, mmapCall), prog_.Calls...)
 
 		prog_.Calls = calls
+
 		distilled = append(distilled, prog_)
 	}
 	avgLen := 0

@@ -278,6 +278,10 @@ func MakeReturnArg(t Type) Arg {
 	return &ReturnArg{ArgCommon: ArgCommon{typ: t}}
 }
 
+func DefaultArg(t Type) Arg {
+	return defaultArg(t)
+}
+
 func defaultArg(t Type) Arg {
 	switch typ := t.(type) {
 	case *IntType, *ConstType, *FlagsType, *LenType, *ProcType, *CsumType:

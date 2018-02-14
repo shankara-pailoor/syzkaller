@@ -24,6 +24,7 @@ var (
 	traces = flag.String("traces", "", "Path to directory containing traces")
 	vmlinux = flag.String("vmlinux", "", "Path to vmlinux e.g. linux-4.14-rc1/vmlinux")
 	decode = flag.String("decode", "", "Decode instructions from trace")
+	aggregate = flag.Bool("aggregate", false, "Aggregate statistics from traces or corpuses")
 )
 
 const (
@@ -42,6 +43,86 @@ type CorpusStats struct {
 	SyscallCover map[string][]uint64
 	FileCover map[string][]uint64
 	SubsystemCover map[string][]uint64
+	TotalCoverage int
+}
+
+func Merge(cs []*CorpusStats) (c *CorpusStats) {
+	c = new(CorpusStats)
+	c.CorpusName = "Aggregate"
+	c.SyscallCover = make(map[string][]uint64)
+	c.FileCover = make(map[string][]uint64)
+	c.SubsystemCover = make(map[string][]uint64)
+
+	callCoverMap := make(map[string]map[uint64]bool)
+	fileCoverMap := make(map[string]map[uint64]bool)
+	subsystemCoverMap := make(map[string]map[uint64]bool)
+	insMap := make(map[uint64]bool)
+	for _, corpusStat := range cs {
+		for call, coverage := range corpusStat.SyscallCover {
+			if _, ok := callCoverMap[call]; !ok {
+				callCoverMap[call] = make(map[uint64]bool)
+			}
+			for _, ip := range coverage {
+				if _, ok := insMap[ip]; !ok {
+					insMap[ip] = true
+				}
+				if _, ok := callCoverMap[call][ip]; !ok {
+					callCoverMap[call][ip] = true
+				}
+			}
+		}
+
+		for call, coverage := range corpusStat.FileCover {
+			if _, ok := fileCoverMap[call]; !ok {
+				fileCoverMap[call] = make(map[uint64]bool)
+			}
+			for _, ip := range coverage {
+				if _, ok := fileCoverMap[call][ip]; !ok {
+					fileCoverMap[call][ip] = true
+				}
+			}
+		}
+
+		for call, coverage := range corpusStat.SubsystemCover {
+			if _, ok := subsystemCoverMap[call]; !ok {
+				subsystemCoverMap[call] = make(map[uint64]bool)
+			}
+			for _, ip := range coverage {
+				if _, ok := subsystemCoverMap[call][ip]; !ok {
+					subsystemCoverMap[call][ip] = true
+				}
+			}
+		}
+	}
+
+	for call, ips := range callCoverMap {
+		if _, ok := c.SyscallCover[call]; !ok {
+			c.SyscallCover[call] = make([]uint64, 0)
+		}
+		for ip, _ := range ips {
+			c.SyscallCover[call] = append(c.SyscallCover[call], ip)
+		}
+	}
+
+	for call, ips := range fileCoverMap {
+		if _, ok := c.FileCover[call]; !ok {
+			c.FileCover[call] = make([]uint64, 0)
+		}
+		for ip, _ := range ips {
+			c.FileCover[call] = append(c.FileCover[call], ip)
+		}
+	}
+
+	for call, ips := range subsystemCoverMap {
+		if _, ok := c.SubsystemCover[call]; !ok {
+			c.SubsystemCover[call] = make([]uint64, 0)
+		}
+		for ip, _ := range ips {
+			c.SubsystemCover[call] = append(c.SubsystemCover[call], ip)
+		}
+	}
+	c.TotalCoverage = len(insMap)
+	return
 }
 
 type ParsedFile struct {
@@ -58,6 +139,7 @@ func failf(msg string, args ...interface{}) {
 func main() {
 	flag.Parse()
 	corpusStats := make([]*CorpusStats, 0)
+	traceStats := make([]*CorpusStats, 0)
 	if *corpuses != "" {
 		corpusStats = append(corpusStats, parseCorpuses(*corpuses, *vmlinux)...)
 	}
@@ -67,10 +149,17 @@ func main() {
 		if *decode != "" {
 			decodeTraces(*traces, *decode, *vmlinux)
 			return
+		} else if *aggregate {
+			traceStats = append(traceStats, parseTraces(*traces, *vmlinux)...)
+			aggregatedStats := Merge(traceStats)
+			computeCoverageBreakdown(aggregatedStats)
+			return
+
 		} else {
-			corpusStats = append(corpusStats, parseTraces(*traces, *vmlinux)...)
+			traceStats = append(traceStats, parseTraces(*traces, *vmlinux)...)
 		}
 	}
+
 
 
 	/*
@@ -86,6 +175,23 @@ func main() {
 	if len(corpusStats) == 1 {
 		computeCoverageBreakdown(corpusStats[0])
 	}
+	if len(traceStats) == 1 {
+		computeCoverageBreakdown(traceStats[0])
+	}
+	if len(traceStats) > 1  && len(corpusStats) == 1{
+		aggregatedTraceStats := Merge(traceStats)
+		computeCoverageDifference(aggregatedTraceStats, corpusStats[0])
+		return
+
+	}
+	if len(traceStats) > 1 {
+	    fmt.Printf("Trace Len: %d\n", len(traceStats))
+		for i, traceStat := range traceStats {
+            for _, traceStat2 := range traceStats[i+1:] {
+                computeCoverageDifference(traceStat, traceStat2)
+            }
+        }
+    }
 	//fmt.Printf("CorpusStats: %v\n", corpusStats.SubsystemCover)
 	for i, corpusStat := range corpusStats {
 		for _, corpusStat2 := range corpusStats[i+1:] {
@@ -165,6 +271,7 @@ func decodeTraces(traceDir, decodeDir, vmlinux string) {
 		}
 		for _, call := range calls {
 			coverMap := make(map[uint32]bool)
+			coverArray := make([]uint32, 0)
 			var buffer bytes.Buffer
 
 			for _, ip := range call.Cover {
@@ -174,7 +281,11 @@ func decodeTraces(traceDir, decodeDir, vmlinux string) {
 				}
 			}
 
-			frames := computeFrames(vmlinux, coverMap)
+			for ip, _ := range coverMap {
+				coverArray = append(coverArray, ip)
+			}
+
+			frames := computeFrames(vmlinux, coverArray)
 			header := fmt.Sprintf("SYSCALL: %s, pid: %d", call.FuncName,  call.Pid)
 			buffer.Write([]byte(header))
 			buffer.Write([]byte("\n"))
@@ -199,27 +310,47 @@ func parseTraces(traceDir string, vmlinux string) []*CorpusStats{
 	} else {
 		failf("error reading directory: %s\n", err.Error())
 	}
-	ips := make(map[uint32]bool, 0)
 	for _, t := range traces {
+		frameMap := make(map[uint64]symbolizer.Frame)
+		syscallIps := make(map[string][]uint32)
 		calls := parseStrace(t)
 		for _, call := range calls {
+			if _, ok := syscallIps[call.FuncName]; ok {
+				syscallIps[call.FuncName] = make([]uint32, 0)
+			}
+			coverMap := make(map[uint32]bool)
 			for _, ip := range call.Cover {
 				ip_u32 := uint32(ip)
-				if _, ok := ips[ip_u32]; !ok {
-					ips[ip_u32] = true
+				if _, ok := coverMap[ip_u32]; !ok {
+					coverMap[ip_u32] = true
+					syscallIps[call.FuncName] = append(syscallIps[call.FuncName], ip_u32)
 				}
+				coverMap[ip_u32] = true
 			}
 		}
-		frames := computeFrames(vmlinux, ips)
-		fmt.Printf("Frames: %d\n", len(frames))
 		corpusStat := &CorpusStats {
 			CorpusName: t,
 			SyscallCover: make(map[string][]uint64, 0),
 			FileCover: make(map[string][]uint64, 0),
 			SubsystemCover: make(map[string][]uint64, 0),
 		}
+		for call, ips := range syscallIps {
+			frames := computeFrames(vmlinux, ips)
 
-		for _, frame := range frames {
+			if _, ok := corpusStat.SyscallCover[call]; !ok {
+				corpusStat.SyscallCover[call] = make([]uint64, 0)
+			}
+			if _, ok := corpusStat.SyscallCover[call]; !ok {
+				corpusStat.SyscallCover[call] = make([]uint64, 0)
+			}
+			for _, frame := range frames {
+				if _, ok := frameMap[frame.PC]; !ok {
+					frameMap[frame.PC] = frame
+				}
+				corpusStat.SyscallCover[call] = append(corpusStat.SyscallCover[call], frame.PC)
+			}
+		}
+		for _, frame := range frameMap {
 			if _, ok := corpusStat.FileCover[frame.File]; !ok {
 				corpusStat.FileCover[frame.File] = make([]uint64, 0)
 			}
@@ -229,18 +360,14 @@ func parseTraces(traceDir string, vmlinux string) []*CorpusStats{
 				corpusStat.SubsystemCover[parsedFile.Subsystem] = make([]uint64, 0)
 			}
 			corpusStat.SubsystemCover[parsedFile.Subsystem] = append(corpusStat.SubsystemCover[parsedFile.Subsystem], frame.PC)
-			if _, ok := corpusStat.SyscallCover[frame.Func]; !ok {
-				corpusStat.SyscallCover[frame.Func] = make([]uint64, 0)
-			}
-			corpusStat.SyscallCover[frame.Func] = append(corpusStat.SyscallCover[frame.Func], frame.PC)
 		}
-
 		corpusStats = append(corpusStats, corpusStat)
 	}
 	return corpusStats
 }
 
 func computeCoverageBreakdown(stat *CorpusStats) {
+	fmt.Printf("TOTAL COVERAGE: %d\n", stat.TotalCoverage)
 	for subsystem, cov := range stat.SubsystemCover {
 		seen := make(map[uint64]bool, 0)
 		for _, ip := range cov {
@@ -248,10 +375,52 @@ func computeCoverageBreakdown(stat *CorpusStats) {
 		}
 		fmt.Printf("Subsystem: %s, Seen: %d\n", subsystem, len(seen))
 	}
-
+	for syscall, cov := range stat.SyscallCover {
+		seen := make(map[uint64]bool, 0)
+		for _, ip := range cov {
+			seen[ip] = true
+		}
+		fmt.Printf("System Call: %s, Seen: %d\n", syscall, len(seen))
+	}
+	for file, cov := range stat.FileCover {
+		seen := make(map[uint64]bool, 0)
+		for _, ip := range cov {
+			seen[ip] = true
+		}
+		fmt.Printf("System Call: %s, Seen: %d\n", file, len(seen))
+	}
 }
 
 func computeCoverageDifference(stat1, stat2 *CorpusStats) {
+	totalSeen1 := make(map[uint64]bool, 0)
+	totalSeen2 := make(map[uint64]bool, 0)
+	totalSeenIn2Not1 := make(map[uint64]bool, 0)
+	totalSeenIn1Not2 := make(map[uint64]bool, 0)
+	totalSeenInBoth := make(map[uint64]bool, 0)
+	for _, cov := range stat1.SubsystemCover {
+		for _, ip := range cov {
+			totalSeen1[ip] = true
+		}
+	}
+	for _, cov := range stat2.SubsystemCover {
+		for _, ip := range cov {
+			totalSeen2[ip] = true
+			if _, ok := totalSeen1[ip]; !ok {
+				totalSeenIn2Not1[ip] = true
+			} else {
+				totalSeenInBoth[ip] = true
+			}
+		}
+	}
+	for _, cov := range stat1.SubsystemCover {
+		for _, ip := range cov {
+			if _, ok := totalSeen2[ip]; !ok {
+				totalSeenIn1Not2[ip] = true
+			}
+		}
+	}
+	fmt.Printf("Coverage Difference between: %s and %s\n", stat1.CorpusName, stat2.CorpusName)
+	fmt.Printf("Seen In Both: %d, Seen Only In 1: %d, Seen Only In 2: %d\n", len(totalSeenInBoth), len(totalSeenIn1Not2), len(totalSeenIn2Not1))
 	for stat1Subsystem, cov := range stat1.SubsystemCover {
 		if cov1, ok := stat2.SubsystemCover[stat1Subsystem]; ok {
 			seen1 := make(map[uint64]bool, 0)
@@ -353,6 +522,7 @@ func rebuildPath(path string) *ParsedFile {
 
 func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolizer.Frame {
 	coverMap := make(map[uint32]bool, 0)
+	coverArray := make([]uint32, 0)
 
 	for _, inp := range data {
 		for _, cov := range inp.Cover {
@@ -361,17 +531,14 @@ func ComputeFrames(vmlinux string, data map[string]rpctype.RpcInput) []symbolize
 			}
 		}
 	}
-
-	return computeFrames(vmlinux, coverMap)
-}
-
-func computeFrames(vmlinux string, coverMap map[uint32]bool) []symbolizer.Frame {
-	coverArray := make([]uint32, 0)
-
-	for cov, _ := range coverMap {
-		coverArray = append(coverArray, cov)
+	for ip, _ := range coverMap {
+		coverArray = append(coverArray, ip)
 	}
 
+	return computeFrames(vmlinux, coverArray)
+}
+
+func computeFrames(vmlinux string, coverArray []uint32) []symbolizer.Frame {
 	base, err := getVmOffset(vmlinux)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
@@ -514,6 +681,9 @@ func parseInstructions(line string) (ips []uint64) {
 	instructions := strings.Split(strippedLine, COVER_ID)
 	s := strings.Split(instructions[1], COVER_DELIM)
 	for _, ins := range s {
+		if ins == "" {
+			continue
+		}
 		ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
 		if err != nil {
 			failf("failed parsing ip: %s", ins)

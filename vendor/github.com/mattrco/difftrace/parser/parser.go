@@ -265,7 +265,6 @@ func (p *Parser) Parse() (*OutputLine, error) {
 			}
 		}
 	}
-	fmt.Printf("Line: %v\n", line)
 	return line, nil
 }
 
