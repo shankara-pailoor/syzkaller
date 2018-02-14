@@ -24,6 +24,50 @@ func (p *Prog) String() string {
 	return buf.String()
 }
 
+
+func (p *Prog) StripDependencies() {
+	for _, c := range p.Calls {
+		switch a := c.Ret.(type) {
+		case *ResultArg:
+			a.Set(nil)
+		case *ReturnArg:
+			a.Set(nil)
+		default:
+		}
+		for _, arg := range c.Args {
+			stripArgDependencies(arg)
+			//switch a := arg.(type) {
+			//case *ResultArg:
+			//	a.Res = nil
+			//default:
+			//}
+		}
+	}
+}
+
+func stripArgDependencies(arg Arg) {
+	if arg == nil {
+		return
+	}
+	if used, ok := arg.(ArgUsed); ok  {
+		used.Set(nil)
+	}
+	switch a := arg.(type) {
+	case *PointerArg:
+		stripArgDependencies(a.Res)
+	case *GroupArg:
+		for _, arg1 := range a.Inner {
+			stripArgDependencies(arg1)
+
+		}
+	case *UnionArg:
+		stripArgDependencies(a.Option)
+	case *ResultArg:
+		a.Res = nil
+	default:
+	}
+}
+
 func (p *Prog) Serialize() []byte {
 	if debug {
 		if err := p.validate(); err != nil {

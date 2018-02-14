@@ -6,9 +6,9 @@ import (
 	"github.com/google/syzkaller/tools/syz-strace/config"
 	"fmt"
 	"github.com/google/syzkaller/pkg/osutil"
+	"os"
 	"time"
 	"github.com/google/syzkaller/tools/syz-strace/ssh"
-	"os"
 )
 
 type GCETracer struct {
@@ -99,7 +99,7 @@ func (tracer *GCETracer) GenerateCorpus() (err error) {
 		}
 	}
 	finish := time.Now()
-	diff := start.Sub(finish)
+	diff := finish.Sub(start)
 	fmt.Fprintf(os.Stderr, "Time to trace: %d %d %d\n", diff.Hours(), diff.Minutes(), diff.Seconds()) 
 	defer func() {
 		for i := 0; i < tracer.numinstances; i++ {

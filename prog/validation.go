@@ -115,6 +115,8 @@ func (c *Call) validate(ctx *validCtx) error {
 		case *UnionType:
 			switch arg.(type) {
 			case *UnionArg:
+			case *GroupArg:
+				return fmt.Errorf("syscall %v: union arg '%v' instead has a group kind %v %s", c.Meta.Name, arg.Type().Name(), arg)
 			default:
 				return fmt.Errorf("syscall %v: union arg '%v' has bad kind %v", c.Meta.Name, arg.Type().Name(), arg)
 			}

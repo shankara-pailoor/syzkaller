@@ -68,7 +68,6 @@ func (d *TraceDistiller) trace(p *prog.Prog) *Trace {
 }
 
 func (d *TraceDistiller) Add(seeds domain.Seeds) {
-	//fmt.Println(d.impl_deps["msync"])
 	d.Seeds = seeds
 	for _, seed := range seeds {
 		d.CallToSeed[seed.Call] = seed
