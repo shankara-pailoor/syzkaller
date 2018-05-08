@@ -27,6 +27,7 @@ import (
 	"strings"
 	"sync"
 	"github.com/google/syzkaller/syz-manager/mgrconfig"
+	"github.com/google/syzkaller/tools/syz-strace/utils"
 )
 
 const (
@@ -70,9 +71,9 @@ func (t *Trace) Parse(lines []*sparser.OutputLine) {
 				pid_ = pid(line.Pid)
 			}
 		}
-        if i == 0 && pid_ == 0 {
-            continue
-        }
+        	if i == 0 && pid_ == 0 {
+            		continue
+		}
 		if _, ok := t.ptree[pid_]; !ok {
 			fmt.Printf("MAPAPAPAPPAPAP\n")
 			t.ptree[pid_] = make([]pid, 0)
@@ -101,39 +102,34 @@ func (t *Trace) Parse(lines []*sparser.OutputLine) {
 }
 
 func (t *Trace) Sanitize(lines []*sparser.OutputLine) []*sparser.OutputLine {
-	sanitizedLines := lines
-	for i, line := range sanitizedLines {
+	//sanitizedLines := lines
+	sanitizedLines := make([]*sparser.OutputLine, 0)
+	for i, line := range lines {
 		if line.Paused {
 			fmt.Printf("Paused: %s %d %d%v\n", line.FuncName, i, line.Pid, len(lines))
 			for j := 0; j < len(lines)-i; j++ {
 				if lines[i+j].Resumed && lines[i+j].Pid == line.Pid {
 					if line.FuncName == "clone" && lines[i+j].Result == "?" {
-						//The clone is going to be restarted so we should delete the paused and resumed portions
-						fmt.Println("FOUND BAD CLONE")
-                        if i + j  < len(sanitizedLines)-1 {
-                            sanitizedLines = append(sanitizedLines[:i], append(sanitizedLines[i+1:i+j], sanitizedLines[i+j+1:]...)...)
-                        }
-						sanitizedLines = append(sanitizedLines[:i], sanitizedLines[i+1:i+j]...)
+						//The clone is going to be restarted so we should ignore
 						break
 					}
 					lines[i].Args = append(lines[i].Args, lines[i+j].Args...)
-
 					//If the program is unfinished it needs the result from the finished part
 					lines[i].Result = lines[i+j].Result
 					//Delete the resumed line
-					if i+j >= len(lines)-i {
-						sanitizedLines = sanitizedLines[:i+j]
-					} else {
-						sanitizedLines = append(sanitizedLines[:i+j], sanitizedLines[i+j+1:]...)
-					}
+					sanitizedLines = append(sanitizedLines, line)
 					break
 				}
 			}
 		} else {
+			if line.Resumed {
+				continue
+			}
 			if line.FuncName == "clone" && line.Result == "?" {
 				//The clone is going to be restarted so we should delete this line
-				sanitizedLines = append(sanitizedLines[:i], sanitizedLines[i+1:]...)
+				continue
 			}
+			sanitizedLines = append(sanitizedLines, line)
 		}
 	}
 	return sanitizedLines
@@ -232,7 +228,7 @@ func main() {
 		total_pids = total_pids + len(trace.ptree)
 		for pid, childPids := range trace.ptree {
 			fmt.Printf("pid: %v\n", pid)
-			fmt.Printf("childPids: %v", childPids)
+			fmt.Printf("childPids: %v\n", childPids)
 			for _, child := range childPids {
 				fmt.Printf("Parent pid: %v, Child Pid: %v\n", pid, child)
 			}
@@ -272,7 +268,7 @@ func main() {
 			}
 			fmt.Printf("ABOUT TO VALIDATE PROGRAM\n");
 			if err := parsedProg.Validate(); err != nil {
-				fmt.Printf("Error validating %v\n", "something")
+				fmt.Printf("Error validating %vn\n", "something")
 				failf(err.Error())
 			}
             if progIsTooLarge(parsedProg) {
@@ -332,7 +328,7 @@ func main() {
 			}
 			if config.DistillConf.Type != "random" {
 				if err := progd.Validate(); err != nil {
-					fmt.Fprintf(os.Stderr, "Error validating %v\n", progd)
+					fmt.Fprintf(os.Stderr, "Error validating %v: %s\n", progd, err.Error())
 					continue
 					// failf(err.Error())
 					// break
@@ -1910,7 +1906,7 @@ func parseArg(typ Type, strace_arg string,
 		//Need to parse as int because we may have negative file descriptor
 		extracted_int, err := strconv.ParseInt(strace_arg, 0, 64)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing resource arg %s for call %s, desc: %s\n", strace_arg, call, err.Error())
+			fmt.Fprintf(os.Stdout, "Error parsing resource arg %s for call %s, desc: %s\n", strace_arg, call, err.Error())
 			arg, calls = resultArg(a, nil, a.Default()), nil
 		} else {
 			arg, calls = resultArg(a, nil, uint64(extracted_int)), nil
@@ -1922,16 +1918,16 @@ func parseArg(typ Type, strace_arg string,
 
 		if a.Dir() != DirOut && strace_arg != "nil" {
 			var buffer []byte
+			strippedString, newLen := utils.StripString(strace_arg)
+			decodedString := utils.ParseString(strippedString)
 			switch a.Kind {
 			case BufferFilename, BufferString:
 				fmt.Printf("BUFFER BLOB STRING\n")
-
-				buffer = make([]byte, len(strace_arg)-1)
-				buffer[len(strace_arg)-2] = '\x00'
+				buffer = make([]byte, newLen+1)
+				buffer[len(decodedString)] = '\x00'
 			case BufferBlobRand:
 				fmt.Printf("BUFFER BLOB RAND\n")
-				size := len(strace_arg) - 2
-				buffer = make([]byte, size)
+				buffer = make([]byte, newLen)
 			case BufferBlobRange:
 				fmt.Printf("BUFFER BLOB RANGE\n")
 				size := rand.Intn(int(a.RangeEnd)-int(a.RangeBegin)+1) + int(a.RangeBegin)
@@ -1941,7 +1937,8 @@ func parseArg(typ Type, strace_arg string,
 				failf("unexpected buffer type. call %v arg %v", call, strace_arg)
 			}
 			fmt.Printf("Strace Arg Len: %d\n", len(strace_arg))
-			strace_arg_arr := []byte(strace_arg[1 : len(strace_arg)-1])
+			fmt.Printf("Stripped String: %s\n", strippedString)
+			strace_arg_arr := []byte(decodedString)
 			for i := 0; i < len(buffer); i++ {
 				if i < len(strace_arg_arr) {
 					buffer[i] = strace_arg_arr[i]
@@ -1950,7 +1947,8 @@ func parseArg(typ Type, strace_arg string,
 			arg = dataArg(a, buffer)
 		} else {
 			if strace_arg != "nil" && strace_arg[0] == '"' { /* make buffer size of given string */
-				return dataArg(a, make([]byte, len(strace_arg)-1)), nil, nil
+				_, newLen := utils.StripString(strace_arg)
+				return dataArg(a, make([]byte, newLen)), nil, nil
 			}
 			switch a.Kind {
 			case BufferFilename, BufferString:
@@ -2253,6 +2251,12 @@ func sendMsgUnion(typ Type, strace_arg string,
 			sendMsgType = a.TypeName
 		default:
 			failf("return_var is NOT a resource type %v\n", line.Unparse())
+		}
+	}
+	fmt.Printf("send msg type: %s\n", sendMsgType)
+	if sendMsgType == "" {
+		if strings.Contains(strace_arg, "AF_INET") {
+			return 1
 		}
 	}
 	switch sendMsgType {

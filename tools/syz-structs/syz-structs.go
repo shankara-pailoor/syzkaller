@@ -61,6 +61,8 @@ var (
 		"umask": true, // unsupported
 		"adjtimex": true, // unsupported
 		//"ioctl$FIONBIO": true, // unsupported
+		"rt_sigprocmask": true,
+		"rt_sigaction": true,
 		"sysfs": true, // unsupported
 		"chdir": true, // unsupported
 		"clone": true, // unsupported
@@ -293,6 +295,15 @@ var (
 		Pair{"IPPROTO_IP", "MCAST_LEAVE_SOURCE_GROUP"}: "$inet_buf",
 		Pair{"IPPROTO_IP", "MCAST_MS_FILTER"}: "$inet_buf",
 		Pair{"IPPROTO_ICMP", "ICMP_FILTER"}: "$inet_icmp_ICMP_FILTER",
+		Pair{"SOL_SCTP", "SCTP_EVENTS"}: "$inet_sctp_SCTP_EVENTS",
+		Pair{"SOL_SCTP", "SCTP_INITMSG"}: "$inet_sctp_SCTP_INITMSG",
+		Pair{"SOL_SCTP", "SCTP_RTOINFO"}: "$inet_sctp_SCTP_RTOINFO",
+		Pair{"SOL_SCTP", "SCTP_AUTOCLOSE"}: "$inet_sctp_SCTP_AUTOCLOSE",
+		Pair{"SOL_SCTP", "SCTP_PRIMARY_ADDR"}: "$inet_sctp_SCTP_PRIMARY_ADDR",
+		Pair{"SOL_SCTP", "SCTP_ASSOCINFO"}: "$inet_sctp_SCTP_ASSOCINFO",
+		Pair{"SOL_SCTP", "SCTP_PEER_ADDR_PARAMS"}: "$inet_sctp_SCTP_PEER_ADDR_PARAMS",
+		Pair{"SOL_SCTP", "SCTP_DELAYED_ACK"}: "$inet_sctp_SCTP_DELAYED_ACK",
+		Pair{"SOL_SCTP", "SCTP_DEFAULT_SEND_PARAM"}: "$inet_sctp_SCTP_DEFAULT_SEND_PARAM",
 	}
 
 	Getsockopt_labels = map[Pair]string {
@@ -438,6 +449,19 @@ var (
 		Pair{"IPPROTO_IP", "MCAST_LEAVE_SOURCE_GROUP"}: "$inet_buf",
 		Pair{"IPPROTO_IP", "MCAST_MS_FILTER"}: "$inet_buf",
 		Pair{"IPPROTO_ICMP", "ICMP_FILTER"}: "$inet_icmp_ICMP_FILTER",
+		Pair{"SOL_SCTP", "SCTP_EVENTS"}: "$inet_sctp_SCTP_EVENTS",
+		Pair{"SOL_SCTP", "SCTP_INITMSG"}: "$inet_sctp_SCTP_INITMSG",
+		Pair{"SOL_SCTP", "SCTP_RTOINFO"}: "$inet_sctp_SCTP_RTOINFO",
+		Pair{"SOL_SCTP", "SCTP_AUTOCLOSE"}: "$inet_sctp_SCTP_AUTOCLOSE",
+		Pair{"SOL_SCTP", "SCTP_PRIMARY_ADDR"}: "$inet_sctp_SCTP_PRIMARY_ADDR",
+		Pair{"SOL_SCTP", "SCTP_ASSOCINFO"}: "$inet_sctp_SCTP_ASSOCINFO",
+		Pair{"SOL_SCTP", "SCTP_STATUS"}: "$inet_sctp_SCTP_STATUS",
+		Pair{"SOL_SCTP", "SCTP_GET_PEER_ADDRS"}: "$inet_sctp_SCTP_GET_PEER_ADDRS",
+		Pair{"SOL_SCTP", "SCTP_GET_LOCAL_ADDRS"}: "$inet_sctp_SCTP_GET_LOCAL_ADDRS",
+		Pair{"SOL_SCTP", "SCTP_SOCKOPT_PEELOFF"}: "$inet_sctp_SCTP_SOCKOPT_PEELOFF",
+		Pair{"SOL_SCTP", "SCTP_SOCKOPT_CONNECTX3"}: "$inet_sctp_SCTP_SOCOPT_CONNECTX3",
+		Pair{"SOL_SCTP", "SCTP_PEER_ADDR_PARAMS"}: "$inet_sctp_SCTP_PEER_ADDR_PARAMS",
+		Pair{"SOL_SCTP", "SCTP_DELAYED_ACK"}: "$inet_sctp_SCTP_DELAYED_ACK",
 	}
 
 	Getsockname_labels = map[string]string {
@@ -459,6 +483,7 @@ var (
 		"SOL_RAW": "IPPROTO_ICMP",
 		"SOL_PACKET": "SOL_PACKET",
 		"SOL_IP": "IPPROTO_IP",
+		"SOL_SCTP": "SOL_SCTP",
 	}
 
 	Sendto_labels = map[string]string {
@@ -518,6 +543,7 @@ var (
 		Pair{"AF_INET", "SOCK_RAW"}: "$inet_icmp_raw",
 		Pair{"AF_PACKET", "SOCK_RAW"}: "$packet",
 		Pair{"AF_PACKET", "SOCK_DGRAM"}: "$packet",
+		Pair{"AF_INET", "SOL_SCTP"}: "$inet_sctp",
 	}
 	Socket_labels = map[string]string {
 		"AF_INET": "$inet",

@@ -1,0 +1,153 @@
+state 0 //
+
+    0 $accept: . misc
+
+    AND              shift, and goto state 3
+    COMMA            shift, and goto state 8
+    DOUBLE           shift, and goto state 21
+    EQUALS           shift, and goto state 15
+    FLAG             shift, and goto state 18
+    IDENTIFIER       shift, and goto state 17
+    INT              shift, and goto state 19
+    LBRACKET         shift, and goto state 9
+    LBRACKET_SQUARE  shift, and goto state 11
+    LOR              shift, and goto state 4
+    LPAREN           shift, and goto state 13
+    LSHIFT           shift, and goto state 6
+    NOT              shift, and goto state 5
+    OR               shift, and goto state 2
+    RBRACKET         shift, and goto state 10
+    RBRACKET_SQUARE  shift, and goto state 12
+    RPAREN           shift, and goto state 14
+    RSHIFT           shift, and goto state 7
+    STRING_LITERAL   shift, and goto state 16
+    UINT             shift, and goto state 20
+
+    misc  goto state 1
+
+state 1 // AND [$end]
+
+    0 $accept: misc .  [$end]
+
+    $end  accept
+
+state 2 // OR
+
+    1 misc: OR .  [$end]
+
+    $end  reduce using rule 1 (misc)
+
+state 3 // AND
+
+    2 misc: AND .  [$end]
+
+    $end  reduce using rule 2 (misc)
+
+state 4 // LOR
+
+    3 misc: LOR .  [$end]
+
+    $end  reduce using rule 3 (misc)
+
+state 5 // NOT
+
+    4 misc: NOT .  [$end]
+
+    $end  reduce using rule 4 (misc)
+
+state 6 // LSHIFT
+
+    5 misc: LSHIFT .  [$end]
+
+    $end  reduce using rule 5 (misc)
+
+state 7 // RSHIFT
+
+    6 misc: RSHIFT .  [$end]
+
+    $end  reduce using rule 6 (misc)
+
+state 8 // COMMA
+
+    7 misc: COMMA .  [$end]
+
+    $end  reduce using rule 7 (misc)
+
+state 9 // LBRACKET
+
+    8 misc: LBRACKET .  [$end]
+
+    $end  reduce using rule 8 (misc)
+
+state 10 // RBRACKET
+
+    9 misc: RBRACKET .  [$end]
+
+    $end  reduce using rule 9 (misc)
+
+state 11 // LBRACKET_SQUARE
+
+   10 misc: LBRACKET_SQUARE .  [$end]
+
+    $end  reduce using rule 10 (misc)
+
+state 12 // RBRACKET_SQUARE
+
+   11 misc: RBRACKET_SQUARE .  [$end]
+
+    $end  reduce using rule 11 (misc)
+
+state 13 // LPAREN
+
+   12 misc: LPAREN .  [$end]
+
+    $end  reduce using rule 12 (misc)
+
+state 14 // RPAREN
+
+   13 misc: RPAREN .  [$end]
+
+    $end  reduce using rule 13 (misc)
+
+state 15 // EQUALS
+
+   14 misc: EQUALS .  [$end]
+
+    $end  reduce using rule 14 (misc)
+
+state 16 // STRING_LITERAL
+
+   15 misc: STRING_LITERAL .  [$end]
+
+    $end  reduce using rule 15 (misc)
+
+state 17 // IDENTIFIER
+
+   16 misc: IDENTIFIER .  [$end]
+
+    $end  reduce using rule 16 (misc)
+
+state 18 // FLAG
+
+   17 misc: FLAG .  [$end]
+
+    $end  reduce using rule 17 (misc)
+
+state 19 // INT
+
+   18 misc: INT .  [$end]
+
+    $end  reduce using rule 18 (misc)
+
+state 20 // UINT
+
+   19 misc: UINT .  [$end]
+
+    $end  reduce using rule 19 (misc)
+
+state 21 // DOUBLE
+
+   20 misc: DOUBLE .  [$end]
+
+    $end  reduce using rule 20 (misc)
+

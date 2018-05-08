@@ -77,7 +77,7 @@ func (client *SSHClient) extractCommand(config domain.WorkloadConfig) (sshComman
 	sshCommand.Args = append(sshCommand.Args, config.StraceOutPath)
 	sshCommand.Args = append(sshCommand.Args, "-k")
 	sshCommand.Args = append(sshCommand.Args, "-f")
-
+    sshCommand.Args = append(sshCommand.Args, "-xx")
 	sshCommand.Args = append(sshCommand.Args, config.ExecutablePath)
 	sshCommand.Args = append(sshCommand.Args, config.Args...)
 	return sshCommand

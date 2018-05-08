@@ -1,0 +1,724 @@
+state 0 //
+
+    0 $accept: . syscall
+
+    INT  shift, and goto state 2
+
+    syscall  goto state 1
+
+state 1 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT [$end]
+
+    0 $accept: syscall .  [$end]
+
+    $end  accept
+
+state 2 // INT
+
+    1 syscall: INT . IDENTIFIER LPAREN types RPAREN EQUALS INT  // assoc %nonassoc, prec 2
+    2 syscall: INT . IDENTIFIER LPAREN types RPAREN EQUALS UINT  // assoc %nonassoc, prec 2
+    3 syscall: INT . IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN identifiers RPAREN
+    4 syscall: INT . IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN identifiers RPAREN
+    5 syscall: INT . IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN flag_type RPAREN
+    6 syscall: INT . IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN flag_type RPAREN
+
+    IDENTIFIER  shift, and goto state 3
+
+state 3 // INT IDENTIFIER
+
+    1 syscall: INT IDENTIFIER . LPAREN types RPAREN EQUALS INT  // assoc %nonassoc, prec 2
+    2 syscall: INT IDENTIFIER . LPAREN types RPAREN EQUALS UINT  // assoc %nonassoc, prec 2
+    3 syscall: INT IDENTIFIER . LPAREN types RPAREN EQUALS INT FLAG LPAREN identifiers RPAREN
+    4 syscall: INT IDENTIFIER . LPAREN types RPAREN EQUALS UINT FLAG LPAREN identifiers RPAREN
+    5 syscall: INT IDENTIFIER . LPAREN types RPAREN EQUALS INT LPAREN flag_type RPAREN
+    6 syscall: INT IDENTIFIER . LPAREN types RPAREN EQUALS UINT LPAREN flag_type RPAREN
+
+    LPAREN  shift, and goto state 4
+
+state 4 // INT IDENTIFIER LPAREN
+
+    1 syscall: INT IDENTIFIER LPAREN . types RPAREN EQUALS INT  // assoc %nonassoc, prec 2
+    2 syscall: INT IDENTIFIER LPAREN . types RPAREN EQUALS UINT  // assoc %nonassoc, prec 2
+    3 syscall: INT IDENTIFIER LPAREN . types RPAREN EQUALS INT FLAG LPAREN identifiers RPAREN
+    4 syscall: INT IDENTIFIER LPAREN . types RPAREN EQUALS UINT FLAG LPAREN identifiers RPAREN
+    5 syscall: INT IDENTIFIER LPAREN . types RPAREN EQUALS INT LPAREN flag_type RPAREN
+    6 syscall: INT IDENTIFIER LPAREN . types RPAREN EQUALS UINT LPAREN flag_type RPAREN
+
+    AND              shift, and goto state 16
+    DATETIME         shift, and goto state 20
+    FLAG             shift, and goto state 24
+    IDENTIFIER       shift, and goto state 15
+    INT              shift, and goto state 22
+    LBRACKET         shift, and goto state 18
+    LBRACKET_SQUARE  shift, and goto state 17
+    STRING_LITERAL   shift, and goto state 19
+    UINT             shift, and goto state 23
+
+    array_type     goto state 10
+    binop          goto state 21
+    buf_type       goto state 7
+    call_type      goto state 13
+    flag_type      goto state 12
+    int_type       goto state 8
+    pointer_type   goto state 9
+    rel_expr_type  goto state 14
+    struct_type    goto state 11
+    type           goto state 6
+    types          goto state 5
+
+state 5 // INT IDENTIFIER LPAREN DATETIME [RPAREN]
+
+    1 syscall: INT IDENTIFIER LPAREN types . RPAREN EQUALS INT  // assoc %nonassoc, prec 2
+    2 syscall: INT IDENTIFIER LPAREN types . RPAREN EQUALS UINT  // assoc %nonassoc, prec 2
+    3 syscall: INT IDENTIFIER LPAREN types . RPAREN EQUALS INT FLAG LPAREN identifiers RPAREN
+    4 syscall: INT IDENTIFIER LPAREN types . RPAREN EQUALS UINT FLAG LPAREN identifiers RPAREN
+    5 syscall: INT IDENTIFIER LPAREN types . RPAREN EQUALS INT LPAREN flag_type RPAREN
+    6 syscall: INT IDENTIFIER LPAREN types . RPAREN EQUALS UINT LPAREN flag_type RPAREN
+
+    RPAREN  shift, and goto state 52
+
+state 6 // INT IDENTIFIER LPAREN DATETIME [COMMA]
+
+    7 types: type .  [RBRACKET_SQUARE, RPAREN]
+    8 types: type . COMMA types
+
+    COMMA            shift, and goto state 50
+    RBRACKET_SQUARE  reduce using rule 7 (types)
+    RPAREN           reduce using rule 7 (types)
+
+state 7 // INT IDENTIFIER LPAREN DATETIME [COMMA]
+
+    9 type: buf_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 9 (type)
+    RBRACKET         reduce using rule 9 (type)
+    RBRACKET_SQUARE  reduce using rule 9 (type)
+    RPAREN           reduce using rule 9 (type)
+
+state 8 // INT IDENTIFIER LPAREN INT [COMMA]
+
+   10 type: int_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+   29 binop: int_type . OR int_type
+   32 binop: int_type . OR flag_type
+
+    COMMA            reduce using rule 10 (type)
+    OR               shift, and goto state 47
+    RBRACKET         reduce using rule 10 (type)
+    RBRACKET_SQUARE  reduce using rule 10 (type)
+    RPAREN           reduce using rule 10 (type)
+
+state 9 // INT IDENTIFIER LPAREN AND UINT EQUALS DATETIME [COMMA]
+
+   11 type: pointer_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 11 (type)
+    RBRACKET         reduce using rule 11 (type)
+    RBRACKET_SQUARE  reduce using rule 11 (type)
+    RPAREN           reduce using rule 11 (type)
+
+state 10 // INT IDENTIFIER LPAREN LBRACKET_SQUARE DATETIME RBRACKET_SQUARE [COMMA]
+
+   12 type: array_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 12 (type)
+    RBRACKET         reduce using rule 12 (type)
+    RBRACKET_SQUARE  reduce using rule 12 (type)
+    RPAREN           reduce using rule 12 (type)
+
+state 11 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME RBRACKET [COMMA]
+
+   13 type: struct_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 13 (type)
+    RBRACKET         reduce using rule 13 (type)
+    RBRACKET_SQUARE  reduce using rule 13 (type)
+    RPAREN           reduce using rule 13 (type)
+
+state 12 // INT IDENTIFIER LPAREN FLAG [COMMA]
+
+   14 type: flag_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+   30 binop: flag_type . OR flag_type
+   31 binop: flag_type . OR int_type
+
+    COMMA            reduce using rule 14 (type)
+    OR               shift, and goto state 44
+    RBRACKET         reduce using rule 14 (type)
+    RBRACKET_SQUARE  reduce using rule 14 (type)
+    RPAREN           reduce using rule 14 (type)
+
+state 13 // INT IDENTIFIER LPAREN IDENTIFIER LPAREN DATETIME RPAREN [COMMA]
+
+   15 type: call_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 15 (type)
+    RBRACKET         reduce using rule 15 (type)
+    RBRACKET_SQUARE  reduce using rule 15 (type)
+    RPAREN           reduce using rule 15 (type)
+
+state 14 // INT IDENTIFIER LPAREN FLAG OR FLAG [COMMA]
+
+   16 type: rel_expr_type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 16 (type)
+    RBRACKET         reduce using rule 16 (type)
+    RBRACKET_SQUARE  reduce using rule 16 (type)
+    RPAREN           reduce using rule 16 (type)
+
+state 15 // INT IDENTIFIER LPAREN IDENTIFIER
+
+   17 call_type: IDENTIFIER . LPAREN types RPAREN
+
+    LPAREN  shift, and goto state 41
+
+state 16 // INT IDENTIFIER LPAREN AND
+
+   18 pointer_type: AND . UINT EQUALS type
+
+    UINT  shift, and goto state 38
+
+state 17 // INT IDENTIFIER LPAREN LBRACKET_SQUARE
+
+   19 array_type: LBRACKET_SQUARE . types RBRACKET_SQUARE
+
+    AND              shift, and goto state 16
+    DATETIME         shift, and goto state 20
+    FLAG             shift, and goto state 24
+    IDENTIFIER       shift, and goto state 15
+    INT              shift, and goto state 22
+    LBRACKET         shift, and goto state 18
+    LBRACKET_SQUARE  shift, and goto state 17
+    STRING_LITERAL   shift, and goto state 19
+    UINT             shift, and goto state 23
+
+    array_type     goto state 10
+    binop          goto state 21
+    buf_type       goto state 7
+    call_type      goto state 13
+    flag_type      goto state 12
+    int_type       goto state 8
+    pointer_type   goto state 9
+    rel_expr_type  goto state 14
+    struct_type    goto state 11
+    type           goto state 6
+    types          goto state 36
+
+state 18 // INT IDENTIFIER LPAREN LBRACKET
+
+   20 struct_type: LBRACKET . fields RBRACKET
+
+    IDENTIFIER  shift, and goto state 30
+
+    field   goto state 29
+    fields  goto state 28
+
+state 19 // INT IDENTIFIER LPAREN STRING_LITERAL
+
+   24 buf_type: STRING_LITERAL .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 24 (buf_type)
+    RBRACKET         reduce using rule 24 (buf_type)
+    RBRACKET_SQUARE  reduce using rule 24 (buf_type)
+    RPAREN           reduce using rule 24 (buf_type)
+
+state 20 // INT IDENTIFIER LPAREN DATETIME
+
+   25 buf_type: DATETIME .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 25 (buf_type)
+    RBRACKET         reduce using rule 25 (buf_type)
+    RBRACKET_SQUARE  reduce using rule 25 (buf_type)
+    RPAREN           reduce using rule 25 (buf_type)
+
+state 21 // INT IDENTIFIER LPAREN FLAG OR FLAG [COMMA]
+
+   26 rel_expr_type: binop .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+   27 binop: binop . OR flag_type
+   28 binop: binop . OR int_type
+
+    COMMA            reduce using rule 26 (rel_expr_type)
+    OR               shift, and goto state 25
+    RBRACKET         reduce using rule 26 (rel_expr_type)
+    RBRACKET_SQUARE  reduce using rule 26 (rel_expr_type)
+    RPAREN           reduce using rule 26 (rel_expr_type)
+
+state 22 // INT IDENTIFIER LPAREN INT
+
+   33 int_type: INT .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 33 (int_type)
+    OR               reduce using rule 33 (int_type)
+    RBRACKET         reduce using rule 33 (int_type)
+    RBRACKET_SQUARE  reduce using rule 33 (int_type)
+    RPAREN           reduce using rule 33 (int_type)
+
+state 23 // INT IDENTIFIER LPAREN UINT
+
+   34 int_type: UINT .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 34 (int_type)
+    OR               reduce using rule 34 (int_type)
+    RBRACKET         reduce using rule 34 (int_type)
+    RBRACKET_SQUARE  reduce using rule 34 (int_type)
+    RPAREN           reduce using rule 34 (int_type)
+
+state 24 // INT IDENTIFIER LPAREN FLAG
+
+   35 flag_type: FLAG .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]  // assoc %nonassoc, prec 1
+
+    COMMA            reduce using rule 35 (flag_type)
+    OR               reduce using rule 35 (flag_type)
+    RBRACKET         reduce using rule 35 (flag_type)
+    RBRACKET_SQUARE  reduce using rule 35 (flag_type)
+    RPAREN           reduce using rule 35 (flag_type)
+
+state 25 // INT IDENTIFIER LPAREN FLAG OR FLAG OR
+
+   27 binop: binop OR . flag_type
+   28 binop: binop OR . int_type
+
+    FLAG  shift, and goto state 24
+    INT   shift, and goto state 22
+    UINT  shift, and goto state 23
+
+    flag_type  goto state 26
+    int_type   goto state 27
+
+state 26 // INT IDENTIFIER LPAREN FLAG OR FLAG OR FLAG [COMMA]
+
+   27 binop: binop OR flag_type .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 27 (binop)
+    OR               reduce using rule 27 (binop)
+    RBRACKET         reduce using rule 27 (binop)
+    RBRACKET_SQUARE  reduce using rule 27 (binop)
+    RPAREN           reduce using rule 27 (binop)
+
+state 27 // INT IDENTIFIER LPAREN FLAG OR FLAG OR INT [COMMA]
+
+   28 binop: binop OR int_type .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 28 (binop)
+    OR               reduce using rule 28 (binop)
+    RBRACKET         reduce using rule 28 (binop)
+    RBRACKET_SQUARE  reduce using rule 28 (binop)
+    RPAREN           reduce using rule 28 (binop)
+
+state 28 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME [RBRACKET]
+
+   20 struct_type: LBRACKET fields . RBRACKET
+
+    RBRACKET  shift, and goto state 35
+
+state 29 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME [COMMA]
+
+   21 fields: field .  [RBRACKET]
+   22 fields: field . COMMA fields
+
+    COMMA     shift, and goto state 33
+    RBRACKET  reduce using rule 21 (fields)
+
+state 30 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER
+
+   23 field: IDENTIFIER . EQUALS type
+
+    EQUALS  shift, and goto state 31
+
+state 31 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS
+
+   23 field: IDENTIFIER EQUALS . type
+
+    AND              shift, and goto state 16
+    DATETIME         shift, and goto state 20
+    FLAG             shift, and goto state 24
+    IDENTIFIER       shift, and goto state 15
+    INT              shift, and goto state 22
+    LBRACKET         shift, and goto state 18
+    LBRACKET_SQUARE  shift, and goto state 17
+    STRING_LITERAL   shift, and goto state 19
+    UINT             shift, and goto state 23
+
+    array_type     goto state 10
+    binop          goto state 21
+    buf_type       goto state 7
+    call_type      goto state 13
+    flag_type      goto state 12
+    int_type       goto state 8
+    pointer_type   goto state 9
+    rel_expr_type  goto state 14
+    struct_type    goto state 11
+    type           goto state 32
+
+state 32 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME [COMMA]
+
+   23 field: IDENTIFIER EQUALS type .  [COMMA, RBRACKET]
+
+    COMMA     reduce using rule 23 (field)
+    RBRACKET  reduce using rule 23 (field)
+
+state 33 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME COMMA
+
+   22 fields: field COMMA . fields
+
+    IDENTIFIER  shift, and goto state 30
+
+    field   goto state 29
+    fields  goto state 34
+
+state 34 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME COMMA IDENTIFIER EQUALS DATETIME [RBRACKET]
+
+   22 fields: field COMMA fields .  [RBRACKET]
+
+    RBRACKET  reduce using rule 22 (fields)
+
+state 35 // INT IDENTIFIER LPAREN LBRACKET IDENTIFIER EQUALS DATETIME RBRACKET
+
+   20 struct_type: LBRACKET fields RBRACKET .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 20 (struct_type)
+    RBRACKET         reduce using rule 20 (struct_type)
+    RBRACKET_SQUARE  reduce using rule 20 (struct_type)
+    RPAREN           reduce using rule 20 (struct_type)
+
+state 36 // INT IDENTIFIER LPAREN LBRACKET_SQUARE DATETIME [RBRACKET_SQUARE]
+
+   19 array_type: LBRACKET_SQUARE types . RBRACKET_SQUARE
+
+    RBRACKET_SQUARE  shift, and goto state 37
+
+state 37 // INT IDENTIFIER LPAREN LBRACKET_SQUARE DATETIME RBRACKET_SQUARE
+
+   19 array_type: LBRACKET_SQUARE types RBRACKET_SQUARE .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 19 (array_type)
+    RBRACKET         reduce using rule 19 (array_type)
+    RBRACKET_SQUARE  reduce using rule 19 (array_type)
+    RPAREN           reduce using rule 19 (array_type)
+
+state 38 // INT IDENTIFIER LPAREN AND UINT
+
+   18 pointer_type: AND UINT . EQUALS type
+
+    EQUALS  shift, and goto state 39
+
+state 39 // INT IDENTIFIER LPAREN AND UINT EQUALS
+
+   18 pointer_type: AND UINT EQUALS . type
+
+    AND              shift, and goto state 16
+    DATETIME         shift, and goto state 20
+    FLAG             shift, and goto state 24
+    IDENTIFIER       shift, and goto state 15
+    INT              shift, and goto state 22
+    LBRACKET         shift, and goto state 18
+    LBRACKET_SQUARE  shift, and goto state 17
+    STRING_LITERAL   shift, and goto state 19
+    UINT             shift, and goto state 23
+
+    array_type     goto state 10
+    binop          goto state 21
+    buf_type       goto state 7
+    call_type      goto state 13
+    flag_type      goto state 12
+    int_type       goto state 8
+    pointer_type   goto state 9
+    rel_expr_type  goto state 14
+    struct_type    goto state 11
+    type           goto state 40
+
+state 40 // INT IDENTIFIER LPAREN AND UINT EQUALS DATETIME [COMMA]
+
+   18 pointer_type: AND UINT EQUALS type .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 18 (pointer_type)
+    RBRACKET         reduce using rule 18 (pointer_type)
+    RBRACKET_SQUARE  reduce using rule 18 (pointer_type)
+    RPAREN           reduce using rule 18 (pointer_type)
+
+state 41 // INT IDENTIFIER LPAREN IDENTIFIER LPAREN
+
+   17 call_type: IDENTIFIER LPAREN . types RPAREN
+
+    AND              shift, and goto state 16
+    DATETIME         shift, and goto state 20
+    FLAG             shift, and goto state 24
+    IDENTIFIER       shift, and goto state 15
+    INT              shift, and goto state 22
+    LBRACKET         shift, and goto state 18
+    LBRACKET_SQUARE  shift, and goto state 17
+    STRING_LITERAL   shift, and goto state 19
+    UINT             shift, and goto state 23
+
+    array_type     goto state 10
+    binop          goto state 21
+    buf_type       goto state 7
+    call_type      goto state 13
+    flag_type      goto state 12
+    int_type       goto state 8
+    pointer_type   goto state 9
+    rel_expr_type  goto state 14
+    struct_type    goto state 11
+    type           goto state 6
+    types          goto state 42
+
+state 42 // INT IDENTIFIER LPAREN IDENTIFIER LPAREN DATETIME [RPAREN]
+
+   17 call_type: IDENTIFIER LPAREN types . RPAREN
+
+    RPAREN  shift, and goto state 43
+
+state 43 // INT IDENTIFIER LPAREN IDENTIFIER LPAREN DATETIME RPAREN
+
+   17 call_type: IDENTIFIER LPAREN types RPAREN .  [COMMA, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 17 (call_type)
+    RBRACKET         reduce using rule 17 (call_type)
+    RBRACKET_SQUARE  reduce using rule 17 (call_type)
+    RPAREN           reduce using rule 17 (call_type)
+
+state 44 // INT IDENTIFIER LPAREN FLAG OR
+
+   30 binop: flag_type OR . flag_type
+   31 binop: flag_type OR . int_type
+
+    FLAG  shift, and goto state 24
+    INT   shift, and goto state 22
+    UINT  shift, and goto state 23
+
+    flag_type  goto state 45
+    int_type   goto state 46
+
+state 45 // INT IDENTIFIER LPAREN FLAG OR FLAG [COMMA]
+
+   30 binop: flag_type OR flag_type .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 30 (binop)
+    OR               reduce using rule 30 (binop)
+    RBRACKET         reduce using rule 30 (binop)
+    RBRACKET_SQUARE  reduce using rule 30 (binop)
+    RPAREN           reduce using rule 30 (binop)
+
+state 46 // INT IDENTIFIER LPAREN FLAG OR INT [COMMA]
+
+   31 binop: flag_type OR int_type .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 31 (binop)
+    OR               reduce using rule 31 (binop)
+    RBRACKET         reduce using rule 31 (binop)
+    RBRACKET_SQUARE  reduce using rule 31 (binop)
+    RPAREN           reduce using rule 31 (binop)
+
+state 47 // INT IDENTIFIER LPAREN INT OR
+
+   29 binop: int_type OR . int_type
+   32 binop: int_type OR . flag_type
+
+    FLAG  shift, and goto state 24
+    INT   shift, and goto state 22
+    UINT  shift, and goto state 23
+
+    flag_type  goto state 49
+    int_type   goto state 48
+
+state 48 // INT IDENTIFIER LPAREN INT OR INT [COMMA]
+
+   29 binop: int_type OR int_type .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 29 (binop)
+    OR               reduce using rule 29 (binop)
+    RBRACKET         reduce using rule 29 (binop)
+    RBRACKET_SQUARE  reduce using rule 29 (binop)
+    RPAREN           reduce using rule 29 (binop)
+
+state 49 // INT IDENTIFIER LPAREN INT OR FLAG [COMMA]
+
+   32 binop: int_type OR flag_type .  [COMMA, OR, RBRACKET, RBRACKET_SQUARE, RPAREN]
+
+    COMMA            reduce using rule 32 (binop)
+    OR               reduce using rule 32 (binop)
+    RBRACKET         reduce using rule 32 (binop)
+    RBRACKET_SQUARE  reduce using rule 32 (binop)
+    RPAREN           reduce using rule 32 (binop)
+
+state 50 // INT IDENTIFIER LPAREN DATETIME COMMA
+
+    8 types: type COMMA . types
+
+    AND              shift, and goto state 16
+    DATETIME         shift, and goto state 20
+    FLAG             shift, and goto state 24
+    IDENTIFIER       shift, and goto state 15
+    INT              shift, and goto state 22
+    LBRACKET         shift, and goto state 18
+    LBRACKET_SQUARE  shift, and goto state 17
+    STRING_LITERAL   shift, and goto state 19
+    UINT             shift, and goto state 23
+
+    array_type     goto state 10
+    binop          goto state 21
+    buf_type       goto state 7
+    call_type      goto state 13
+    flag_type      goto state 12
+    int_type       goto state 8
+    pointer_type   goto state 9
+    rel_expr_type  goto state 14
+    struct_type    goto state 11
+    type           goto state 6
+    types          goto state 51
+
+state 51 // INT IDENTIFIER LPAREN DATETIME COMMA DATETIME [RBRACKET_SQUARE]
+
+    8 types: type COMMA types .  [RBRACKET_SQUARE, RPAREN]
+
+    RBRACKET_SQUARE  reduce using rule 8 (types)
+    RPAREN           reduce using rule 8 (types)
+
+state 52 // INT IDENTIFIER LPAREN DATETIME RPAREN
+
+    1 syscall: INT IDENTIFIER LPAREN types RPAREN . EQUALS INT  // assoc %nonassoc, prec 2
+    2 syscall: INT IDENTIFIER LPAREN types RPAREN . EQUALS UINT  // assoc %nonassoc, prec 2
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN . EQUALS INT FLAG LPAREN identifiers RPAREN
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN . EQUALS UINT FLAG LPAREN identifiers RPAREN
+    5 syscall: INT IDENTIFIER LPAREN types RPAREN . EQUALS INT LPAREN flag_type RPAREN
+    6 syscall: INT IDENTIFIER LPAREN types RPAREN . EQUALS UINT LPAREN flag_type RPAREN
+
+    EQUALS  shift, and goto state 53
+
+state 53 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS
+
+    1 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS . INT  // assoc %nonassoc, prec 2
+    2 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS . UINT  // assoc %nonassoc, prec 2
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS . INT FLAG LPAREN identifiers RPAREN
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS . UINT FLAG LPAREN identifiers RPAREN
+    5 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS . INT LPAREN flag_type RPAREN
+    6 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS . UINT LPAREN flag_type RPAREN
+
+    INT   shift, and goto state 54
+    UINT  shift, and goto state 55
+
+state 54 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT
+
+    1 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT .  [$end]  // assoc %nonassoc, prec 2
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT . FLAG LPAREN identifiers RPAREN
+    5 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT . LPAREN flag_type RPAREN
+
+    $end    reduce using rule 1 (syscall)
+    FLAG    shift, and goto state 65
+    LPAREN  shift, and goto state 66
+
+state 55 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT
+
+    2 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT .  [$end]  // assoc %nonassoc, prec 2
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT . FLAG LPAREN identifiers RPAREN
+    6 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT . LPAREN flag_type RPAREN
+
+    $end    reduce using rule 2 (syscall)
+    FLAG    shift, and goto state 56
+    LPAREN  shift, and goto state 57
+
+state 56 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT FLAG
+
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG . LPAREN identifiers RPAREN
+
+    LPAREN  shift, and goto state 60
+
+state 57 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT LPAREN
+
+    6 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN . flag_type RPAREN
+
+    FLAG  shift, and goto state 24
+
+    flag_type  goto state 58
+
+state 58 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT LPAREN FLAG [RPAREN]
+
+    6 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN flag_type . RPAREN
+
+    RPAREN  shift, and goto state 59
+
+state 59 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT LPAREN FLAG RPAREN
+
+    6 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN flag_type RPAREN .  [$end]
+
+    $end  reduce using rule 6 (syscall)
+
+state 60 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT FLAG LPAREN
+
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN . identifiers RPAREN
+
+    IDENTIFIER  shift, and goto state 62
+
+    identifiers  goto state 61
+
+state 61 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT FLAG LPAREN IDENTIFIER [RPAREN]
+
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN identifiers . RPAREN
+
+    RPAREN  shift, and goto state 64
+
+state 62 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT FLAG LPAREN IDENTIFIER
+
+   36 identifiers: IDENTIFIER .  [RPAREN]
+   37 identifiers: IDENTIFIER . identifiers
+
+    IDENTIFIER  shift, and goto state 62
+    RPAREN      reduce using rule 36 (identifiers)
+
+    identifiers  goto state 63
+
+state 63 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT FLAG LPAREN IDENTIFIER IDENTIFIER [RPAREN]
+
+   37 identifiers: IDENTIFIER identifiers .  [RPAREN]
+
+    RPAREN  reduce using rule 37 (identifiers)
+
+state 64 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS UINT FLAG LPAREN IDENTIFIER RPAREN
+
+    4 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN identifiers RPAREN .  [$end]
+
+    $end  reduce using rule 4 (syscall)
+
+state 65 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT FLAG
+
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG . LPAREN identifiers RPAREN
+
+    LPAREN  shift, and goto state 69
+
+state 66 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT LPAREN
+
+    5 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN . flag_type RPAREN
+
+    FLAG  shift, and goto state 24
+
+    flag_type  goto state 67
+
+state 67 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT LPAREN FLAG [RPAREN]
+
+    5 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN flag_type . RPAREN
+
+    RPAREN  shift, and goto state 68
+
+state 68 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT LPAREN FLAG RPAREN
+
+    5 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN flag_type RPAREN .  [$end]
+
+    $end  reduce using rule 5 (syscall)
+
+state 69 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT FLAG LPAREN
+
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN . identifiers RPAREN
+
+    IDENTIFIER  shift, and goto state 62
+
+    identifiers  goto state 70
+
+state 70 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT FLAG LPAREN IDENTIFIER [RPAREN]
+
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN identifiers . RPAREN
+
+    RPAREN  shift, and goto state 71
+
+state 71 // INT IDENTIFIER LPAREN DATETIME RPAREN EQUALS INT FLAG LPAREN IDENTIFIER RPAREN
+
+    3 syscall: INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN identifiers RPAREN .  [$end]
+
+    $end  reduce using rule 3 (syscall)
+

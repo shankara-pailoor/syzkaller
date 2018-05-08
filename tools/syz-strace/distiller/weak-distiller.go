@@ -71,6 +71,7 @@ func (d *WeakDistiller) Distill(progs []*prog.Prog) (distilled []*prog.Prog) {
 		state := seed.State
 		if err := d.CallToSeed[prog_.Calls[0]].State.Tracker.FillOutMemory(prog_); err != nil {
 			fmt.Printf("Error: %s\n", err.Error())
+            continue
 		}
 		totalMemory := state.Tracker.GetTotalMemoryAllocations(prog_)
 		mmapCall := state.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
