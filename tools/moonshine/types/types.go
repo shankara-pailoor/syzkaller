@@ -14,6 +14,16 @@ const (
 	NOT
 )
 
+type TraceTree struct {
+	TraceMap map[int64]*Trace
+	Ptree map[int64][]int64
+	RootPid int64
+}
+
+type Trace struct {
+	Calls []*Syscall
+}
+
 type Type interface {
 	Name() string
 	String() string
@@ -60,6 +70,10 @@ type ArrayType struct {
 	Len int
 }
 
+type Ipv4Type struct {
+	Str string
+}
+
 type Call struct {
 	CallName string
 	Args []Type
@@ -70,6 +84,42 @@ type Syscall struct {
 	Args []Type
 	Pid int64
 	Ret int64
+	Cover []uint64
+}
+
+func NewTraceTree() (tree *TraceTree) {
+	tree = &TraceTree {
+		TraceMap: make(map[int64]*Trace),
+		Ptree : make(map[int64][]int64),
+		RootPid: -1,
+	}
+	return
+}
+
+func (tree *TraceTree) Contains(pid int64) bool {
+	if _, ok := tree.TraceMap[pid]; ok {
+		return true
+	}
+	return false
+}
+
+func (tree *TraceTree) Add(call *Syscall) {
+	if tree.RootPid < 0 {
+		tree.RootPid = call.Pid
+	}
+	if !tree.Contains(call.Pid) {
+		tree.TraceMap[call.Pid] = NewTrace()
+	}
+	tree.TraceMap[call.Pid].Add(call)
+}
+
+func (trace *Trace) Add(call *Syscall) {
+	trace.Calls = append(trace.Calls, call)
+}
+
+func NewTrace() (trace *Trace) {
+	trace = &Trace{Calls: make([]*Syscall, 0)}
+	return
 }
 
 func NewSyscall(pid int64, name string, args []Type, ret int64) (sys *Syscall) {
@@ -146,6 +196,12 @@ func NewRelationalExpression(binop *Binop) (rel *RelationalExpression) {
 	if binop != nil {
 		rel.BinOp = binop
 	}
+	return
+}
+
+func NewIpv4Type(val string) (typ *Ipv4Type) {
+	typ = new(Ipv4Type)
+	typ.Str = val
 	return
 }
 
@@ -250,4 +306,12 @@ func (r *RelationalExpression) String() string {
 		return fmt.Sprintf("Relation Expression is Binop. Op 1: %s, Operation: %v, Op 2: %s\n", r.BinOp.Operand1, r.BinOp.Op, r.BinOp.Operand2)
 	}
 	return ""
+}
+
+func (i *Ipv4Type) Name() string {
+	return fmt.Sprintln("Ipv4 type")
+}
+
+func (i *Ipv4Type) String() string {
+	return fmt.Sprintf("Ipv4 type :%s", i.Str)
 }

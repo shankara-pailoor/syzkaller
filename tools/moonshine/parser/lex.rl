@@ -38,7 +38,8 @@ func (lex *lexer) Lex(out *StraceSymType) int {
     tok := 0
     %%{
         date = digit{4}.'-'.digit{2}.'-'.digit{2};
-        time = digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4}.'.'.digit+;
+        time = digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4}.'.'.digit+ |
+            digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4};
         datetime = date.'T'.time;
         comment := |*
             ((any-"*\/"));
@@ -46,10 +47,13 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         *|;
 
         main := |*
+            '+'.'+'.'+' . [0-9A-Za-z' ']+ . '+'.'+'.'+' => {out.data = string(lex.data[lex.ts:lex.te]); fmt.Printf("SIGNAL %s\n", out.data);tok=SIGNAL_PLUS; fbreak;};
+            '-'.'-'.'-' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=SIGNAL_MINUS; fbreak;};
             [+\-]?digit+ => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 10, 64); tok = INT;fbreak;};
             [+\-]?digit . '.' . digit* => {out.val_double, _ = strconv.ParseFloat(string(lex.data[lex.ts : lex.te]), 64); tok= DOUBLE; fbreak;};
             0.[0-9]+ => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
             '0x'xdigit+ => {out.val_uint, _ = strconv.ParseUint(string(lex.data[lex.ts:lex.te]), 0, 64); tok = UINT;fbreak;};
+            '\"'.digit{1}.'\.'.digit{1}.'\.'digit{1}.'\.'.digit{1}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
             '\"'.[0-9a-zA-Z\/\\\*]*.'\"' => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
             upper+ . ['_'A-Z0-9]+ => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
             [A-Za-z].[0-9a-z'_'\*\.\-]* => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
@@ -68,7 +72,7 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             ',' => {tok = COMMA;fbreak;};
             datetime => {out.data = string(lex.data[lex.ts:lex.te]); tok = DATETIME; fbreak;};
             "\/*" => {fgoto comment;};
-
+            "?" => {tok = QUESTION; fbreak;};
             space;
         *|;
 
@@ -88,6 +92,6 @@ func ParseString(s string) string{
 	if decoded, err = hex.DecodeString(strings.Replace(s, `\x`, "", -1)); err != nil {
 		panic(fmt.Sprintf("Failed to decode string: %s, with error: %s\n", s, err.Error()))
 	}
-	decoded = append(decoded, '\0')
+	decoded = append(decoded, '\x00')
 	return string(decoded)
 }

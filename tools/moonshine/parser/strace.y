@@ -2,7 +2,7 @@
 package parser
 
 import (
-    "fmt"
+    //"fmt"
     "github.com/google/syzkaller/tools/moonshine/types"
 )
 %}
@@ -27,11 +27,12 @@ import (
     val_binop *types.Binop
     val_rel_expr_type *types.RelationalExpression
     val_type types.Type
+    val_ipv4_type *types.Ipv4Type
     val_types []types.Type
     val_syscall *types.Syscall
 }
 
-%token <data> STRING_LITERAL IDENTIFIER FLAG DATETIME
+%token <data> STRING_LITERAL IPV4 IDENTIFIER FLAG DATETIME SIGNAL_PLUS SIGNAL_MINUS
 %token <val_int> INT
 %token <val_uint> UINT
 %token <val_double> DOUBLE
@@ -48,10 +49,13 @@ import (
 %type <val_call> call_type
 %type <val_type> type
 %type <val_pointer_type> pointer_type
+%type <val_ipv4_type> ipv4_type
 %type <val_types> types
 %type <val_syscall> syscall
 
-%token STRING_LITERAL IDENTIFIER FLAG INT UINT DOUBLE OR AND LOR LAND NOT LSHIFT RSHIFT COMMA LBRACKET RBRACKET LBRACKET_SQUARE RBRACKET_SQUARE LPAREN RPAREN EQUALS
+%token STRING_LITERAL IPV4 IDENTIFIER FLAG INT UINT QUESTION DOUBLE OR AND LOR LAND NOT LSHIFT RSHIFT
+%token COMMA LBRACKET RBRACKET LBRACKET_SQUARE RBRACKET_SQUARE LPAREN RPAREN EQUALS
+%token SIGNAL_PLUS SIGNAL_MINUS
 
 %nonassoc FLAG
 %nonassoc NOFLAG
@@ -60,22 +64,28 @@ import (
 syscall:
     INT IDENTIFIER LPAREN types RPAREN EQUALS INT %prec NOFLAG{
                                                         $$ = types.NewSyscall($1, $2, $4, $7);
-                                                        yylex.(*lexer).result = $$;}
+                                                        Stracelex.(*lexer).result = $$;}
     | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT %prec NOFLAG {
                                                         $$ = types.NewSyscall($1, $2, $4, int64($7));
-                                                        yylex.(*lexer).result = $$}
+                                                        Stracelex.(*lexer).result = $$;}
+    | INT IDENTIFIER LPAREN types RPAREN EQUALS QUESTION %prec NOFLAG {
+                                                            $$ = types.NewSyscall($1, $2, $4, -1);
+                                                            Stracelex.(*lexer).result = $$;}
     | INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN identifiers RPAREN {
                                                               $$ = types.NewSyscall($1, $2, $4, $7);
-                                                              yylex.(*lexer).result = $$;}
+                                                              Stracelex.(*lexer).result = $$;}
     | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN identifiers RPAREN {
                                                               $$ = types.NewSyscall($1, $2, $4, int64($7));
-                                                              yylex.(*lexer).result = $$}
+                                                              Stracelex.(*lexer).result = $$;}
     | INT IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN flag_type RPAREN {
                                                                   $$ = types.NewSyscall($1, $2, $4, $7);
-                                                                  yylex.(*lexer).result = $$;}
+                                                                  Stracelex.(*lexer).result = $$;}
     | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN flag_type RPAREN {
                                                                   $$ = types.NewSyscall($1, $2, $4, int64($7));
-                                                                  yylex.(*lexer).result = $$}
+                                                                  Stracelex.(*lexer).result = $$;}
+
+    | INT SIGNAL_PLUS {$$ = types.NewSyscall(-1, "signal_plus", nil, -1); Stracelex.(*lexer).result = $$;}
+    | INT SIGNAL_MINUS {$$ = types.NewSyscall(-1, "signal_minus", nil, -1); Stracelex.(*lexer).result = $$;}
 
 
 
@@ -92,6 +102,7 @@ type:
     | flag_type {$$ = $1}
     | call_type {$$ = $1}
     | rel_expr_type {$$ = $1}
+    | ipv4_type {$$ = $1}
 
 call_type:
     IDENTIFIER LPAREN types RPAREN {$$ = types.NewCallType($1, $3)}
@@ -101,6 +112,7 @@ pointer_type:
 
 array_type:
     LBRACKET_SQUARE types RBRACKET_SQUARE {arr := types.NewArrayType($2); $$ = arr}
+    | LBRACKET_SQUARE RBRACKET_SQUARE {arr := types.NewArrayType(nil); $$ = arr}
 
 struct_type:
     LBRACKET fields RBRACKET {$$ = types.NewStructType($2)}
@@ -113,11 +125,11 @@ field:
     IDENTIFIER EQUALS type {$$ = types.NewField($1, $3);}
 
 buf_type:
-    STRING_LITERAL {fmt.Printf("buffer type: %s\n", $1); $$ = types.NewBufferType($1)}
-    | DATETIME {fmt.Printf("datetime: %s\n", $1); $$ = types.NewBufferType($1)}
+    STRING_LITERAL {$$ = types.NewBufferType($1)}
+    | DATETIME {$$ = types.NewBufferType($1)}
 
 rel_expr_type:
-    binop {$$ = types.NewRelationalExpression($1); fmt.Printf("%s\n", $$.String());}
+    binop {$$ = types.NewRelationalExpression($1);}
 
 binop:
     binop OR flag_type {$$ = types.NewBinop(types.NewRelationalExpression($1), types.OR, $3)}
@@ -133,6 +145,9 @@ int_type:
 
 flag_type:
       FLAG {$$ = types.NewFlagType($1)}
+
+ipv4_type:
+    IPV4 {$$ = types.NewIpv4Type($1)}
 
 identifiers:
     IDENTIFIER {ids := make([]*types.BufferType, 0); ids = append(ids, types.NewBufferType($1)); $$ = ids}

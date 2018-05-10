@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	Parse()
+	Parse("/home/spailoor/linuxtp2/ltp_accept_01")
 }

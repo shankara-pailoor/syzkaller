@@ -3,29 +3,77 @@ package parser
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
+	"bufio"
+	"strings"
+	"github.com/google/syzkaller/tools/moonshine/types"
+	//"github.com/cznic/golex/lex"
+	"strconv"
 )
+
+const(
+	maxBufferSize = 64*1024*1024
+	CoverDelim = ","
+	CoverID = "Cover:"
+)
+
+func parseIps(line string) []uint64 {
+	line = line[1: len(line)-1] //Remove quotes
+	ips := strings.Split(strings.Split(line, CoverID)[1], CoverDelim)
+	cover_set := make(map[uint64]bool, 0)
+	cover := make([]uint64, 0)
+	for _, ins := range ips {
+		if ins == "" {
+			continue
+		} else {
+			ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
+			if err != nil {
+				panic(fmt.Sprintf("failed parsing ip: %s", ins))
+			}
+			if _, ok := cover_set[ip]; !ok {
+				cover_set[ip] = true
+				cover = append(cover, ip)
+			}
+		}
+	}
+	return cover
+}
+
+func parseLoop(scanner *bufio.Scanner) (tree *types.TraceTree) {
+	var cover []uint64 = nil
+	tree = types.NewTraceTree()
+	//Creating the process tree
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.Contains(line, CoverID) {
+			cover = parseIps(line)
+			fmt.Printf("Cover: %d\n", len(cover))
+			continue
+		} else {
+			lex := newLexer(scanner.Bytes())
+			StraceParse(lex)
+			call := lex.result
+			if cover != nil {
+				call.Cover = cover
+			}
+			tree.Add(call)
+			//trace.Calls = append(trace.Calls, call)
+			fmt.Printf("result: %v\n", lex.result.CallName)
+		}
+
+	}
+	return nil
+}
 
 func Parse(filename string) {
 	var data []byte
 	var err error
-	var f os.File
-	if f, err = os.Open(filename); err != nil {
-		panic("error opening file: %s\n", err.Error())
-	}
 
 	if data, err = ioutil.ReadFile(filename); err != nil {
-		panic("error reading file: %s\n", err.Error())
+		panic(fmt.Sprintf("error reading file: %s\n", err.Error()))
 	}
-	for _, b := range data {
+	buf := make([]byte, maxBufferSize)
+	scanner := bufio.NewScanner(strings.NewReader(string(data)))
+	scanner.Buffer(buf, maxBufferSize)
 
-	}
-	//lex := newLexer([]byte(`30194 fstat(3, {st_dev=makedev(8, 0), st_ino=394924, st_mode=S_IFREG|0644, st_nlink=1, st_uid=0, st_gid=0, st_blksize=4096, st_blocks=40, st_size=16895, st_atime=2018-02-15T21:30:00+0000.175980281, st_mtime=2018-02-15T21:28:33+0000.865003856, st_ctime=2018-02-15T21:28:39+0000.029312698}) = 0`))
-	//lex := newLexer([]byte(`29671 execve("\x2f\x6f\x70\x74\x2f\x6c\x74\x70\x2f\x74\x65\x73\x74\x63\x61\x73\x65\x73\x2f\x62\x69\x6e\x2f\x64\x75\x70\x30\x31", [&0x7ffcef51cebb="\x2f\x6f\x70\x74\x2f\x6c\x74\x70\x2f\x74\x65\x73\x74\x63\x61\x73\x65\x73\x2f\x62\x69\x6e\x2f\x64\x75\x70\x30\x31"], [&0x7ffcef51ced8="\x54\x45\x52\x4d\x3d\x78\x74\x65\x72\x6d", &0x7ffcef51cee3="\x53\x48\x45\x4c\x4c\x3d\x2f\x62\x69\x6e\x2f\x62\x61\x73\x68", &0x7ffcef51cef3="\x53\x53\x48\x5f\x43\x4c\x49\x45\x4e\x54\x3d\x31\x30\x2e\x30\x2e\x32\x2e\x32\x20\x33\x36\x32\x32\x30\x20\x32\x32", &0x7ffcef51cf10="\x53\x53\x48\x5f\x54\x54\x59\x3d\x2f\x64\x65\x76\x2f\x70\x74\x73\x2f\x31", &0x7ffcef51cf23="\x55\x53\x45\x52\x3d\x72\x6f\x6f\x74", &0x7ffcef51cf2d="\x4d\x41\x49\x4c\x3d\x2f\x76\x61\x72\x2f\x6d\x61\x69\x6c\x2f\x72\x6f\x6f\x74", &0x7ffcef51cf41="\x50\x41\x54\x48\x3d\x2f\x75\x73\x72\x2f\x6c\x6f\x63\x61\x6c\x2f\x73\x62\x69\x6e\x3a\x2f\x75\x73\x72\x2f\x6c\x6f\x63\x61\x6c\x2f\x62\x69\x6e\x3a\x2f\x75\x73\x72\x2f\x73\x62\x69\x6e\x3a\x2f\x75\x73\x72\x2f\x62\x69\x6e\x3a\x2f\x73\x62\x69\x6e\x3a\x2f\x62\x69\x6e", &0x7ffcef51cf83="\x50\x57\x44\x3d\x2f\x72\x6f\x6f\x74", &0x7ffcef51cf8d="\x53\x48\x4c\x56\x4c\x3d\x31", &0x7ffcef51cf95="\x48\x4f\x4d\x45\x3d\x2f\x72\x6f\x6f\x74", &0x7ffcef51cfa0="\x4c\x4f\x47\x4e\x41\x4d\x45\x3d\x72\x6f\x6f\x74", &0x7ffcef51cfad="\x53\x53\x48\x5f\x43\x4f\x4e\x4e\x45\x43\x54\x49\x4f\x4e\x3d\x31\x30\x2e\x30\x2e\x32\x2e\x32\x20\x33\x36\x32\x32\x30\x20\x31\x30\x2e\x30\x2e\x32\x2e\x31\x35\x20\x32\x32", &0x7ffcef51cfd8="\x5f\x3d\x2f\x75\x73\x72\x2f\x62\x69\x6e\x2f\x74\x69\x6d\x65\x6f\x75\x74"]) = 0`))
-	//lex := newLexer([]byte(`2843  adjtimex({modes=ADJ_OFFSET|0x8000, offset=0, freq=0, maxerror=16000000, esterror=16000000, status=STA_UNSYNC, constant=6, precision=1, tolerance=32768000, time={tv_sec=1516831827, tv_usec=593421}, tick=10000, ppsfreq=0, jitter=0, shift=0, stabil=0, jitcnt=0, calcnt=0, errcnt=0, stbcnt=0, tai=0}) = 5 (TIME_ERROR)`))
-	//lex := newLexer([]byte(`29274 write(1, &0x7f8bc7cc2000="\x61\x64\x6a\x74\x69\x6d\x65\x78\x30\x31\x20\x20\x20\x20\x32\x20\x20\x1b\x5b\x31\x3b\x33\x32\x6d\x54\x50\x41\x53\x53\x1b\x5b\x30\x6d\x20\x20\x3a\x20\x20\x61\x64\x6a\x74\x69\x6d\x65\x78\x28\x29\x20\x77\x69\x74\x68\x20\x6d\x6f\x64\x65\x20\x33\x32\x37\x36\x39\x20\x72\x65\x74\x75\x72\x6e\x65\x64\x20\x35\x0a", 76) = 76`))
-	lex := newLexer([]byte(`3080  mkdir("/tmp/fstE7Bg0v", 0700) = 0`))
-	e := StraceParse(lex)
-	fmt.Printf("result: %v\n", lex.result.Args)
-	fmt.Println(e)
+	parseLoop(scanner)
 }
