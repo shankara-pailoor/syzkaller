@@ -1,9 +1,9 @@
 package main
 
 import (
-	. "github.com/google/syzkaller/tools/moonshine/parser"
+	. "github.com/google/syzkaller/tools/moonshine/scanner"
 )
 
 func main() {
-	Parse("/home/spailoor/linuxtp2/ltp_accept_01")
+	Parse("/home/spailoor/linuxtp2/ltp_unlink05")
 }

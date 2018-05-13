@@ -1,19 +1,22 @@
-package parser
+package scanner
 
 import (
 	"fmt"
 	"io/ioutil"
 	"bufio"
 	"strings"
-	"github.com/google/syzkaller/tools/moonshine/types"
 	//"github.com/cznic/golex/lex"
 	"strconv"
+	"github.com/google/syzkaller/tools/moonshine/strace_types"
 )
 
 const(
 	maxBufferSize = 64*1024*1024
 	CoverDelim = ","
 	CoverID = "Cover:"
+	SYSRESTART = "ERESTARTSYS"
+	SignalPlus = "+++"
+	SignalMinus = "---"
 )
 
 func parseIps(line string) []uint64 {
@@ -22,7 +25,7 @@ func parseIps(line string) []uint64 {
 	cover_set := make(map[uint64]bool, 0)
 	cover := make([]uint64, 0)
 	for _, ins := range ips {
-		if ins == "" {
+		if strings.TrimSpace(ins) == "" {
 			continue
 		} else {
 			ip, err := strconv.ParseUint(strings.TrimSpace(ins), 0, 64)
@@ -38,30 +41,42 @@ func parseIps(line string) []uint64 {
 	return cover
 }
 
-func parseLoop(scanner *bufio.Scanner) (tree *types.TraceTree) {
-	var cover []uint64 = nil
-	tree = types.NewTraceTree()
+func parseLoop(scanner *bufio.Scanner) (tree *strace_types.TraceTree) {
+	tree = strace_types.NewTraceTree()
 	//Creating the process tree
+	var lastCall *strace_types.Syscall
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.Contains(line, CoverID) {
-			cover = parseIps(line)
-			fmt.Printf("Cover: %d\n", len(cover))
+		restart := strings.Contains(line, SYSRESTART)
+		signalPlus := strings.Contains(line, SignalPlus)
+		signalMinus := strings.Contains(line, SignalMinus)
+		shouldSkip := restart || signalPlus || signalMinus
+		if shouldSkip {
 			continue
+		} else if strings.Contains(line, CoverID) {
+			cover := parseIps(line)
+			fmt.Printf("Cover: %d\n", len(cover))
+			lastCall.Cover = cover
+			continue
+
 		} else {
+			fmt.Printf("line: %s\n", line)
 			lex := newLexer(scanner.Bytes())
 			StraceParse(lex)
 			call := lex.result
-			if cover != nil {
-				call.Cover = cover
+			if call == nil {
+				panic("CALL IS NIL")
 			}
-			tree.Add(call)
+			if call.Pid == -1 {
+				continue
+			}
+			lastCall = tree.Add(call)
 			//trace.Calls = append(trace.Calls, call)
-			fmt.Printf("result: %v\n", lex.result.CallName)
+			//fmt.Printf("result: %v\n", lex.result.CallName)
 		}
-
 	}
-	return nil
+	fmt.Printf(tree.String())
+	return
 }
 
 func Parse(filename string) {
@@ -75,5 +90,6 @@ func Parse(filename string) {
 	scanner := bufio.NewScanner(strings.NewReader(string(data)))
 	scanner.Buffer(buf, maxBufferSize)
 
-	parseLoop(scanner)
+	tree := parseLoop(scanner)
+	fmt.Println(tree.String())
 }

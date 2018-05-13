@@ -1,11 +1,11 @@
-package parser
+package scanner
 
 import (
     "fmt"
     "encoding/hex"
     "strconv"
     "strings"
-    "github.com/google/syzkaller/tools/moonshine/types"
+    "github.com/google/syzkaller/tools/moonshine/strace_types"
 )
 
 %%{
@@ -17,7 +17,7 @@ import (
 }%%
 
 type lexer struct {
-    result *types.Syscall
+    result *strace_types.Syscall
     data []byte
     p, pe, cs int
     ts, te, act int
@@ -41,14 +41,13 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         time = digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4}.'.'.digit+ |
             digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4};
         datetime = date.'T'.time;
+        identifier = [A-Za-z].[0-9a-z'_'\*\.\-]*;
         comment := |*
             ((any-"*\/"));
             "*\/" => {fgoto main;};
         *|;
 
         main := |*
-            '+'.'+'.'+' . [0-9A-Za-z' ']+ . '+'.'+'.'+' => {out.data = string(lex.data[lex.ts:lex.te]); fmt.Printf("SIGNAL %s\n", out.data);tok=SIGNAL_PLUS; fbreak;};
-            '-'.'-'.'-' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=SIGNAL_MINUS; fbreak;};
             [+\-]?digit+ => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 10, 64); tok = INT;fbreak;};
             [+\-]?digit . '.' . digit* => {out.val_double, _ = strconv.ParseFloat(string(lex.data[lex.ts : lex.te]), 64); tok= DOUBLE; fbreak;};
             0.[0-9]+ => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
@@ -56,18 +55,24 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             '\"'.digit{1}.'\.'.digit{1}.'\.'digit{1}.'\.'.digit{1}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
             '\"'.[0-9a-zA-Z\/\\\*]*.'\"' => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
             upper+ . ['_'A-Z0-9]+ => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
-            [A-Za-z].[0-9a-z'_'\*\.\-]* => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
+            identifier => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
             '=' => {tok = EQUALS;fbreak;};
             '(' => {tok = LPAREN;fbreak;};
             ')' => {tok = RPAREN;fbreak;};
             '[' => {tok = LBRACKET_SQUARE;fbreak;};
             ']' => {tok = RBRACKET_SQUARE;fbreak;};
+            '*' => {tok = TIMES; fbreak;};
+            '<unfinished ...>' => {tok = UNFINISHED; fbreak;};
+            ',  <unfinished ...>' => {tok = UNFINISHED_W_COMMA; fbreak;};
             '{' => {tok = LBRACKET;fbreak;};
+            '<... '.identifier.' resumed>' => {tok = RESUMED; fbreak;};
             '}' => {tok = RBRACKET;fbreak;};
             '|' => {tok = OR;fbreak;};
             '&' => {tok = AND;fbreak;};
             '!' => {tok = NOT;fbreak;};
+            '~' => {tok = ONESCOMP; fbreak;};
             "||" => {tok = LOR;fbreak;};
+            "NULL" => {tok = NULL; fbreak;};
             "&&" => {tok = LAND;fbreak;};
             ',' => {tok = COMMA;fbreak;};
             datetime => {out.data = string(lex.data[lex.ts:lex.te]); tok = DATETIME; fbreak;};
