@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	Parse("/home/spailoor/linuxtp2/ltp_unlink05")
+	Parse("/home/spailoor/linuxtp2/ltp_connect01")
 }

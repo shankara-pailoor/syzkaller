@@ -75,7 +75,6 @@ func parseLoop(scanner *bufio.Scanner) (tree *strace_types.TraceTree) {
 			//fmt.Printf("result: %v\n", lex.result.CallName)
 		}
 	}
-	fmt.Printf(tree.String())
 	return
 }
 
