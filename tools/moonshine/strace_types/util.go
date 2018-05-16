@@ -1,10 +1,11 @@
-package parser
+package strace_types
 
 import (
 	"strings"
 	"strconv"
 	"regexp"
 	"fmt"
+	. "github.com/google/syzkaller/prog"
 )
 
 type Pair struct {
@@ -20,6 +21,10 @@ type SocketDesc struct {
 
 var (
 	EnabledSyscalls = map[string]bool{}
+
+	SpecialFlags = map[string]uint64 {
+		"PROT_NONE": 0,
+	}
 
 	Unsupported = map[string]bool{
 		"brk": true,
@@ -707,6 +712,53 @@ func MakeDev(macro string) string {
 
 	fmt.Printf("id: %d\n", id)
 	return strconv.FormatInt(id, 10)
+}
+
+func commonArg(t Type) ArgCommon {
+	common := ArgCommon{}
+	common.AddType(t)
+	return common
+}
+
+func GroupArg(t Type, inner []Arg) Arg {
+	return &GroupArg{ArgCommon: commonArg(t), Inner: inner}
+}
+
+func PointerArg(t Type, page uint64, off int, npages uint64, obj Arg) Arg {
+	return &PointerArg{ArgCommon: commonArg(t), PageIndex: page, PageOffset: off, PagesNum: npages, Res: obj}
+}
+
+func ConstArg(t Type, v uint64) Arg {
+	return &ConstArg{ArgCommon: commonArg(t), Val: v}
+}
+
+func DataArg(t Type, data []byte) Arg {
+	return &DataArg{ArgCommon: commonArg(t), Data: append([]byte{}, data...)}
+}
+
+func UnionArg(t Type, opt Arg, typ Type) Arg {
+	return &UnionArg{ArgCommon: commonArg(t), Option: opt, OptionType: typ}
+}
+
+func ResultArg(t Type, r Arg, v uint64) Arg {
+	arg := &ResultArg{ArgCommon: commonArg(t), Res: r, Val: v}
+	if r == nil {
+		return arg
+	}
+	if used, ok := r.(ArgUsed); ok {
+		if *used.Used() == nil {
+			*used.Used() = make(map[Arg]bool)
+		}
+		if (*used.Used())[arg] {
+			panic("already used")
+		}
+		(*used.Used())[arg] = true
+	}
+	return arg
+}
+
+func ReturnArg(t Type) Arg {
+	return &ReturnArg{ArgCommon: commonArg(t)}
 }
 
 

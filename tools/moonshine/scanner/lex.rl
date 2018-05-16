@@ -38,6 +38,7 @@ func (lex *lexer) Lex(out *StraceSymType) int {
     tok := 0
     %%{
         date = digit{4}.'-'.digit{2}.'-'.digit{2};
+        nullptr = "NULL";
         time = digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4}.'.'.digit+ |
             digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4};
         datetime = date.'T'.time;
@@ -48,13 +49,14 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         *|;
 
         main := |*
-            [+\-]?digit+ => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 10, 64); tok = INT;fbreak;};
+            [+\-]?[1-9].[0-9]* => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 10, 64); tok = INT;fbreak;};
             [+\-]?digit . '.' . digit* => {out.val_double, _ = strconv.ParseFloat(string(lex.data[lex.ts : lex.te]), 64); tok= DOUBLE; fbreak;};
-            0.[0-9]+ => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
+            [0].[0-7]* => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
             '0x'xdigit+ => {out.val_uint, _ = strconv.ParseUint(string(lex.data[lex.ts:lex.te]), 0, 64); tok = UINT;fbreak;};
             '\"'.digit{1}.'\.'.digit{1}.'\.'digit{1}.'\.'.digit{1}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
             '\"'.[0-9a-zA-Z\/\\\*]*.'\"' => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
-            upper+ . ['_'A-Z0-9]+ => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
+            nullptr => {tok = NULL; fbreak;};
+            (upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
             identifier => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
             '=' => {tok = EQUALS;fbreak;};
             '(' => {tok = LPAREN;fbreak;};
@@ -72,7 +74,6 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             '!' => {tok = NOT;fbreak;};
             '~' => {tok = ONESCOMP; fbreak;};
             "||" => {tok = LOR;fbreak;};
-            "NULL" => {tok = NULL; fbreak;};
             "&&" => {tok = LAND;fbreak;};
             ',' => {tok = COMMA;fbreak;};
             datetime => {out.data = string(lex.data[lex.ts:lex.te]); tok = DATETIME; fbreak;};

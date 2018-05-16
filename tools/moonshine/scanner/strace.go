@@ -834,61 +834,61 @@ Stracedefault:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:149
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_flag_type, types.OR, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_flag_type), types.OR, StraceDollar[3].val_expr_type))
 		}
 	case 43:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:150
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_int_type, types.OR, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_int_type), types.OR, StraceDollar[3].val_expr_type))
 		}
 	case 44:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:151
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_flag_type, types.AND, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_flag_type), types.AND, StraceDollar[3].val_expr_type))
 		}
 	case 45:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:152
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_int_type, types.AND, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_int_type), types.AND, StraceDollar[3].val_expr_type))
 		}
 	case 46:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:153
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_flag_type, types.LSHIFT, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_flag_type), types.LSHIFT, StraceDollar[3].val_expr_type))
 		}
 	case 47:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:154
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_int_type, types.LSHIFT, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_int_type), types.LSHIFT, StraceDollar[3].val_expr_type))
 		}
 	case 48:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:155
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_flag_type, types.RSHIFT, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_flag_type), types.RSHIFT, StraceDollar[3].val_expr_type))
 		}
 	case 49:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:156
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_int_type, types.RSHIFT, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_int_type), types.RSHIFT, StraceDollar[3].val_expr_type))
 		}
 	case 50:
 		StraceDollar = StraceS[Stracept-3 : Stracept+1]
 		//line scanner/strace.y:157
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(StraceDollar[1].val_int_type, types.TIMES, StraceDollar[3].val_expr_type))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewBinop(types.NewExpression(StraceDollar[1].val_int_type), types.TIMES, StraceDollar[3].val_expr_type))
 		}
 	case 51:
 		StraceDollar = StraceS[Stracept-2 : Stracept+1]
 		//line scanner/strace.y:158
 		{
-			StraceVAL.val_expr_type = types.NewExpression(types.NewUnop(StraceDollar[2].val_expr_type, types.ONESCOMP))
+			StraceVAL.val_expr_type = types.NewExpression(types.NewUnop(types.NewExpression(StraceDollar[2].val_expr_type), types.ONESCOMP))
 		}
 	case 52:
 		StraceDollar = StraceS[Stracept-1 : Stracept+1]

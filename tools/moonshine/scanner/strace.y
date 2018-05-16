@@ -146,16 +146,16 @@ expr_type:
     flag_type {$$ = types.NewExpression($1);}
     | int_type {$$ = types.NewExpression($1);}
     | LPAREN expr_type RPAREN {$$ = types.NewExpression($2);}
-    | flag_type OR expr_type {$$ = types.NewExpression(types.NewBinop($1, types.OR, $3));}
-    | int_type OR expr_type {$$ = types.NewExpression(types.NewBinop($1, types.OR, $3));}
-    | flag_type AND expr_type {$$ = types.NewExpression(types.NewBinop($1, types.AND, $3));}
-    | int_type AND expr_type {$$ = types.NewExpression(types.NewBinop($1, types.AND, $3));}
-    | flag_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop($1, types.LSHIFT, $3));}
-    | int_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop($1, types.LSHIFT, $3));}
-    | flag_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop($1, types.RSHIFT, $3));}
-    | int_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop($1, types.RSHIFT, $3));}
-    | int_type TIMES expr_type {$$ = types.NewExpression(types.NewBinop($1, types.TIMES, $3));}
-    | ONESCOMP expr_type {$$ = types.NewExpression(types.NewUnop($2, types.ONESCOMP));}
+    | flag_type OR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.OR, $3));}
+    | int_type OR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.OR, $3));}
+    | flag_type AND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.AND, $3));}
+    | int_type AND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.AND, $3));}
+    | flag_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LSHIFT, $3));}
+    | int_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LSHIFT, $3));}
+    | flag_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.RSHIFT, $3));}
+    | int_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.RSHIFT, $3));}
+    | int_type TIMES expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.TIMES, $3));}
+    | ONESCOMP expr_type {$$ = types.NewExpression(types.NewUnop(types.NewExpression($2), types.ONESCOMP));}
 
 int_type:
       INT {$$ = types.NewIntType($1)}

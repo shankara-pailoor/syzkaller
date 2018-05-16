@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"bytes"
+	"github.com/google/syzkaller/prog"
 )
 
 type Operation int
@@ -16,6 +17,20 @@ const (
 	RSHIFT
 	ONESCOMP
 	TIMES
+)
+
+var (
+	Strace_ExpressionType = "Expression Type"
+	Strace_CallType = "Call Type"
+	Strace_IntType = "Int Type"
+	Strace_FieldType = "Field Type"
+	Strace_StructType = "Struct Type"
+	Strace_ArrayType = "Array Type"
+	Strace_PointerType = "Pointer Type"
+	Strace_BufferType = "Buffer Type"
+	Strace_FlagType = "Flag Type"
+	Strace_Ipv4Type = "Ipv4 Type"
+
 )
 
 type TraceTree struct {
@@ -54,9 +69,6 @@ func (tree *TraceTree) Add(call *Syscall) (*Syscall){
 	c := tree.TraceMap[call.Pid].Add(call)
 	if c.CallName == "clone" && !c.Paused {
 		tree.Ptree[c.Pid] = append(tree.Ptree[c.Pid], c.Ret)
-	}
-	if !c.Paused {
-		fmt.Printf(c.String())
 	}
 	return c
 }
@@ -172,7 +184,7 @@ func NewExpression(typ Type) (exp *Expression) {
 }
 
 func (r *Expression) Name() string {
-	return fmt.Sprintln("Expression Type")
+	return Strace_ExpressionType
 }
 
 func (r *Expression) String() string {
@@ -189,6 +201,19 @@ func (r *Expression) String() string {
 	return ""
 }
 
+func (e *Expression) Eval(target *prog.Target) uint64 {
+	if e.BinOp != nil {
+		return e.BinOp.Eval(target)
+	} else if e.Unop != nil {
+		return e.Unop.Eval(target)
+	} else if e.FlagType != nil {
+		return e.FlagType.Eval(target)
+	} else if e.IntType != nil {
+		return e.IntType.Eval(target)
+	}
+	panic("Failed to eval expression")
+}
+
 type Call struct {
 	CallName string
 	Args []Type
@@ -202,7 +227,7 @@ func NewCallType(name string, args []Type) (typ *Call){
 }
 
 func (c *Call) Name() string {
-	return fmt.Sprintln("Call Type")
+	return Strace_CallType
 }
 
 func (c *Call) String() string {
@@ -216,17 +241,38 @@ func (c *Call) String() string {
 }
 
 type Binop struct {
-	Operand1 Type
+	Operand1 *Expression
 	Op Operation
-	Operand2 Type
+	Operand2 *Expression
 }
 
-func NewBinop(operand1 Type, op Operation, operand2 Type) (b *Binop){
+func NewBinop(operand1 *Expression, op Operation, operand2 *Expression) (b *Binop){
 	b = new(Binop)
 	b.Operand1 = operand1
 	b.Op = op
 	b.Operand2 = operand2
 	return
+}
+
+func (b *Binop) Eval(target *prog.Target) uint64 {
+	op1Eval := b.Operand1.Eval(target)
+	op2Eval := b.Operand2.Eval(target)
+	switch b.Op {
+	case AND:
+		return op1Eval & op2Eval
+	case OR:
+		return op1Eval | op2Eval
+	case XOR:
+		return op1Eval ^ op2Eval
+	case LSHIFT:
+		return op1Eval << op2Eval
+	case RSHIFT:
+		return op1Eval >> op2Eval
+	case TIMES:
+		return op1Eval * op2Eval
+	default:
+		panic("Operator Not handled")
+	}
 }
 
 func (b *Binop) String() string{
@@ -238,15 +284,25 @@ func (b *Binop) Name() string{
 }
 
 type Unop struct {
-	Operand Type
+	Operand *Expression
 	Op Operation
 }
 
-func NewUnop(operand Type, op Operation) (u *Unop) {
+func NewUnop(operand *Expression, op Operation) (u *Unop) {
 	u = new(Unop)
 	u.Operand = operand
 	u.Op = op
 	return
+}
+
+func (u *Unop) Eval(target *prog.Target) uint64 {
+	opEval := u.Operand.Eval(target)
+	switch u.Op {
+	case ONESCOMP:
+		return ^opEval
+	default:
+		panic("Unsupported Unop Op")
+	}
 }
 
 func (u *Unop) String() string{
@@ -270,7 +326,7 @@ func NewField(key string, val Type) (f *Field) {
 }
 
 func (f *Field) Name() string {
-	return "Field Type"
+	return Strace_FieldType
 }
 
 func (f *Field) String() string {
@@ -291,8 +347,12 @@ func NewIntType(val int64) (typ *IntType) {
 	return
 }
 
+func (i *IntType) Eval(target *prog.Target) uint64 {
+	return uint64(i.Val)
+}
+
 func (i *IntType) Name() string {
-	return fmt.Sprintln("IntType")
+	return Strace_IntType
 }
 
 func (i *IntType) String() string {
@@ -310,8 +370,18 @@ func NewFlagType(val string) (typ *FlagType) {
 	return
 }
 
+func (f *FlagType) Eval(target *prog.Target) uint64 {
+	if val, ok := target.ConstMap[f.String()]; ok {
+		return val
+	} else if val, ok := SpecialFlags[f.String()]; ok {
+		return val
+	}
+	panic(fmt.Sprintf("Failed to eval flag: %s\n", f.Val))
+}
+
+
 func (f *FlagType) Name() string {
-	return fmt.Sprintln("Flag Type")
+	return Strace_FlagType
 }
 
 func (f *FlagType) String() string {
@@ -329,7 +399,7 @@ func NewBufferType(val string) (typ *BufferType) {
 }
 
 func (b *BufferType) Name() string {
-	return fmt.Sprintln("Buffer Type")
+	return Strace_BufferType
 }
 
 func (b *BufferType) String() string {
@@ -351,6 +421,7 @@ func NewPointerType(addr uint64, res Type) (typ *PointerType) {
 func NullPointer() (typ *PointerType) {
 	typ = new(PointerType)
 	typ.Address = 0
+	typ.Res = NewBufferType("")
 	return
 }
 
@@ -362,7 +433,7 @@ func (typ *PointerType) IsNull() bool {
 }
 
 func (p *PointerType) Name() string {
-	return fmt.Sprintln("Pointer Type")
+	return Strace_PointerType
 }
 
 func (p *PointerType) String() string {
@@ -385,7 +456,7 @@ func NewStructType(types []Type) (typ *StructType) {
 }
 
 func (s *StructType) Name() string {
-	return fmt.Sprintln("Struct Type")
+	return Strace_StructType
 }
 
 func (s *StructType) String() string {
@@ -413,7 +484,7 @@ func NewArrayType(elems []Type) (typ *ArrayType) {
 }
 
 func (a *ArrayType) Name() string {
-	return fmt.Sprintln("Array Type")
+	return Strace_ArrayType
 }
 
 func (a *ArrayType) String() string {
@@ -440,7 +511,7 @@ func NewIpv4Type(val string) (typ *Ipv4Type) {
 }
 
 func (i *Ipv4Type) Name() string {
-	return fmt.Sprintln("Ipv4 type")
+	return Strace_Ipv4Type
 }
 
 func (i *Ipv4Type) String() string {
