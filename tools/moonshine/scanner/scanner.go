@@ -55,12 +55,12 @@ func parseLoop(scanner *bufio.Scanner) (tree *strace_types.TraceTree) {
 			continue
 		} else if strings.Contains(line, CoverID) {
 			cover := parseIps(line)
-			fmt.Printf("Cover: %d\n", len(cover))
+			//fmt.Printf("Cover: %d\n", len(cover))
 			lastCall.Cover = cover
 			continue
 
 		} else {
-			fmt.Printf("line: %s\n", line)
+			//fmt.Printf("line: %s\n", line)
 			lex := newLexer(scanner.Bytes())
 			StraceParse(lex)
 			call := lex.result
@@ -78,7 +78,7 @@ func parseLoop(scanner *bufio.Scanner) (tree *strace_types.TraceTree) {
 	return
 }
 
-func Parse(filename string) {
+func Parse(filename string) *strace_types.TraceTree{
 	var data []byte
 	var err error
 
@@ -90,5 +90,5 @@ func Parse(filename string) {
 	scanner.Buffer(buf, maxBufferSize)
 
 	tree := parseLoop(scanner)
-	fmt.Println(tree.String())
+	return tree
 }

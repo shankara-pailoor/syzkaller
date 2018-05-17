@@ -194,9 +194,9 @@ func (r *Expression) String() string {
 		return fmt.Sprintf("Relation Expression is Unop. Operand is: %v, op: %v\n", r.Unop.Operand, r.Unop.Op)
 
 	} else if r.FlagType != nil {
-		return fmt.Sprintf("Flag Type: %s\n", r.FlagType.Val)
+		return r.FlagType.String()
 	} else if r.IntType != nil {
-		return fmt.Sprintf("Int Type: %d\n", r.IntType.Val)
+		return r.IntType.String()
 	}
 	return ""
 }
@@ -330,11 +330,7 @@ func (f *Field) Name() string {
 }
 
 func (f *Field) String() string {
-	var buf bytes.Buffer
-
-	buf.WriteString(f.Key)
-	buf.WriteString(f.Val.String())
-	return buf.String()
+	return f.Val.String()
 }
 
 type IntType struct {
@@ -357,7 +353,7 @@ func (i *IntType) Name() string {
 
 func (i *IntType) String() string {
 	v := strconv.FormatInt(i.Val, 10)
-	return fmt.Sprintf("%s\n", v)
+	return fmt.Sprintf("%s", v)
 }
 
 type FlagType struct {

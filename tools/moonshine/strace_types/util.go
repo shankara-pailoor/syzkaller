@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"regexp"
 	"fmt"
-	. "github.com/google/syzkaller/prog"
+	"github.com/google/syzkaller/prog"
 )
 
 type Pair struct {
@@ -511,11 +511,11 @@ var (
 	}
 
 	Ioctl_map = map[string]string {
-		"FIONBIO": "int_in",
-		"FIOASYNC": "int_in",
-		"FS_IOC_GETFLAGS": "int_out",
-		"FS_IOC_SETFLAGS": "int_in",
-		"SIOCGIFINDEX": "sock_SIOCGIFINDEX",
+		"FIONBIO": "$int_in",
+		"FIOASYNC": "$int_in",
+		"FS_IOC_GETFLAGS": "$int_out",
+		"FS_IOC_SETFLAGS": "$int_in",
+		"SIOCGIFINDEX": "$sock_SIOCGIFINDEX",
 	}
 
 	Socket_labels_pair = map[Pair]string {
@@ -714,40 +714,40 @@ func MakeDev(macro string) string {
 	return strconv.FormatInt(id, 10)
 }
 
-func commonArg(t Type) ArgCommon {
-	common := ArgCommon{}
+func commonArg(t prog.Type) prog.ArgCommon {
+	common := prog.ArgCommon{}
 	common.AddType(t)
 	return common
 }
 
-func GroupArg(t Type, inner []Arg) Arg {
-	return &GroupArg{ArgCommon: commonArg(t), Inner: inner}
+func GroupArg(t prog.Type, inner []prog.Arg) prog.Arg {
+	return &prog.GroupArg{ArgCommon: commonArg(t), Inner: inner}
 }
 
-func PointerArg(t Type, page uint64, off int, npages uint64, obj Arg) Arg {
-	return &PointerArg{ArgCommon: commonArg(t), PageIndex: page, PageOffset: off, PagesNum: npages, Res: obj}
+func PointerArg(t prog.Type, page uint64, off int, npages uint64, obj prog.Arg) prog.Arg {
+	return &prog.PointerArg{ArgCommon: commonArg(t), PageIndex: page, PageOffset: off, PagesNum: npages, Res: obj}
 }
 
-func ConstArg(t Type, v uint64) Arg {
-	return &ConstArg{ArgCommon: commonArg(t), Val: v}
+func ConstArg(t prog.Type, v uint64) prog.Arg {
+	return &prog.ConstArg{ArgCommon: commonArg(t), Val: v}
 }
 
-func DataArg(t Type, data []byte) Arg {
-	return &DataArg{ArgCommon: commonArg(t), Data: append([]byte{}, data...)}
+func DataArg(t prog.Type, data []byte) prog.Arg {
+	return &prog.DataArg{ArgCommon: commonArg(t), Data: append([]byte{}, data...)}
 }
 
-func UnionArg(t Type, opt Arg, typ Type) Arg {
-	return &UnionArg{ArgCommon: commonArg(t), Option: opt, OptionType: typ}
+func UnionArg(t prog.Type, opt prog.Arg, typ prog.Type) prog.Arg {
+	return &prog.UnionArg{ArgCommon: commonArg(t), Option: opt, OptionType: typ}
 }
 
-func ResultArg(t Type, r Arg, v uint64) Arg {
-	arg := &ResultArg{ArgCommon: commonArg(t), Res: r, Val: v}
+func ResultArg(t prog.Type, r prog.Arg, v uint64) prog.Arg {
+	arg := &prog.ResultArg{ArgCommon: commonArg(t), Res: r, Val: v}
 	if r == nil {
 		return arg
 	}
-	if used, ok := r.(ArgUsed); ok {
+	if used, ok := r.(prog.ArgUsed); ok {
 		if *used.Used() == nil {
-			*used.Used() = make(map[Arg]bool)
+			*used.Used() = make(map[prog.Arg]bool)
 		}
 		if (*used.Used())[arg] {
 			panic("already used")
@@ -757,9 +757,43 @@ func ResultArg(t Type, r Arg, v uint64) Arg {
 	return arg
 }
 
-func ReturnArg(t Type) Arg {
-	return &ReturnArg{ArgCommon: commonArg(t)}
+func ReturnArg(t prog.Type) prog.Arg {
+	return &prog.ReturnArg{ArgCommon: commonArg(t)}
 }
+
+func GetSyzType(typ prog.Type) string {
+	switch a := typ.(type) {
+	case *prog.ResourceType:
+		return "ResourceType-" + a.Desc.Kind[0]
+	case *prog.BufferType:
+		return "BufferType"
+	case *prog.VmaType:
+		return "VmaType"
+	case *prog.FlagsType:
+		return "FlagsType"
+	case *prog.ConstType:
+		return "ConstType"
+	case *prog.IntType:
+		return "IntType"
+	case *prog.ProcType:
+		return "ProcType"
+	case *prog.ArrayType:
+		return "ArrayType"
+	case *prog.StructType:
+		return "StructType"
+	case *prog.UnionType:
+		return "UnionType"
+	case *prog.PtrType:
+		return "PtrType"
+	case *prog.LenType:
+		return "LenType"
+	case *prog.CsumType:
+		return "CsumType"
+	default:
+		panic("unknown argument type")
+	}
+}
+
 
 
 

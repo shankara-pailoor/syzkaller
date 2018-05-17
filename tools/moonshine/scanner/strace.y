@@ -125,7 +125,8 @@ call_type:
     IDENTIFIER LPAREN types RPAREN {$$ = types.NewCallType($1, $3)}
 
 pointer_type:
-    AND UINT EQUALS type {$$ = types.NewPointerType($2, $4)}
+    UINT {$$ = types.NewPointerType($1, nil)}
+    | AND UINT EQUALS type {$$ = types.NewPointerType($2, $4)}
     | NULL {$$ = types.NullPointer()}
 
 array_type:
@@ -159,7 +160,6 @@ expr_type:
 
 int_type:
       INT {$$ = types.NewIntType($1)}
-    | UINT {$$ = types.NewIntType(int64($1))}
 
 flag_type:
       FLAG {$$ = types.NewFlagType($1)}
