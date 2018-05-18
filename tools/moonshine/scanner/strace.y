@@ -2,7 +2,7 @@
 package scanner
 
 import (
-    //"fmt"
+    "fmt"
     types "github.com/google/syzkaller/tools/moonshine/strace_types"
 )
 %}
@@ -16,6 +16,7 @@ import (
     val_uint uint64
     val_field *types.Field
     val_call *types.Call
+    val_macro *types.Macro
     val_int_type *types.IntType
     val_identifiers []*types.BufferType
     val_buf_type *types.BufferType
@@ -43,13 +44,15 @@ import (
 %type <val_flag_type> flag_type
 %type <val_expr_type> expr_type
 %type <val_call> call_type
+%type <val_macro> macro_type
 %type <val_type> type
 %type <val_pointer_type> pointer_type
 %type <val_ipv4_type> ipv4_type
 %type <val_types> types
 %type <val_syscall> syscall
 
-%token STRING_LITERAL IPV4 IDENTIFIER FLAG INT UINT QUESTION DOUBLE OR AND LOR TIMES LAND NOT ONESCOMP LSHIFT RSHIFT
+%token STRING_LITERAL IPV4 IDENTIFIER FLAG INT UINT QUESTION DOUBLE
+%token OR AND LOR TIMES LAND LEQUAL ONESCOMP LSHIFT RSHIFT TIMES NOT
 %token COMMA LBRACKET RBRACKET LBRACKET_SQUARE RBRACKET_SQUARE LPAREN RPAREN EQUALS
 %token UNFINISHED UNFINISHED_W_COMMA RESUMED
 %token SIGNAL_PLUS SIGNAL_MINUS NULL
@@ -63,12 +66,12 @@ syscall:
                                                         Stracelex.(*lexer).result = $$ }
     | INT IDENTIFIER LPAREN types UNFINISHED %prec NOFLAG { $$ = types.NewSyscall($1, $2, $4, int64(-1), true, false);
                                                         Stracelex.(*lexer).result = $$ }
-    | INT IDENTIFIER LPAREN types UNFINISHED_W_COMMA %prec NOFLAG { $$ = types.NewSyscall($1, $2, $4, int64(-1), true, false);
-                                                        Stracelex.(*lexer).result = $$ }
     | INT RESUMED RPAREN EQUALS INT %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", nil, int64($5), false, true);
                                                         Stracelex.(*lexer).result = $$ }
     | INT RESUMED RPAREN EQUALS UINT %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", nil, int64($5), false, true);
                                                         Stracelex.(*lexer).result = $$ }
+    | INT RESUMED RPAREN EQUALS QUESTION %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", nil, -1, false, true);
+                                                              Stracelex.(*lexer).result = $$ }
     | INT RESUMED RPAREN EQUALS INT LPAREN FLAG RPAREN { $$ = types.NewSyscall($1, "tmp", nil, int64($5), false, true);
                                                         Stracelex.(*lexer).result = $$ }
     | INT RESUMED RPAREN EQUALS UINT LPAREN FLAG RPAREN { $$ = types.NewSyscall($1, "tmp", nil, int64($5), false, true);
@@ -76,6 +79,8 @@ syscall:
     | INT RESUMED types RPAREN EQUALS INT %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", $3, int64($6), false, true);
                                                         Stracelex.(*lexer).result = $$ }
     | INT RESUMED types RPAREN EQUALS UINT %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", $3, int64($6), false, true);
+                                                        Stracelex.(*lexer).result = $$ }
+    | INT RESUMED types RPAREN EQUALS QUESTION %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", $3, -1, false, true);
                                                         Stracelex.(*lexer).result = $$ }
     | INT RESUMED types RPAREN EQUALS INT LPAREN FLAG RPAREN { $$ = types.NewSyscall($1, "tmp", $3, int64($6), false, true);
                                                         Stracelex.(*lexer).result = $$ }
@@ -122,7 +127,11 @@ type:
     | ipv4_type {$$ = $1}
 
 call_type:
-    IDENTIFIER LPAREN types RPAREN {$$ = types.NewCallType($1, $3)}
+    IDENTIFIER LPAREN types RPAREN {fmt.Printf("Call Type\n"); $$ = types.NewCallType($1, $3)}
+
+macro_type:
+    FLAG LPAREN types RPAREN {fmt.Printf("Macro Type\n"); $$ = types.NewMacroType($1, $3)}
+    | FLAG LPAREN identifiers RPAREN {fmt.Printf("Macro Type\n"); $$ = types.NewMacroType($1, nil)}
 
 pointer_type:
     UINT {$$ = types.NewPointerType($1, nil)}
@@ -146,13 +155,27 @@ buf_type:
 expr_type:
     flag_type {$$ = types.NewExpression($1);}
     | int_type {$$ = types.NewExpression($1);}
+    | macro_type {$$ = types.NewExpression($1);}
     | LPAREN expr_type RPAREN {$$ = types.NewExpression($2);}
+    | macro_type OR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.OR, $3));}
     | flag_type OR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.OR, $3));}
     | int_type OR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.OR, $3));}
+    | macro_type LAND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.OR, $3));}
+    | flag_type LAND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LAND, $3));}
+    | int_type LAND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LAND, $3));}
+    | macro_type LOR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LOR, $3));}
+    | flag_type LOR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LOR, $3));}
+    | int_type LOR expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LOR, $3));}
+    | macro_type LEQUAL expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LEQUAL, $3));}
+    | flag_type LEQUAL expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LEQUAL, $3));}
+    | int_type LEQUAL expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LEQUAL, $3));}
+    | macro_type AND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.AND, $3));}
     | flag_type AND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.AND, $3));}
     | int_type AND expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.AND, $3));}
+    | macro_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LSHIFT, $3));}
     | flag_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LSHIFT, $3));}
     | int_type LSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.LSHIFT, $3));}
+    | macro_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.RSHIFT, $3));}
     | flag_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.RSHIFT, $3));}
     | int_type RSHIFT expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.RSHIFT, $3));}
     | int_type TIMES expr_type {$$ = types.NewExpression(types.NewBinop(types.NewExpression($1), types.TIMES, $3));}

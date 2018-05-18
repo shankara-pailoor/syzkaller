@@ -83,8 +83,9 @@ func ParseMprotect(mprotect *prog.Syscall, syscall *strace_types.Syscall, ctx *C
 		Ret: strace_types.ReturnArg(mprotect.Ret),
 	}
 
-	addrArg, address := ParseAddr(1, mprotect.Args[0], syscall.Args[0], ctx)
+	addrArg, address := ParseAddr(pageSize, mprotect.Args[0], syscall.Args[0], ctx)
 	length := ParseLength(syscall.Args[1], ctx)
+	fmt.Printf("MProtect Length: %d\n", length)
 	lengthArg := prog.MakeConstArg(mprotect.Args[1], length)
 	protArg := ParseFlags(mprotect.Args[2], syscall.Args[2], ctx, false)
 	AddDependency(address, length, addrArg, ctx)
@@ -101,7 +102,7 @@ func ParseMunmap(munmap *prog.Syscall, syscall *strace_types.Syscall, ctx *Conte
 		Meta: munmap,
 		Ret: strace_types.ReturnArg(munmap.Ret),
 	}
-	_, address := ParseAddr(1, munmap.Args[0], syscall.Args[0], ctx)
+	_, address := ParseAddr(pageSize, munmap.Args[0], syscall.Args[0], ctx)
 	addrArg := prog.MakePointerArg(munmap.Args[0], address/pageSize, 0, 1, nil)
 	length := ParseLength(syscall.Args[1], ctx)
 	lengthArg := prog.MakeConstArg(munmap.Args[1], length)
@@ -169,7 +170,7 @@ func ParseFlags(syzType prog.Type, straceType strace_types.Type, ctx *Context, m
 
 func ParseFd(syzType prog.Type, straceType strace_types.Type, ctx *Context) prog.Arg {
 	if arg := ctx.Cache.Get(syzType, straceType); arg != nil {
-		return arg
+		return prog.MakeResultArg(arg.Type(), arg, arg.Type().Default())
 	}
 	switch a := straceType.(type) {
 	case *strace_types.Expression:

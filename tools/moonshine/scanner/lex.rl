@@ -42,6 +42,7 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         time = digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4}.'.'.digit+ |
             digit{2}.':'.digit{2}.':'.digit{2}.'+'.digit{4};
         datetime = date.'T'.time;
+        unfinished = '<unfinished ...>' | ',  <unfinished ...>';
         identifier = [A-Za-z].[0-9a-z'_'\*\.\-]*;
         comment := |*
             ((any-"*\/"));
@@ -53,21 +54,22 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             [+\-]?digit . '.' . digit* => {out.val_double, _ = strconv.ParseFloat(string(lex.data[lex.ts : lex.te]), 64); tok= DOUBLE; fbreak;};
             [0].[0-7]* => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
             '0x'xdigit+ => {out.val_uint, _ = strconv.ParseUint(string(lex.data[lex.ts:lex.te]), 0, 64); tok = UINT;fbreak;};
-            '\"'.digit{1}.'\.'.digit{1}.'\.'digit{1}.'\.'.digit{1}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
+            '\"'.digit{1,4}.'\.'.digit{1,4}.'\.'digit{1,4}.'\.'.digit{1,4}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
             '\"'.[0-9a-zA-Z\/\\\*]*.'\"' => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
             nullptr => {tok = NULL; fbreak;};
-            (upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
+            (['_']?upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
             identifier => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
+            unfinished => {tok = UNFINISHED; fbreak;};
             '=' => {tok = EQUALS;fbreak;};
+            '==' => {tok = LEQUAL; fbreak;};
             '(' => {tok = LPAREN;fbreak;};
             ')' => {tok = RPAREN;fbreak;};
             '[' => {tok = LBRACKET_SQUARE;fbreak;};
             ']' => {tok = RBRACKET_SQUARE;fbreak;};
             '*' => {tok = TIMES; fbreak;};
-            '<unfinished ...>' => {tok = UNFINISHED; fbreak;};
-            ',  <unfinished ...>' => {tok = UNFINISHED_W_COMMA; fbreak;};
+            [',']?.'<unfinished ...>' => {tok = UNFINISHED; fbreak;};
             '{' => {tok = LBRACKET;fbreak;};
-            '<... '.identifier.' resumed>' => {tok = RESUMED; fbreak;};
+            '<... '.identifier.' resumed>'.[',']? => {fmt.Printf("RESUMED TOK\n"); tok = RESUMED; fbreak;};
             '}' => {tok = RBRACKET;fbreak;};
             '|' => {tok = OR;fbreak;};
             '&' => {tok = AND;fbreak;};

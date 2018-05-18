@@ -17,6 +17,9 @@ const (
 	RSHIFT
 	ONESCOMP
 	TIMES
+	LAND
+	LOR
+	LEQUAL
 )
 
 var (
@@ -37,6 +40,7 @@ type TraceTree struct {
 	TraceMap map[int64]*Trace
 	Ptree map[int64][]int64
 	RootPid int64
+	Filename string
 }
 
 func NewTraceTree() (tree *TraceTree) {
@@ -164,6 +168,7 @@ type Expression struct {
 	Unop *Unop
 	FlagType *FlagType
 	IntType *IntType
+	MacroType *Macro
 }
 
 func NewExpression(typ Type) (exp *Expression) {
@@ -177,6 +182,8 @@ func NewExpression(typ Type) (exp *Expression) {
 		exp.IntType = a
 	case *FlagType:
 		exp.FlagType = a
+	case *Macro:
+		exp.MacroType = a
 	default:
 		panic(fmt.Sprintf("Expression received wrong type: %s", typ.Name()))
 	}
@@ -212,6 +219,32 @@ func (e *Expression) Eval(target *prog.Target) uint64 {
 		return e.IntType.Eval(target)
 	}
 	panic("Failed to eval expression")
+}
+
+type Macro struct {
+	MacroName string
+	Args []Type
+}
+
+func NewMacroType(name string, args []Type) (typ *Macro) {
+	typ = new(Macro)
+	typ.MacroName = name
+	typ.Args = args
+	return
+}
+
+func (m *Macro) Name() string {
+	return "Macro"
+}
+
+func (m *Macro) String() string {
+	var buf bytes.Buffer
+
+	buf.WriteString("Name: " + m.MacroName + "\n")
+	for _, arg := range m.Args {
+		buf.WriteString("Arg: " + arg.Name() + "\n")
+	}
+	return buf.String()
 }
 
 type Call struct {
@@ -369,7 +402,7 @@ func NewFlagType(val string) (typ *FlagType) {
 func (f *FlagType) Eval(target *prog.Target) uint64 {
 	if val, ok := target.ConstMap[f.String()]; ok {
 		return val
-	} else if val, ok := SpecialFlags[f.String()]; ok {
+	} else if val, ok := Special_Consts[f.String()]; ok {
 		return val
 	}
 	panic(fmt.Sprintf("Failed to eval flag: %s\n", f.Val))

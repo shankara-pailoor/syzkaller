@@ -22,10 +22,6 @@ type SocketDesc struct {
 var (
 	EnabledSyscalls = map[string]bool{}
 
-	SpecialFlags = map[string]uint64 {
-		"PROT_NONE": 0,
-	}
-
 	Unsupported = map[string]bool{
 		"brk": true,
 		//"mprotect": true,
@@ -644,6 +640,7 @@ var (
 		"_LINUX_CAPABILITY_VERSION_1": uint64(0x19980330),
 		"_LINUX_CAPABILITY_VERSION_2": uint64(0x20071026),
 		"_LINUX_CAPABILITY_VERSION_3": uint64(0x20080522),
+		"PROT_NONE": 0,
 	}
 
 	Macros = []string{"makedev"}
@@ -764,6 +761,7 @@ func ReturnArg(t prog.Type) prog.Arg {
 func GetSyzType(typ prog.Type) string {
 	switch a := typ.(type) {
 	case *prog.ResourceType:
+		fmt.Printf("Resource Kind: %s %s", a.Desc.Kind[0], a.TypeName)
 		return "ResourceType-" + a.Desc.Kind[0]
 	case *prog.BufferType:
 		return "BufferType"
