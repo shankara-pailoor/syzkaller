@@ -44,6 +44,9 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         datetime = date.'T'.time;
         unfinished = '<unfinished ...>' | ',  <unfinished ...>';
         identifier = [A-Za-z].[0-9a-z'_'\*\.\-]*;
+        resumed = '<... '.identifier+.' resumed>'
+                    | '<... '.identifier+.' resumed> ,'
+                    | '<... resuming'.identifier+.'...>';
         comment := |*
             ((any-"*\/"));
             "*\/" => {fgoto main;};
@@ -55,11 +58,12 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             [0].[0-7]* => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
             '0x'xdigit+ => {out.val_uint, _ = strconv.ParseUint(string(lex.data[lex.ts:lex.te]), 0, 64); tok = UINT;fbreak;};
             '\"'.digit{1,4}.'\.'.digit{1,4}.'\.'digit{1,4}.'\.'.digit{1,4}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
-            '\"'.[0-9a-zA-Z\/\\\*]*.'\"' => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
+            '\"'.[0-9a-zA-Z\/\\\*]*.'\"'.['.']* => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
             nullptr => {tok = NULL; fbreak;};
             (['_']?upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
             identifier => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
             unfinished => {tok = UNFINISHED; fbreak;};
+            resumed => {tok = RESUMED; fbreak;};
             '=' => {tok = EQUALS;fbreak;};
             '==' => {tok = LEQUAL; fbreak;};
             '(' => {tok = LPAREN;fbreak;};
@@ -67,14 +71,13 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             '[' => {tok = LBRACKET_SQUARE;fbreak;};
             ']' => {tok = RBRACKET_SQUARE;fbreak;};
             '*' => {tok = TIMES; fbreak;};
-            [',']?.'<unfinished ...>' => {tok = UNFINISHED; fbreak;};
             '{' => {tok = LBRACKET;fbreak;};
-            '<... '.identifier.' resumed>'.[',']? => {fmt.Printf("RESUMED TOK\n"); tok = RESUMED; fbreak;};
             '}' => {tok = RBRACKET;fbreak;};
             '|' => {tok = OR;fbreak;};
             '&' => {tok = AND;fbreak;};
             '!' => {tok = NOT;fbreak;};
             '~' => {tok = ONESCOMP; fbreak;};
+            '->' => {tok = ARROW; fbreak;};
             "||" => {tok = LOR;fbreak;};
             "&&" => {tok = LAND;fbreak;};
             ',' => {tok = COMMA;fbreak;};
@@ -97,7 +100,15 @@ func (lex *lexer) Error(e string) {
 func ParseString(s string) string{
 	var decoded []byte
 	var err error
-	if decoded, err = hex.DecodeString(strings.Replace(s, `\x`, "", -1)); err != nil {
+	var strippedStr string
+	strippedStr = strings.Replace(s, `\x`, "", -1)
+	strippedStr = strings.Replace(strippedStr, ".", "", -1)
+	strippedStr = strings.Replace(strippedStr, `"`, "", -1)
+	if len(strippedStr) % 2 > 0 {
+	    strippedStr += "0"
+	    fmt.Printf("stripped string: %d\n", len(strippedStr))
+	}
+	if decoded, err = hex.DecodeString(strippedStr); err != nil {
 		panic(fmt.Sprintf("Failed to decode string: %s, with error: %s\n", s, err.Error()))
 	}
 	decoded = append(decoded, '\x00')

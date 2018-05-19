@@ -163,12 +163,30 @@ type Type interface {
 	String() string
 }
 
+type DynamicType struct {
+	BeforeCall *Expression
+	AfterCall *Expression
+}
+
+func NewDynamicType(before, after Type) *DynamicType {
+	return &DynamicType{BeforeCall:  before.(*Expression), AfterCall: after.(*Expression)}
+}
+
+func (d *DynamicType) String() string {
+	return d.BeforeCall.String()
+}
+
+func (d *DynamicType) Name() string {
+	return "Dynamic Type"
+}
+
 type Expression struct {
 	BinOp *Binop
 	Unop *Unop
 	FlagType *FlagType
 	IntType *IntType
 	MacroType *Macro
+	BinarySetType *BinarySet
 }
 
 func NewExpression(typ Type) (exp *Expression) {
@@ -184,6 +202,8 @@ func NewExpression(typ Type) (exp *Expression) {
 		exp.FlagType = a
 	case *Macro:
 		exp.MacroType = a
+	case *BinarySet:
+		exp.BinarySetType = a
 	default:
 		panic(fmt.Sprintf("Expression received wrong type: %s", typ.Name()))
 	}
@@ -219,6 +239,14 @@ func (e *Expression) Eval(target *prog.Target) uint64 {
 		return e.IntType.Eval(target)
 	}
 	panic("Failed to eval expression")
+}
+
+type Parenthetical struct {
+	tmp string
+}
+
+func NewParenthetical() *Parenthetical {
+	return &Parenthetical{tmp:"tmp"};
 }
 
 type Macro struct {
@@ -415,6 +443,26 @@ func (f *FlagType) Name() string {
 
 func (f *FlagType) String() string {
 	return fmt.Sprintf("%s", f.Val)
+}
+
+type BinarySet struct {
+	Expr1 *Expression
+	Expr2 *Expression
+}
+
+func NewBinarySet(expr1 *Expression, expr2 *Expression) *BinarySet{
+	return &BinarySet {
+		Expr1 : expr1,
+		Expr2 : expr2,
+	}
+}
+
+func (b *BinarySet) Name() string {
+	return "BinarySet Type"
+}
+
+func (b *BinarySet) String() string {
+	return b.Expr1.String() + b.Expr2.String()
 }
 
 type BufferType struct {

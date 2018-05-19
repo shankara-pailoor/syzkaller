@@ -75,6 +75,9 @@ func parseLoop(scanner *bufio.Scanner) (tree *strace_types.TraceTree) {
 			//fmt.Printf("result: %v\n", lex.result.CallName)
 		}
 	}
+	if len(tree.Ptree) == 0 {
+		return nil
+	}
 	return
 }
 
@@ -90,6 +93,8 @@ func Parse(filename string) *strace_types.TraceTree{
 	scanner.Buffer(buf, maxBufferSize)
 
 	tree := parseLoop(scanner)
-	tree.Filename = filename
+	if tree != nil {
+		tree.Filename = filename
+	}
 	return tree
 }

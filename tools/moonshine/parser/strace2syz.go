@@ -7,6 +7,7 @@ import (
 	. "github.com/google/syzkaller/tools/moonshine/logging"
 	"fmt"
 	"math/rand"
+	"encoding/binary"
 )
 
 type returnCache map[ResourceDescription]prog.Arg
@@ -64,20 +65,6 @@ func NewContext(target *prog.Target) (ctx *Context) {
 	return
 }
 
-type ArgParseHandler func(strace_types.Type, prog.Type, *Context) (prog.Arg, error)
-
-
-/*
-func parseCall(ctx *Context) (*prog.Call, error) {
-	straceCall := ctx.currentStraceCall
-	callMeta := ctx.target.SyscallMap[straceCall.CallName]
-	var straceArg strace_types.Type
-	for i, argTyp := range callMeta.Args {
-		straceArg = straceCall.Args[i]
-
-	}
-}*/
-
 
 func ParseProg(trace *strace_types.Trace, target *prog.Target) (*prog.Prog, *Context, error) {
 	syzProg := new(prog.Prog)
@@ -98,9 +85,12 @@ func ParseProg(trace *strace_types.Trace, target *prog.Target) (*prog.Prog, *Con
 		}
 		ctx.CurrentStraceCall = s_call
 		if call, err := parseCall(ctx); err == nil {
+			if call == nil {
+				continue
+			}
 			syzProg.Calls = append(syzProg.Calls, call)
 		} else {
-			return nil, ctx, err
+			Failf("Failed to parse call: %s\n", s_call.CallName)
 		}
 	}
 	return syzProg, ctx, nil
@@ -114,9 +104,13 @@ func parseCall(ctx *Context) (*prog.Call, error) {
 	ctx.CurrentSyzCall = retCall
 
 	Preprocess(ctx)
+	if ctx.CurrentSyzCall.Meta == nil {
+		//A call like fcntl may have variants like fcntl$get_flag
+		//but no generic fcntl system call in Syzkaller
+		return nil, nil
+	}
+	fmt.Printf("PARSING CALL: %s\n", ctx.CurrentSyzCall.Meta.CallName)
 	retCall.Ret = strace_types.ReturnArg(ctx.CurrentSyzCall.Meta.Ret)
-	fmt.Printf("RetCall: %#v\n", retCall.Meta)
-	fmt.Printf("Parsing Call: %s\n", ctx.CurrentStraceCall.CallName)
 
 	if call := ParseMemoryCall(ctx); call != nil {
 		return call, nil
@@ -131,7 +125,11 @@ func parseCall(ctx *Context) (*prog.Call, error) {
 			len(straceCall.Args))
 	}
 	for i := range(retCall.Meta.Args) {
-		if arg, err := parseArgs(retCall.Meta.Args[i], straceCall.Args[i], ctx); err != nil {
+		var strArg strace_types.Type = nil
+		if i < len(straceCall.Args) {
+			strArg = straceCall.Args[i]
+		}
+		if arg, err := parseArgs(retCall.Meta.Args[i], strArg, ctx); err != nil {
 			Failf("Failed to parse arg: %s\n", err.Error())
 		} else {
 			retCall.Args = append(retCall.Args, arg)
@@ -157,6 +155,9 @@ func parseResult(syzType prog.Type, straceRet int64, ctx *Context) {
 }
 
 func parseArgs(syzType prog.Type, straceArg strace_types.Type, ctx *Context) (prog.Arg, error) {
+	if straceArg == nil {
+		return GenDefaultArg(syzType, ctx), nil
+	}
 	switch a := syzType.(type) {
 	case *prog.IntType, *prog.ConstType, *prog.FlagsType, *prog.LenType, *prog.CsumType:
 		return Parse_ConstType(a, straceArg, ctx)
@@ -174,10 +175,24 @@ func parseArgs(syzType prog.Type, straceArg strace_types.Type, ctx *Context) (pr
 		return Parse_ArrayType(a, straceArg, ctx)
 	case *prog.UnionType:
 		return Parse_UnionType(a, straceArg, ctx)
+	case *prog.VmaType:
+		return Parse_VmaType(a, straceArg, ctx)
 	default:
-		panic("Unsupported Type")
+		panic(fmt.Sprintf("Unsupported  Type: %v\n", syzType))
 	}
 }
+
+func Parse_VmaType(syzType *prog.VmaType, straceType strace_types.Type, ctx *Context) (prog.Arg, error) {
+	npages := uint64(1)
+	// TODO: strace doesn't give complete info, need to guess random page range
+	if syzType.RangeBegin != 0 || syzType.RangeEnd != 0 {
+		npages = uint64(int(syzType.RangeEnd)) // + r.Intn(int(a.RangeEnd-a.RangeBegin+1)))
+	}
+	arg := strace_types.PointerArg(syzType, 0, 0, npages, nil)
+	ctx.State.Tracker.AddAllocation(ctx.CurrentSyzCall, pageSize, arg)
+	return arg, nil
+}
+
 
 func Parse_ArrayType(syzType *prog.ArrayType, straceType strace_types.Type, ctx *Context) (prog.Arg, error) {
 	args := make([]prog.Arg, 0)
@@ -193,8 +208,12 @@ func Parse_ArrayType(syzType *prog.ArrayType, straceType strace_types.Type, ctx 
 				Failf("Error parsing array elem: %s\n", err.Error())
 			}
 		}
+	case *strace_types.Field:
+		return Parse_ArrayType(syzType, a.Val, ctx)
+	case *strace_types.PointerType, *strace_types.Expression:
+		return GenDefaultArg(syzType, ctx), nil
 	default:
-		Failf("Error parsing Array with Wrong Type: %v", straceType)
+		Failf("Error parsing Array with Wrong Type: %s", straceType.Name())
 	}
 	return strace_types.GroupArg(syzType, args), nil
 }
@@ -204,33 +223,43 @@ func Parse_StructType(syzType *prog.StructType, straceType strace_types.Type, ct
 	args := make([]prog.Arg, 0)
 	switch a := straceType.(type) {
 	case *strace_types.StructType:
-		j := 0
-		for i, _ := range(syzType.Fields) {
-			if prog.IsPad(syzType.Fields[i]) {
-				args = append(args, prog.DefaultArg(syzType.Fields[i]))
-			} else {
-				if j >= len(a.Fields) {
-					args = append(args, GenDefaultArg(syzType.Fields[i], ctx))
-				} else if arg, err := parseArgs(syzType.Fields[i], a.Fields[j], ctx); err == nil {
-					args = append(args, arg)
-				} else {
-					Failf("Error parsing struct field: %#v", ctx)
-				}
-				j += 1
-			}
-		}
+		args = append(args, evalFields(syzType.Fields, a.Fields, ctx)...)
 	case *strace_types.ArrayType:
 		//Syzkaller's pipe definition expects a pipefd struct
 		//But strace returns an array type
-		for i, _ := range(syzType.Fields) {
-			if arg, err := parseArgs(syzType.Fields[i], a.Elems[i], ctx); err == nil {
+		args = append(args, evalFields(syzType.Fields, a.Elems, ctx)...)
+	case *strace_types.Field:
+		fmt.Printf("Parsing Strace Field: %#v\n",  a)
+		if arg, err := parseArgs(syzType, a.Val, ctx); err == nil {
+			return arg, nil
+		} else {
+			Failf("Error parsing struct field: %#v", ctx)
+		}
+	default:
+		Failf("Unsupported Strace Type: %#v to Struct Type", a)
+	}
+	fmt.Printf("Struct Type args: %p %#v\n", args, args)
+	return strace_types.GroupArg(syzType, args), nil
+}
+
+func evalFields(syzFields []prog.Type, straceFields []strace_types.Type, ctx *Context) []prog.Arg {
+	args := make([]prog.Arg, 0)
+	j := 0
+	for i, _ := range(syzFields) {
+		if prog.IsPad(syzFields[i]) {
+			args = append(args, prog.DefaultArg(syzFields[i]))
+		} else {
+			if j >= len(straceFields) {
+				args = append(args, GenDefaultArg(syzFields[i], ctx))
+			} else if arg, err := parseArgs(syzFields[i], straceFields[j], ctx); err == nil {
 				args = append(args, arg)
 			} else {
 				Failf("Error parsing struct field: %#v", ctx)
 			}
+			j += 1
 		}
 	}
-	return strace_types.GroupArg(syzType, args), nil
+	return args
 }
 
 func Parse_UnionType(syzType *prog.UnionType, straceType strace_types.Type, ctx *Context) (prog.Arg, error) {
@@ -241,7 +270,7 @@ func Parse_UnionType(syzType *prog.UnionType, straceType strace_types.Type, ctx 
 			fmt.Printf("Parsing inner call\n")
 			return ParseInnerCall(syzType, strValType, ctx), nil
 		default:
-			Failf("Parsing Union Type but Strace Type is field without inner call\n")
+			return Parse_UnionType(syzType, strType.Val, ctx)
 		}
 	default:
 		idx := IdentifyUnionType(ctx)
@@ -308,6 +337,16 @@ func Parse_BufferType(syzType *prog.BufferType, straceType strace_types.Type, ct
 	case *strace_types.BufferType:
 		arg = strace_types.DataArg(syzType, []byte(a.Val))
 		return arg, nil
+	case *strace_types.Expression:
+		val := a.Eval(ctx.Target)
+		bArr := make([]byte, 8)
+		binary.LittleEndian.PutUint64(bArr, val)
+		return strace_types.DataArg(syzType, bArr), nil
+	case *strace_types.PointerType:
+		val := a.Address
+		bArr := make([]byte, 8)
+		binary.LittleEndian.PutUint64(bArr, val)
+		return strace_types.DataArg(syzType, bArr), nil
 	case *strace_types.Field:
 		return parseArgs(syzType, a.Val, ctx)
 	default:
@@ -323,7 +362,8 @@ func Parse_PtrType(syzType *prog.PtrType, straceType strace_types.Type, ctx *Con
 			return prog.DefaultArg(syzType), nil
 		} else {
 			if a.Res == nil {
-				return GenDefaultArg(syzType.Type, ctx), nil
+				res := GenDefaultArg(syzType.Type, ctx)
+				return addr(ctx, syzType, res.Size(), res)
 			}
 			if res, err := parseArgs(syzType.Type, a.Res, ctx); err != nil {
 				panic(fmt.Sprintf("Error parsing Ptr: %s", err.Error()))
@@ -331,6 +371,10 @@ func Parse_PtrType(syzType *prog.PtrType, straceType strace_types.Type, ctx *Con
 				return addr(ctx, syzType, res.Size(), res)
 			}
 		}
+	case *strace_types.Expression:
+		//Likely have a type of the form bind(3, 0xfffffffff, [3]);
+		res := GenDefaultArg(syzType.Type, ctx)
+		return addr(ctx, syzType, res.Size(), res)
 	default:
 		if res, err := parseArgs(syzType.Type, a, ctx); err != nil {
 			panic(fmt.Sprintf("Error parsing Ptr: %s", err.Error()))
@@ -347,6 +391,8 @@ func Parse_ConstType(syzType prog.Type, straceType strace_types.Type, ctx *Conte
 	switch a := straceType.(type) {
 	case *strace_types.Expression:
 		return strace_types.ConstArg(syzType, a.Eval(ctx.Target)), nil
+	case *strace_types.DynamicType:
+		return strace_types.ConstArg(syzType, a.BeforeCall.Eval(ctx.Target)), nil
 	case *strace_types.ArrayType:
 		/*
 		Sometimes strace represents a pointer to int as [0] which gets parsed
@@ -356,6 +402,14 @@ func Parse_ConstType(syzType prog.Type, straceType strace_types.Type, ctx *Conte
 			panic(fmt.Sprintf("Parsing const type. Got array type with len 0: %#v", ctx))
 		}
 		return Parse_ConstType(syzType, a.Elems[0], ctx)
+	case *strace_types.StructType:
+		/*
+		Sometimes system calls have an int type that is actually a union. Strace will represent the union
+		like a struct e.g.
+		sigev_value={sival_int=-2123636944, sival_ptr=0x7ffd816bdf30}
+		For now we choose the first option
+		 */
+		return Parse_ConstType(syzType, a.Fields[0], ctx)
 	case *strace_types.Field:
 		//We have an argument of the form sin_port=IntType(0)
 		return parseArgs(syzType, a.Val, ctx)
@@ -475,8 +529,10 @@ func GenDefaultArg(syzType prog.Type, ctx *Context) prog.Arg {
 		return strace_types.GroupArg(a, nil)
 	case *prog.ResourceType:
 		return prog.MakeResultArg(syzType, nil, a.Desc.Type.Default())
+	case *prog.VmaType:
+		return prog.DefaultArg(syzType)
 	default:
-		panic("Unsupported Type")
+		panic(fmt.Sprintf("Unsupported Type: %#v", syzType))
 	}
 }
 

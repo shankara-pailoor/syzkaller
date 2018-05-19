@@ -17,6 +17,7 @@ func Preprocess(ctx *Context) {
 
 var PreprocessMap = map[string]PreprocessHook {
 	"accept": Preprocess_Accept,
+	"accept4": Preprocess_Accept,
 	"bind": Preprocess_Bind,
 	"connect": Preprocess_Connect,
 	"fcntl": Preprocess_Fcntl,
@@ -24,6 +25,9 @@ var PreprocessMap = map[string]PreprocessHook {
 	"getsockopt": Preprocess_Getsockopt,
 	"ioctl": Preprocess_Ioctl,
 	"open": Preprocess_Open,
+	"prctl": Preprocess_Prctl,
+	"recvfrom": Preprocess_Recvfrom,
+	"mknod": Preprocess_Mknod,
 	"openat": Preprocess_Openat,
 	"setsockopt": Preprocess_Setsockopt,
 	"socket": Preprocess_Socket,
@@ -135,7 +139,33 @@ func Preprocess_Getsockopt(ctx *Context) {
 
 }
 
+
+
+func Preprocess_Recvfrom(ctx *Context) {
+	suffix := ""
+	straceFd := ctx.CurrentStraceCall.Args[0]
+	syzFd := ctx.CurrentSyzCall.Meta.Args[0]
+	if arg := ctx.Cache.Get(syzFd, straceFd); arg != nil {
+		switch a := arg.Type().(type) {
+		case *prog.ResourceType:
+			if suffix = strace_types.Recvfrom_labels[a.TypeName]; suffix != "" {
+				ctx.CurrentStraceCall.CallName += suffix
+				ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
+			}
+		}
+	}
+}
+
+
+
 func Preprocess_Open(ctx *Context) {
+	if len(ctx.CurrentStraceCall.Args) < 3 {
+		ctx.CurrentStraceCall.Args = append(ctx.CurrentStraceCall.Args,
+			strace_types.NewExpression(strace_types.NewIntType(int64(0))))
+	}
+}
+
+func Preprocess_Mknod(ctx *Context) {
 	if len(ctx.CurrentStraceCall.Args) < 3 {
 		ctx.CurrentStraceCall.Args = append(ctx.CurrentStraceCall.Args,
 			strace_types.NewExpression(strace_types.NewIntType(int64(0))))
@@ -165,6 +195,14 @@ func Preprocess_Fcntl(ctx *Context) {
 		ctx.CurrentStraceCall.CallName += suffix
 	} else if _, ok := ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName + "$" + fcntlCmd]; ok {
 		ctx.CurrentStraceCall.CallName += "$"+fcntlCmd
+	}
+	ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
+}
+
+func Preprocess_Prctl(ctx *Context) {
+	prctlCmd := ctx.CurrentStraceCall.Args[0].String()
+	if _, ok := ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName + "$" + prctlCmd]; ok {
+		ctx.CurrentStraceCall.CallName += "$"+prctlCmd
 	}
 	ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
 }

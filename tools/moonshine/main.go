@@ -37,41 +37,71 @@ func main() {
 	if err != nil {
 		Failf("error getting target: %v", err.Error())
 	} else {
-		traces := LoadTraces()
+		ParseTraces(target, false)
+		pack("serialized", "corpus.db")
+	}
+}
+
+func progIsTooLarge(prog_ *prog.Prog) bool {
+	buff := make([]byte, prog.ExecBufferSize)
+	if err := prog_.SerializeForExec(buff, 0); err != nil {
+		return true
+	}
+	return false
+}
+
+func ParseTraces(target *prog.Target, distill bool) []*prog.Prog {
+	ret := make([]*prog.Prog, 0)
+	names := make([]string, 0)
+	if *flagFile != "" {
+		names = append(names, *flagFile)
+	} else if *flagDir != "" {
+		names = getFileNames(*flagDir)
+	} else {
+		panic("Flag or FlagDir required")
+	}
+	for _, file := range(names) {
+		tree := Parse(file)
+		if tree == nil {
+			fmt.Fprintf(os.Stderr, "File: %s is empty\n", file)
+			continue
+		}
+		progs := ParseTree(tree, tree.RootPid, target)
+		ret = append(ret, progs...)
 		i := 0
-		for _, trace := range(traces) {
-			progs := ParseTree(trace, trace.RootPid, target)
-			for _, prog_ := range(progs) {
+		for _, prog_ := range progs {
+			prog_.Target = target
+			if !distill {
+				if progIsTooLarge(prog_) {
+					continue
+				}
 				i += 1
-				s_name := "serialized/" + filepath.Base(trace.Filename) + strconv.Itoa(i)
+				s_name := "serialized/" + filepath.Base(file) + strconv.Itoa(i)
 				if err := ioutil.WriteFile(s_name, prog_.Serialize(), 0640); err != nil {
 					Failf("failed to output file: %v", err)
 				}
 			}
 		}
-		pack("serialized", "corpus.db")
+
 	}
+	return ret
 }
 
-func LoadTraces() []*strace_types.TraceTree {
-	ret := make([]*strace_types.TraceTree, 0)
-	if *flagFile != "" {
-		ret = append(ret, Parse(*flagFile))
-		return ret
-	} else if *flagDir != "" {
-		if infos, err := ioutil.ReadDir(*flagDir); err == nil {
-			for _, info := range(infos) {
-				file := path.Join(*flagDir, info.Name())
-				ret = append(ret, Parse(file))
-			}
-		} else {
-			Failf("Failed to read dir: %s\n", err.Error())
+func getFileNames(dir string) []string {
+	names := make([]string, 0)
+	if infos, err := ioutil.ReadDir(dir); err == nil {
+		for _, info := range (infos) {
+			name := path.Join(dir, info.Name())
+			names = append(names, name)
 		}
+	} else {
+		Failf("Failed to read dir: %s\n", err.Error())
 	}
-	panic("Flag or FlagDir required")
+	return names
 }
 
 func ParseTree(tree *strace_types.TraceTree, pid int64, target *prog.Target) []*prog.Prog {
+	fmt.Fprintf(os.Stderr, "Parsing tree for file: %s\n", tree.Filename)
 	progs := make([]*prog.Prog, 0)
 	parsedProg, ctx, err := ParseProg(tree.TraceMap[pid], target)
 	if err != nil {
