@@ -75,9 +75,9 @@ syscall:
             $$ = types.NewSyscall($1, "tmp", nil, -1, true, true);
             Stracelex.(*lexer).result = $$;
         }
-    | INT IDENTIFIER RESUMED RPAREN EQUALS INT %prec NOFLAG
+    | INT IDENTIFIER LPAREN RESUMED RPAREN EQUALS INT %prec NOFLAG
         {
-            $$ = types.NewSyscall($1, $2, nil, int64($6), false, false);
+            $$ = types.NewSyscall($1, $2, nil, int64($7), false, false);
             Stracelex.(*lexer).result = $$;
         }
     | INT RESUMED RPAREN EQUALS INT %prec NOFLAG { $$ = types.NewSyscall($1, "tmp", nil, int64($5), false, true);

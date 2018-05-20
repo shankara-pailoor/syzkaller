@@ -32,6 +32,8 @@ func ParseMemoryCall(ctx *Context) *prog.Call {
 		return ParseMlock(syzCall.Meta, straceCall, ctx)
 	} else if straceCall.CallName == "munlock" {
 		return ParseMunlock(syzCall.Meta, straceCall, ctx)
+	} else if straceCall.CallName == "shmat" {
+		return ParseShmat(syzCall.Meta, straceCall, ctx)
 	}
 
 	return nil
@@ -217,6 +219,54 @@ func ParseMunlock(munlock *prog.Syscall, syscall *strace_types.Syscall, ctx *Con
 	return call
 }
 
+func ParseShmat(shmat *prog.Syscall, syscall *strace_types.Syscall, ctx *Context) *prog.Call {
+	/*
+ 	* Shmat will create a shared memory map which we should track.
+ 	* If the second argument is NULL then shmat will create the memory map and
+ 	* store it at that address if successful.
+ 	*/
+
+	shmid := uint64(0)
+	var fd prog.Arg
+
+	call := &prog.Call{
+		Meta: shmat,
+		Ret: strace_types.ReturnArg(shmat.Ret),
+	}
+
+	if arg := ctx.Cache.Get(shmat.Args[0], syscall.Args[0]); arg != nil {
+		fd = strace_types.ResultArg(shmat.Args[0], arg, arg.Type().Default())
+	} else {
+		switch a := syscall.Args[0].(type) {
+		case *strace_types.Expression:
+			shmid = a.Eval(ctx.Target)
+		default:
+			shmid = 0
+		}
+		fd = strace_types.ResultArg(shmat.Args[0], nil, shmid)
+	}
+
+	_, address := ParseAddr(pageSize, shmat.Args[1], syscall.Args[1], ctx)
+	flags := ParseFlags(shmat.Args[2], syscall.Args[2], ctx, false)
+
+	call.Args = []prog.Arg{
+		fd,
+		prog.MakePointerArg(shmat.Args[1], address/pageSize, 0, 1, nil),
+		flags,
+	}
+	//Cache the mapped address since it is a resource type as well
+	call.Ret = prog.MakeReturnArg(shmat.Ret)
+	straceRet :=  strace_types.NewExpression(strace_types.NewIntType(syscall.Ret))
+	ctx.Cache.Cache(call.Ret.Type(), straceRet, call.Ret)
+
+	length := uint64(4096)
+	if req := ctx.State.Tracker.FindShmRequest(shmid); req != nil {
+		length = req.GetSize()
+	}
+	ctx.State.Tracker.CreateMapping(call, len(ctx.Prog.Calls), call.Args[1], address, address + length)
+	return call
+}
+
 
 func ParseAddr(length uint64, syzType prog.Type, straceType strace_types.Type,  ctx *Context) (prog.Arg, uint64){
 	switch a := straceType.(type) {
@@ -225,7 +275,7 @@ func ParseAddr(length uint64, syzType prog.Type, straceType strace_types.Type,  
 		if a.IsNull() {
 			//Anonymous MMAP
 			addrStart = uint64(ctx.CurrentStraceCall.Ret)
-			return prog.MakePointerArg(syzType, addrStart, 0, length/pageSize, nil), addrStart
+			return prog.MakePointerArg(syzType, addrStart/pageSize, 0, length/pageSize, nil), addrStart
 		} else {
 			return prog.MakePointerArg(syzType, a.Address, 0, length/pageSize, nil), a.Address
 		}
@@ -288,5 +338,5 @@ func GetFixedFlag(ctx *Context) uint64 {
 	if callName == "mmap" {
 		return ctx.Target.ConstMap[MapFixed]
 	}
-	return ctx.Target.ConstMap[MapFixed]
+	return ctx.Target.ConstMap[RemapFixed]
 }

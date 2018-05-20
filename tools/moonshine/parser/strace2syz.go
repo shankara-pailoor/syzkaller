@@ -235,6 +235,8 @@ func Parse_StructType(syzType *prog.StructType, straceType strace_types.Type, ct
 		} else {
 			Failf("Error parsing struct field: %#v", ctx)
 		}
+	case *strace_types.Expression:
+		return GenDefaultArg(syzType, ctx), nil
 	default:
 		Failf("Unsupported Strace Type: %#v to Struct Type", a)
 	}

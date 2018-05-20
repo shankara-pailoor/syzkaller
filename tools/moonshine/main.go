@@ -107,18 +107,24 @@ func ParseTree(tree *strace_types.TraceTree, pid int64, target *prog.Target) []*
 	if err != nil {
 		panic("Failed to parse program")
 	} else {
-		ctx.State.Tracker.FillOutMemory(parsedProg)
-		totalMemory := ctx.State.Tracker.GetTotalMemoryAllocations(parsedProg)
-		mmapCall := ctx.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
-		calls := make([]*prog.Call, 0)
-		calls = append(append(calls, mmapCall), parsedProg.Calls...)
-		parsedProg.Calls = calls
+		if err = ctx.State.Tracker.FillOutMemory(parsedProg); err != nil {
+			fmt.Fprintf(os.Stderr, "Out of bounds memory: %s %d\n", tree.Filename, pid)
+			parsedProg = nil
+		} else {
+			totalMemory := ctx.State.Tracker.GetTotalMemoryAllocations(parsedProg)
+			mmapCall := ctx.Target.MakeMmap(0, uint64(totalMemory/pageSize)+1)
+			calls := make([]*prog.Call, 0)
+			calls = append(append(calls, mmapCall), parsedProg.Calls...)
+			parsedProg.Calls = calls
+			if err := parsedProg.Validate(); err != nil {
+				panic(fmt.Sprintf("Error validating program: %s\n", err.Error()))
+			}
+		}
 	}
-	fmt.Printf("Ctx cache: %#v\n", ctx.Cache)
-	if err := parsedProg.Validate(); err != nil {
-		panic(fmt.Sprintf("Error validating program: %s\n", err.Error()))
+	if parsedProg != nil {
+		fmt.Fprintf(os.Stderr, "Appending program: %s %d\n", tree.Filename, pid)
+		progs = append(progs, parsedProg)
 	}
-	progs = append(progs, parsedProg)
 	for _, pid_ := range(tree.Ptree[pid]) {
 		if tree.TraceMap[pid_] != nil{
 			progs = append(progs, ParseTree(tree, pid_, target)...)

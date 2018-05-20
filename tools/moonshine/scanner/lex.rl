@@ -46,7 +46,7 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         identifier = [A-Za-z].[0-9a-z'_'\*\.\-]*;
         resumed = '<... '.identifier+.' resumed>'
                     | '<... '.identifier+.' resumed> ,'
-                    | '<... resuming'.identifier+.'...>';
+                    | '<... resuming'.' '.identifier.' '.identifier.' '.'...>';
         comment := |*
             ((any-"*\/"));
             "*\/" => {fgoto main;};
@@ -63,7 +63,7 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             (['_']?upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
             identifier => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
             unfinished => {tok = UNFINISHED; fbreak;};
-            resumed => {tok = RESUMED; fbreak;};
+            resumed => {fmt.Printf("RESUMED\n"); tok = RESUMED; fbreak;};
             '=' => {tok = EQUALS;fbreak;};
             '==' => {tok = LEQUAL; fbreak;};
             '(' => {tok = LPAREN;fbreak;};
