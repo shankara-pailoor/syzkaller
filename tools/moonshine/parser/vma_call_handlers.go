@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/google/syzkaller/prog"
 	"github.com/google/syzkaller/tools/moonshine/strace_types"
 	"github.com/google/syzkaller/tools/moonshine/tracker"
@@ -44,7 +44,6 @@ func ParseMmap(mmap *prog.Syscall, syscall *strace_types.Syscall, ctx *Context) 
 		Meta: mmap,
 		Ret: strace_types.ReturnArg(mmap.Ret),
 	}
-	fmt.Printf("Call: %v\n", call)
 	length := uint64(0)
 
 	length = ParseLength(syscall.Args[1], ctx)
@@ -104,7 +103,6 @@ func ParseMremap(mremap *prog.Syscall, syscall *strace_types.Syscall, ctx *Conte
 
 
 func ParseMsync(msync *prog.Syscall, syscall *strace_types.Syscall, ctx *Context) *prog.Call {
-	fmt.Printf("MSYNC PARSING\n")
 	call := &prog.Call{
 		Meta: msync,
 		Ret: strace_types.ReturnArg(msync.Ret),
@@ -133,7 +131,6 @@ func ParseMprotect(mprotect *prog.Syscall, syscall *strace_types.Syscall, ctx *C
 	_, address := ParseAddr(pageSize, mprotect.Args[0], syscall.Args[0], ctx)
 	length := ParseLength(syscall.Args[1], ctx)
 	addrArg := prog.MakePointerArg(mprotect.Args[0], address/pageSize, 0, 1, nil)
-	fmt.Printf("MProtect Length: %d\n", length)
 	lengthArg := prog.MakeConstArg(mprotect.Args[1], length)
 	protArg := ParseFlags(mprotect.Args[2], syscall.Args[2], ctx, false)
 	AddDependency(address, length, addrArg, ctx)
@@ -159,7 +156,6 @@ func ParseMunmap(munmap *prog.Syscall, syscall *strace_types.Syscall, ctx *Conte
 		addrArg,
 		lengthArg,
 	}
-	fmt.Printf("Finished parsing Munmap\n")
 	return call
 }
 
@@ -289,8 +285,6 @@ func ParseAddr(length uint64, syzType prog.Type, straceType strace_types.Type,  
 
 func AddDependency(start, length uint64, addr prog.Arg, ctx *Context) {
 	if mapping := ctx.State.Tracker.FindLatestOverlappingVMA(start); mapping != nil {
-		fmt.Printf("Found mapping: %v\n", mapping)
-
 		dep := tracker.NewMemDependency(len(ctx.Prog.Calls), addr, start, start+length)
 		mapping.AddDependency(dep)
 	}

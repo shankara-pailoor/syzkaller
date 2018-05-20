@@ -3,6 +3,8 @@ package parser
 import (
 	"github.com/google/syzkaller/tools/moonshine/strace_types"
 	"github.com/google/syzkaller/prog"
+	. "github.com/google/syzkaller/tools/moonshine/logging"
+	"fmt"
 )
 
 type PreprocessHook func(ctx *Context)
@@ -28,8 +30,11 @@ var PreprocessMap = map[string]PreprocessHook {
 	"prctl": Preprocess_Prctl,
 	"recvfrom": Preprocess_Recvfrom,
 	"mknod": Preprocess_Mknod,
+	"modify_ldt": Preprocess_ModifyLdt,
 	"openat": Preprocess_Openat,
+	"sendto": Preprocess_Sendto,
 	"setsockopt": Preprocess_Setsockopt,
+	"shmctl": Preprocess_Shmctl,
 	"socket": Preprocess_Socket,
 }
 
@@ -204,5 +209,50 @@ func Preprocess_Prctl(ctx *Context) {
 	if _, ok := ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName + "$" + prctlCmd]; ok {
 		ctx.CurrentStraceCall.CallName += "$"+prctlCmd
 	}
+	ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
+}
+
+func Preprocess_Shmctl(ctx *Context) {
+	shmctlCmd := ctx.CurrentStraceCall.Args[1].String()
+	if _, ok := ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName + "$" + shmctlCmd]; ok {
+		ctx.CurrentStraceCall.CallName += "$"+shmctlCmd
+	}
+	ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
+}
+
+func Preprocess_Sendto(ctx *Context) {
+	suffix := ""
+	straceFd := ctx.CurrentStraceCall.Args[0] //File descriptor of Accept
+	syzFd := ctx.CurrentSyzCall.Meta.Args[0]
+	if arg := ctx.Cache.Get(syzFd, straceFd); arg != nil {
+		switch a := arg.Type().(type) {
+		case *prog.ResourceType:
+			if suffix = strace_types.Sendto_labels[a.TypeName]; suffix != "" {
+				ctx.CurrentStraceCall.CallName += suffix
+				ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
+			}
+		}
+	}
+}
+
+func Preprocess_ModifyLdt(ctx *Context) {
+	suffix := ""
+	fmt.Printf("PREPROCESS MODIFY LDT\n")
+	switch a := ctx.CurrentStraceCall.Args[0].(type) {
+	case *strace_types.Expression:
+		switch a.Eval(ctx.Target) {
+		case 0:
+			suffix = "$read"
+		case 1:
+			suffix = "$write"
+		case 2:
+			suffix = "$read_default"
+		case 17:
+			suffix = "$write2"
+		}
+	default:
+		Failf("Preprocess modifyldt received unexpected strace type: %s\n", a.Name())
+	}
+	ctx.CurrentStraceCall.CallName = ctx.CurrentStraceCall.CallName + suffix
 	ctx.CurrentSyzCall.Meta = ctx.Target.SyscallMap[ctx.CurrentStraceCall.CallName]
 }

@@ -82,14 +82,6 @@ func (tree *TraceTree) String() string {
 
 	buf.WriteString(fmt.Sprintf("Root: %d\n", tree.RootPid))
 	buf.WriteString(fmt.Sprintf("Pids: %d\n", len(tree.TraceMap)))
-	for pid, arr := range tree.Ptree {
-		trace := tree.TraceMap[pid]
-		for _, call := range trace.Calls {
-			fmt.Printf("Call: %s, Cover: %d\n", call.CallName, len(call.Cover))
-		}
-		fmt.Printf("Pid: %d\n", pid)
-		fmt.Printf("Children: %v\n", arr)
-	}
 	return buf.String()
 }
 
@@ -577,20 +569,20 @@ func (a *ArrayType) String() string {
 }
 
 
-type Ipv4Type struct {
+type IpType struct {
 	Str string
 }
 
-func NewIpv4Type(val string) (typ *Ipv4Type) {
-	typ = new(Ipv4Type)
+func NewIpType(val string) (typ *IpType) {
+	typ = new(IpType)
 	typ.Str = val
 	return
 }
 
-func (i *Ipv4Type) Name() string {
-	return Strace_Ipv4Type
+func (i *IpType) Name() string {
+	return "Ip Type"
 }
 
-func (i *Ipv4Type) String() string {
-	return fmt.Sprintf("Ipv4 type :%s", i.Str)
+func (i *IpType) String() string {
+	return fmt.Sprintf("Ip type :%s", i.Str)
 }

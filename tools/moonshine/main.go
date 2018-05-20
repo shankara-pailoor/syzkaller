@@ -61,6 +61,7 @@ func ParseTraces(target *prog.Target, distill bool) []*prog.Prog {
 		panic("Flag or FlagDir required")
 	}
 	for _, file := range(names) {
+		fmt.Printf("Scanning file: %s\n", file)
 		tree := Parse(file)
 		if tree == nil {
 			fmt.Fprintf(os.Stderr, "File: %s is empty\n", file)
@@ -73,6 +74,7 @@ func ParseTraces(target *prog.Target, distill bool) []*prog.Prog {
 			prog_.Target = target
 			if !distill {
 				if progIsTooLarge(prog_) {
+					fmt.Fprintln(os.Stderr, "Prog is too large\n")
 					continue
 				}
 				i += 1

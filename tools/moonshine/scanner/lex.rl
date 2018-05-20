@@ -47,6 +47,8 @@ func (lex *lexer) Lex(out *StraceSymType) int {
         resumed = '<... '.identifier+.' resumed>'
                     | '<... '.identifier+.' resumed> ,'
                     | '<... resuming'.' '.identifier.' '.identifier.' '.'...>';
+        ipv4 = '\"'.digit{1,4}.'\.'.digit{1,4}.'\.'digit{1,4}.'\.'.digit{1,4}'\"';
+        ipv6 = '\"'.':'.':'.'\"' | '\"'.':'.':'.digit.'\"';
         comment := |*
             ((any-"*\/"));
             "*\/" => {fgoto main;};
@@ -57,16 +59,18 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             [+\-]?digit . '.' . digit* => {out.val_double, _ = strconv.ParseFloat(string(lex.data[lex.ts : lex.te]), 64); tok= DOUBLE; fbreak;};
             [0].[0-7]* => {out.val_int, _ = strconv.ParseInt(string(lex.data[lex.ts : lex.te]), 8, 64); tok = INT; fbreak;};
             '0x'xdigit+ => {out.val_uint, _ = strconv.ParseUint(string(lex.data[lex.ts:lex.te]), 0, 64); tok = UINT;fbreak;};
-            '\"'.digit{1,4}.'\.'.digit{1,4}.'\.'digit{1,4}.'\.'.digit{1,4}'\"' => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
+            ipv4 => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV4; fbreak;};
+            ipv6 => {out.data = string(lex.data[lex.ts+1:lex.te-1]); tok=IPV6; fbreak;};
             '\"'.[0-9a-zA-Z\/\\\*]*.'\"'.['.']* => {out.data = ParseString(string(lex.data[lex.ts+1:lex.te-1])); tok = STRING_LITERAL;fbreak;};
             nullptr => {tok = NULL; fbreak;};
-            (['_']?upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
+            (['_']+?upper+ . ['_'A-Z0-9]+)-nullptr => {out.data = string(lex.data[lex.ts:lex.te]); tok = FLAG;fbreak;};
             identifier => {out.data = string(lex.data[lex.ts:lex.te]); tok = IDENTIFIER;fbreak;};
             unfinished => {tok = UNFINISHED; fbreak;};
-            resumed => {fmt.Printf("RESUMED\n"); tok = RESUMED; fbreak;};
+            resumed => {tok = RESUMED; fbreak;};
             '=' => {tok = EQUALS;fbreak;};
             '==' => {tok = LEQUAL; fbreak;};
             '(' => {tok = LPAREN;fbreak;};
+            '@' => {tok = AT; fbreak;};
             ')' => {tok = RPAREN;fbreak;};
             '[' => {tok = LBRACKET_SQUARE;fbreak;};
             ']' => {tok = RBRACKET_SQUARE;fbreak;};
@@ -74,9 +78,12 @@ func (lex *lexer) Lex(out *StraceSymType) int {
             '{' => {tok = LBRACKET;fbreak;};
             '}' => {tok = RBRACKET;fbreak;};
             '|' => {tok = OR;fbreak;};
+            ':' => {tok = COLON; fbreak;};
             '&' => {tok = AND;fbreak;};
             '!' => {tok = NOT;fbreak;};
             '~' => {tok = ONESCOMP; fbreak;};
+            '<<' => {tok = LSHIFT; fbreak;};
+            '>>' => {tok = RSHIFT; fbreak;};
             '->' => {tok = ARROW; fbreak;};
             "||" => {tok = LOR;fbreak;};
             "&&" => {tok = LAND;fbreak;};
@@ -106,7 +113,6 @@ func ParseString(s string) string{
 	strippedStr = strings.Replace(strippedStr, `"`, "", -1)
 	if len(strippedStr) % 2 > 0 {
 	    strippedStr += "0"
-	    fmt.Printf("stripped string: %d\n", len(strippedStr))
 	}
 	if decoded, err = hex.DecodeString(strippedStr); err != nil {
 		panic(fmt.Sprintf("Failed to decode string: %s, with error: %s\n", s, err.Error()))

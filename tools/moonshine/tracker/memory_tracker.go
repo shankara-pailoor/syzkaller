@@ -152,7 +152,6 @@ func (m *MemoryTracker) FindLatestOverlappingVMA(start uint64) *VirtualMapping {
 	var ret *VirtualMapping = nil
 	for _, mapping := range m.mappings {
 		mapCopy := mapping
-		fmt.Printf("matching Mapping: %v\n", mapping)
 
 		if mapping.start <= start && mapping.end >= start {
 			ret = mapCopy
@@ -215,19 +214,13 @@ func (m *MemoryTracker) FillOutMemory(prog *Prog) error {
 			}
 		}
 	}
-	fmt.Printf("offset: %d\n", offset)
 
 	offset = ((offset/PageSize) + 1)*PageSize
 	for _, mapping := range m.mappings {
-		fmt.Printf("Mapping start: %d, end: %d\n", mapping.GetStart(), mapping.GetEnd())
-		fmt.Printf("NUM MAPGES USED: %d\n", (mapping.GetEnd() - mapping.GetStart())/PageSize)
 		for _, dep := range mapping.usedBy {
 			switch arg_ := dep.arg.(type) {
 			case *PointerArg:
-				fmt.Printf("ARG TYPE: %s\n", arg_.Type().Name())
-				fmt.Printf("Page idx: %d\n", uint64((offset + dep.start - mapping.start)/PageSize))
 				numPages := (dep.end - dep.start)/PageSize
-				fmt.Printf("NUM PAGES: %d\n", numPages)
 				if numPages == 0 {
 					numPages = 1
 				}

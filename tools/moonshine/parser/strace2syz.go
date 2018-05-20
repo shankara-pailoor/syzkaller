@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/rand"
 	"encoding/binary"
+	"strings"
 )
 
 type returnCache map[ResourceDescription]prog.Arg
@@ -18,7 +19,6 @@ func NewRCache() returnCache{
 }
 
 func (r *returnCache) Cache(SyzType prog.Type, StraceType strace_types.Type, arg prog.Arg) {
-	fmt.Printf("Caching Val: %s\n", StraceType.String())
 	resDesc := ResourceDescription{
 		Type: strace_types.GetSyzType(SyzType),
 		Val: StraceType.String(),
@@ -31,10 +31,8 @@ func (r *returnCache) Get(SyzType prog.Type, StraceType strace_types.Type) prog.
 		Type: strace_types.GetSyzType(SyzType),
 		Val: StraceType.String(),
 	}
-	fmt.Printf("Getting cache value with str: %s\n", StraceType.String())
 	if arg, ok := (*r)[resDesc]; ok {
 		if arg != nil {
-			fmt.Printf("Hit cache value\n")
 			return arg
 		}
 	}
@@ -109,18 +107,18 @@ func parseCall(ctx *Context) (*prog.Call, error) {
 		//but no generic fcntl system call in Syzkaller
 		return nil, nil
 	}
-	fmt.Printf("PARSING CALL: %s\n", ctx.CurrentSyzCall.Meta.CallName)
 	retCall.Ret = strace_types.ReturnArg(ctx.CurrentSyzCall.Meta.Ret)
 
 	if call := ParseMemoryCall(ctx); call != nil {
 		return call, nil
 	}
+	fmt.Printf("Parsing Call: %s\n", ctx.CurrentSyzCall.Meta.Name)
 	if len(retCall.Meta.Args) != len(straceCall.Args) {
 		fmt.Printf("syzkaller system call: " +
 			"%s has %d arguments strace call: " +
 			"%s has %d arguments",
-			syzCallDef.CallName,
-			len(syzCallDef.Args),
+			retCall.Meta.CallName,
+			len(retCall.Meta.Args),
 			straceCall.CallName,
 			len(straceCall.Args))
 	}
@@ -143,12 +141,10 @@ func parseCall(ctx *Context) (*prog.Call, error) {
 
 func parseResult(syzType prog.Type, straceRet int64, ctx *Context) {
 	if straceRet > 0 {
-		fmt.Printf("Parsing result\n")
 		//TODO: This is a hack NEED to refacto lexer to parser return values into strace types
 		straceExpr := strace_types.NewExpression(strace_types.NewIntType(straceRet))
 		switch syzType.(type) {
 		case *prog.ResourceType:
-			fmt.Printf("Caching Ret: %d\n", straceRet)
 			ctx.Cache.Cache(syzType, straceExpr, ctx.CurrentSyzCall.Ret)
 		}
 	}
@@ -219,28 +215,28 @@ func Parse_ArrayType(syzType *prog.ArrayType, straceType strace_types.Type, ctx 
 }
 
 func Parse_StructType(syzType *prog.StructType, straceType strace_types.Type, ctx *Context) (prog.Arg, error) {
-	fmt.Printf("Parsing struct type: %#v\n", syzType)
 	args := make([]prog.Arg, 0)
 	switch a := straceType.(type) {
 	case *strace_types.StructType:
+		reorderStructFields(syzType, a)
 		args = append(args, evalFields(syzType.Fields, a.Fields, ctx)...)
 	case *strace_types.ArrayType:
 		//Syzkaller's pipe definition expects a pipefd struct
 		//But strace returns an array type
 		args = append(args, evalFields(syzType.Fields, a.Elems, ctx)...)
 	case *strace_types.Field:
-		fmt.Printf("Parsing Strace Field: %#v\n",  a)
 		if arg, err := parseArgs(syzType, a.Val, ctx); err == nil {
 			return arg, nil
 		} else {
 			Failf("Error parsing struct field: %#v", ctx)
 		}
+	case *strace_types.Call:
+		args = append(args, ParseInnerCall(syzType, a, ctx))
 	case *strace_types.Expression:
 		return GenDefaultArg(syzType, ctx), nil
 	default:
 		Failf("Unsupported Strace Type: %#v to Struct Type", a)
 	}
-	fmt.Printf("Struct Type args: %p %#v\n", args, args)
 	return strace_types.GroupArg(syzType, args), nil
 }
 
@@ -269,11 +265,12 @@ func Parse_UnionType(syzType *prog.UnionType, straceType strace_types.Type, ctx 
 	case *strace_types.Field:
 		switch strValType := strType.Val.(type) {
 		case *strace_types.Call:
-			fmt.Printf("Parsing inner call\n")
 			return ParseInnerCall(syzType, strValType, ctx), nil
 		default:
 			return Parse_UnionType(syzType, strType.Val, ctx)
 		}
+	case *strace_types.Call:
+		return ParseInnerCall(syzType, strType, ctx), nil
 	default:
 		idx := IdentifyUnionType(ctx)
 		innerType := syzType.Fields[idx]
@@ -289,7 +286,7 @@ func Parse_UnionType(syzType *prog.UnionType, straceType strace_types.Type, ctx 
 
 func IdentifyUnionType(ctx *Context) int {
 	switch ctx.CurrentStraceCall.CallName {
-	case "bind", "connect":
+	case "bind", "connect", "recvmsg", "sendmsg":
 		return IdentifyBindConnectUnionType(ctx)
 	default:
 		return 0
@@ -301,15 +298,15 @@ func IdentifyBindConnectUnionType(ctx *Context) int {
 	switch strType := call.Args[1].(type) {
 	case *strace_types.StructType:
 		for i := range strType.Fields {
-			switch strType.Fields[i].String() {
-			case "AF_INET":
+			fieldStr := strType.Fields[i].String()
+			if strings.Contains(fieldStr, "AF_INET") {
 				return 1
-			case "AF_UNIX":
-				return 0
-			case "AF_INET6":
+			} else if strings.Contains(fieldStr, "AF_INET6") {
 				return 4
-			default:
-				return -1
+			} else if strings.Contains(fieldStr, "AF_UNIX") {
+				return 0
+			} else if strings.Contains(fieldStr, "AF_NETLINK") {
+				return 5
 			}
 		}
 	default:
@@ -329,8 +326,18 @@ func Parse_BufferType(syzType *prog.BufferType, straceType strace_types.Type, ct
 			max := rand.Intn(int(syzType.RangeEnd)-int(syzType.RangeBegin)+1)
 			size := max + int(syzType.RangeBegin)
 			arg = strace_types.DataArg(syzType, make([]byte, size))
+		case prog.BufferFilename, prog.BufferString:
+			switch a := straceType.(type) {
+			case *strace_types.BufferType:
+				buffer := make([]byte, len([]byte(a.Val)))
+				return strace_types.DataArg(syzType, buffer), nil
+			case *strace_types.Field:
+				return Parse_BufferType(syzType, a.Val, ctx)
+			default:
+				Failf("Err filling out dirOut for buffer type. Strace type is not buffer type: %s\n", a.Name())
+			}
 		default:
-			panic(fmt.Sprintf("unexpected buffer type. call %v arg %v", ctx.CurrentSyzCall, straceType))
+			panic(fmt.Sprintf("unexpected buffer type kind: %v. call %v arg %v", syzType.Kind, ctx.CurrentSyzCall, straceType))
 		}
 		return arg, nil
 	}
@@ -349,10 +356,12 @@ func Parse_BufferType(syzType *prog.BufferType, straceType strace_types.Type, ct
 		bArr := make([]byte, 8)
 		binary.LittleEndian.PutUint64(bArr, val)
 		return strace_types.DataArg(syzType, bArr), nil
+	case *strace_types.StructType:
+		return GenDefaultArg(syzType, ctx), nil
 	case *strace_types.Field:
 		return parseArgs(syzType, a.Val, ctx)
 	default:
-		Failf("Cannot parse type %s for Buffer Type\n", straceType.String())
+		Failf("Cannot parse type %#v for Buffer Type\n", straceType)
 	}
 	return nil, nil
 }
@@ -539,8 +548,26 @@ func GenDefaultArg(syzType prog.Type, ctx *Context) prog.Arg {
 }
 
 func addr(ctx *Context, syzTyp prog.Type, size uint64, data prog.Arg) (prog.Arg, error) {
-	fmt.Printf("Adding address of size: %d\n", size)
 	arg := strace_types.PointerArg(syzTyp, uint64(0), 0, 0, data)
 	ctx.State.Tracker.AddAllocation(ctx.CurrentSyzCall, size, arg)
 	return arg, nil
+}
+
+func reorderStructFields(syzType *prog.StructType, straceType *strace_types.StructType) {
+	/*
+	Sometimes strace reports struct fields out of order compared to Syzkaller.
+	Example: 5704  bind(3, {sa_family=AF_INET6,
+				sin6_port=htons(8888),
+				inet_pton(AF_INET6, "::", &sin6_addr),
+				sin6_flowinfo=htonl(2206138368),
+				sin6_scope_id=2049825634}, 128) = 0
+	The flow_info and pton fields are switched in Syzkaller
+	 */
+	switch syzType.TypeName {
+	case "sockaddr_in6":
+		field2 := straceType.Fields[2]
+		straceType.Fields[2] = straceType.Fields[3]
+		straceType.Fields[3] = field2
+	}
+	return
 }

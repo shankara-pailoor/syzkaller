@@ -2,7 +2,6 @@
 package scanner
 
 import (
-    "fmt"
     types "github.com/google/syzkaller/tools/moonshine/strace_types"
 )
 %}
@@ -27,13 +26,13 @@ import (
     val_flag_type *types.FlagType
     val_expr_type *types.Expression
     val_type types.Type
-    val_ipv4_type *types.Ipv4Type
+    val_ip_type *types.IpType
     val_types []types.Type
     val_parenthetical *types.Parenthetical
     val_syscall *types.Syscall
 }
 
-%token <data> STRING_LITERAL IPV4 IDENTIFIER FLAG DATETIME SIGNAL_PLUS SIGNAL_MINUS
+%token <data> STRING_LITERAL IPV4 IPV6 IDENTIFIER FLAG DATETIME SIGNAL_PLUS SIGNAL_MINUS
 %token <val_int> INT
 %token <val_uint> UINT
 %token <val_double> DOUBLE
@@ -47,22 +46,31 @@ import (
 %type <val_flag_type> flag_type
 %type <val_expr_type> expr_type
 %type <val_call> call_type
-%type <val_parenthetical> parenthetical
+%type <val_parenthetical> parenthetical, parentheticals
 %type <val_macro> macro_type
 %type <val_type> type
 %type <val_pointer_type> pointer_type
-%type <val_ipv4_type> ipv4_type
+%type <val_ip_type> ip_type
 %type <val_types> types
 %type <val_syscall> syscall
 
-%token STRING_LITERAL IPV4 IDENTIFIER FLAG INT UINT QUESTION DOUBLE ARROW
+%token STRING_LITERAL IPV4 IPV6 IDENTIFIER FLAG INT UINT QUESTION DOUBLE ARROW
 %token OR AND LOR TIMES LAND LEQUAL ONESCOMP LSHIFT RSHIFT TIMES NOT
 %token COMMA LBRACKET RBRACKET LBRACKET_SQUARE RBRACKET_SQUARE LPAREN RPAREN EQUALS
 %token UNFINISHED RESUMED
-%token SIGNAL_PLUS SIGNAL_MINUS NULL
+%token SIGNAL_PLUS SIGNAL_MINUS NULL AT COLON
 
 %nonassoc FLAG
 %nonassoc NOFLAG
+
+%left LOR
+%left LAND
+%left OR
+%left AND
+%left LEQUAL
+%left LSHIFT RSHIFT
+%left TIMES
+%left ONESCOMP
 
 %%
 syscall:
@@ -111,26 +119,35 @@ syscall:
     | INT IDENTIFIER LPAREN types RPAREN EQUALS QUESTION %prec NOFLAG {
                                                             $$ = types.NewSyscall($1, $2, $4, -1, false, false);
                                                             Stracelex.(*lexer).result = $$;}
-    | INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN parenthetical RPAREN {
+    | INT IDENTIFIER LPAREN types RPAREN EQUALS INT FLAG LPAREN parentheticals RPAREN {
                                                               $$ = types.NewSyscall($1, $2, $4, $7, false, false);
                                                               Stracelex.(*lexer).result = $$;}
-    | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN parenthetical RPAREN {
+    | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT FLAG LPAREN parentheticals RPAREN {
                                                               $$ = types.NewSyscall($1, $2, $4, int64($7), false, false);
                                                               Stracelex.(*lexer).result = $$;}
-    | INT IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN parenthetical RPAREN {
+    | INT IDENTIFIER LPAREN types RPAREN EQUALS INT LPAREN parentheticals RPAREN {
                                                                   $$ = types.NewSyscall($1, $2, $4, $7, false, false);
                                                                   Stracelex.(*lexer).result = $$;}
-    | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN parenthetical RPAREN {
+    | INT IDENTIFIER LPAREN types RPAREN EQUALS UINT LPAREN parentheticals RPAREN {
                                                                   $$ = types.NewSyscall($1, $2, $4, int64($7), false, false);
                                                                   Stracelex.(*lexer).result = $$;}
 
+parentheticals:
+    parenthetical {$$ = types.NewParenthetical();}
+    | parentheticals parenthetical {$$ = types.NewParenthetical();}
 
 parenthetical:
-    identifiers {$$ = types.NewParenthetical();}
+    COMMA {$$=types.NewParenthetical();}
+    | OR {$$ = types.NewParenthetical();}
+    | AND {$$ = types.NewParenthetical();}
+    | LSHIFT {$$ = types.NewParenthetical();}
+    | RSHIFT {$$ = types.NewParenthetical();}
+    | IDENTIFIER {$$ = types.NewParenthetical();}
     | struct_type {$$ = types.NewParenthetical();}
     | array_type {$$ = types.NewParenthetical();}
-    | expr_type {$$ = types.NewParenthetical();}
-    | identifiers expr_type {$$ = types.NewParenthetical();}
+    | flag_type {$$ = types.NewParenthetical();}
+    | int_type {$$ = types.NewParenthetical();}
+
 
 types:
     type {types := make([]types.Type, 0); types = append(types, $1); $$ = types;}
@@ -147,20 +164,21 @@ type:
     | struct_type {$$ = $1}
     | dynamic_type {$$ = $1}
     | call_type {$$ = $1}
-    | ipv4_type {$$ = $1}
+    | ip_type {$$ = $1}
 
 dynamic_type:
-    expr_type ARROW type {fmt.Printf("DYNAMIC TYPE\n"); $$ = types.NewDynamicType($1, $3)}
+    expr_type ARROW type {$$ = types.NewDynamicType($1, $3)}
 
 call_type:
-    IDENTIFIER LPAREN types RPAREN {fmt.Printf("Call Type\n"); $$ = types.NewCallType($1, $3)}
+    IDENTIFIER LPAREN types RPAREN {$$ = types.NewCallType($1, $3)}
 
 macro_type:
-    FLAG LPAREN types RPAREN {fmt.Printf("Macro Type\n"); $$ = types.NewMacroType($1, $3)}
-    | FLAG LPAREN identifiers RPAREN {fmt.Printf("Macro Type\n"); $$ = types.NewMacroType($1, nil)}
+    FLAG LPAREN types RPAREN {$$ = types.NewMacroType($1, $3)}
+    | FLAG LPAREN identifiers RPAREN {$$ = types.NewMacroType($1, nil)}
 
 pointer_type:
-    AND UINT EQUALS type {$$ = types.NewPointerType($2, $4)}
+    AND IDENTIFIER {$$ = types.NullPointer()}
+    | AND UINT EQUALS type {$$ = types.NewPointerType($2, $4)}
     | NULL {$$ = types.NullPointer()}
 
 array_type:
@@ -172,6 +190,8 @@ struct_type:
 
 field_type:
     IDENTIFIER EQUALS type {$$ = types.NewField($1, $3);}
+    | IDENTIFIER COLON type {$$ = types.NewField($1, $3);}
+    | IDENTIFIER EQUALS AT type {$$ = types.NewField($1, $4);}
 
 buf_type:
     STRING_LITERAL {$$ = types.NewBufferType($1)}
@@ -182,7 +202,6 @@ expr_type:
     | LBRACKET_SQUARE FLAG FLAG RBRACKET_SQUARE {
                 expr1 := types.NewExpression(types.NewFlagType($2));
                 expr2 := types.NewExpression(types.NewFlagType($3));
-                fmt.Printf("HAVE EXPR1 EXPR2\n");
                 bs := types.NewBinarySet(expr1, expr2)
                 $$=types.NewExpression(bs);}
     | int_type {$$ = types.NewExpression($1);}
@@ -221,8 +240,9 @@ int_type:
 flag_type:
       FLAG {$$ = types.NewFlagType($1)}
 
-ipv4_type:
-    IPV4 {$$ = types.NewIpv4Type($1)}
+ip_type:
+    IPV4 {$$ = types.NewIpType($1)}
+    | IPV6 {$$ = types.NewIpType($1)}
 
 identifiers:
     IDENTIFIER {ids := make([]*types.BufferType, 0); ids = append(ids, types.NewBufferType($1)); $$ = ids}

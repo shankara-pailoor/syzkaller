@@ -1,10 +1,6 @@
 package strace_types
 
 import (
-	"strings"
-	"strconv"
-	"regexp"
-	"fmt"
 	"github.com/google/syzkaller/prog"
 )
 
@@ -103,10 +99,6 @@ var (
 		"AF_INET": "$inet",
 		"AF_INET6": "$inet6",
 		"sock_packet": "$packet",
-	}
-
-	Structs_with_reordered_fields = map[string][]int {
-		"sockaddr_in6": {0, 1, 3, 2, 4},
 	}
 
 	Connect_labels = map[string]string {
@@ -653,6 +645,8 @@ var (
 		"RLIM64_INFINITY": ^uint64(0),
 		"CLOCK_REALTIME_ALARM": uint64(8),
 		"CLOCK_BOOTTIME_ALARM": uint64(9),
+		"PERF_ATTR_SIZE_VER5": uint64(112),
+		"PERF_ATTR_SIZE_VER4": uint64(104),
 		"PERF_ATTR_SIZE_VER3": uint64(96),
 		"PERF_ATTR_SIZE_VER2": uint64(80),
 		"PERF_ATTR_SIZE_VER1": uint64(72),
@@ -678,80 +672,63 @@ var (
 		"PERF_COUNT_SW_EMULATION_FAULTS": uint64(8),
 		"FUTEX_WAIT_PRIVATE": uint64(128),
 		"FUTEX_WAKE_PRIVATE": uint64(129),
+		"FUTEX_WAIT_REQUEUE_PI_PRIVATE":  uint64(139),
+		"FUTEX_UNLOCK_PI_PRIVATE": uint64(135),
+		"FUTEX_CMP_REQUEUE_PI_PRIVATE": uint64(140),
 		"MCL_ONFAULT": uint64(32768),
+		"CAP_CHOWN": uint64(0),
+		"CAP_DAC_OVERRIDE": uint64(1),
+		"CAP_DAC_READ_SEARCH": uint64(2),
+		"CAP_FOWNER": uint64(3),
+		"CAP_FSETID": uint64(4),
+		"CAP_KILL": uint64(5),
+		"CAP_SETGID": uint64(6),
+		"CAP_SETUID": uint64(7),
+		"CAP_SETPCAP": uint64(8),
+		"CAP_LINUX_IMMUTABLE": uint64(9),
+		"CAP_NET_BIND_SERVICE": uint64(10),
+		"CAP_NET_BROADCAST": uint64(11),
+		"CAP_NET_ADMIN": uint64(12),
+		"CAP_NET_RAW": uint64(13),
+		"CAP_IPC_LOCK": uint64(14),
+		"CAP_IPC_OWNER": uint64(15),
+		"CAP_SYS_MODULE": uint64(16),
+		"CAP_SYS_RAWIO": uint64(17),
+		"CAP_SYS_CHROOT": uint64(18),
+		"CAP_SYS_PTRACE": uint64(19),
+		"CAP_SYS_PACCT": uint64(20),
+		"CAP_SYS_ADMIN": uint64(21),
+		"CAP_SYS_BOOT" : uint64(22),
+		"CAP_SYS_NICE" : uint64(23),
+		"CAP_SYS_RESOURCE": uint64(24),
+		"CAP_SYS_TIME": uint64(25),
+		"CAP_SYS_TTY_CONFIG": uint64(26),
+		"CAP_MKNOD": uint64(27),
+		"CAP_LEASE": uint64(28),
+		"CAP_AUDIT_WRITE": uint64(29),
+		"CAP_AUDIT_CONTROL": uint64(30),
+		"CAP_SETFCAP": uint64(31),
+		"FALLOC_FL_COLLAPSE_RANGE": uint64(0x08),
+		"FALLOC_FL_ZERO_RANGE": uint64(0x10),
+		"FALLOC_FL_INSERT_RANGE": uint64(0x20),
+		"FALLOC_FL_UNSHARE_RANGE": uint64(0x40),
+		"MEMBARRIER_CMD_QUERY": uint64(0),
+		"MEMBARRIER_CMD_GLOBAL": uint64(1 << 0),
+		"MEMBARRIER_CMD_GLOBAL_EXPEDITED": uint64(1 << 1),
+		"MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED": uint64(1 << 2),
+		"MEMBARRIER_CMD_PRIVATE_EXPEDITED": uint64(1 << 3),
+		"MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED": uint64(1 << 4),
+		"MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE": uint64(1 << 5),
+		"MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE": uint64(1 << 6),
+		"MEMBARRIER_CMD_SHARED": uint64(1 << 0),
+		"SIGUSR2": 31,
 		"R_OK": uint64(4),
 		"W_OK": uint64(2),
 		"X_OK": uint64(1),
 		"F_OK": uint64(0),
 	}
 
-	Macros = []string{"makedev"}
-
-	MacroExpand_map = map[string]func(string)string {
-		"makedev": MakeDev,
-	}
 )
-
-func Inet_addr(ipaddr string) uint32 {
-	var (
-		ip                 = strings.Split(ipaddr, ".")
-		ip1, ip2, ip3, ip4 uint64
-		ret                uint32
-	)
-	ip1, _ = strconv.ParseUint(ip[0], 10, 8)
-	ip2, _ = strconv.ParseUint(ip[1], 10, 8)
-	ip3, _ = strconv.ParseUint(ip[2], 10, 8)
-	ip4, _ = strconv.ParseUint(ip[3], 10, 8)
-	ret = uint32(ip4)<<24 + uint32(ip3)<<16 + uint32(ip2)<<8 + uint32(ip1)
-	return ret
-}
-
-func Htons(port uint16) uint16 {
-	var (
-		lowbyte  uint8  = uint8(port)
-		highbyte uint8  = uint8(port >> 8)
-		ret      uint16 = uint16(lowbyte)<<8 + uint16(highbyte)
-	)
-	return ret
-}
-
-
-func Htonl(port uint32) uint32 {
-	var (
-		byte1  uint8  = uint8(port)
-		byte2  uint8  = uint8(port >> 8)
-		byte3  uint8  = uint8(port >> 16)
-		byte4  uint8  = uint8(port >> 24)
-		ret    uint32 = uint32(byte1)<<24 + uint32(byte2)<<16 + uint32(byte3)<<8 + uint32(byte4)
-	)
-	return ret
-}
-
-
-
-
-func MakeDev(macro string) string {
-	var major, minor, id int64
-	var err error
-	deviceIds := regexp.MustCompile("[0-9]+").FindAllString(macro, 2) //mknod should only have 2 values
-	fmt.Printf("device Ids: %v\n", deviceIds)
-	if len(deviceIds) != 2 {
-		return macro
-	}
-
-	if major, err = strconv.ParseInt(deviceIds[0], 0, 64); err != nil {
-		return macro
-	}
-
-	if minor, err = strconv.ParseInt(deviceIds[1], 0, 64); err != nil {
-		return macro
-	}
-
-	id = ((minor & 0xff) | ((major & 0xfff) << 8) |  ((minor & ^0xff) << 12) | ((major & ^0xfff) << 32))
-
-	fmt.Printf("id: %d\n", id)
-	return strconv.FormatInt(id, 10)
-}
 
 func commonArg(t prog.Type) prog.ArgCommon {
 	common := prog.ArgCommon{}
@@ -803,7 +780,6 @@ func ReturnArg(t prog.Type) prog.Arg {
 func GetSyzType(typ prog.Type) string {
 	switch a := typ.(type) {
 	case *prog.ResourceType:
-		fmt.Printf("Resource Kind: %s %s", a.Desc.Kind[0], a.TypeName)
 		return "ResourceType-" + a.Desc.Kind[0]
 	case *prog.BufferType:
 		return "BufferType"
